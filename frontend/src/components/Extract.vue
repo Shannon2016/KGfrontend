@@ -142,7 +142,11 @@
         //上传的文件列表
         fileList: [],
         //表格数据，文书列表
-        tableData: []
+        tableData: [],
+        //选中行
+        choosenRow:{},
+        //三元组数据
+        tripleData:[],
       }
     },
 
@@ -163,6 +167,7 @@
           })
         }
         this.fileCount = this.tableData.length;
+        this.isUpload = false;
         //
         // for(let i = 0; i < 9; i ++){
         //   this.tableData.push({
@@ -185,7 +190,59 @@
       },
       handleAnalysis(row){
         console.log(row);
+        this.choosenRow = row;
         this.isList = false;
+        //需根据返回值修改
+        this.tripleData =[
+          {
+          source: 'node01',
+          target: 'node02',
+          name: 'link01',
+          des: 'link01des'
+        }, {
+          source: 'node01',
+          target: 'node03',
+          name: 'link02',
+          des: 'link02des'
+        }, {
+          source: 'node01',
+          target: 'node04',
+          name: 'link03',
+          des: 'link03des'
+        }, {
+          source: 'node01',
+          target: 'node05',
+          name: 'link04',
+          des: 'link05des'
+        }];
+        let graphPoint=[
+            {
+              name: 'node01',
+              des: 'nodedes01',
+              symbolSize: 70,
+              category: 0,
+            }, {
+              name: 'node02',
+              des: 'nodedes02',
+              symbolSize: 50,
+              category: 1,
+            }, {
+              name: 'node03',
+              des: 'nodedes3',
+              symbolSize: 50,
+              category: 1,
+            }, {
+              name: 'node04',
+              des: 'nodedes04',
+              symbolSize: 50,
+              category: 1,
+            }, {
+              name: 'node05',
+              des: 'nodedes05',
+              symbolSize: 50,
+              category: 1,
+            }
+        ];
         let categories=[
           {name:'属性A'},
           {name:'属性B'},
@@ -265,53 +322,8 @@
               }
             },
             // 数据
-            data: [{
-              name: 'node01',
-              des: 'nodedes01',
-              symbolSize: 70,
-              category: 0,
-            }, {
-              name: 'node02',
-              des: 'nodedes02',
-              symbolSize: 50,
-              category: 1,
-            }, {
-              name: 'node03',
-              des: 'nodedes3',
-              symbolSize: 50,
-              category: 1,
-            }, {
-              name: 'node04',
-              des: 'nodedes04',
-              symbolSize: 50,
-              category: 1,
-            }, {
-              name: 'node05',
-              des: 'nodedes05',
-              symbolSize: 50,
-              category: 1,
-            }],
-            links: [{
-              source: 'node01',
-              target: 'node02',
-              name: 'link01',
-              des: 'link01des'
-            }, {
-              source: 'node01',
-              target: 'node03',
-              name: 'link02',
-              des: 'link02des'
-            }, {
-              source: 'node01',
-              target: 'node04',
-              name: 'link03',
-              des: 'link03des'
-            }, {
-              source: 'node01',
-              target: 'node05',
-              name: 'link04',
-              des: 'link05des'
-            }],
+            data: graphPoint,
+            links: this.tripleData,
             categories: categories,
           }],
           grid:{
@@ -326,8 +338,22 @@
         // 绘制图表
         myChart.setOption(option);
       },
+
+      //导出三元组
       handleExport(){
-        //导出图
+        //处理数据
+        let data="";
+        this.tripleData.forEach(function (item,index) {
+          data+=item.source+","+item.name+","+item.target+"\n";
+        });
+        let filename = this.choosenRow.title.split(".")[0];
+        console.log(filename);
+        //创建<a>下载文件
+        let export_blob = new Blob([data]);
+        let save_link = document.createElement("a");
+        save_link.href = URL.createObjectURL(export_blob);
+        save_link.download = filename;
+        save_link.click();
       },
     },
 
