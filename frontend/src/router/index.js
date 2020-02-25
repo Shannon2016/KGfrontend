@@ -9,7 +9,8 @@ import DefineLabel from "../components/DefineLabel";
 import CorpusTagging from "../components/CorpusTagging";
 import RelationalData from "../components/RelationalData";
 import EntitySearch from "../components/EntitySearch";
-import RelationSearch from "../components/RelationSearch"
+import RelationSearch from "../components/RelationSearch";
+import ExtractStruct from "../components/ExtractStruct"
 
 Vue.use(Router)
 
@@ -46,6 +47,11 @@ export default new Router({
       path: '/extractVedio',
       name: 'ExtractVedio',
       component: ExtractVedio
+    },
+    {
+      path: '/extractStruct',
+      name: 'ExtractStruct',
+      component: ExtractStruct
     },
     {
       path: '/correct',
