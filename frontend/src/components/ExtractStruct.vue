@@ -9,11 +9,11 @@
         text-color="#fff"
         active-text-color="#fff"
         :router="true">
-        <el-menu-item index="/extract" class="is-active">
+        <el-menu-item index="/extract">
           <i class="el-icon-menu"></i>
           <span slot="title">文本抽取</span>
         </el-menu-item>
-        <el-menu-item index="/extractStruct">
+        <el-menu-item index="/extractStruct" class="is-active">
           <i class="el-icon-menu"></i>
           <span slot="title">结构化数据抽取</span>
         </el-menu-item>
@@ -31,7 +31,7 @@
     <el-main v-if="isList">
       <!--顶部-->
       <div class="header">
-        知识抽取
+        结构化数据抽取
         <el-button type="primary" class="darkBtn headbutton" size="small" @click="isUpload=true">上传</el-button>
         <el-button type="primary" class="darkBtn headbutton" size="small" >训练</el-button>
       </div>
@@ -47,7 +47,7 @@
 
           <el-card class="box-card">
             <div slot="header" class="clearfix">
-              <span>语料上传</span>
+              <span>数据上传</span>
               <i class="el-icon-close" style="float: right; padding: 3px 0" @click="cancelUpload"></i>
             </div>
             <el-upload
@@ -55,7 +55,7 @@
               drag
               ref="upload"
               :auto-upload="false"
-              accept=".txt,.xls,.xlsx,.json"
+              accept=".xlsx,.csv"
               action="https://jsonplaceholder.typicode.com/posts/"
               :on-remove="handleRemove"
               :on-change="handleAddFile"
@@ -64,16 +64,14 @@
               <i class="el-icon-upload"></i>
               <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
               <div class="el-upload__tip" slot="tip">
-                支持上传Excel文件、Json文件以及txt文件<br>
-                Excel文件第一行为title，第二行为text<br>
-                Json数据结构为对象数组，对象属性值含有title和text<br>
+                仅支持上传csv文件、xlsx文件<br>
               </div>
             </el-upload>
             <el-button size="small" @click="cancelUpload">取消</el-button>
             <el-button style="margin-left: 10px;" class="darkBtn" size="small" type="primary" @click="submitUpload">上传</el-button>
           </el-card>
         </div>
-        <!--文书列表-->
+        <!--结构化数据列表-->
         <el-table
           :data="tableData.slice((curPage - 1) * 10, curPage * 10)"
           :header-cell-style="{background:'#EBEEF7',color:'#606266'}"
@@ -116,7 +114,7 @@
       <el-divider></el-divider>
       <!--中心-->
       <div class="main" id="daddy">
-        <div id="graph" style="width: 1000px;height:800px;"></div>
+        <div id="graph" style="width: 1600px;height:800px;"></div>
       </div>
     </el-main>
   </el-container>
@@ -125,14 +123,14 @@
 <script>
   let echarts = require('echarts');
   let myChart;
-  // window.onresize = function() {
-  //   document.getElementById("graph").style.width="100%";
-  //   document.getElementById("graph").style.height="100%";
-  //   myChart.resize();
-  // };
+  window.onresize = function() {
+    document.getElementById("graph").style.width="100%";
+    document.getElementById("graph").style.height="100%";
+    myChart.resize();
+  };
 
   export default {
-    name: 'Extract',
+    name: "ExtractStruct",
     data () {
       return {
         isList:true,
@@ -141,7 +139,7 @@
         curPage:1,
         //上传的文件列表
         fileList: [],
-        //表格数据，文书列表
+        //表格数据，结构化数据列表
         tableData: [],
         //选中行
         choosenRow:{},
@@ -168,7 +166,7 @@
         }
         this.fileCount = this.tableData.length;
         this.isUpload = false;
-        //
+
         // for(let i = 0; i < 9; i ++){
         //   this.tableData.push({
         //     date: '2016-05-03',
@@ -195,53 +193,53 @@
         //需根据返回值修改
         this.tripleData =[
           {
-          source: 'node01',
-          target: 'node02',
-          name: 'link01',
-          des: 'link01des'
-        }, {
-          source: 'node01',
-          target: 'node03',
-          name: 'link02',
-          des: 'link02des'
-        }, {
-          source: 'node01',
-          target: 'node04',
-          name: 'link03',
-          des: 'link03des'
-        }, {
-          source: 'node01',
-          target: 'node05',
-          name: 'link04',
-          des: 'link05des'
-        }];
+            source: 'node01',
+            target: 'node02',
+            name: 'link01',
+            des: 'link01des'
+          }, {
+            source: 'node01',
+            target: 'node03',
+            name: 'link02',
+            des: 'link02des'
+          }, {
+            source: 'node01',
+            target: 'node04',
+            name: 'link03',
+            des: 'link03des'
+          }, {
+            source: 'node01',
+            target: 'node05',
+            name: 'link04',
+            des: 'link05des'
+          }];
         let graphPoint=[
-            {
-              name: 'node01',
-              des: 'nodedes01',
-              symbolSize: 70,
-              category: 0,
-            }, {
-              name: 'node02',
-              des: 'nodedes02',
-              symbolSize: 50,
-              category: 1,
-            }, {
-              name: 'node03',
-              des: 'nodedes3',
-              symbolSize: 50,
-              category: 1,
-            }, {
-              name: 'node04',
-              des: 'nodedes04',
-              symbolSize: 50,
-              category: 1,
-            }, {
-              name: 'node05',
-              des: 'nodedes05',
-              symbolSize: 50,
-              category: 1,
-            }
+          {
+            name: 'node01',
+            des: 'nodedes01',
+            symbolSize: 70,
+            category: 0,
+          }, {
+            name: 'node02',
+            des: 'nodedes02',
+            symbolSize: 50,
+            category: 1,
+          }, {
+            name: 'node03',
+            des: 'nodedes3',
+            symbolSize: 50,
+            category: 1,
+          }, {
+            name: 'node04',
+            des: 'nodedes04',
+            symbolSize: 50,
+            category: 1,
+          }, {
+            name: 'node05',
+            des: 'nodedes05',
+            symbolSize: 50,
+            category: 1,
+          }
         ];
         let categories=[
           {name:'属性A'},
@@ -357,10 +355,13 @@
       },
     },
 
-  }
+
+    mounted() {
+
+    }
+    }
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
   html,body,.el-container{
     width: 100%;
@@ -436,8 +437,6 @@
     margin-top: 40px;
   }
 
-  /*echarts*/
-
   .el-pagination.is-background .el-pager li:not(.disabled).active{
     background-color: #5775FB !important;
   }
@@ -490,5 +489,4 @@
   .darkBtn:hover{
     background-color: #708BF7;
   }
-
 </style>
