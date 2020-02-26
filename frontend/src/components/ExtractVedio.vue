@@ -13,6 +13,10 @@
           <i class="el-icon-menu"></i>
           <span slot="title">文本抽取</span>
         </el-menu-item>
+        <el-menu-item index="/extractStruct">
+          <i class="el-icon-menu"></i>
+          <span slot="title">结构化数据抽取</span>
+        </el-menu-item>
         <el-menu-item index="/extractPic">
           <i class="el-icon-menu"></i>
           <span slot="title" >图片抽取</span>
@@ -64,6 +68,7 @@
       <el-divider></el-divider>
       <!--中心-->
       <div class="main">
+        <div v-if="!flag" style="margin-left:50px;">提示：请先上传视频进行分析</div>
         <div class="resultContainer" style="height:50px;" v-if="vedioList.length!==0">
           <div class="picName title">序号</div>
           <div class="picStyle title">抽取结果</div>
@@ -491,6 +496,10 @@
     background-color: rgba(255,255,255,0.2) !important;
     border-right: 4px solid #5775FB !important;
   }
+  .el-menu-item{
+    text-align: left;
+    width: 200px;
+  }
 
   /**************内容顶部***************/
   .header{
@@ -589,7 +598,7 @@
     background-color: #708BF7;
   }
   /*视频及echarts样式*/
-   .resultContainer{
+  .resultContainer{
     height: 500px;
     width: 100%;
     padding:0 20px;
@@ -599,16 +608,20 @@
 
   .picStyle{
     height:100%;
-    width:500px;
+    width:600px;
     /* border-right: solid 1px #DCDFE6; */
-    padding-right: 30px;
-    padding-left: 30px;
+    padding-right: 40px;
+    padding-left: 40px;
   }
 
   .graphStyle{
     height:100%;
-    width:500px;
-    padding-left: 30px;
+    width:600px;
+    padding-left: 40px;
+  }
+
+  .el-image{
+      height:100% !important;
   }
 
   .title{
@@ -622,7 +635,7 @@
     width:50px;
     text-align: center;
     /* border-right: solid 1px #DCDFE6; */
-    padding-right: 20px;
+    padding-right: 40px;
   }
 </style>
 
