@@ -7,11 +7,11 @@ import App from './App'
 import router from './router'
 import axios from 'axios'
 
-Vue.use(ElementUI);
-
+import ECharts from "vue-echarts";
+import "echarts/lib/chart/line";
+Vue.component("v-echart", ECharts);
 Vue.use(ElementUI);
 Vue.config.productionTip = false
-
 /* eslint-disable no-new */
 new Vue({
   el: '#app',

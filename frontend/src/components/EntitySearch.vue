@@ -76,11 +76,11 @@
 
   let echarts = require('echarts');
   let myChart;
-  window.onresize = function() {
-    document.getElementById("graph").style.width="100%";
-    document.getElementById("graph").style.height="100%";
-    myChart.resize();
-  };
+  // window.onresize = function() {
+  //   document.getElementById("graph").style.width="100%";
+  //   document.getElementById("graph").style.height="100%";
+  //   myChart.resize();
+  // };
 
     export default {
         name: "KnowledgeSearch",

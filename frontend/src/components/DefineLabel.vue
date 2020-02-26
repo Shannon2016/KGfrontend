@@ -102,13 +102,14 @@ import MyEntityTag from './MyEntityTag'
     },
     methods: {
       testapishow(){
-        this.$http.get('http://127.0.0.1:8000/api/show_books')
+        // this.$http.get('http://127.0.0.1:8000/api/show_books')
 
-        .then((response) => {
+        // .then((response) => {
 
-          console.log(response)
+        //   console.log(response)
 
-        })
+        // })
+        
       },
       testapiadd(){
 this.$http.get('http://127.0.0.1:8000/api/add_book?book_name=' + 'testbook2')

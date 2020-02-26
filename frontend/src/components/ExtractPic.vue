@@ -47,11 +47,14 @@
             :on-remove="handleRemove"
             :on-change="handleAddFile"
             :file-list="uploadList"
+            :limit="3"
+            :on-exceed="handleExceed"
             multiple>
             <i class="el-icon-upload"></i>
             <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
             <div class="el-upload__tip" slot="tip">
             支持上传jpg文件及jpeg文件<br>
+            限制上传最多3张图片<br>
             </div>
         </el-upload>
         <el-button size="small" @click="cancelUpload">取消</el-button>
@@ -61,41 +64,28 @@
       <el-divider></el-divider>
       <!--中心-->
       <div class="main" >
-        <el-tabs style="margin:0 15px;">
-          <el-tab-pane label="抽取结果" name="first">
-            <!--图片展示-->
-            <div v-if="!flag">请先上传文件分析</div>
-            <div class="picContainer" v-else>
-                <el-carousel trigger="click" style="height:100%;" :autoplay="false">
-                <el-carousel-item v-for="item in picList" :key="item" style="height:100%;">
-                    <el-image :src="item" style="picStyle" fit="contain">
-                        <div slot="placeholder" class="image-slot">
-                            加载中<span class="dot">...</span>
-                        </div>
-                    </el-image>
-                </el-carousel-item>
-            </el-carousel>
+        <div class="resultContainer" style="height:50px;" v-if="picList.length!==0">
+          <div class="picName title">序号</div>
+          <div class="picStyle title">抽取结果</div>
+          <div class="graphStyle title">实体关系展示</div>
+        </div>
+        <div v-for="(item, index) in picList" v-bind:key="index">
+          <div class="resultContainer">
+            <div class="picName">
+              <span style="position:relative; top:230px;">
+                图{{index + 1}}
+              </span>
             </div>
-          </el-tab-pane>
-          <el-tab-pane label="图谱展示" name="second">
-            <div v-if="!flag">请先上传文件分析</div>
-            <div v-show="flag" id="daddy">
-              <div>
-                请选择要查看的图片：
-                <el-select v-model="optIndex" size="small">
-                  <el-option
-                    v-for="(item, index) in optList"
-                    :key="index"
-                    :label="item"
-                    :value="index">
-                  </el-option>
-                </el-select>
-                <el-button @click="onSelect" class="blueBtn" size="small">确定</el-button>
-              </div>
-              <div id="graph" style="width:1000px; height:750px; margin-top:20px;"></div>
+            <div class="picStyle">
+              <el-image :src="item.src"  fit="contain">
+                  <div slot="placeholder" class="image-slot">
+                      加载中<span class="dot">...</span>
+                  </div>
+              </el-image>
             </div>
-          </el-tab-pane>
-        </el-tabs>
+            <v-echart :id="'graph'+index" class="graphStyle" :options="item.options"></v-echart>
+          </div>
+        </div>
       </div>
     </el-main>
   </el-container>
@@ -104,11 +94,10 @@
 <script>
   let echarts = require('echarts');
   let myChart;
-  window.onresize = function() {
-    document.getElementById("graph").style.width="100%";
-    document.getElementById("graph").style.height="100%";
-    myChart.resize();
-  };
+  let categories=[
+    {name:'属性A'},
+    {name:'属性B'},
+  ];
   export default {
     name: 'ExtractPic',
     data () {
@@ -123,6 +112,9 @@
     },
 
     methods: {
+      handleExceed(files, fileList) {
+        this.$message.warning(`当前限制选择 3 个文件，本次选择了 ${files.length} 个文件，共选择了 ${files.length + fileList.length} 个文件`);
+      },
       onUpload(){
         this.isUpload = true;
       },
@@ -132,54 +124,154 @@
       },
       submitUpload() {
         //上传的请求
-        this.$http.get(
-          'http://127.0.0.1:8000/api/show_books'
-          ).then((res) => {
-            //成功 发起分析的请求
-            this.$http.post(
-            'http://127.0.0.1:8000/api/add_book',//url
-            {                                     //参数
-              book_name:'TEST'                  
-            }                                     //此项后可加一些配置参数  
-            ).then((res) => {
-              console.log(res)
-            }).catch((res) => {
-              //请求失败
+  //       let fd = new FormData()
+  //       for(let i=0;i<this.uploadList.length;i++)
+  //         fd.append('pic',this.uploadList[i].raw)
+  //       this.$http.post('http://127.0.0.1:8000/pic/extract',fd,
+  //         {
+  //           headers: {'Content-Type': 'multipart/form-data'}
+  //         }).then((res) => {
+  //           //成功 发起分析的请求
+  //           console.log(res)
+  //           this.picList = []
+  //           for(let i = 0; i < res.data.length; i ++){
+  //              //设置echarts
+  //             let option ={
+  //               // 图的标题
+  //               title: {
+  //                 text: 'test'
+  //               },
+  //               // 提示框的配置
+  //               tooltip: {
+  //                 formatter: function (x) {
+  //                   return x.data.des;
+  //                 }
+  //               },
+  //               // 工具箱
+  //               toolbox: {
+  //                 // 显示工具箱
+  //                 show: true,
+  //                 feature: {
+  //                   mark: {
+  //                     show: true
+  //                   },
+  //                   // 还原
+  //                   restore: {
+  //                     show: true
+  //                   },
+  //                   // 保存为图片
+  //                   saveAsImage: {
+  //                     show: true
+  //                   }
+  //                 }
+  //               },
+  //               legend: [{
+  //                 // selectedMode: 'single',
+  //                 data: categories.map(function (a) {
+  //                   return a.name;
+  //                 })
+  //               }],
+  //               series: [{
+  //                 type: 'graph', // 类型:关系图
+  //                 layout: 'force', //图的布局，类型为力导图
+  //                 symbolSize: 40, // 调整节点的大小
+  //                 roam: true, // 是否开启鼠标缩放和平移漫游。默认不开启。如果只想要开启缩放或者平移,可以设置成 'scale' 或者 'move'。设置成 true 为都开启
+  //                 edgeSymbol: ['circle', 'arrow'],
+  //                 edgeSymbolSize: [2, 10],
+  //                 edgeLabel: {
+  //                   normal: {
+  //                     textStyle: {
+  //                       fontSize: 20
+  //                     }
+  //                   }
+  //                 },
+  //                 force: {
+  //                   repulsion: 2500,
+  //                   edgeLength: [10, 50]
+  //                 },
+  //                 draggable: true,
+  //                 lineStyle: {
+  //                   normal: {
+  //                     width: 2,
+  //                     color: '#4b565b',
+  //                   }
+  //                 },
+  //                 edgeLabel: {
+  //                   normal: {
+  //                     show: true,
+  //                     formatter: function (x) {
+  //                       return x.data.name;
+  //                     }
+  //                   }
+  //                 },
+  //                 label: {
+  //                   normal: {
+  //                     show: true,
+  //                     textStyle: {}
+  //                   }
+  //                 },
+  //                 // 数据
+  //                 data: [{
+  //                   name: 'node01',
+  //                   des: 'nodedes01',
+  //                   symbolSize: 70,
+  //                   category: 0,
+  //                 }, {
+  //                   name: 'node02',
+  //                   des: 'nodedes02',
+  //                   symbolSize: 50,
+  //                   category: 1,
+  //                 }, {
+  //                   name: 'node03',
+  //                   des: 'nodedes3',
+  //                   symbolSize: 50,
+  //                   category: 1,
+  //                 }, {
+  //                   name: 'node04',
+  //                   des: 'nodedes04',
+  //                   symbolSize: 50,
+  //                   category: 1,
+  //                 }, {
+  //                   name: 'node05',
+  //                   des: 'nodedes05',
+  //                   symbolSize: 50,
+  //                   category: 1,
+  //                 }],
+  //                 links: [{
+  //                   source: 'node01',
+  //                   target: 'node02',
+  //                   name: 'link01',
+  //                   des: 'link01des'
+  //                 }, {
+  //                   source: 'node01',
+  //                   target: 'node03',
+  //                   name: 'link02',
+  //                   des: 'link02des'
+  //                 }, {
+  //                   source: 'node01',
+  //                   target: 'node04',
+  //                   name: 'link03',
+  //                   des: 'link03des'
+  //                 }, {
+  //                   source: 'node01',
+  //                   target: 'node05',
+  //                   name: 'link04',
+  //                   des: 'link05des'
+  //                 }],
+  //                 categories: categories,
+  //               }],
+  //               grid:{
+  //                 top:"10px",
+  //                 bottom:"10px",
+  //                 height:"10px",
+  //                 width:"10px"
+  //               }
+  //             }
+  //             this.picList.push({src: res.data[i], options:option})
+  //           }
+  //         })
 
-            })
-        }).catch((res) => {
-          //请求失败
-
-        })
-        
-        // this.$refs.upload.submit();
-        this.optList = [];
-        for(let i = 0; i < this.uploadList.length; i ++){
-          this.optList.push(this.uploadList[i].name)
-        }
-        //分析结果
-        this.picList=[];
-        this.picList.push('https://fuss10.elemecdn.com/e/5d/4a731a90594a4af544c0c25941171jpeg.jpeg');
-        this.picList.push('https://fuss10.elemecdn.com/8/27/f01c15bb73e1ef3793e64e6b7bbccjpeg.jpeg');
-        this.picList.push('https://fuss10.elemecdn.com/1/8e/aeffeb4de74e2fde4bd74fc7b4486jpeg.jpeg');
-        this.flag = true;
-        this.isUpload = false;
-      },
-      handleRemove(file, fileList) {
-        this.uploadList = fileList;
-      },
-      handleAddFile(file,fileList){
-        console.log(file);
-        console.log(fileList);
-        this.uploadList = fileList;
-      },
-      onSelect() {
-        //加载echarts
-        console.log(this.optIndex);
-        let categories=[
-          {name:'属性A'},
-          {name:'属性B'},
-        ];
+        //前端测试
         let option ={
           // 图的标题
           title: {
@@ -311,10 +403,22 @@
             width:"10px"
           }
         }
-
-        myChart= echarts.init(document.getElementById('graph'));
-        // 绘制图表
-        myChart.setOption(option);
+        this.picList=[];
+        this.picList.push({src:'https://fuss10.elemecdn.com/e/5d/4a731a90594a4af544c0c25941171jpeg.jpeg', options:option});
+        this.picList.push({src:'https://fuss10.elemecdn.com/8/27/f01c15bb73e1ef3793e64e6b7bbccjpeg.jpeg', options:option});
+        this.picList.push({src:'https://fuss10.elemecdn.com/1/8e/aeffeb4de74e2fde4bd74fc7b4486jpeg.jpeg', options:option});
+        //测试结束
+        
+        this.flag = true;
+        this.isUpload = false;
+      },
+      handleRemove(file, fileList) {
+        this.uploadList = fileList;
+      },
+      handleAddFile(file,fileList){
+        console.log(file);
+        console.log(fileList);
+        this.uploadList = fileList;
       }
     }
   }
@@ -449,30 +553,44 @@
   .darkBtn:hover{
     background-color: #708BF7;
   }
-  /*图片及走马灯样式*/
-  .picContainer{
-      height: calc(100% - 45px);
-      width: 100%;
-      padding: 20px 10px;
+  /*图片及echarts样式*/
+  .resultContainer{
+    height: 500px;
+    width: 100%;
+    padding:0 20px;
+    display: flex;
+    justify-content: center;
   }
 
-  .el-carousel__container, .el-image{
+  .picStyle{
+    height:100%;
+    width:500px;
+    /* border-right: solid 1px #DCDFE6; */
+    padding-right: 30px;
+    padding-left: 30px;
+  }
+
+  .graphStyle{
+    height:100%;
+    width:500px;
+    padding-left: 30px;
+  }
+
+  .el-image{
       height:100% !important;
   }
 
-  .el-carousel__item{
-      text-align: center;
+  .title{
+    text-align: center;
+    font-weight: bold;
+    font-size: large;
+    padding-bottom: 30px;
   }
-</style>
-<style>
-  .el-carousel__container, .el-tabs__content, .el-tabs, .el-tab-pane{
-    height: 100% !important;
-  }
-  /*tab样式*/
-  .el-tabs__active-bar{
-    background-color:#708BF7 !important;
-  }
-  .el-tabs__item.is-active, .el-tabs__item:hover{
-    color: #708BF7;
+
+  .picName{
+    width:50px;
+    text-align: center;
+    /* border-right: solid 1px #DCDFE6; */
+    padding-right: 20px;
   }
 </style>
