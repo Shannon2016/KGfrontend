@@ -33,6 +33,7 @@
       <div class="header">
         视频抽取
         <el-button type="primary" class="darkBtn headbutton" size="small" @click="onUpload">上传与分析</el-button>
+        <el-button type="primary" class="darkBtn headbutton" size="small" >训练</el-button>
       </div>
       <!-- 上传窗口-->
       <div id="upload" v-if="isUpload">
@@ -70,69 +71,25 @@
       <div class="main">
         <div v-if="!flag" style="margin-left:50px;">提示：请先上传视频进行分析</div>
         <div class="resultContainer" style="height:50px;" v-if="vedioList.length!==0">
-          <div class="picName title">序号</div>
           <div class="picStyle title">抽取结果</div>
           <div class="graphStyle title">实体关系展示</div>
+          <el-button type="primary" class="blueBtn" size="small" @click="handleExport">导出</el-button>
         </div>
         <div v-for="(item, index) in vedioList" v-bind:key="index">
           <div class="resultContainer">
-            <div class="picName">
-              <span style="position:relative; top:230px;">
-                视频{{index + 1}}
-              </span>
-            </div>
-            <div class="picStyle" style="display:flex; align-items:center;">
-              <video :src="item" controls="controls" style="width:100%;">
-                      </video>
-              <!-- <el-image :src="item.src"  fit="contain">
-                  <div slot="placeholder" class="image-slot">
-                      加载中<span class="dot">...</span>
-                  </div>
-              </el-image> -->
+            <div class="picStyle" style="display:flex; flex-direction: row;flex-wrap:wrap;">
+              <video :src="item" controls="controls" style="width:100%;"></video>
+              <div style="text-align: center;font-weight: bold;width: 100%">文件名</div>
             </div>
             <v-echart :id="'graph'+index" class="graphStyle" :options="item.options"></v-echart>
           </div>
         </div>
-         <!-- <el-tabs style="margin:0 15px;">
-          <el-tab-pane label="抽取结果" name="first">
-            视频展示
-            <div v-if="!flag">请先上传文件分析</div>
-            <div class="picContainer" v-else>
-                <el-carousel trigger="click" style="height:100%;" :autoplay="false">
-                    <el-carousel-item v-for="item in vedioList" :key="item" style="height:100%;">
-                      <video :src="item" controls="controls" style="width:100%;">
-                      </video>
-                    </el-carousel-item>
-                </el-carousel>
-            </div>
-          </el-tab-pane>
-          <el-tab-pane label="图谱展示" name="second">
-            <div v-if="!flag">请先上传文件分析</div>
-            <div v-show="flag" id="daddy">
-              <div>
-                请选择要查看的图片：
-                <el-select v-model="optIndex" size="small">
-                  <el-option
-                    v-for="(item, index) in optList"
-                    :key="index"
-                    :label="item"
-                    :value="index">
-                  </el-option>
-                </el-select>
-                <el-button @click="onSelect" class="blueBtn" size="small">确定</el-button>
-              </div>
-              <div id="graph" style="width:1000px; height:750px;"></div>
-            </div>
-          </el-tab-pane>
-        </el-tabs> -->
       </div>
     </el-main>
   </el-container>
 </template>
 
 <script>
-  let echarts = require('echarts');
-  let myChart;
   let categories=[
     {name:'属性A'},
     {name:'属性B'},
@@ -310,16 +267,16 @@
 //           this.vedioList.push({src:res.data, options:option})
 //         }).catch((res) => {
 //           //请求失败
-          
+
 //         })
-        
+
         //前端测试
         //设置echarts
         let option ={
           // 图的标题
-          title: {
-            text: 'test'
-          },
+          // title: {
+          //   text: '文件名'
+          // },
           // 提示框的配置
           tooltip: {
             formatter: function (x) {
@@ -329,6 +286,7 @@
           // 工具箱
           toolbox: {
             // 显示工具箱
+            right:20,
             show: true,
             feature: {
               mark: {
@@ -459,7 +417,23 @@
         console.log(file);
         console.log(fileList);
         this.uploadList = fileList;
-      }
+      },
+      //导出三元组
+      handleExport(){
+        //处理数据
+        // let data="";
+        // this.tripleData.forEach(function (item,index) {
+        //   data+=item.source+","+item.name+","+item.target+"\n";
+        // });
+        // let filename = this.choosenRow.title.split(".")[0];
+        // console.log(filename);
+        // //创建<a>下载文件
+        // let export_blob = new Blob([data]);
+        // let save_link = document.createElement("a");
+        // save_link.href = URL.createObjectURL(export_blob);
+        // save_link.download = filename;
+        // save_link.click();
+      },
     }
   }
 </script>
@@ -582,6 +556,8 @@
     background-color: #EFF0FF;
     border: 1px solid #5775FB;
     color: #5775FB;
+    height: 32px;
+    margin-right: 20px;
   }
 
   .blueBtn:hover,.blueBtn:active, .blueBtn:focus{
@@ -601,22 +577,21 @@
   .resultContainer{
     height: 500px;
     width: 100%;
-    padding:0 20px;
     display: flex;
     justify-content: center;
   }
 
   .picStyle{
     height:100%;
-    width:600px;
+    width:50%;
     /* border-right: solid 1px #DCDFE6; */
     padding-right: 40px;
-    padding-left: 40px;
+    padding-left: 20px;
   }
 
   .graphStyle{
     height:100%;
-    width:600px;
+    width:50%;
     padding-left: 40px;
   }
 
@@ -625,7 +600,7 @@
   }
 
   .title{
-    text-align: center;
+    text-align: left;
     font-weight: bold;
     font-size: large;
     padding-bottom: 30px;
