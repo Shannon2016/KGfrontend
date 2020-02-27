@@ -48,7 +48,7 @@
           </div>
           <!--三元组列表-->
           <el-table
-            :data="tableData.slice((curPage - 1) * 10, curPage * 10)"
+            :data="tableData"
             :header-cell-style="{background:'#EBEEF7',color:'#606266'}"
             height="626"
             border>
@@ -66,13 +66,13 @@
               label="实体2">
             </el-table-column>
           </el-table>
-          <!-- 分页符-->
+          <!-- 分页符
           <el-pagination
             background
             layout="prev, pager, next"
             :total="fileCount"
             @current-change="handleCurrentChange">
-          </el-pagination>
+          </el-pagination> -->
         </div>
       </div>
     </el-main>
@@ -83,18 +83,18 @@
 <script>
 	let echarts = require('echarts');
 	let myChart;
-	window.onresize = function() {
-    document.getElementById("kgPic").style.width="100%";
-    document.getElementById("kgPic").style.height="400%";
-    myChart.resize();
-  };
+	// window.onresize = function() {
+  //   document.getElementById("kgPic").style.width="100%";
+  //   document.getElementById("kgPic").style.height="400%";
+  //   myChart.resize();
+  // };
   
     export default {
         name: "RelationSearch",
       data(){
         return{
-          fileCount:0,
-          curPage:1,
+          // fileCount:0,
+          // curPage:1,
           //表格数据
           tableData: [],
           searchDone:false,
@@ -122,9 +122,9 @@
 
       methods:{
 
-        handleCurrentChange(cpage) {
-          this.curPage = cpage;
-        },
+        // handleCurrentChange(cpage) {
+        //   this.curPage = cpage;
+        // },
         onSearchClick(){
           this.searchDone=true;
 		 /*逻辑和实体检索类似*/
@@ -141,6 +141,9 @@
 				tmp.entity1=this.inputEntity1;
 				tmp.relationship=res.data.searchResult[i].rel.type;
 				tmp.entity2=res.data.searchResult[i].n2.title;
+        //重名
+        if(tmp.entity2 === this.inputEntity1) continue;
+        
 				tmpLink.source=this.inputEntity1;
 				tmpLink.target=tmp.entity2;
 				tmpLink.name=tmp.relationship;
@@ -188,7 +191,7 @@
                 })
               }],
 			
-    series: [{
+              series: [{
                 type: 'graph', // 类型:关系图
                 layout: 'force', //图的布局，类型为力导图
                 symbolSize: 40, // 调整节点的大小

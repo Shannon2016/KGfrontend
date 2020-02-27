@@ -40,7 +40,7 @@
           </div>
           <!--三元组列表-->
           <el-table
-            :data="tableData.slice((curPage - 1) * 10, curPage * 10)"
+            :data="tableData"
             :header-cell-style="{background:'#EBEEF7',color:'#606266'}"
             height="626"
             border>
@@ -59,12 +59,12 @@
             </el-table-column>
           </el-table>
           <!-- 分页符-->
-          <el-pagination
+          <!-- <el-pagination
             background
             layout="prev, pager, next"
             :total="fileCount"
             @current-change="handleCurrentChange">
-          </el-pagination>
+          </el-pagination> -->
         </div>
       </div>
     </el-main>
@@ -86,8 +86,6 @@
         name: "KnowledgeSearch",
       data(){
         return{
-          fileCount:0,
-          curPage:1,
           //表格数据
           tableData: [],
           searchDone:false,
@@ -97,9 +95,9 @@
 
       methods:{
 
-        handleCurrentChange(cpage) {
-          this.curPage = cpage;
-        },
+        // handleCurrentChange(cpage) {
+        //   this.curPage = cpage;
+        // },
         onSearchClick(){
           this.searchDone=true;
 
@@ -115,6 +113,9 @@
               tmp.entity1=this.inputEntity;
               tmp.relationship=res.data.entityRelation[i].rel.type;
               tmp.entity2=res.data.entityRelation[i].entity2.title;
+              //重名
+              if(tmp.entity2 === this.inputEntity) continue;
+
               tmpLink.source=this.inputEntity;
               tmpLink.target=tmp.entity2;
               tmpLink.name=tmp.relationship;
@@ -123,7 +124,6 @@
               graphLink.push(tmpLink);
               graphPoint.push({name:tmp.entity2,category:1,des:tmp.entity2});
             }
-
             let categories=[
               {name:'entity1'},
               {name:'entity2'},
