@@ -69,26 +69,28 @@
       <!--中心-->
       <div class="main" >
         <div v-if="!flag" style="margin-left:50px;">提示：请先上传图片进行分析</div>
-        <div class="resultContainer" style="height:50px;" v-if="picList.length!==0">
-          <div class="picName title">序号</div>
-          <div class="picStyle title">抽取结果</div>
-          <div class="graphStyle title">实体关系展示</div>
+        <div class="resultContainer" style="height:50px;border:none;" v-if="picList.length!==0">
+          <div class="picStyle title" style="height:50px;">抽取结果</div>
+          <div class="graphStyle title" style="height:50px;">实体关系展示</div>
         </div>
         <div v-for="(item, index) in picList" v-bind:key="index">
           <div class="resultContainer">
-            <div class="picName">
+            <!-- <div class="picName">
               <span style="position:relative; top:230px;">
                 图{{index + 1}}
               </span>
-            </div>
+            </div> -->
             <div class="picStyle">
               <el-image :src="item.src"  fit="contain">
                   <div slot="placeholder" class="image-slot">
                       加载中<span class="dot">...</span>
                   </div>
               </el-image>
+              <div style="text-align: center;font-weight: bold;width: 100%">图{{index + 1}}</div>
             </div>
-            <v-echart :id="'graph'+index" class="graphStyle" :options="item.options"></v-echart>
+            <div class="graphStyle">
+              <v-echart :id="'graph'+index" style="width:100%;height:100%;" :options="item.options"></v-echart>
+            </div>
           </div>
         </div>
       </div>
@@ -144,7 +146,7 @@
   //             let option ={
   //               // 图的标题
   //               title: {
-  //                 text: 'test'
+  //                 text: ''
   //               },
   //               // 提示框的配置
   //               tooltip: {
@@ -280,7 +282,7 @@
         let option ={
           // 图的标题
           title: {
-            text: 'test'
+            text: ''
           },
           // 提示框的配置
           tooltip: {
@@ -569,20 +571,21 @@
     padding:0 20px;
     display: flex;
     justify-content: center;
+    margin-top: 20px;
+    border-bottom: solid 1px #DCDFE6;
   }
 
   .picStyle{
-    height:100%;
+    height:450px;
     width:600px;
     /* border-right: solid 1px #DCDFE6; */
-    padding-right: 40px;
-    padding-left: 40px;
+    padding-right: 70px;
   }
 
   .graphStyle{
     height:100%;
     width:600px;
-    padding-left: 40px;
+    padding-left: 70px;
   }
 
   .el-image{
@@ -590,10 +593,10 @@
   }
 
   .title{
-    text-align: center;
+    /* text-align: center; */
     font-weight: bold;
     font-size: large;
-    padding-bottom: 30px;
+    /* padding-bottom: 30px; */
   }
 
   .picName{
