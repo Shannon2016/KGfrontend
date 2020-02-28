@@ -33,6 +33,7 @@
       <div class="header">
         图片抽取
         <el-button type="primary" class="darkBtn headbutton" size="small" @click="onUpload">上传与分析</el-button>
+        <el-button type="primary" class="darkBtn headbutton" size="small" >训练</el-button>
       </div>
       <!-- 上传窗口-->
       <div id="upload" v-if="isUpload">
@@ -86,7 +87,10 @@
                       加载中<span class="dot">...</span>
                   </div>
               </el-image>
-              <div style="text-align: center;font-weight: bold;width: 100%">图{{index + 1}}</div>
+              <div style="text-align: center;font-weight: bold;width: 100%">
+                图{{index + 1}}
+                <el-button type="primary" class="blueBtn" size="small" @click="handleExport">导出</el-button>
+              </div>
             </div>
             <div class="graphStyle">
               <v-echart :id="'graph'+index" style="width:100%;height:100%;" :options="item.options"></v-echart>
@@ -142,6 +146,8 @@
           {
             headers: {'Content-Type': 'multipart/form-data'}
           }).then((res) => {
+            //清空上传列表
+            this.uploadList=[];
             //成功 设置echarts
             console.log(res);
             this.tripleData=res.data[1];
@@ -174,9 +180,9 @@
               }
               let option ={
                 // 图的标题
-                title: {
-                  text: ''
-                },
+                // title: {
+                //   text: ''
+                // },
                 // 提示框的配置
                 tooltip: {
                   formatter: function (x) {
@@ -222,8 +228,9 @@
                     }
                   },
                   force: {
-                    repulsion: 2500,
-                    edgeLength: [10, 50]
+                    repulsion: 2500,//节点间的斥力因子。
+                    gravity : 1,//节点受到的向中心的引力因子。该值越大节点越往中心点靠拢。
+                    edgeLength: [10, 50],
                   },
                   draggable: true,
                   lineStyle: {
@@ -271,6 +278,21 @@
         console.log(file);
         console.log(fileList);
         this.uploadList = fileList;
+      },
+      handleExport() {
+        //导出三元组
+        // //处理数据
+        // let data="";
+        // this.tripleData.forEach(function (item,index) {
+        //   data+=item.source+","+item.name+","+item.target+"\n";
+        // });
+        // let filename = this.choosenRow.title.split(".")[0];
+        // //创建<a>下载文件
+        // let export_blob = new Blob([data]);
+        // let save_link = document.createElement("a");
+        // save_link.href = URL.createObjectURL(export_blob);
+        // save_link.download = filename;
+        // save_link.click();
       }
     }
   }
@@ -391,6 +413,7 @@
 
   /***********按钮样式***********/
   .blueBtn{
+    margin-left: 5%;
     background-color: #EFF0FF;
     border: 1px solid #5775FB;
     color: #5775FB;

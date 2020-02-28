@@ -129,9 +129,10 @@
 //           'Content-Type': 'multipart/form-data'
 //           }
 //         }).then((res) => {
-//             //成功 发起分析的请求
+            //清空上传列表
+            // this.uploadList=[];
 //           console.log(res)
-//           this.vedioList = []
+//      this.vedioList = []
 //           //设置echarts
 //           let option ={
 //             // 图的标题
@@ -323,7 +324,8 @@
               }
             },
             force: {
-              repulsion: 2500,
+              repulsion: 2500,//节点间的斥力因子。
+              gravity : 1,//节点受到的向中心的引力因子。该值越大节点越往中心点靠拢。
               edgeLength: [10, 50]
             },
             draggable: true,
