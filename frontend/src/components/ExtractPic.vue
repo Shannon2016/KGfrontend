@@ -99,11 +99,8 @@
 </template>
 
 <script>
-  let echarts = require('echarts');
-  let myChart;
   let categories=[
-    {name:'属性A'},
-    {name:'属性B'},
+    {name:'实体'},
   ];
   export default {
     name: 'ExtractPic',
@@ -114,7 +111,14 @@
         uploadList:[],
         optList:[],
         flag:false,
-        optIndex:''
+        optIndex:'',
+        //三元组数组
+        // [
+        // [[ent1,rel,ent2],[ent1,rel,ent2]……]图1
+        // [[ent1,rel,ent2],[ent1,rel,ent2]……]图2
+        // [[ent1,rel,ent2],[ent1,rel,ent2]……]图2
+        // ]
+        tripleData:[],
       }
     },
 
@@ -131,291 +135,132 @@
       },
       submitUpload() {
         //上传的请求
-  //       let fd = new FormData()
-  //       for(let i=0;i<this.uploadList.length;i++)
-  //         fd.append('pic',this.uploadList[i].raw)
-  //       this.$http.post('http://127.0.0.1:8000/pic/extract',fd,
-  //         {
-  //           headers: {'Content-Type': 'multipart/form-data'}
-  //         }).then((res) => {
-  //           //成功 发起分析的请求
-  //           console.log(res)
-  //           this.picList = []
-  //           for(let i = 0; i < res.data.length; i ++){
-  //              //设置echarts
-  //             let option ={
-  //               // 图的标题
-  //               title: {
-  //                 text: ''
-  //               },
-  //               // 提示框的配置
-  //               tooltip: {
-  //                 formatter: function (x) {
-  //                   return x.data.des;
-  //                 }
-  //               },
-  //               // 工具箱
-  //               toolbox: {
-  //                 // 显示工具箱
-  //                 show: true,
-  //                 feature: {
-  //                   mark: {
-  //                     show: true
-  //                   },
-  //                   // 还原
-  //                   restore: {
-  //                     show: true
-  //                   },
-  //                   // 保存为图片
-  //                   saveAsImage: {
-  //                     show: true
-  //                   }
-  //                 }
-  //               },
-  //               legend: [{
-  //                 // selectedMode: 'single',
-  //                 data: categories.map(function (a) {
-  //                   return a.name;
-  //                 })
-  //               }],
-  //               series: [{
-  //                 type: 'graph', // 类型:关系图
-  //                 layout: 'force', //图的布局，类型为力导图
-  //                 symbolSize: 40, // 调整节点的大小
-  //                 roam: true, // 是否开启鼠标缩放和平移漫游。默认不开启。如果只想要开启缩放或者平移,可以设置成 'scale' 或者 'move'。设置成 true 为都开启
-  //                 edgeSymbol: ['circle', 'arrow'],
-  //                 edgeSymbolSize: [2, 10],
-  //                 edgeLabel: {
-  //                   normal: {
-  //                     textStyle: {
-  //                       fontSize: 20
-  //                     }
-  //                   }
-  //                 },
-  //                 force: {
-  //                   repulsion: 2500,
-  //                   edgeLength: [10, 50]
-  //                 },
-  //                 draggable: true,
-  //                 lineStyle: {
-  //                   normal: {
-  //                     width: 2,
-  //                     color: '#4b565b',
-  //                   }
-  //                 },
-  //                 edgeLabel: {
-  //                   normal: {
-  //                     show: true,
-  //                     formatter: function (x) {
-  //                       return x.data.name;
-  //                     }
-  //                   }
-  //                 },
-  //                 label: {
-  //                   normal: {
-  //                     show: true,
-  //                     textStyle: {}
-  //                   }
-  //                 },
-  //                 // 数据
-  //                 data: [{
-  //                   name: 'node01',
-  //                   des: 'nodedes01',
-  //                   symbolSize: 70,
-  //                   category: 0,
-  //                 }, {
-  //                   name: 'node02',
-  //                   des: 'nodedes02',
-  //                   symbolSize: 50,
-  //                   category: 1,
-  //                 }, {
-  //                   name: 'node03',
-  //                   des: 'nodedes3',
-  //                   symbolSize: 50,
-  //                   category: 1,
-  //                 }, {
-  //                   name: 'node04',
-  //                   des: 'nodedes04',
-  //                   symbolSize: 50,
-  //                   category: 1,
-  //                 }, {
-  //                   name: 'node05',
-  //                   des: 'nodedes05',
-  //                   symbolSize: 50,
-  //                   category: 1,
-  //                 }],
-  //                 links: [{
-  //                   source: 'node01',
-  //                   target: 'node02',
-  //                   name: 'link01',
-  //                   des: 'link01des'
-  //                 }, {
-  //                   source: 'node01',
-  //                   target: 'node03',
-  //                   name: 'link02',
-  //                   des: 'link02des'
-  //                 }, {
-  //                   source: 'node01',
-  //                   target: 'node04',
-  //                   name: 'link03',
-  //                   des: 'link03des'
-  //                 }, {
-  //                   source: 'node01',
-  //                   target: 'node05',
-  //                   name: 'link04',
-  //                   des: 'link05des'
-  //                 }],
-  //                 categories: categories,
-  //               }],
-  //               grid:{
-  //                 top:"10px",
-  //                 bottom:"10px",
-  //                 height:"10px",
-  //                 width:"10px"
-  //               }
-  //             }
-  //             this.picList.push({src: res.data[i], options:option})
-  //           }
-  //         })
-
-        //前端测试
-        let option ={
-          // 图的标题
-          title: {
-            text: ''
-          },
-          // 提示框的配置
-          tooltip: {
-            formatter: function (x) {
-              return x.data.des;
-            }
-          },
-          // 工具箱
-          toolbox: {
-            // 显示工具箱
-            show: true,
-            feature: {
-              mark: {
-                show: true
-              },
-              // 还原
-              restore: {
-                show: true
-              },
-              // 保存为图片
-              saveAsImage: {
-                show: true
+        let fd = new FormData();
+        for(let i=0;i<this.uploadList.length;i++)
+          fd.append('pic',this.uploadList[i].raw)
+        this.$http.post('http://127.0.0.1:8000/extract',fd,
+          {
+            headers: {'Content-Type': 'multipart/form-data'}
+          }).then((res) => {
+            //成功 设置echarts
+            console.log(res);
+            this.tripleData=res.data[1];
+            this.picList = [];
+            for(let i=0; i<res.data[0].length; i++)//遍历图片
+            {
+              let graphPoint=[];
+              let graphLink=[];
+              let tmpPoints=[];
+              for(let j=0;j<res.data[1][i].length;j++)//遍历第i张图的三元组
+              {
+                let tmpLink={};
+                if(tmpPoints.indexOf(res.data[1][i][j][0])===-1)
+                  tmpPoints.push(res.data[1][i][j][0]);
+                if(tmpPoints.indexOf(res.data[1][i][j][2])===-1)
+                  tmpPoints.push(res.data[1][i][j][2]);
+                tmpLink.source=res.data[1][i][j][0];//第i张图第j个三元组
+                tmpLink.name=res.data[1][i][j][1];
+                tmpLink.des=tmpLink.name;
+                tmpLink.target=res.data[1][i][j][2];
+                graphLink.push(tmpLink);
               }
-            }
-          },
-          legend: [{
-            // selectedMode: 'single',
-            data: categories.map(function (a) {
-              return a.name;
-            })
-          }],
-          series: [{
-            type: 'graph', // 类型:关系图
-            layout: 'force', //图的布局，类型为力导图
-            symbolSize: 40, // 调整节点的大小
-            roam: true, // 是否开启鼠标缩放和平移漫游。默认不开启。如果只想要开启缩放或者平移,可以设置成 'scale' 或者 'move'。设置成 true 为都开启
-            edgeSymbol: ['circle', 'arrow'],
-            edgeSymbolSize: [2, 10],
-            edgeLabel: {
-              normal: {
-                textStyle: {
-                  fontSize: 20
+              for(let j =0;j<tmpPoints.length;j++)
+              {
+                let tmpEnt ={};
+                tmpEnt.des =tmpPoints[j];
+                tmpEnt.name=tmpPoints[j];
+                tmpEnt.category=0;
+                graphPoint.push(tmpEnt);
+              }
+              let option ={
+                // 图的标题
+                title: {
+                  text: ''
+                },
+                // 提示框的配置
+                tooltip: {
+                  formatter: function (x) {
+                    return x.data.des;
+                  }
+                },
+                // 工具箱
+                toolbox: {
+                  // 显示工具箱
+                  show: true,
+                  feature: {
+                    mark: {
+                      show: true
+                    },
+                    // 还原
+                    restore: {
+                      show: true
+                    },
+                    // 保存为图片
+                    saveAsImage: {
+                      show: true
+                    }
+                  }
+                },
+                legend: [{
+                  // selectedMode: 'single',
+                  data: categories.map(function (a) {
+                    return a.name;
+                  })
+                }],
+                series: [{
+                  type: 'graph', // 类型:关系图
+                  layout: 'force', //图的布局，类型为力导图
+                  symbolSize: 40, // 调整节点的大小
+                  roam: true, // 是否开启鼠标缩放和平移漫游。默认不开启。如果只想要开启缩放或者平移,可以设置成 'scale' 或者 'move'。设置成 true 为都开启
+                  edgeSymbol: ['circle', 'arrow'],
+                  edgeSymbolSize: [2, 10],
+                  edgeLabel: {
+                    normal: {
+                      textStyle: {
+                        fontSize: 20
+                      }
+                    }
+                  },
+                  force: {
+                    repulsion: 2500,
+                    edgeLength: [10, 50]
+                  },
+                  draggable: true,
+                  lineStyle: {
+                    normal: {
+                      width: 2,
+                      color: '#4b565b',
+                    }
+                  },
+                  edgeLabel: {
+                    normal: {
+                      show: true,
+                      formatter: function (x) {
+                        return x.data.name;
+                      }
+                    }
+                  },
+                  label: {
+                    normal: {
+                      show: true,
+                      textStyle: {}
+                    }
+                  },
+                  // 数据
+                  data: graphPoint,
+                  links: graphLink,
+                  categories: categories,
+                }],
+                grid:{
+                  top:"10px",
+                  bottom:"10px",
+                  height:"10px",
+                  width:"10px"
                 }
-              }
-            },
-            force: {
-              repulsion: 2500,
-              edgeLength: [10, 50]
-            },
-            draggable: true,
-            lineStyle: {
-              normal: {
-                width: 2,
-                color: '#4b565b',
-              }
-            },
-            edgeLabel: {
-              normal: {
-                show: true,
-                formatter: function (x) {
-                  return x.data.name;
-                }
-              }
-            },
-            label: {
-              normal: {
-                show: true,
-                textStyle: {}
-              }
-            },
-            // 数据
-            data: [{
-              name: 'node01',
-              des: 'nodedes01',
-              symbolSize: 70,
-              category: 0,
-            }, {
-              name: 'node02',
-              des: 'nodedes02',
-              symbolSize: 50,
-              category: 1,
-            }, {
-              name: 'node03',
-              des: 'nodedes3',
-              symbolSize: 50,
-              category: 1,
-            }, {
-              name: 'node04',
-              des: 'nodedes04',
-              symbolSize: 50,
-              category: 1,
-            }, {
-              name: 'node05',
-              des: 'nodedes05',
-              symbolSize: 50,
-              category: 1,
-            }],
-            links: [{
-              source: 'node01',
-              target: 'node02',
-              name: 'link01',
-              des: 'link01des'
-            }, {
-              source: 'node01',
-              target: 'node03',
-              name: 'link02',
-              des: 'link02des'
-            }, {
-              source: 'node01',
-              target: 'node04',
-              name: 'link03',
-              des: 'link03des'
-            }, {
-              source: 'node01',
-              target: 'node05',
-              name: 'link04',
-              des: 'link05des'
-            }],
-            categories: categories,
-          }],
-          grid:{
-            top:"10px",
-            bottom:"10px",
-            height:"10px",
-            width:"10px"
-          }
-        }
-        this.picList=[];
-        this.picList.push({src:'https://fuss10.elemecdn.com/e/5d/4a731a90594a4af544c0c25941171jpeg.jpeg', options:option});
-        this.picList.push({src:'https://fuss10.elemecdn.com/8/27/f01c15bb73e1ef3793e64e6b7bbccjpeg.jpeg', options:option});
-        this.picList.push({src:'https://fuss10.elemecdn.com/1/8e/aeffeb4de74e2fde4bd74fc7b4486jpeg.jpeg', options:option});
-        //测试结束
-        
+              };
+              this.picList.push({src: res.data[0][i], options:option})
+            }
+          });
         this.flag = true;
         this.isUpload = false;
       },
