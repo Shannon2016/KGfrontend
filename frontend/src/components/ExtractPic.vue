@@ -39,7 +39,7 @@
       <div id="upload" v-if="isUpload">
         <el-card class="box-card">
         <div slot="header" class="clearfix">
-            <span>语料上传</span>
+            <span>数据上传</span>
             <i class="el-icon-close" style="float: right; padding: 3px 0" @click="cancelUpload"></i>
         </div>
         <el-upload
@@ -288,10 +288,10 @@
         // });
         // let filename = this.choosenRow.title.split(".")[0];
         // //创建<a>下载文件
-        // let export_blob = new Blob([data]);
+        // let export_blob = new Blob([data],{type: 'text/csv',endings : 'native'});
         // let save_link = document.createElement("a");
         // save_link.href = URL.createObjectURL(export_blob);
-        // save_link.download = filename;
+        // save_link.download = filename+".csv";
         // save_link.click();
       }
     }
