@@ -348,10 +348,10 @@
         let filename = this.choosenRow.title.split(".")[0];
         console.log(filename);
         //创建<a>下载文件
-        let export_blob = new Blob([data]);
+        let export_blob = new Blob([data],{type: 'text/csv',endings : 'native'});
         let save_link = document.createElement("a");
         save_link.href = URL.createObjectURL(export_blob);
-        save_link.download = filename;
+        save_link.download = filename+".csv";
         save_link.click();
       },
     },
