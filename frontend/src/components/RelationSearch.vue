@@ -41,7 +41,7 @@
         <el-input v-model="inputEntity2" placeholder="实体2"></el-input>
         <el-button style="margin-left:20px;height: 40px" class="darkBtn" size="small" @click="onSearchClick">搜索</el-button>
 
-        <div class="result" v-if="searchDone">
+        <div class="result" v-if="searchDone" style="margin-bottom:50px;">
           <!--关系图谱-->
           <div id="kgPic">
             <div class="title">关系图谱</div>
@@ -88,7 +88,7 @@
   //   document.getElementById("kgPic").style.height="400%";
   //   myChart.resize();
   // };
-  
+
     export default {
         name: "RelationSearch",
       data(){
@@ -130,34 +130,97 @@
 		 /*逻辑和实体检索类似*/
 		 this.$http.get('http://127.0.0.1:8000/search_relation?entity1_text='+this.inputEntity1+'&relation_name_text='+this.inputRelation+'&entity2_text='+this.inputEntity2).then((res) => {
 			console.log(res.data.searchResult) ;
-			
-			this.tableData = [];
-            let graphPoint=[{name:this.inputEntity1,category:0}];
-            let graphLink=[];
-			for(let i=0;i<res.data.searchResult.length;i++)
-            {
-				let tmp={};
-				let tmpLink={};
-				tmp.entity1=this.inputEntity1;
-				tmp.relationship=res.data.searchResult[i].rel.type;
-				tmp.entity2=res.data.searchResult[i].n2.title;
-        //重名
-        if(tmp.entity2 === this.inputEntity1) continue;
+
+				this.tableData = [];
+
+				let graphPoint = [{ name:this.inputEntity1, category : 0, id : 0, }];
+        let graphLink = [];
+        let flag = true;
+        // for(let i = 0; i < res.data.searchResult.length && flag; i++) {
+        //   let tmp = {};
+        //   let tmpPoint = {};
+        //   let tmpLink = {};
+          
+        //   //三元组数据提取
+          // tmp.entity1=this.inputEntity1;
+					// tmp.relationship=res.data.searchResult[i].rel.type;
+					// tmp.entity2=res.data.searchResult[i].n2.title;
         
-				tmpLink.source=this.inputEntity1;
-				tmpLink.target=tmp.entity2;
-				tmpLink.name=tmp.relationship;
-				tmpLink.des=this.inputEntity1+"->"+tmp.entity2;
-				this.tableData.push(tmp);
-				graphLink.push(tmpLink);
-				graphPoint.push({name:tmp.entity2,category:1,des:tmp.entity2});
-			}
-			
+        //   //节点提取，按{名称，类别，ID}进行加入；
+        //   tmpPoint.name = res.data.searchResult[i].n2.title;
+        //   tmpPoint.category = 1;
+        //   tmpPoint.id = (i+1);
+        //   if(graphPoint.indexOf(tmpPoint) === -1) 
+        //     graphPoint.push(tmpPoint);  //如果没有在已有点中找到这样的结点，说明这是一个新节点，我们将节点加入到图节点集合中
+        //   else continue;
+
+        //   if(graphPoint.length === 20) flag = false;//控制20个结点
+
+        //   //关系组装，添加至graphLink
+        //   tmpLink.name = tmp.relationship;
+        //   tmpLink.source = 0;
+        //   tmpLink.target = 0; //防止报错，先设置一个值
+        //   for(let j = 0; j < graphPoint.length; j++ ){
+        //     if(graphPoint[j].name == tmp.entity2){
+        //       tmpLink.target = graphPoint[j].id;
+        //       break;
+        //     }
+        //   }
+        //   graphLink.push(tmpLink);// 将关系添加到graphLink
+
+        //   this.tableData.push(tmp);  //将三元组加入到表中
+        // }
+				for( let i = 0; i < res.data.searchResult.length; i++ ){  //这个循环，（去重）提取出所有实体2，将所有的三元组数据放入表中
+
+					let tmp={};
+					let tmpPoint = {};
+
+					  //三元组数据提取
+					tmp.entity1=this.inputEntity1;
+					tmp.relationship=res.data.searchResult[i].rel.type;
+					tmp.entity2=res.data.searchResult[i].n2.title;
+
+					//节点提取，按{名称，类别，ID}进行加入；
+					tmpPoint.name = res.data.searchResult[i].n2.title;
+					tmpPoint.category = 1;
+					tmpPoint.id = (i+1);
+
+					this.tableData.push(tmp);  //将三元组加入到表中
+
+					for(let j = 0; j<graphPoint.length; j++)
+						{if(graphPoint[j].name == tmp.name)continue; }//对已经在graphPoint中的节点进行遍历，如果已经存在同名节点，则跳过这一步；
+          
+					graphPoint.push(tmpPoint);  //如果没有跳出循环，说明这是一个新节点，我们将节点加入到图节点集合中
+        }
+
+				//for(let i = 0; i<i < res.data.searchResult.length; i++ )
+				for( let i = 0; i < res.data.searchResult.length ; i++ ){  //这个循环，根据关系的头和尾将关系数据加入到关系集合中
+
+					let tmp={};
+					let tmpLink={};
+
+					//提取关系数据中的实体1，实体2，关系名
+					tmp.entity1=this.inputEntity1;
+					tmp.relationship=res.data.searchResult[i].rel.type;
+					tmp.entity2=res.data.searchResult[i].n2.title;
+
+					  //关系组装，添加至graphLink
+					  tmpLink.name = tmp.relationship;
+					  tmpLink.source = 0;
+					  tmpLink.target = 0; //防止报错，先设置一个值
+
+					  for(let j = 0; j < graphPoint.length; j++ ){
+						  if(graphPoint[j].name == tmp.entity2)tmpLink.target = graphPoint[j].id;
+					  }//设置ID
+
+					  graphLink.push(tmpLink);// 将关系添加到graphLink
+				}
+
 			let categories=[
               {name:'entity1'},
               {name:'entity2'},
             ];
-			
+
 			let option ={
               // 提示框的配置
               tooltip: {
@@ -165,7 +228,7 @@
                   return x.data.des;
                 }
               },
-			
+
 			 // 工具箱
             toolbox: {
                 // 显示工具箱
@@ -190,7 +253,7 @@
                   return a.name;
                 })
               }],
-			
+
               series: [{
                 type: 'graph', // 类型:关系图
                 layout: 'force', //图的布局，类型为力导图
@@ -308,7 +371,7 @@
 
   /*关系图*/
   #kgPic{
-    height: 200px;
+    height: 800px;
     width: 100%;
     margin-top: 20px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, .12), 0 0 6px rgba(0, 0, 0, .04);

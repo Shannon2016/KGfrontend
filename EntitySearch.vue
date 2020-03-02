@@ -32,11 +32,11 @@
         <el-input v-model="inputEntity" placeholder="请输入实体名称"></el-input>
         <el-button style="margin-left:20px; height: 40px" class="darkBtn" size="small" @click="onSearchClick">搜索</el-button>
 
-        <div class="result" v-if="searchDone" style="margin-bottom:50px;">
+        <div class="result" v-if="searchDone">
           <!--关系图谱-->
           <div id="kgPic">
             <div class="title">关系图谱</div>
-            <div id="graph" style="width: 1200px;height:800px;"></div>
+            <div id="graph" style="width: 1200px;height:300px;"></div>
           </div>
           <!--三元组列表-->
           <el-table
@@ -64,7 +64,7 @@
             layout="prev, pager, next"
             :total="fileCount"
             @current-change="handleCurrentChange">
-          </el-pagination> -->
+          </el-pagination> -->  
         </div>
       </div>
     </el-main>
@@ -104,89 +104,26 @@
           this.$http.get('http://127.0.0.1:8000/search_entity?user_text='+this.inputEntity).then((res) => {
             console.log(res.data.entityRelation) ;
             this.tableData = [];
+            let graphPoint=[{name:this.inputEntity,category:0}];
+            let graphLink=[];
+            for(let i=0;i<res.data.entityRelation.length;i++)
+            {
+              let tmp={};
+              let tmpLink={};
+              tmp.entity1=this.inputEntity;
+              tmp.relationship=res.data.entityRelation[i].rel.type;
+              tmp.entity2=res.data.entityRelation[i].entity2.title;
+              //重名
+              if(tmp.entity2 === this.inputEntity) continue;
 
-            let graphPoint = [{name: this.inputEntity, category: 0, id: 0, }];
-            let graphLink = [];
-            let flag = true;
-            // for(let i = 0; i < res.data.entityRelation.length && flag; i++) {
-            //   let tmp = {};
-            //   let tmpPoint = {};
-            //   let tmpLink = {};
-              
-            //   //三元组数据提取
-            //   tmp.entity1 = this.inputEntity;
-            //   tmp.relationship = res.data.entityRelation[i].rel.type;
-            //   tmp.entity2 = res.data.entityRelation[i].entity2.title;
-            
-            //   //节点提取，按{名称，类别，ID}进行加入；
-            //   tmpPoint.name = res.data.entityRelation[i].entity2.title;
-            //   tmpPoint.category = 1;
-            //   tmpPoint.id = (i+1);
-            //   if(graphPoint.indexOf(tmpPoint) === -1) 
-            //     graphPoint.push(tmpPoint);  //如果没有在已有点中找到这样的结点，说明这是一个新节点，我们将节点加入到图节点集合中
-            //   else continue;
-
-            //   if(graphPoint.length === 20) flag = false;//控制20个结点
-
-            //   //关系组装，添加至graphLink
-            //   tmpLink.name = tmp.relationship;
-            //   tmpLink.source = 0;
-            //   tmpLink.target = 0; //防止报错，先设置一个值
-            //   for(let j = 0; j < graphPoint.length; j++ ){
-            //     if(graphPoint[j].name == tmp.entity2){
-            //       tmpLink.target = graphPoint[j].id;
-            //       break;
-            //     }
-            //   }
-            //   graphLink.push(tmpLink);// 将关系添加到graphLink
-
-            //   this.tableData.push(tmp);  //将三元组加入到表中
-            // }
-            for(let i = 0; i < res.data.entityRelation.length && flag; i++ ){  //这个循环，（去重）提取出所有实体2，将所有的三元组数据放入表中
-
-                  let tmp = {};
-                  let tmpPoint = {};
-
-                  //三元组数据提取
-                  tmp.entity1 = this.inputEntity;
-                  tmp.relationship = res.data.entityRelation[i].rel.type;
-                  tmp.entity2 = res.data.entityRelation[i].entity2.title;
-
-                  //节点提取，按{名称，类别，ID}进行加入；
-                  tmpPoint.name = res.data.entityRelation[i].entity2.title;
-                  tmpPoint.category = 1;
-                  tmpPoint.id = (i+1);
-
-                  this.tableData.push(tmp);  //将三元组加入到表中
-
-                  for(let j = 0; j<graphPoint.length; j++)
-                    {if(graphPoint[j].name == tmp.name)continue; }//对已经在graphPoint中的节点进行遍历，如果已经存在同名节点，则跳过这一步；
-
-                  graphPoint.push(tmpPoint);  //如果没有跳出循环，说明这是一个新节点，我们将节点加入到图节点集合中
-                  if(graphPoint.length === 20) flag = false;
+              tmpLink.source=this.inputEntity;
+              tmpLink.target=tmp.entity2;
+              tmpLink.name=tmp.relationship;
+              tmpLink.des=this.inputEntity+"->"+tmp.entity2;
+              this.tableData.push(tmp);
+              graphLink.push(tmpLink);
+              graphPoint.push({name:tmp.entity2,category:1,des:tmp.entity2});
             }
-
-            for(let i = 0; i< res.data.entityRelation.length; i++ ){  //这个循环，根据关系的头和尾将关系数据加入到关系集合中
-
-                  let tmp={};
-                  let tmpLink={};
-
-                  //提取关系数据中的实体1，实体2，关系名
-                  tmp.entity1=this.inputEntity;
-                  tmp.relationship=res.data.entityRelation[i].rel.type;
-                  tmp.entity2=res.data.entityRelation[i].entity2.title;
-
-                  //关系组装，添加至graphLink
-                  tmpLink.name = tmp.relationship;
-                  tmpLink.source = 0;
-                  tmpLink.target = 0; //防止报错，先设置一个值
-                  for(let j = 0; j < graphPoint.length; j++ ){
-                      if(graphPoint[j].name == tmp.entity2)tmpLink.target = graphPoint[j].id;
-                  }
-
-                  graphLink.push(tmpLink);// 将关系添加到graphLink
-            }
-
             let categories=[
               {name:'entity1'},
               {name:'entity2'},
@@ -347,7 +284,7 @@
 
   /*关系图*/
   #kgPic{
-    height: 800px;
+    height: 400px;
     width: 100%;
     margin-top: 20px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, .12), 0 0 6px rgba(0, 0, 0, .04);

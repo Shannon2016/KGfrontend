@@ -31,8 +31,8 @@
     <el-main v-if="isList">
       <!--顶部-->
       <div class="header">
-        知识抽取
-        <el-button type="primary" class="darkBtn headbutton" size="small" @click="isUpload=true">上传</el-button>
+        文本抽取
+        <el-button type="primary" class="darkBtn headbutton" size="small" @click="isUpload=true">上传与分析</el-button>
         <el-button type="primary" class="darkBtn headbutton" size="small" >训练</el-button>
       </div>
       <el-divider></el-divider>
@@ -47,7 +47,7 @@
 
           <el-card class="box-card">
             <div slot="header" class="clearfix">
-              <span>语料上传</span>
+              <span>数据上传</span>
               <i class="el-icon-close" style="float: right; padding: 3px 0" @click="cancelUpload"></i>
             </div>
             <el-upload
@@ -64,13 +64,14 @@
               <i class="el-icon-upload"></i>
               <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
               <div class="el-upload__tip" slot="tip">
-                支持上传Excel文件、Json文件以及txt文件<br>
+                支持上传txt文件集word文件<br>
+                <!-- 支持上传Excel文件、Json文件以及txt文件<br>
                 Excel文件第一行为title，第二行为text<br>
-                Json数据结构为对象数组，对象属性值含有title和text<br>
+                Json数据结构为对象数组，对象属性值含有title和text<br> -->
               </div>
             </el-upload>
             <el-button size="small" @click="cancelUpload">取消</el-button>
-            <el-button style="margin-left: 10px;" class="darkBtn" size="small" type="primary" @click="submitUpload">上传</el-button>
+            <el-button style="margin-left: 10px;" class="darkBtn" size="small" type="primary" @click="submitUpload">上传并分析</el-button>
           </el-card>
         </div>
         <!--文书列表-->

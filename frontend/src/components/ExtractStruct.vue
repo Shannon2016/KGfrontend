@@ -32,7 +32,7 @@
       <!--顶部-->
       <div class="header">
         结构化数据抽取
-        <el-button type="primary" class="darkBtn headbutton" size="small" @click="isUpload=true">上传</el-button>
+        <el-button type="primary" class="darkBtn headbutton" size="small" @click="isUpload=true">上传与分析</el-button>
         <el-button type="primary" class="darkBtn headbutton" size="small" >训练</el-button>
       </div>
       <el-divider></el-divider>
@@ -68,7 +68,7 @@
               </div>
             </el-upload>
             <el-button size="small" @click="cancelUpload">取消</el-button>
-            <el-button style="margin-left: 10px;" class="darkBtn" size="small" type="primary" @click="submitUpload">上传</el-button>
+            <el-button style="margin-left: 10px;" class="darkBtn" size="small" type="primary" @click="submitUpload">上传并分析</el-button>
           </el-card>
         </div>
         <!--结构化数据列表-->

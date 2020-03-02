@@ -39,7 +39,7 @@
       <div id="upload" v-if="isUpload">
         <el-card class="box-card">
         <div slot="header" class="clearfix">
-            <span>语料上传</span>
+            <span>数据上传</span>
             <i class="el-icon-close" style="float: right; padding: 3px 0" @click="cancelUpload"></i>
         </div>
         <el-upload

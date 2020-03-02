@@ -5,7 +5,7 @@
       <el-header>
         <div id="logo" style="position:absolute; left:30px; top:3px;">
           <img src="./assets/KGLogo.png" />
-          <span style="margin-left:10px;font-size:large;font-weight:bold;">作战文书管理系统</span>
+          <span style="margin-left:10px;font-size:large;font-weight:bold;">军事知识管理系统</span>
         </div>
         <el-row type="flex" justify="end">
           <!-- <el-col id="logo" :span="3">
