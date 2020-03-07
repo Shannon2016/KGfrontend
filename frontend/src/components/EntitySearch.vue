@@ -111,6 +111,15 @@
 
         this.$http.get('http://49.232.95.141:8000/search_entity?user_text='+this.inputEntity).then((res) => {
           console.log(res.data.entityRelation) ;
+          if(!res.data.entityRelation){
+            let option ={};
+            myChart= echarts.init(document.getElementById('graph'));
+            // 绘制图表
+            myChart.setOption(option, true);
+            this.tableData = [];
+            return;
+          }
+
           this.tableData = [];
           let graphPoint=[{name:this.inputEntity,category:0}];
           let graphLink=[];
@@ -235,6 +244,12 @@
         }).catch((res)=>{
           console.log("fail")
           console.log(res);
+          let option ={};
+            myChart= echarts.init(document.getElementById('graph'));
+            // 绘制图表
+            myChart.setOption(option, true);
+            this.tableData = [];
+            return;
         })
       }
     },

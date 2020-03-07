@@ -120,7 +120,14 @@
           /*逻辑和实体检索类似*/
           this.$http.get('http://127.0.0.1:8000/search_relation?entity1_text='+this.inputEntity1+'&relation_name_text='+this.inputRelation+'&entity2_text='+this.inputEntity2).then((res) => {
             console.log(res.data.searchResult) ;
-
+            if(!res.data.searchResult) {
+              let option ={};
+              myChart= echarts.init(document.getElementById('kgPic'));
+              // 绘制图表
+              myChart.setOption(option, true);
+              this.tableData = [];
+              return;
+            }
             this.tableData = [];
 
             let graphPoint = [{ name:this.inputEntity1, category : 0, id : 0, }];
@@ -301,6 +308,12 @@
               }).catch((res)=>{
                 console.log("fail")
                 console.log(res);
+                let option ={};
+                myChart= echarts.init(document.getElementById('kgPic'));
+                // 绘制图表
+                myChart.setOption(option, true);
+                this.tableData = [];
+                return;
               })
             }
       },
