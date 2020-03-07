@@ -78,7 +78,11 @@
         <div v-for="(item, index) in vedioList" v-bind:key="index">
           <div class="resultContainer">
             <div class="picStyle" style="display:flex; flex-direction: row;flex-wrap:wrap;">
-              <video :src="item" controls="controls" style="width:100%;"></video>
+              <video :src="item.src" controls="controls" style="width:100%;"></video>
+              <!-- <video preload controls loop style="width:100%;">
+                <source :src="item.src" type="video/mp4" />
+                您的浏览器不支持HTML5的vedio标签。
+              </video> -->
               <div style="text-align: center;font-weight: bold;width: 100%">文件名</div>
             </div>
             <v-echart :id="'graph'+index" class="graphStyle" :options="item.options"></v-echart>
@@ -119,296 +123,157 @@
         this.uploadList=[];
       },
       submitUpload() {
-        //上传
-//         let fd = new FormData()
-//         fd.append('video',this.uploadList[0].raw)
-//         this.$http.post(
-//           'http://127.0.0.1:8000/video/extract',fd,
-//           {
-//          headers: {
-//           'Content-Type': 'multipart/form-data'
-//           }
-//         }).then((res) => {
-            //清空上传列表
-            // this.uploadList=[];
-//           console.log(res)
-//      this.vedioList = []
-//           //设置echarts
-//           let option ={
-//             // 图的标题
-//             title: {
-//               text: 'test'
-//             },
-//             // 提示框的配置
-//             tooltip: {
-//               formatter: function (x) {
-//                 return x.data.des;
-//               }
-//             },
-//             // 工具箱
-//             toolbox: {
-//               // 显示工具箱
-//               show: true,
-//               feature: {
-//                 mark: {
-//                   show: true
-//                 },
-//                 // 还原
-//                 restore: {
-//                   show: true
-//                 },
-//                 // 保存为图片
-//                 saveAsImage: {
-//                   show: true
-//                 }
-//               }
-//             },
-//             legend: [{
-//               // selectedMode: 'single',
-//               data: categories.map(function (a) {
-//                 return a.name;
-//               })
-//             }],
-//             series: [{
-//               type: 'graph', // 类型:关系图
-//               layout: 'force', //图的布局，类型为力导图
-//               symbolSize: 40, // 调整节点的大小
-//               roam: true, // 是否开启鼠标缩放和平移漫游。默认不开启。如果只想要开启缩放或者平移,可以设置成 'scale' 或者 'move'。设置成 true 为都开启
-//               edgeSymbol: ['circle', 'arrow'],
-//               edgeSymbolSize: [2, 10],
-//               edgeLabel: {
-//                 normal: {
-//                   textStyle: {
-//                     fontSize: 20
-//                   }
-//                 }
-//               },
-//               force: {
-//                 repulsion: 2500,
-//                 edgeLength: [10, 50]
-//               },
-//               draggable: true,
-//               lineStyle: {
-//                 normal: {
-//                   width: 2,
-//                   color: '#4b565b',
-//                 }
-//               },
-//               edgeLabel: {
-//                 normal: {
-//                   show: true,
-//                   formatter: function (x) {
-//                     return x.data.name;
-//                   }
-//                 }
-//               },
-//               label: {
-//                 normal: {
-//                   show: true,
-//                   textStyle: {}
-//                 }
-//               },
-//               // 数据
-//               data: [{
-//                 name: 'node01',
-//                 des: 'nodedes01',
-//                 symbolSize: 70,
-//                 category: 0,
-//               }, {
-//                 name: 'node02',
-//                 des: 'nodedes02',
-//                 symbolSize: 50,
-//                 category: 1,
-//               }, {
-//                 name: 'node03',
-//                 des: 'nodedes3',
-//                 symbolSize: 50,
-//                 category: 1,
-//               }, {
-//                 name: 'node04',
-//                 des: 'nodedes04',
-//                 symbolSize: 50,
-//                 category: 1,
-//               }, {
-//                 name: 'node05',
-//                 des: 'nodedes05',
-//                 symbolSize: 50,
-//                 category: 1,
-//               }],
-//               links: [{
-//                 source: 'node01',
-//                 target: 'node02',
-//                 name: 'link01',
-//                 des: 'link01des'
-//               }, {
-//                 source: 'node01',
-//                 target: 'node03',
-//                 name: 'link02',
-//                 des: 'link02des'
-//               }, {
-//                 source: 'node01',
-//                 target: 'node04',
-//                 name: 'link03',
-//                 des: 'link03des'
-//               }, {
-//                 source: 'node01',
-//                 target: 'node05',
-//                 name: 'link04',
-//                 des: 'link05des'
-//               }],
-//               categories: categories,
-//             }],
-//             grid:{
-//               top:"10px",
-//               bottom:"10px",
-//               height:"10px",
-//               width:"10px"
-//             }
-//           }
-//           this.vedioList.push({src:res.data, options:option})
-//         }).catch((res) => {
-//           //请求失败
-
-//         })
-
-        //前端测试
-        //设置echarts
-        let option ={
-          // 图的标题
-          // title: {
-          //   text: '文件名'
-          // },
-          // 提示框的配置
-          tooltip: {
-            formatter: function (x) {
-              return x.data.des;
-            }
-          },
-          // 工具箱
-          toolbox: {
-            // 显示工具箱
-            right:20,
-            show: true,
-            feature: {
-              mark: {
-                show: true
-              },
-              // 还原
-              restore: {
-                show: true
-              },
-              // 保存为图片
-              saveAsImage: {
-                show: true
-              }
-            }
-          },
-          legend: [{
-            // selectedMode: 'single',
-            data: categories.map(function (a) {
-              return a.name;
-            })
-          }],
-          series: [{
-            type: 'graph', // 类型:关系图
-            layout: 'force', //图的布局，类型为力导图
-            symbolSize: 40, // 调整节点的大小
-            roam: true, // 是否开启鼠标缩放和平移漫游。默认不开启。如果只想要开启缩放或者平移,可以设置成 'scale' 或者 'move'。设置成 true 为都开启
-            edgeSymbol: ['circle', 'arrow'],
-            edgeSymbolSize: [2, 10],
-            edgeLabel: {
-              normal: {
-                textStyle: {
-                  fontSize: 20
-                }
-              }
-            },
-            force: {
-              repulsion: 2500,//节点间的斥力因子。
-              gravity : 1,//节点受到的向中心的引力因子。该值越大节点越往中心点靠拢。
-              edgeLength: [10, 50]
-            },
-            draggable: true,
-            lineStyle: {
-              normal: {
-                width: 2,
-                color: '#4b565b',
-              }
-            },
-            edgeLabel: {
-              normal: {
-                show: true,
-                formatter: function (x) {
-                  return x.data.name;
-                }
-              }
-            },
-            label: {
-              normal: {
-                show: true,
-                textStyle: {}
-              }
-            },
-            // 数据
-            data: [{
-              name: 'node01',
-              des: 'nodedes01',
-              symbolSize: 70,
-              category: 0,
-            }, {
-              name: 'node02',
-              des: 'nodedes02',
-              symbolSize: 50,
-              category: 1,
-            }, {
-              name: 'node03',
-              des: 'nodedes3',
-              symbolSize: 50,
-              category: 1,
-            }, {
-              name: 'node04',
-              des: 'nodedes04',
-              symbolSize: 50,
-              category: 1,
-            }, {
-              name: 'node05',
-              des: 'nodedes05',
-              symbolSize: 50,
-              category: 1,
-            }],
-            links: [{
-              source: 'node01',
-              target: 'node02',
-              name: 'link01',
-              des: 'link01des'
-            }, {
-              source: 'node01',
-              target: 'node03',
-              name: 'link02',
-              des: 'link02des'
-            }, {
-              source: 'node01',
-              target: 'node04',
-              name: 'link03',
-              des: 'link03des'
-            }, {
-              source: 'node01',
-              target: 'node05',
-              name: 'link04',
-              des: 'link05des'
-            }],
-            categories: categories,
-          }],
-          grid:{
-            top:"10px",
-            bottom:"10px",
-            height:"10px",
-            width:"10px"
+      //上传
+        let fd = new FormData()
+        fd.append('video',this.uploadList[0].raw)
+        this.$http.post(
+          'http://49.232.95.141:8000/pic/video_extract',fd,
+          {
+         headers: {
+          'Content-Type': 'multipart/form-data'
           }
-        }
-        this.vedioList=[];
-        this.vedioList.push({src:"https://vdept.bdstatic.com/766c61556a637862494d525073497967/7168786b72575243/2fdfac5ac676dae096ae25bc9c5174f9e3e80c313b38d89c35da8272a09144ca64f32cf743c8a7c74223a4e449954793.mp4?auth_key=1581744001-0-0-72974359bb3fe4e6c0416d25ee7e6b0a", options:option});
-        //测试结束
+        }).then((res) => {
+          //清空上传列表
+          this.uploadList=[];
+          console.log(res.data)
+          this.vedioList = []
+          //设置echarts
+          let option ={
+            // 图的标题
+            title: {
+              text: 'test'
+            },
+            // 提示框的配置
+            tooltip: {
+              formatter: function (x) {
+                return x.data.des;
+              }
+            },
+            // 工具箱
+            toolbox: {
+              // 显示工具箱
+              show: true,
+              feature: {
+                mark: {
+                  show: true
+                },
+                // 还原
+                restore: {
+                  show: true
+                },
+                // 保存为图片
+                saveAsImage: {
+                  show: true
+                }
+              }
+            },
+            legend: [{
+              // selectedMode: 'single',
+              data: categories.map(function (a) {
+                return a.name;
+              })
+            }],
+            series: [{
+              type: 'graph', // 类型:关系图
+              layout: 'force', //图的布局，类型为力导图
+              symbolSize: 40, // 调整节点的大小
+              roam: true, // 是否开启鼠标缩放和平移漫游。默认不开启。如果只想要开启缩放或者平移,可以设置成 'scale' 或者 'move'。设置成 true 为都开启
+              edgeSymbol: ['circle', 'arrow'],
+              edgeSymbolSize: [2, 10],
+              edgeLabel: {
+                normal: {
+                  textStyle: {
+                    fontSize: 20
+                  }
+                }
+              },
+              force: {
+                repulsion: 2500,
+                edgeLength: [10, 50]
+              },
+              draggable: true,
+              lineStyle: {
+                normal: {
+                  width: 2,
+                  color: '#4b565b',
+                }
+              },
+              edgeLabel: {
+                normal: {
+                  show: true,
+                  formatter: function (x) {
+                    return x.data.name;
+                  }
+                }
+              },
+              label: {
+                normal: {
+                  show: true,
+                  textStyle: {}
+                }
+              },
+              // 数据
+              data: [{
+                name: 'node01',
+                des: 'nodedes01',
+                symbolSize: 70,
+                category: 0,
+              }, {
+                name: 'node02',
+                des: 'nodedes02',
+                symbolSize: 50,
+                category: 1,
+              }, {
+                name: 'node03',
+                des: 'nodedes3',
+                symbolSize: 50,
+                category: 1,
+              }, {
+                name: 'node04',
+                des: 'nodedes04',
+                symbolSize: 50,
+                category: 1,
+              }, {
+                name: 'node05',
+                des: 'nodedes05',
+                symbolSize: 50,
+                category: 1,
+              }],
+              links: [{
+                source: 'node01',
+                target: 'node02',
+                name: 'link01',
+                des: 'link01des'
+              }, {
+                source: 'node01',
+                target: 'node03',
+                name: 'link02',
+                des: 'link02des'
+              }, {
+                source: 'node01',
+                target: 'node04',
+                name: 'link03',
+                des: 'link03des'
+              }, {
+                source: 'node01',
+                target: 'node05',
+                name: 'link04',
+                des: 'link05des'
+              }],
+              categories: categories,
+            }],
+            grid:{
+              top:"10px",
+              bottom:"10px",
+              height:"10px",
+              width:"10px"
+            }
+          }
+          this.vedioList.push({src:res.data, options:option})
+        }).catch((res) => {
+          //请求失败
+        })
+
         this.flag = true;
         this.isUpload = false;
       },
