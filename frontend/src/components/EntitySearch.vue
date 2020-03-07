@@ -36,7 +36,7 @@
           <!--关系图谱-->
           <div id="kgPic">
             <div class="title">关系图谱</div>
-            <div id="graph" style="width: 1200px;height:300px;"></div>
+            <div id="graph" style="width: 1200px;height:800px;"></div>
           </div>
           <!--三元组列表-->
           <el-table
@@ -76,11 +76,6 @@
 
   let echarts = require('echarts');
   let myChart;
-  // window.onresize = function() {
-  //   document.getElementById("graph").style.width="100%";
-  //   document.getElementById("graph").style.height="100%";
-  //   myChart.resize();
-  // };
 
   export default {
     name: "KnowledgeSearch",
@@ -99,7 +94,20 @@
       //   this.curPage = cpage;
       // },
       onSearchClick(){
+        if(this.inputEntity === '' && !this.searchDone){
+          return;
+        }
+
         this.searchDone=true;
+
+        if(this.inputEntity === ''){
+        let option ={};
+        myChart= echarts.init(document.getElementById('graph'));
+        // 绘制图表
+        myChart.setOption(option, true);
+        this.tableData = [];
+        return;
+        }
 
         this.$http.get('http://49.232.95.141:8000/search_entity?user_text='+this.inputEntity).then((res) => {
           console.log(res.data.entityRelation) ;
@@ -295,7 +303,7 @@
 
   /*关系图*/
   #kgPic{
-    height: 400px;
+    height: 800px;
     width: 100%;
     margin-top: 20px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, .12), 0 0 6px rgba(0, 0, 0, .04);
