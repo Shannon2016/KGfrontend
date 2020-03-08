@@ -161,7 +161,7 @@
 
         let fd = new FormData()
         for(let i=0;i<this.fileList.length;i++)
-          fd.append('text',this.fileList[i])
+          fd.append('text',this.fileList[i].raw)
         this.$http.post(
           'http://49.232.95.141:8000/pic/text_extract',fd,
           {
@@ -169,17 +169,47 @@
           'Content-Type': 'multipart/form-data'
           }
         }).then((res) => {
-          console.log(res)
+          this.tableData = [];
           for(let i=0;i<this.fileList.length;i++) {
+            let graphPoint = [];
+            let graphLink = [];
+            let pointSet = new Set();
+
+            for(let j = 0; j < res.data[1][i].length; j ++) {
+                let tmp = {};
+                tmp.entity1 = res.data[1][i][j][0];
+                tmp.entity2 = res.data[1][i][j][2];
+                tmp.relation = res.data[1][i][j][1];
+
+                if(!pointSet.has(tmp.entity1)) {
+                  pointSet.add(tmp.entity1);
+                  graphPoint.push({name:tmp.entity1,category:1,des:tmp.entity1});
+                }
+                if(!pointSet.has(tmp.entity2)) {
+                  pointSet.add(tmp.entity2);
+                  graphPoint.push({name:tmp.entity2,category:1,des:tmp.entity2});
+                }
+
+                graphLink.push({
+                  source: tmp.entity1,
+                  target: tmp.entity2,
+                  name: tmp.relation,
+                  des: tmp.entity1 + "->" + tmp.entity2
+                });
+            }
+
             this.tableData.push({
               date:  date,
-              title: this.fileList[i].raw.name
+              title: this.fileList[i].raw.name,
+              point: graphPoint,
+              link: graphLink
             })
           }
           this.fileCount = this.tableData.length;
 
         }).catch((res) => {
           //请求失败
+          console.log('fail')
         })
  
         this.isUpload = false;
@@ -188,7 +218,6 @@
         this.fileList = fileList;
       },
       handleAddFile(file,fileList){
-        console.log(file);
         console.log(fileList);
         this.fileList = fileList;
       },
@@ -196,60 +225,11 @@
         this.curPage = cpage;
       },
       handleAnalysis(row){
-        console.log(row);
         this.choosenRow = row;
         this.isList = false;
         //需根据返回值修改
-        this.tripleData =[
-          {
-          source: 'node01',
-          target: 'node02',
-          name: 'link01',
-          des: 'link01des'
-        }, {
-          source: 'node01',
-          target: 'node03',
-          name: 'link02',
-          des: 'link02des'
-        }, {
-          source: 'node01',
-          target: 'node04',
-          name: 'link03',
-          des: 'link03des'
-        }, {
-          source: 'node01',
-          target: 'node05',
-          name: 'link04',
-          des: 'link05des'
-        }];
-        let graphPoint=[
-            {
-              name: 'node01',
-              des: 'nodedes01',
-              symbolSize: 70,
-              category: 0,
-            }, {
-              name: 'node02',
-              des: 'nodedes02',
-              symbolSize: 50,
-              category: 1,
-            }, {
-              name: 'node03',
-              des: 'nodedes3',
-              symbolSize: 50,
-              category: 1,
-            }, {
-              name: 'node04',
-              des: 'nodedes04',
-              symbolSize: 50,
-              category: 1,
-            }, {
-              name: 'node05',
-              des: 'nodedes05',
-              symbolSize: 50,
-              category: 1,
-            }
-        ];
+        this.tripleData =row.link
+        let graphPoint= row.point
         let categories=[
           {name:'属性A'},
           {name:'属性B'},
