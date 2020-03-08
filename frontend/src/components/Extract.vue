@@ -55,7 +55,7 @@
               drag
               ref="upload"
               :auto-upload="false"
-              accept=".txt,.xls,.xlsx,.json"
+              accept=".txt"
               action="https://jsonplaceholder.typicode.com/posts/"
               :on-remove="handleRemove"
               :on-change="handleAddFile"
@@ -64,7 +64,7 @@
               <i class="el-icon-upload"></i>
               <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
               <div class="el-upload__tip" slot="tip">
-                支持上传txt文件及word文件<br>
+                仅支持上传txt文件<br>
               </div>
             </el-upload>
             <el-button size="small" @click="cancelUpload">取消</el-button>
@@ -157,23 +157,32 @@
         this.fileCount = this.tableData.length;
         let now = new Date();
         let date =  now.getFullYear() + "-" + ((now.getMonth() + 1) < 10 ? "0" : "") + (now.getMonth() + 1) + "-" + (now.getDate() < 10 ? "0" : "") + now.getDate();
-        this.$refs.upload.submit();
-        for(let i=0;i<this.fileList.length;i++) {
-          this.tableData.push({
-            date:  date,
-            title: this.fileList[i].raw.name
-          })
-        }
-        this.fileCount = this.tableData.length;
+        // this.$refs.upload.submit();
+
+        let fd = new FormData()
+        for(let i=0;i<this.fileList.length;i++)
+          fd.append('text',this.fileList[i])
+        this.$http.post(
+          'http://49.232.95.141:8000/pic/text_extract',fd,
+          {
+         headers: {
+          'Content-Type': 'multipart/form-data'
+          }
+        }).then((res) => {
+          console.log(res)
+          for(let i=0;i<this.fileList.length;i++) {
+            this.tableData.push({
+              date:  date,
+              title: this.fileList[i].raw.name
+            })
+          }
+          this.fileCount = this.tableData.length;
+
+        }).catch((res) => {
+          //请求失败
+        })
+ 
         this.isUpload = false;
-        //
-        // for(let i = 0; i < 9; i ++){
-        //   this.tableData.push({
-        //     date: '2016-05-03',
-        //     title: '文书'+i
-        //   })
-        // }
-        // this.fileCount = this.tableData.length;
       },
       handleRemove(file, fileList) {
         this.fileList = fileList;
