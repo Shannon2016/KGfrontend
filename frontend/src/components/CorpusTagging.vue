@@ -116,6 +116,7 @@
           })
         }
         this.fileCount = this.tableData.length;
+        this.fileList = [];
       },
       handleRemove(file, fileList) {
         this.fileList = fileList;

@@ -166,6 +166,7 @@
         }
         this.fileCount = this.tableData.length;
         this.isUpload = false;
+        this.fileList =[];
 
         // for(let i = 0; i < 9; i ++){
         //   this.tableData.push({

@@ -270,6 +270,7 @@
             }
           }
           this.vedioList.push({src:res.data, options:option})
+          this.uploadList = [];
         }).catch((res) => {
           //请求失败
         })
