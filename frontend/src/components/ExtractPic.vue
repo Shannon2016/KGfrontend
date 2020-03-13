@@ -89,11 +89,11 @@
               </el-image>
               <div style="text-align: center;font-weight: bold;width: 100%">
                 图{{index + 1}}
-                <el-button type="primary" class="blueBtn" size="small" @click="handleExport">导出</el-button>
+                <el-button type="primary" class="blueBtn" size="small" @click="handleExport(index)">导出</el-button>
               </div>
             </div>
             <div class="graphStyle">
-              <v-echart :id="'graph'+index" style="width:100%;height:100%;" :options="item.options"></v-echart>
+              <v-echart :id="'graph'+index" style="width:100%;height:100%;" :options="item.options" @click="clickChart"></v-echart>
             </div>
           </div>
         </div>
@@ -136,6 +136,25 @@
       cancelUpload(){
         this.isUpload=false;
         this.uploadList=[];
+      },
+      clickChart(event, instance, echarts){
+        let obj = arguments[0].data;
+        console.log(obj);
+        if(obj.hasOwnProperty("source"))//links
+        {
+          //obj.source+obj.name+obj.target 头节点、关系、尾节点
+          // this.$http.get('http://49.232.95.141:8000/search_entity?head='+obj.source+"&relation="+obj.name+"&tail="+obj.target).then(
+          //   (res) => {
+          //   })
+          alert("1");
+        }
+        else //points
+        {
+          //实体名为obj.name
+          // this.$http.get('http://49.232.95.141:8000/search_entity?entity='+obj.name).then((res) => {
+          // })
+          alert("2");
+        }
       },
       submitUpload() {
         //上传的请求
@@ -268,7 +287,9 @@
               this.picList.push({src: res.data[0][i], options:option})
             }
             this.uploadList = []
-          });
+          }).catch((e)=>{
+          console.log(e)
+        });
         this.flag = true;
         this.isUpload = false;
       },
@@ -280,20 +301,22 @@
         console.log(fileList);
         this.uploadList = fileList;
       },
-      handleExport() {
+      handleExport(index) {
         //导出三元组
-        // //处理数据
-        // let data="";
-        // this.tripleData.forEach(function (item,index) {
-        //   data+=item.source+","+item.name+","+item.target+"\n";
-        // });
-        // let filename = this.choosenRow.title.split(".")[0];
-        // //创建<a>下载文件
-        // let export_blob = new Blob([data],{type: 'text/csv',endings : 'native'});
-        // let save_link = document.createElement("a");
-        // save_link.href = URL.createObjectURL(export_blob);
-        // save_link.download = filename+".csv";
-        // save_link.click();
+        //处理数据
+        let data="head,relation,tail\n";
+        let tripleData=this.tripleData[index];
+        for(let i=0;i<tripleData.length;i++)
+        {
+          data+=tripleData[i][0]+","+tripleData[i][1]+","+tripleData[i][2]+"\n";
+        }
+        let filename = "图片"+index;
+        //创建<a>下载文件
+        let export_blob = new Blob([data],{type: 'text/csv',endings : 'native'});
+        let save_link = document.createElement("a");
+        save_link.href = URL.createObjectURL(export_blob);
+        save_link.download = filename+".csv";
+        save_link.click();
       }
     }
   }
