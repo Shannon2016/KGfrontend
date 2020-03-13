@@ -129,16 +129,16 @@
         this.$http.post(
           'http://49.232.95.141:8000/pic/video_extract',fd,
           {
-         headers: {
-          'Content-Type': 'multipart/form-data'
-          }
-        }).then((res) => {
+            headers: {
+              'Content-Type': 'multipart/form-data'
+            }
+          }).then((res) => {
           //清空上传列表
           this.uploadList=[];
-          console.log(res.data)
-          this.vedioList = []
+          console.log(res.data);
+          this.vedioList = [];
           //设置echarts
-          let option ={
+          let option = {
             // 图的标题
             title: {
               text: 'test'
@@ -213,7 +213,8 @@
                 }
               },
               // 数据
-              data: [{
+              data: [
+                {
                 name: 'node01',
                 des: 'nodedes01',
                 symbolSize: 70,
@@ -239,7 +240,8 @@
                 symbolSize: 50,
                 category: 1,
               }],
-              links: [{
+              links: [
+                {
                 source: 'node01',
                 target: 'node02',
                 name: 'link01',
@@ -262,17 +264,17 @@
               }],
               categories: categories,
             }],
-            grid:{
-              top:"10px",
-              bottom:"10px",
-              height:"10px",
-              width:"10px"
+            grid: {
+              top: "10px",
+              bottom: "10px",
+              height: "10px",
+              width: "10px"
             }
-          }
-          this.vedioList.push({src:res.data, options:option})
+          };
+          this.vedioList.push({src:res.data, options:option})
         }).catch((res) => {
           //请求失败
-        })
+        });
 
         this.flag = true;
         this.isUpload = false;
