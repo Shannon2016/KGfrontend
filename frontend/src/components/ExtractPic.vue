@@ -267,6 +267,7 @@
               };
               this.picList.push({src: res.data[0][i], options:option})
             }
+            this.uploadList = []
           });
         this.flag = true;
         this.isUpload = false;

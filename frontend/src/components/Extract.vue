@@ -206,7 +206,8 @@
             })
           }
           this.fileCount = this.tableData.length;
-
+          this.fileList=[];
+          
         }).catch((res) => {
           //请求失败
           console.log('fail')

@@ -270,8 +270,9 @@
               height: "10px",
               width: "10px"
             }
-          };
-          this.vedioList.push({src:res.data, options:option})
+          }
+          this.vedioList.push({src:res.data, options:option})
+          this.uploadList = [];
         }).catch((res) => {
           //请求失败
         });
@@ -482,4 +483,3 @@
     padding-right: 40px;
   }
 </style>
-
