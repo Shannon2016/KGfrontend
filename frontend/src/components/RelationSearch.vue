@@ -103,22 +103,27 @@
         //   this.curPage = cpage;
         // },
         onSearchClick(){
-          if(this.inputEntity1 === '' && this.inputEntity2 === '' && this.inputRelation === '' && !this.searchDone){
+          if(this.inputEntity1 === '' && this.inputEntity2 === '' && this.inputRelation === '' && !this.searchDone)
+          {
             return;
           }
 
           this.searchDone=true;
 
-          if(this.inputEntity1 === '' && this.inputEntity2 === '' && this.inputRelation === ''){
-          let option ={};
-          myChart= echarts.init(document.getElementById('kgPic'));
-          // 绘制图表
-          myChart.setOption(option, true);
-          this.tableData = [];
-          return;
+          //空值检索
+          if(this.inputEntity1 === '' && this.inputEntity2 === '' && this.inputRelation === '')
+          {
+            let option ={};
+            myChart= echarts.init(document.getElementById('kgPic'));
+            // 绘制图表
+            myChart.setOption(option, true);
+            this.tableData = [];
+            return;
           }
           /*逻辑和实体检索类似*/
-          this.$http.get('http://127.0.0.1:8000/search_relation?entity1_text='+this.inputEntity1+'&relation_name_text='+this.inputRelation+'&entity2_text='+this.inputEntity2).then((res) => {
+          this.$http.get('http://127.0.0.1:8000/search_relation?entity1_text='+this.inputEntity1+'&relation_name_text='+this.inputRelation+'&entity2_text='+this.inputEntity2).then(
+            (res) =>
+            {
             console.log(res.data.searchResult) ;
             if(!res.data.searchResult) {
               let option ={};
@@ -137,17 +142,17 @@
             //   let tmp = {};
             //   let tmpPoint = {};
             //   let tmpLink = {};
-              
+
             //   //三元组数据提取
               // tmp.entity1=this.inputEntity1;
               // tmp.relationship=res.data.searchResult[i].rel.type;
               // tmp.entity2=res.data.searchResult[i].n2.title;
-            
+
             //   //节点提取，按{名称，类别，ID}进行加入；
             //   tmpPoint.name = res.data.searchResult[i].n2.title;
             //   tmpPoint.category = 1;
             //   tmpPoint.id = (i+1);
-            //   if(graphPoint.indexOf(tmpPoint) === -1) 
+            //   if(graphPoint.indexOf(tmpPoint) === -1)
             //     graphPoint.push(tmpPoint);  //如果没有在已有点中找到这样的结点，说明这是一个新节点，我们将节点加入到图节点集合中
             //   else continue;
 
@@ -186,7 +191,7 @@
 
               for(let j = 0; j<graphPoint.length; j++)
                 {if(graphPoint[j].name == tmp.name)continue; }//对已经在graphPoint中的节点进行遍历，如果已经存在同名节点，则跳过这一步；
-              
+
               graphPoint.push(tmpPoint);  //如果没有跳出循环，说明这是一个新节点，我们将节点加入到图节点集合中
             }
 
@@ -305,6 +310,25 @@
                 myChart= echarts.init(document.getElementById('kgPic'));
                 // 绘制图表
                 myChart.setOption(option);
+                myChart.on('click',function(params){
+                  let obj = params.data;
+                  console.log(obj);
+                  if(obj.hasOwnProperty("source"))//links
+                  {
+                    ////obj.source+obj.name+obj.target 头节点、关系、尾节点
+                    // this.$http.get('http://49.232.95.141:8000/search_entity?head='+obj.source+"&relation="+obj.name+"&tail="+obj.target).then(
+                    //   (res) => {
+                    //   })
+                    alert("1");
+                  }
+                  else //points
+                  {
+                    ////实体名为obj.name
+                    // this.$http.get('http://49.232.95.141:8000/search_entity?entity='+obj.name).then((res) => {
+                    // })
+                    alert("2");
+                  }
+                });
               }).catch((res)=>{
                 console.log("fail")
                 console.log(res);
@@ -369,7 +393,7 @@
 
   /*搜索栏*/
   .el-input{
-    width: 400px;
+    width: 300px;
   }
 
   /*关系图*/

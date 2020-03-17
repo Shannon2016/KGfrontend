@@ -85,7 +85,7 @@
               </video> -->
               <div style="text-align: center;font-weight: bold;width: 100%">文件名</div>
             </div>
-            <v-echart :id="'graph'+index" class="graphStyle" :options="item.options"></v-echart>
+            <v-echart :id="'graph'+index" class="graphStyle" :options="item.options" @click="clickChart"></v-echart>
           </div>
         </div>
       </div>
@@ -95,8 +95,7 @@
 
 <script>
   let categories=[
-    {name:'属性A'},
-    {name:'属性B'},
+    {name:'实体'},
   ];
   export default {
     name: 'ExtractPic',
@@ -107,7 +106,11 @@
         uploadList:[],
         optList:[],
         flag:false,
-        optIndex:''
+        optIndex:'',
+        //文件名
+        fileName:'',
+        //三元组数据
+        tripleData:[],
       }
     },
 
@@ -122,6 +125,23 @@
         this.isUpload=false;
         this.uploadList=[];
       },
+      clickChart(event, instance, echarts){
+        let obj = arguments[0].data;
+        console.log(obj);
+        if(obj.hasOwnProperty("source"))//links
+        {
+          //obj.source+obj.name+obj.target 头节点、关系、尾节点
+          this.$http.get('http://49.232.95.141:8000/search_entity?head='+obj.source+"&relation="+obj.name+"&tail="+obj.target).then(
+            (res) => {
+          })
+        }
+        else //points
+        {
+          //实体名为obj.name
+          this.$http.get('http://49.232.95.141:8000/search_entity?entity='+obj.name).then((res) => {
+          })
+        }
+      },
       submitUpload() {
       //上传
         let fd = new FormData()
@@ -129,16 +149,67 @@
         this.$http.post(
           'http://49.232.95.141:8000/pic/video_extract',fd,
           {
-         headers: {
-          'Content-Type': 'multipart/form-data'
-          }
-        }).then((res) => {
-          //清空上传列表
-          this.uploadList=[];
-          console.log(res.data)
-          this.vedioList = []
+            headers: {
+              'Content-Type': 'multipart/form-data'
+            }
+          }).then((res) => {
+          console.log(res.data);
+          this.vedioList = [];
+          let graphLinks=[
+            {
+              source: 'node01',
+              target: 'node02',
+              name: 'link01',
+              des: 'link01des',
+              address:'1234',
+            }, {
+              source: 'node01',
+              target: 'node03',
+              name: 'link02',
+              des: 'link02des',
+              address:'1234',
+            }, {
+              source: 'node01',
+              target: 'node04',
+              name: 'link03',
+              des: 'link03des',
+              address:'1234',
+            }, {
+              source: 'node01',
+              target: 'node05',
+              name: 'link04',
+              des: 'link05des',
+              address:'1234',
+            }];
+          let graphPoints=[
+            {
+              name: 'node01',
+              des: 'nodedes01',
+              symbolSize: 70,
+              category: 0,
+            }, {
+              name: 'node02',
+              des: 'nodedes02',
+              symbolSize: 50,
+              category: 0,
+            }, {
+              name: 'node03',
+              des: 'nodedes3',
+              symbolSize: 50,
+              category: 0,
+            }, {
+              name: 'node04',
+              des: 'nodedes04',
+              symbolSize: 50,
+              category: 0,
+            }, {
+              name: 'node05',
+              des: 'nodedes05',
+              symbolSize: 50,
+              category: 0,
+            }];
           //设置echarts
-          let option ={
+          let option = {
             // 图的标题
             title: {
               text: 'test'
@@ -213,67 +284,24 @@
                 }
               },
               // 数据
-              data: [{
-                name: 'node01',
-                des: 'nodedes01',
-                symbolSize: 70,
-                category: 0,
-              }, {
-                name: 'node02',
-                des: 'nodedes02',
-                symbolSize: 50,
-                category: 1,
-              }, {
-                name: 'node03',
-                des: 'nodedes3',
-                symbolSize: 50,
-                category: 1,
-              }, {
-                name: 'node04',
-                des: 'nodedes04',
-                symbolSize: 50,
-                category: 1,
-              }, {
-                name: 'node05',
-                des: 'nodedes05',
-                symbolSize: 50,
-                category: 1,
-              }],
-              links: [{
-                source: 'node01',
-                target: 'node02',
-                name: 'link01',
-                des: 'link01des'
-              }, {
-                source: 'node01',
-                target: 'node03',
-                name: 'link02',
-                des: 'link02des'
-              }, {
-                source: 'node01',
-                target: 'node04',
-                name: 'link03',
-                des: 'link03des'
-              }, {
-                source: 'node01',
-                target: 'node05',
-                name: 'link04',
-                des: 'link05des'
-              }],
+              data: graphPoints,
+              links: graphLinks,
               categories: categories,
             }],
-            grid:{
-              top:"10px",
-              bottom:"10px",
-              height:"10px",
-              width:"10px"
+            grid: {
+              top: "10px",
+              bottom: "10px",
+              height: "10px",
+              width: "10px"
             }
-          }
-          this.vedioList.push({src:res.data, options:option})
-          this.uploadList = [];
+          };
+          this.vedioList.push({src:res.data, options:option});
+          this.fileName = this.uploadList[0].name;
+          //清空上传列表
+          this.uploadList=[];
         }).catch((res) => {
           //请求失败
-        })
+        });
 
         this.flag = true;
         this.isUpload = false;
@@ -288,19 +316,19 @@
       },
       //导出三元组
       handleExport(){
-        //处理数据
-        // let data="";
-        // this.tripleData.forEach(function (item,index) {
-        //   data+=item.source+","+item.name+","+item.target+"\n";
-        // });
-        // let filename = this.choosenRow.title.split(".")[0];
-        // console.log(filename);
-        // //创建<a>下载文件
-        // let export_blob = new Blob([data],{type: 'text/csv',endings : 'native'});
-        // let save_link = document.createElement("a");
-        // save_link.href = URL.createObjectURL(export_blob);
-        // save_link.download = filename+".csv";
-        // save_link.click();
+        // 处理数据
+        let data="head,relation.tail\n";
+        this.tripleData.forEach(function (item,index) {
+          data+=item.source+","+item.name+","+item.target+"\n";
+        });
+        let filename = this.fileName.split(".")[0];
+        console.log(filename);
+        //创建<a>下载文件
+        let export_blob = new Blob([data],{type: 'text/csv',endings : 'native'});
+        let save_link = document.createElement("a");
+        save_link.href = URL.createObjectURL(export_blob);
+        save_link.download = filename+".csv";
+        save_link.click();
       },
     }
   }
@@ -481,4 +509,3 @@
     padding-right: 40px;
   }
 </style>
-

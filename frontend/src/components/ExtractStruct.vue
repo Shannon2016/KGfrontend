@@ -383,7 +383,7 @@
       //导出三元组
       handleExport(){
         //处理数据
-        let data="";
+        let data="head,relation,tail\n";
         this.tripleData.forEach(function (item,index) {
           data+=item.source+","+item.name+","+item.target+"\n";
         });

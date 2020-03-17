@@ -93,20 +93,23 @@
       // handleCurrentChange(cpage) {
       //   this.curPage = cpage;
       // },
-      onSearchClick(){
+      onSearchClick()
+      {
         if(this.inputEntity === '' && !this.searchDone){
           return;
         }
 
         this.searchDone=true;
 
-        if(this.inputEntity === ''){
-        let option ={};
-        myChart= echarts.init(document.getElementById('graph'));
-        // 绘制图表
-        myChart.setOption(option, true);
-        this.tableData = [];
-        return;
+        //空值检索
+        if(this.inputEntity === '')
+        {
+          let option ={};
+          myChart= echarts.init(document.getElementById('graph'));
+          // 绘制图表
+          myChart.setOption(option, true);
+          this.tableData = [];
+          return;
         }
 
         this.$http.get('http://49.232.95.141:8000/search_entity?user_text='+this.inputEntity).then((res) => {
@@ -241,6 +244,25 @@
           myChart= echarts.init(document.getElementById('graph'));
           // 绘制图表
           myChart.setOption(option);
+          myChart.on('click',function(params){
+            let obj = params.data;
+            console.log(obj);
+            if(obj.hasOwnProperty("source"))//links
+            {
+              ////obj.source+obj.name+obj.target 头节点、关系、尾节点
+              // this.$http.get('http://49.232.95.141:8000/search_entity?head='+obj.source+"&relation="+obj.name+"&tail="+obj.target).then(
+              //   (res) => {
+              //   })
+              alert("1");
+            }
+            else //points
+            {
+              ////实体名为obj.name
+              // this.$http.get('http://49.232.95.141:8000/search_entity?entity='+obj.name).then((res) => {
+              // })
+              alert("2");
+            }
+          });
         }).catch((res)=>{
           console.log("fail")
           console.log(res);
