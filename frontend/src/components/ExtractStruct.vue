@@ -40,7 +40,17 @@
       <!--      列表页-->
       <div class="main" >
         <div class="top-tip">
-          数据总量:{{fileCount}}
+          请选择表格：
+          <el-select v-model="tableIndex" placeholder="" size="small" style="margin-left:20px;">
+            <el-option
+              v-for="(item, index) in properties"
+              :key="index"
+              :label="item"
+              :value="index">
+            </el-option>
+          </el-select>
+          <el-button style="margin-left:20px;" class="blueBtn" size="small" @click="chooseTable">确定</el-button>
+          <el-button type="primary" class="darkBtn" size="small" style="float:right; margin-right:20px;" @click="showGraph">查看图谱</el-button>
         </div>
         <!-- 上传窗口-->
         <div id="upload" v-if="isUpload">
@@ -77,23 +87,19 @@
           :header-cell-style="{background:'#EBEEF7',color:'#606266'}"
           height="626"
           border>
-          <el-table-column
-            prop="title"
-            label="标题">
+          <el-table-column 
+            v-for="(item, index) in columnNames"
+            :key="index"
+            :prop="item.prop"
+            :label="item.label">
           </el-table-column>
-          <el-table-column
-            prop="date"
-            label="上传时间"
-            width="180">
-          </el-table-column>
-          <el-table-column
+          <!-- <el-table-column
             label="操作"
-            width="100"
             align="center">
             <template slot-scope="scope">
               <el-button class="blueBtn" @click="handleAnalysis(scope.row)" type="primary" plain size="small">分析</el-button>
             </template>
-          </el-table-column>
+          </el-table-column> -->
         </el-table>
         <!-- 分页符-->
         <el-pagination
@@ -109,7 +115,7 @@
       <!--顶部-->
       <div class="header">
         <i class="el-icon-back" @click="isList=true"></i>
-        <el-button type="primary" class="headbutton" size="small" @click="handleExport">导出</el-button>
+        <el-button class="headbutton darkBtn" size="small" @click="handleExport">导出</el-button>
       </div>
       <el-divider></el-divider>
       <!--中心-->
@@ -145,10 +151,51 @@
         choosenRow:{},
         //三元组数据
         tripleData:[],
+        properties:["table1", "table2"],
+        tableIndex:"",
+        columnNames:[]
       }
     },
 
     methods: {
+      chooseTable() {
+        console.log(this.tableIndex)
+        if(this.tableIndex === '') return;
+        this.columnNames = []
+        this.tableData = []
+        this.columnNames.push({
+          prop:"username",
+          label:"用户名"
+        },{
+          prop:"password",
+          label:"密码"
+        },{
+          prop:"info",
+          label:"详细信息"
+        })
+        if(this.tableIndex===1){
+          this.columnNames.push({
+            prop:"age",
+            label:"年龄"
+          })
+        }
+        this.tableData.push({
+            username:"name1",
+            password:"xxxxx",
+            info:"hhhhh",
+            age:1
+          },{
+            username:"name2",
+            password:"xxxxx",
+            info:"hhhhh",
+            age:1
+          },{
+            username:"name3",
+            password:"xxxxx",
+            info:"hhhhh",
+            age:1
+          })
+      },
       cancelUpload(){
         this.isUpload=false;
         this.fileList=[];
@@ -187,61 +234,10 @@
       handleCurrentChange(cpage) {
         this.curPage = cpage;
       },
-      handleAnalysis(row){
-        console.log(row);
-        this.choosenRow = row;
+      showGraph(){
+        // console.log(row);
+        // this.choosenRow = row;
         this.isList = false;
-        //需根据返回值修改
-        this.tripleData =[
-          {
-            source: 'node01',
-            target: 'node02',
-            name: 'link01',
-            des: 'link01des'
-          }, {
-            source: 'node01',
-            target: 'node03',
-            name: 'link02',
-            des: 'link02des'
-          }, {
-            source: 'node01',
-            target: 'node04',
-            name: 'link03',
-            des: 'link03des'
-          }, {
-            source: 'node01',
-            target: 'node05',
-            name: 'link04',
-            des: 'link05des'
-          }];
-        let graphPoint=[
-          {
-            name: 'node01',
-            des: 'nodedes01',
-            symbolSize: 70,
-            category: 0,
-          }, {
-            name: 'node02',
-            des: 'nodedes02',
-            symbolSize: 50,
-            category: 1,
-          }, {
-            name: 'node03',
-            des: 'nodedes3',
-            symbolSize: 50,
-            category: 1,
-          }, {
-            name: 'node04',
-            des: 'nodedes04',
-            symbolSize: 50,
-            category: 1,
-          }, {
-            name: 'node05',
-            des: 'nodedes05',
-            symbolSize: 50,
-            category: 1,
-          }
-        ];
         let categories=[
           {name:'属性A'},
           {name:'属性B'},
@@ -249,7 +245,7 @@
         let option ={
           // 图的标题
           title: {
-            text: row.name
+            text: ""
           },
           // 提示框的配置
           tooltip: {
@@ -322,8 +318,53 @@
               }
             },
             // 数据
-            data: graphPoint,
-            links: this.tripleData,
+            data: [{
+              name: 'node01',
+              des: 'nodedes01',
+              symbolSize: 70,
+              category: 0,
+            }, {
+              name: 'node02',
+              des: 'nodedes02',
+              symbolSize: 50,
+              category: 1,
+            }, {
+              name: 'node03',
+              des: 'nodedes3',
+              symbolSize: 50,
+              category: 1,
+            }, {
+              name: 'node04',
+              des: 'nodedes04',
+              symbolSize: 50,
+              category: 1,
+            }, {
+              name: 'node05',
+              des: 'nodedes05',
+              symbolSize: 50,
+              category: 1,
+            }],
+            links: [{
+              source: 'node01',
+              target: 'node02',
+              name: 'link01',
+              des: 'link01des'
+            }, {
+              source: 'node01',
+              target: 'node03',
+              name: 'link02',
+              des: 'link02des'
+            }, {
+              source: 'node01',
+              target: 'node04',
+              name: 'link03',
+              des: 'link03des'
+            }, {
+              source: 'node01',
+              target: 'node05',
+              name: 'link04',
+              des: 'link05des'
+            }],
             categories: categories,
           }],
           grid:{
