@@ -46,7 +46,7 @@
               v-for="(item, index) in properties"
               :key="index"
               :label="item"
-              :value="index">
+              :value="item">
             </el-option>
           </el-select>
           <el-button style="margin-left:20px;" class="blueBtn" size="small" @click="chooseTable">确定</el-button>
@@ -151,7 +151,7 @@
         choosenRow:{},
         //三元组数据
         tripleData:[],
-        properties:["table1", "table2"],
+        properties:[],
         tableIndex:"",
         columnNames:[]
       }
@@ -159,42 +159,38 @@
 
     methods: {
       chooseTable() {
-        console.log(this.tableIndex)
+        // console.log(this.tableIndex)
         if(this.tableIndex === '') return;
+        
         this.columnNames = []
         this.tableData = []
-        this.columnNames.push({
-          prop:"username",
-          label:"用户名"
-        },{
-          prop:"password",
-          label:"密码"
-        },{
-          prop:"info",
-          label:"详细信息"
+
+        let fd = new FormData()
+        fd.append('table',this.tableIndex)
+        this.$http.post(
+          'http://49.232.95.141:8000/pic/view_structData',fd,
+          {
+            headers: {
+              'Content-Type': 'multipart/form-data'
+            }
+          }).then((res) => {
+            this.columnNames = res.data[0].map((cur) => {
+              return {prop:cur, label:cur}
+            })
+
+            let column = res.data[0]
+            this.tableData = res.data[1].map((cur) => {
+              let res={}
+              for(let i = 0; i < column.length; i ++)
+                res[column[i]] = cur[i]
+              return res
+            })
+
+            this.fileCount = res.data[1].length
+          }).catch((res) => {
+          //请求失败
+            console.log(res)
         })
-        if(this.tableIndex===1){
-          this.columnNames.push({
-            prop:"age",
-            label:"年龄"
-          })
-        }
-        this.tableData.push({
-            username:"name1",
-            password:"xxxxx",
-            info:"hhhhh",
-            age:1
-          },{
-            username:"name2",
-            password:"xxxxx",
-            info:"hhhhh",
-            age:1
-          },{
-            username:"name3",
-            password:"xxxxx",
-            info:"hhhhh",
-            age:1
-          })
       },
       cancelUpload(){
         this.isUpload=false;
@@ -235,149 +231,141 @@
         this.curPage = cpage;
       },
       showGraph(){
-        // console.log(row);
-        // this.choosenRow = row;
-        this.isList = false;
-        let categories=[
-          {name:'属性A'},
-          {name:'属性B'},
-        ];
-        let option ={
-          // 图的标题
-          title: {
-            text: ""
-          },
-          // 提示框的配置
-          tooltip: {
-            formatter: function (x) {
-              return x.data.des;
+        this.$http.post(
+          'http://49.232.95.141:8000/pic/struct_extract',
+          {
+            headers: {
+              'Content-Type': 'multipart/form-data'
             }
-          },
-          // 工具箱
-          toolbox: {
-            // 显示工具箱
-            show: true,
-            feature: {
-              mark: {
-                show: true
-              },
-              // 还原
-              restore: {
-                show: true
-              },
-              // 保存为图片
-              saveAsImage: {
-                show: true
-              }
-            }
-          },
-          legend: [{
-            // selectedMode: 'single',
-            data: categories.map(function (a) {
-              return a.name;
-            })
-          }],
-          series: [{
-            type: 'graph', // 类型:关系图
-            layout: 'force', //图的布局，类型为力导图
-            symbolSize: 40, // 调整节点的大小
-            roam: true, // 是否开启鼠标缩放和平移漫游。默认不开启。如果只想要开启缩放或者平移,可以设置成 'scale' 或者 'move'。设置成 true 为都开启
-            edgeSymbol: ['circle', 'arrow'],
-            edgeSymbolSize: [2, 10],
-            edgeLabel: {
-              normal: {
-                textStyle: {
-                  fontSize: 20
-                }
-              }
-            },
-            force: {
-              repulsion: 2500,//节点间的斥力因子。
-              gravity : 1,//节点受到的向中心的引力因子。该值越大节点越往中心点靠拢。
-              edgeLength: [10, 50]
-            },
-            draggable: true,
-            lineStyle: {
-              normal: {
-                width: 2,
-                color: '#4b565b',
-              }
-            },
-            edgeLabel: {
-              normal: {
-                show: true,
-                formatter: function (x) {
-                  return x.data.name;
-                }
-              }
-            },
-            label: {
-              normal: {
-                show: true,
-                textStyle: {}
-              }
-            },
-            // 数据
-            data: [{
-              name: 'node01',
-              des: 'nodedes01',
-              symbolSize: 70,
-              category: 0,
-            }, {
-              name: 'node02',
-              des: 'nodedes02',
-              symbolSize: 50,
-              category: 1,
-            }, {
-              name: 'node03',
-              des: 'nodedes3',
-              symbolSize: 50,
-              category: 1,
-            }, {
-              name: 'node04',
-              des: 'nodedes04',
-              symbolSize: 50,
-              category: 1,
-            }, {
-              name: 'node05',
-              des: 'nodedes05',
-              symbolSize: 50,
-              category: 1,
-            }],
-            links: [{
-              source: 'node01',
-              target: 'node02',
-              name: 'link01',
-              des: 'link01des'
-            }, {
-              source: 'node01',
-              target: 'node03',
-              name: 'link02',
-              des: 'link02des'
-            }, {
-              source: 'node01',
-              target: 'node04',
-              name: 'link03',
-              des: 'link03des'
-            }, {
-              source: 'node01',
-              target: 'node05',
-              name: 'link04',
-              des: 'link05des'
-            }],
-            categories: categories,
-          }],
-          grid:{
-            top:"10px",
-            bottom:"10px",
-            height:"10px",
-            width:"10px"
-          }
-        }
+          }).then((res) => {
+            console.log(res)
+            let graphPoint = [];
+            let graphLink = [];
+            let pointSet = new Set();
+            for(let i = 0; i < res.data.length; i ++){
+              let tmp = {};
+              tmp.entity1 = res.data[i][0];
+              tmp.entity2 = res.data[i][2];
+              tmp.relation = res.data[i][1];
 
-        myChart= echarts.init(document.getElementById('graph'));
-        // 绘制图表
-        myChart.setOption(option);
+              if(!pointSet.has(tmp.entity1)) {
+                pointSet.add(tmp.entity1);
+                graphPoint.push({name:tmp.entity1,category:1,des:tmp.entity1});
+              }
+              if(!pointSet.has(tmp.entity2)) {
+                pointSet.add(tmp.entity2);
+                graphPoint.push({name:tmp.entity2,category:1,des:tmp.entity2});
+              }
+
+              graphLink.push({
+                source: tmp.entity1,
+                target: tmp.entity2,
+                name: tmp.relation,
+                des: tmp.entity1 + "->" + tmp.entity2
+              });
+            }
+
+            let categories=[
+              {name:'属性A'},
+              {name:'属性B'},
+            ];
+            let option ={
+              // 图的标题
+              title: {
+                text: ""
+              },
+              // 提示框的配置
+              tooltip: {
+                formatter: function (x) {
+                  return x.data.des;
+                }
+              },
+              // 工具箱
+              toolbox: {
+                // 显示工具箱
+                show: true,
+                feature: {
+                  mark: {
+                    show: true
+                  },
+                  // 还原
+                  restore: {
+                    show: true
+                  },
+                  // 保存为图片
+                  saveAsImage: {
+                    show: true
+                  }
+                }
+              },
+              legend: [{
+                // selectedMode: 'single',
+                data: categories.map(function (a) {
+                  return a.name;
+                })
+              }],
+              series: [{
+                type: 'graph', // 类型:关系图
+                layout: 'force', //图的布局，类型为力导图
+                symbolSize: 40, // 调整节点的大小
+                roam: true, // 是否开启鼠标缩放和平移漫游。默认不开启。如果只想要开启缩放或者平移,可以设置成 'scale' 或者 'move'。设置成 true 为都开启
+                edgeSymbol: ['circle', 'arrow'],
+                edgeSymbolSize: [2, 10],
+                edgeLabel: {
+                  normal: {
+                    textStyle: {
+                      fontSize: 20
+                    }
+                  }
+                },
+                force: {
+                  repulsion: 2500,
+                  edgeLength: [10, 50]
+                },
+                draggable: true,
+                lineStyle: {
+                  normal: {
+                    width: 2,
+                    color: '#4b565b',
+                  }
+                },
+                edgeLabel: {
+                  normal: {
+                    show: true,
+                    formatter: function (x) {
+                      return x.data.name;
+                    }
+                  }
+                },
+                label: {
+                  normal: {
+                    show: true,
+                    textStyle: {}
+                  }
+                },
+                // 数据
+                data: graphPoint,
+                links: graphLink,
+                categories: categories,
+              }],
+              grid:{
+                top:"10px",
+                bottom:"10px",
+                height:"10px",
+                width:"10px"
+              }
+            }
+
+            myChart= echarts.init(document.getElementById('graph'));
+            // 绘制图表
+            myChart.setOption(option);
+
+            this.isList = false;
+
+          }).catch((res) => {
+          //请求失败
+            console.log(res)
+        })
       },
 
       //导出三元组
@@ -400,7 +388,18 @@
 
 
     mounted() {
-
+      this.$http.post(
+      'http://49.232.95.141:8000/pic/show_table',
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          }
+        }).then((res) => {
+          this.properties = res.data
+        }).catch((res) => {
+        //请求失败
+          console.log(res)
+      })
     }
     }
 </script>
