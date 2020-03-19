@@ -30,6 +30,14 @@
       <div class="main" >
         <!--搜索栏-->
         <el-input v-model="inputEntity" placeholder="请输入实体名称"></el-input>
+        <el-select v-model="level" placeholder="请选择查询级数">
+          <el-option
+            v-for="item in levelList"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value">
+          </el-option>
+        </el-select>
         <el-button style="margin-left:20px; height: 40px" class="darkBtn" size="small" @click="onSearchClick">搜索</el-button>
 
         <div class="result" v-if="searchDone">
@@ -85,6 +93,17 @@
         tableData: [],
         searchDone:false,
         inputEntity:'',
+        levelList:[{
+          label:"一级查询",
+          value:1
+        },{
+          label:"二级查询",
+          value:2
+        },{
+          label:"三级查询",
+          value:3
+        }],
+        level:""
       }
     },
 

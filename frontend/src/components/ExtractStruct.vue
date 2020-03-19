@@ -54,7 +54,6 @@
         <!--</div>-->
         <!-- 上传窗口-->
         <div id="upload" v-if="isUpload">
-
           <el-card class="box-card">
             <div slot="header" class="clearfix">
               <span>数据上传</span>
@@ -81,93 +80,123 @@
             <el-button style="margin-left: 10px;" class="darkBtn" size="small" type="primary" @click="submitUpload">上传并分析</el-button>
           </el-card>
         </div>
+        <!--用户操作-->
+        <div style="margin:10px 0;">
+          <span>现有正样例：{{positiveCount}}个</span>
+          <el-button class="blueBtn" size="small" @click="setPositive" style="margin-left:15px;">设为正样例</el-button>
+          
+          <span style="margin-left:50px;">现有负样例：{{negativeCount}}个</span>
+          <el-button class="blueBtn" size="small" @click="setNegative" style="margin-left:15px;">设为负样例</el-button>
+          
+          <span style="margin-left:50px;">选择用于训练集、测试集的样例比例：</span>
+          <el-select v-model="portion" placeholder="请选择" size="small">
+            <el-option
+              v-for="item in portionList"
+              :key="item"
+              :label="item"
+              :value="item">
+            </el-option>
+          </el-select>
+
+          <el-button class="darkBtn" size="small" @click="submitMarks" style="float:right; margin-right:20px;">提交</el-button>
+        </div>
         <!--结构化数据列表-->
-        <div id="tablePart">
+        <div style="margin:10px 0;font-size:large;font-weight:bold;">实体选择</div>
+        <div id="tablePart" >
           <el-row>
-            <el-col :span="6">
-              <el-table
-                :data="tableData1.slice((curPage - 1) * 10, curPage * 10)"
-                :header-cell-style="{background:'#EBEEF7',color:'#606266'}"
-                height="626"
-                border
-                @selection-change="handleSelectionChange1">
-                <el-table-column
-                  type="selection"
-                  width="55">
-                </el-table-column>
-                <el-table-column>
-                  <template slot="header" slot-scope="scope">
-                    <el-button class="blueBtn" size="small" @click="">设为正样例</el-button>
-                  </template>
-                  <template slot-scope="scope">
-                    <span style="margin-left: 10px">{{ scope.row.prop }}</span>
-                  </template>
-                </el-table-column>
-              </el-table>
-            </el-col>
-            <el-col :span="6">
-              <el-table
-                :data="tableData2.slice((curPage - 1) * 10, curPage * 10)"
-                :header-cell-style="{background:'#EBEEF7',color:'#606266'}"
-                height="626"
-                border
-                @selection-change="handleSelectionChange2">
-                <el-table-column
-                  type="selection"
-                  width="55">
-                </el-table-column>
-                <el-table-column>
-                  <template slot="header" slot-scope="scope">
-                    <el-button class="blueBtn" size="small" @click="">设为正样例</el-button>
-                  </template>
-                  <template slot-scope="scope">
-                    <span style="margin-left: 10px">{{ scope.row.prop }}</span>
-                  </template>
-                </el-table-column>
-              </el-table>
-            </el-col>
-            <el-col :span="6">
-              <el-table
-                :data="tableData3.slice((curPage - 1) * 10, curPage * 10)"
-                :header-cell-style="{background:'#EBEEF7',color:'#606266'}"
-                height="626"
-                border
-                @selection-change="handleSelectionChange3">
-                <el-table-column
-                  type="selection"
-                  width="55">
-                </el-table-column>
-                <el-table-column>
-                  <template slot="header" slot-scope="scope">
-                    <el-button class="blueBtn" size="small" @click="">设为正样例</el-button>
-                  </template>
-                  <template slot-scope="scope">
-                    <span style="margin-left: 10px">{{ scope.row.prop }}</span>
-                  </template>
-                </el-table-column>
-              </el-table>
-            </el-col>
-            <el-col :span="6">
-              <el-table
-                :data="tableData4.slice((curPage - 1) * 10, curPage * 10)"
-                :header-cell-style="{background:'#EBEEF7',color:'#606266'}"
-                height="626"
-                border
-                @selection-change="handleSelectionChange4">
-                <el-table-column
-                  type="selection"
-                  width="55">
-                </el-table-column>
-                <el-table-column>
-                  <template slot="header" slot-scope="scope">
-                    <el-button class="blueBtn" size="small" @click="">设为正样例</el-button>
-                  </template>
-                  <template slot-scope="scope">
-                    <span style="margin-left: 10px">{{ scope.row.prop }}</span>
-                  </template>
-                </el-table-column>
-              </el-table>
-            </el-col>
+            <el-checkbox-group v-model="checkList">
+              <el-col :span="6">
+                <el-table
+                  :data="tableData1.slice((curPage - 1) * 10, curPage * 10)"
+                  :header-cell-style="{background:'#EBEEF7',color:'#606266'}"
+                  height="626"
+                  border
+                  >
+                  <!-- <el-table-column
+                    type="selection"
+                    width="55">
+                  </el-table-column> -->
+                  <el-table-column
+                    label="实体">
+                    <template slot-scope="scope">
+                      <el-checkbox :label="scope.row.ind">{{ scope.row.prop }}</el-checkbox>
+                    </template>
+                  </el-table-column>
+                </el-table>
+              </el-col>
+              <el-col :span="6">
+                <el-table
+                  :data="tableData2.slice((curPage - 1) * 10, curPage * 10)"
+                  :header-cell-style="{background:'#EBEEF7',color:'#606266'}"
+                  height="626"
+                  border>
+                  <!-- <el-table-column
+                    type="selection"
+                    width="55">
+                  </el-table-column> -->
+                  <el-table-column
+                    label="实体">
+                    <template slot-scope="scope">
+                      <el-checkbox :label="scope.row.ind">{{ scope.row.prop }}</el-checkbox>
+                    </template>
+                    <!-- <template slot="header" slot-scope="scope">
+                      <el-button class="blueBtn" size="small" @click="">设为正样例</el-button>
+                    </template>
+                    <template slot-scope="scope">
+                      <span style="margin-left: 10px">{{ scope.row.prop }}</span>
+                    </template> -->
+                  </el-table-column>
+                </el-table>
+              </el-col>
+              <el-col :span="6">
+                <el-table
+                  :data="tableData3.slice((curPage - 1) * 10, curPage * 10)"
+                  :header-cell-style="{background:'#EBEEF7',color:'#606266'}"
+                  height="626"
+                  border>
+                  <!-- <el-table-column
+                    type="selection"
+                    width="55">
+                  </el-table-column> -->
+                  <el-table-column
+                    label="实体">
+                    <template slot-scope="scope">
+                      <el-checkbox :label="scope.row.ind">{{ scope.row.prop }}</el-checkbox>
+                    </template>
+                    <!-- <template slot="header" slot-scope="scope">
+                      <el-button class="blueBtn" size="small" @click="">设为正样例</el-button>
+                    </template>
+                    <template slot-scope="scope">
+                      <span style="margin-left: 10px">{{ scope.row.prop }}</span>
+                    </template> -->
+                  </el-table-column>
+                </el-table>
+              </el-col>
+              <el-col :span="6">
+                <el-table
+                  :data="tableData4.slice((curPage - 1) * 10, curPage * 10)"
+                  :header-cell-style="{background:'#EBEEF7',color:'#606266'}"
+                  height="626"
+                  border>
+                  <!-- <el-table-column
+                    type="selection"
+                    width="55">
+                  </el-table-column> -->
+                  <el-table-column
+                    label="实体">
+                    <template slot-scope="scope">
+                      <el-checkbox :label="scope.row.ind">{{ scope.row.prop }}</el-checkbox>
+                    </template>
+                    <!-- <template slot="header" slot-scope="scope">
+                      <el-button class="blueBtn" size="small" @click="">设为正样例</el-button>
+                    </template>
+                    <template slot-scope="scope">
+                      <span style="margin-left: 10px">{{ scope.row.prop }}</span>
+                    </template> -->
+                  </el-table-column>
+                </el-table>
+              </el-col>
+            </el-checkbox-group>
           </el-row>
           <!-- 分页符-->
           <el-pagination
@@ -250,6 +279,11 @@
         rawData:[],
         tableIndex:"",
         choosenInd:[],
+        checkList:[],
+        negativeCount:0,
+        positiveCount:0,
+        portion:"",
+        portionList:["8:2", "7:3", "6:4"]
       }
     },
 
@@ -318,17 +352,17 @@
       handleCurrentChange(cpage) {
         this.curPage = cpage;
       },
-      handleSelectionChange1(row){
-        console.log(row)
+      setPositive(){
+        console.log(this.checkList)
+        let length = this.checkList.length
+        this.positiveCount += length * (length - 1) / 2;
+        this.checkList = [];
       },
-      handleSelectionChange2(row){
-
-      },
-      handleSelectionChange3(row){
-
-      },
-      handleSelectionChange4(row){
-
+      setNegative(){
+        console.log(this.checkList)
+        let length = this.checkList.length
+        this.negativeCount += length * (length - 1) / 2;
+        this.checkList = [];
       },
       showGraph(){
         this.$http.post(
@@ -468,7 +502,9 @@
             console.log(res)
         })
       },
-
+      submitMarks(){
+        
+      },
       //导出三元组
       handleExport(){
         //处理数据
