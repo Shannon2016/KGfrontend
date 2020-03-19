@@ -3,106 +3,103 @@
     <!-- 左侧导航栏-->
     <el-aside width="200px">
       <el-menu
-        default-active="1"
+        default-active=""
         class="el-menu-vertical-demo"
         background-color="#343643"
         text-color="#fff"
-        active-text-color="#fff">
-        <el-menu-item index="1">
+        active-text-color="#fff"
+        :router="true">
+        <!--<el-menu-item index="/extract">-->
+          <!--<i class="el-icon-menu"></i>-->
+          <!--<span slot="title">文本抽取</span>-->
+        <!--</el-menu-item>-->
+        <el-menu-item index="/RelationalData" class="is-active">
           <i class="el-icon-menu"></i>
-          <span slot="title">关系数据浏览</span>
+          <span slot="title">结构化数据浏览</span>
         </el-menu-item>
+        <!--<el-menu-item index="/extractPic">-->
+          <!--<i class="el-icon-menu"></i>-->
+          <!--<span slot="title" >图片抽取</span>-->
+        <!--</el-menu-item>-->
+        <!--<el-menu-item index="/extractVedio">-->
+          <!--<i class="el-icon-document"></i>-->
+          <!--<span slot="title">视频抽取</span>-->
+        <!--</el-menu-item>-->
       </el-menu>
     </el-aside>
     <!--内容块-->
-    <el-main>
+    <el-main v-if="isList">
       <!--顶部-->
       <div class="header">
-        关系数据浏览
+        结构化数据浏览
+        <el-button type="primary" class="darkBtn headbutton" size="small" @click="isUpload=true">上传与分析</el-button>
+        <el-button type="primary" class="darkBtn headbutton" size="small" >训练</el-button>
       </div>
       <el-divider></el-divider>
       <!--中心-->
-      <!--列表页-->
+      <!--      列表页-->
       <div class="main" >
-        <!--标签选择-->
-        <span style="color:#606266">请选择要筛选的条件及范围：</span>
-        <el-select v-model="propertyIndex" placeholder="请选择属性" size="small" style="margin-left:20px;">
-          <el-option
-            v-for="(item, index) in properties"
-            :key="index"
-            :label="item"
-            :value="index">
-          </el-option>
-        </el-select>
-        <el-input-number style="margin-left:20px;" v-model="num" :min="minNumber" :max="maxNumber" size="small" label="描述文字"></el-input-number>
-        <el-button style="margin-left:20px;" class="blueBtn" size="small" @click="onAddClick">添加条件</el-button>
-        <el-button style="margin-left:20px;" class="darkBtn" size="small" @click="onSearchClick">筛选</el-button>
-        <!--标签-->
-        <div style="margin:20px 0;">
-          <span style="color:#606266">筛选条件:</span>
-          <MyPropertyTag
-            v-for="(tag, index) in propertyTags"
-            :key="index"
-            :name="tag.name"
-            :range="tag.range"
-            v-on:closeRelationTag="tagClose(tag)">
-          </MyPropertyTag>
+        <div class="top-tip">
+          请选择表格：
+          <el-select v-model="tableIndex" placeholder="" size="small" style="margin-left:20px;">
+            <el-option
+              v-for="(item, index) in properties"
+              :key="index"
+              :label="item"
+              :value="item">
+            </el-option>
+          </el-select>
+          <el-button style="margin-left:20px;" class="blueBtn" size="small" @click="chooseTable">确定</el-button>
+          <el-button type="primary" class="darkBtn" size="small" style="float:right; margin-right:20px;" @click="showGraph">查看图谱</el-button>
         </div>
-        <!--列表-->
+        <!-- 上传窗口-->
+        <div id="upload" v-if="isUpload">
+
+          <el-card class="box-card">
+            <div slot="header" class="clearfix">
+              <span>数据上传</span>
+              <i class="el-icon-close" style="float: right; padding: 3px 0" @click="cancelUpload"></i>
+            </div>
+            <el-upload
+              class="upload-demo"
+              drag
+              ref="upload"
+              :auto-upload="false"
+              accept=".xlsx,.csv"
+              action="https://jsonplaceholder.typicode.com/posts/"
+              :on-remove="handleRemove"
+              :on-change="handleAddFile"
+              :file-list="fileList"
+              multiple>
+              <i class="el-icon-upload"></i>
+              <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
+              <div class="el-upload__tip" slot="tip">
+                仅支持上传csv文件、xlsx文件<br>
+              </div>
+            </el-upload>
+            <el-button size="small" @click="cancelUpload">取消</el-button>
+            <el-button style="margin-left: 10px;" class="darkBtn" size="small" type="primary" @click="submitUpload">上传并分析</el-button>
+          </el-card>
+        </div>
+        <!--结构化数据列表-->
         <el-table
           :data="tableData.slice((curPage - 1) * 10, curPage * 10)"
           :header-cell-style="{background:'#EBEEF7',color:'#606266'}"
           height="626"
           border>
           <el-table-column
-            prop="title"
-            label="名称"
-            fixed>
+            v-for="(item, index) in columnNames"
+            :key="index"
+            :prop="item.prop"
+            :label="item.label">
           </el-table-column>
-          <el-table-column
-            prop="zdpfsd"
-            label="最大平飞速度">
-          </el-table-column>
-          <el-table-column
-            prop="zzbj"
-            label="作战半径">
-          </el-table-column>
-          <el-table-column
-            prop="xhsd"
-            label="巡航速度">
-          </el-table-column>
-          <el-table-column
-            prop="zdqfzl"
-            label="最大起飞重量">
-          </el-table-column>
-          <el-table-column
-            prop="zdsd"
-            label="最大速度">
-          </el-table-column>
-          <el-table-column
-            prop="xhgd"
-            label="巡航高度">
-          </el-table-column>
-          <el-table-column
-            prop="zdhc"
-            label="最大航程">
-          </el-table-column>
-          <el-table-column
-            prop="zlhpjl"
-            label="着陆滑跑距离">
-          </el-table-column>
-          <el-table-column
-            prop="qfhpjl"
-            label="起飞滑跑距离">
-          </el-table-column>
-          <el-table-column
-            prop="zdl"
-            label="载弹量">
-          </el-table-column>
-          <el-table-column
-            prop="xhsj"
-            label="续航时间">
-          </el-table-column>
+          <!-- <el-table-column
+            label="操作"
+            align="center">
+            <template slot-scope="scope">
+              <el-button class="blueBtn" @click="handleAnalysis(scope.row)" type="primary" plain size="small">分析</el-button>
+            </template>
+          </el-table-column> -->
         </el-table>
         <!-- 分页符-->
         <el-pagination
@@ -113,69 +110,298 @@
         </el-pagination>
       </div>
     </el-main>
+    <!--分析页-->
+    <el-main v-show="!isList">
+      <!--顶部-->
+      <div class="header">
+        <i class="el-icon-back" @click="isList=true"></i>
+        <el-button class="headbutton darkBtn" size="small" @click="handleExport">导出</el-button>
+      </div>
+      <el-divider></el-divider>
+      <!--中心-->
+      <div class="main" id="daddy">
+        <div id="graph" style="width: 1600px;height:800px;"></div>
+      </div>
+    </el-main>
   </el-container>
 </template>
 
 <script>
-import MyPropertyTag from './MyPropertyTag'
-    export default {
-      name: "RelationalData",
-      components:{
-        MyPropertyTag
-      },
-      data(){
-          return{
-            fileCount:0,
-            curPage:1,
-            //表格数据
-            tableData: [],
-            properties:[],
-            propertyIndex:'',
-            num:-1,
-            maxNumber:10,
-            minNumber:0,
-            propertyTags:[],
-            tagRecords:[]
-          }
-      },
+  let echarts = require('echarts');
+  let myChart;
+  // window.onresize = function() {
+  //   document.getElementById("graph").style.width="100%";
+  //   document.getElementById("graph").style.height="100%";
+  //   myChart.resize();
+  // };
 
-      methods:{
-
-        handleCurrentChange(cpage) {
-          this.curPage = cpage;
-        },
-        tagClose(tag) {
-          console.log(tag)
-          this.tagRecords.splice(this.tagRecords.indexOf(this.properties.indexOf(tag.name)), 1);
-          this.propertyTags.splice(this.propertyTags.indexOf(tag), 1);
-        },
-        onAddClick() {
-          let tmp = this.tagRecords.indexOf(this.propertyIndex);
-          console.log(tmp);
-          if(tmp === -1){       //新的的筛选条件
-            this.tagRecords.push(this.propertyIndex);
-          } else {              //已有筛选条件
-            this.tagRecords.splice(tmp, 1);
-            this.propertyTags.splice(tmp, 1);
-            this.tagRecords.push(this.propertyIndex);
-          }
-          console.log(this.tagRecords)
-          this.propertyTags.push({
-            name:this.properties[this.propertyIndex],
-            range: this.minNumber + " ~ " + this.num
-          })
-        },
-        onSearchClick(){
-          console.log(1)
-        }
-      },
-      
-      mounted(){
-        this.properties.push("最大平飞速度", "作战半径","巡航速度","最大起飞重量",
-        "最大速度","巡航高度","最大航程","着陆滑跑距离","起飞滑跑距离","载弹量","续航时间");
+  export default {
+    name: "RelationalData",
+    data () {
+      return {
+        isList:true,
+        fileCount:0,
+        isUpload:false,
+        curPage:1,
+        //上传的文件列表
+        fileList: [],
+        //表格数据，结构化数据列表
+        tableData: [],
+        //选中行
+        choosenRow:{},
+        //三元组数据
+        tripleData:[],
+        properties:[],
+        tableIndex:"",
+        columnNames:[]
       }
-    }
+    },
 
+    methods: {
+      chooseTable() {
+        // console.log(this.tableIndex)
+        if(this.tableIndex === '') return;
+
+        this.columnNames = []
+        this.tableData = []
+
+        let fd = new FormData()
+        fd.append('table',this.tableIndex)
+        this.$http.post(
+          'http://49.232.95.141:8000/pic/view_structData',fd,
+          {
+            headers: {
+              'Content-Type': 'multipart/form-data'
+            }
+          }).then((res) => {
+          this.columnNames = res.data[0].map((cur) => {
+            return {prop:cur, label:cur}
+          })
+
+          let column = res.data[0]
+          this.tableData = res.data[1].map((cur) => {
+            let res={}
+            for(let i = 0; i < column.length; i ++)
+              res[column[i]] = cur[i]
+            return res
+          })
+
+          this.fileCount = res.data[1].length
+        }).catch((res) => {
+          //请求失败
+          console.log(res)
+        })
+      },
+      cancelUpload(){
+        this.isUpload=false;
+        this.fileList=[];
+      },
+      submitUpload() {
+        this.fileCount = this.tableData.length;
+        let now = new Date();
+        let date =  now.getFullYear() + "-" + ((now.getMonth() + 1) < 10 ? "0" : "") + (now.getMonth() + 1) + "-" + (now.getDate() < 10 ? "0" : "") + now.getDate();
+        this.$refs.upload.submit();
+        for(let i=0;i<this.fileList.length;i++) {
+          this.tableData.push({
+            date:  date,
+            title: this.fileList[i].raw.name
+          })
+        }
+        this.fileCount = this.tableData.length;
+        this.isUpload = false;
+        this.fileList =[];
+
+        // for(let i = 0; i < 9; i ++){
+        //   this.tableData.push({
+        //     date: '2016-05-03',
+        //     title: '文书'+i
+        //   })
+        // }
+        // this.fileCount = this.tableData.length;
+      },
+      handleRemove(file, fileList) {
+        this.fileList = fileList;
+      },
+      handleAddFile(file,fileList){
+        console.log(file);
+        console.log(fileList);
+        this.fileList = fileList;
+      },
+      handleCurrentChange(cpage) {
+        this.curPage = cpage;
+      },
+      showGraph(){
+        this.$http.post(
+          'http://49.232.95.141:8000/pic/struct_extract',
+          {
+            headers: {
+              'Content-Type': 'multipart/form-data'
+            }
+          }).then((res) => {
+          console.log(res)
+          let graphPoint = [];
+          let graphLink = [];
+          let pointSet = new Set();
+          for(let i = 0; i < res.data.length; i ++){
+            let tmp = {};
+            tmp.entity1 = res.data[i][0];
+            tmp.entity2 = res.data[i][2];
+            tmp.relation = res.data[i][1];
+
+            if(!pointSet.has(tmp.entity1)) {
+              pointSet.add(tmp.entity1);
+              graphPoint.push({name:tmp.entity1,category:1,des:tmp.entity1});
+            }
+            if(!pointSet.has(tmp.entity2)) {
+              pointSet.add(tmp.entity2);
+              graphPoint.push({name:tmp.entity2,category:1,des:tmp.entity2});
+            }
+
+            graphLink.push({
+              source: tmp.entity1,
+              target: tmp.entity2,
+              name: tmp.relation,
+              des: tmp.entity1 + "->" + tmp.entity2
+            });
+          }
+
+          let categories=[
+            {name:'属性A'},
+            {name:'属性B'},
+          ];
+          let option ={
+            // 图的标题
+            title: {
+              text: ""
+            },
+            // 提示框的配置
+            tooltip: {
+              formatter: function (x) {
+                return x.data.des;
+              }
+            },
+            // 工具箱
+            toolbox: {
+              // 显示工具箱
+              show: true,
+              feature: {
+                mark: {
+                  show: true
+                },
+                // 还原
+                restore: {
+                  show: true
+                },
+                // 保存为图片
+                saveAsImage: {
+                  show: true
+                }
+              }
+            },
+            legend: [{
+              // selectedMode: 'single',
+              data: categories.map(function (a) {
+                return a.name;
+              })
+            }],
+            series: [{
+              type: 'graph', // 类型:关系图
+              layout: 'force', //图的布局，类型为力导图
+              symbolSize: 40, // 调整节点的大小
+              roam: true, // 是否开启鼠标缩放和平移漫游。默认不开启。如果只想要开启缩放或者平移,可以设置成 'scale' 或者 'move'。设置成 true 为都开启
+              edgeSymbol: ['circle', 'arrow'],
+              edgeSymbolSize: [2, 10],
+              edgeLabel: {
+                normal: {
+                  textStyle: {
+                    fontSize: 20
+                  }
+                }
+              },
+              force: {
+                repulsion: 2500,
+                edgeLength: [10, 50]
+              },
+              draggable: true,
+              lineStyle: {
+                normal: {
+                  width: 2,
+                  color: '#4b565b',
+                }
+              },
+              edgeLabel: {
+                normal: {
+                  show: true,
+                  formatter: function (x) {
+                    return x.data.name;
+                  }
+                }
+              },
+              label: {
+                normal: {
+                  show: true,
+                  textStyle: {}
+                }
+              },
+              // 数据
+              data: graphPoint,
+              links: graphLink,
+              categories: categories,
+            }],
+            grid:{
+              top:"10px",
+              bottom:"10px",
+              height:"10px",
+              width:"10px"
+            }
+          }
+
+          myChart= echarts.init(document.getElementById('graph'));
+          // 绘制图表
+          myChart.setOption(option);
+
+          this.isList = false;
+
+        }).catch((res) => {
+          //请求失败
+          console.log(res)
+        })
+      },
+
+      //导出三元组
+      handleExport(){
+        //处理数据
+        let data="head,relation,tail\n";
+        this.tripleData.forEach(function (item,index) {
+          data+=item.source+","+item.name+","+item.target+"\n";
+        });
+        let filename = this.choosenRow.title.split(".")[0];
+        console.log(filename);
+        //创建<a>下载文件
+        let export_blob = new Blob([data],{type: 'text/csv',endings : 'native'});
+        let save_link = document.createElement("a");
+        save_link.href = URL.createObjectURL(export_blob);
+        save_link.download = filename+".csv";
+        save_link.click();
+      },
+    },
+
+
+    mounted() {
+      this.$http.post(
+        'http://49.232.95.141:8000/pic/show_table',
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          }
+        }).then((res) => {
+        this.properties = res.data
+      }).catch((res) => {
+        //请求失败
+        console.log(res)
+      })
+    }
+  }
 </script>
 
 <style scoped>
@@ -209,6 +435,10 @@ import MyPropertyTag from './MyPropertyTag'
     background-color: rgba(255,255,255,0.2) !important;
     border-right: 4px solid #5775FB !important;
   }
+  .el-menu-item{
+    text-align: left;
+    width: 200px;
+  }
 
   /**************内容顶部***************/
   .header{
@@ -223,6 +453,11 @@ import MyPropertyTag from './MyPropertyTag'
   .headbutton{
     float: right;
     margin-right: 40px;
+  }
+  .top-tip{
+    margin-top: -10px;
+    margin-bottom: 10px;
+    padding-left: 20px;
   }
   /*************内容中心*************/
   .main{
@@ -251,6 +486,31 @@ import MyPropertyTag from './MyPropertyTag'
     color: #5775FB !important;
   }
 
+  /***************上传弹窗***********/
+  #upload{
+    text-align: center;
+    z-index: 99;
+    position: fixed;
+    top: 20%;
+    left: 30%;
+    right: 30%;
+  }
+  .upload-demo{
+    margin-bottom: 20px;
+  }
+  .el-upload__tip{
+    padding-left: 30%;
+    text-align: left;
+  }
+  .clearfix:before,
+  .clearfix:after {
+    display: table;
+    content: "";
+  }
+  .clearfix:after {
+    clear: both
+  }
+
   /***********按钮样式***********/
   .blueBtn{
     background-color: #EFF0FF;
@@ -258,7 +518,7 @@ import MyPropertyTag from './MyPropertyTag'
     color: #5775FB;
   }
 
-  .blueBtn:hover,.blueBtn:active{
+  .blueBtn:hover,.blueBtn:active, .blueBtn:focus{
     background-color: #5775FB;
     color: #FFFFFF;
   }

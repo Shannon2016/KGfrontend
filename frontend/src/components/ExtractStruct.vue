@@ -39,19 +39,19 @@
       <!--中心-->
       <!--      列表页-->
       <div class="main" >
-        <div class="top-tip">
-          请选择表格：
-          <el-select v-model="tableIndex" placeholder="" size="small" style="margin-left:20px;">
-            <el-option
-              v-for="(item, index) in properties"
-              :key="index"
-              :label="item"
-              :value="item">
-            </el-option>
-          </el-select>
-          <el-button style="margin-left:20px;" class="blueBtn" size="small" @click="chooseTable">确定</el-button>
-          <el-button type="primary" class="darkBtn" size="small" style="float:right; margin-right:20px;" @click="showGraph">查看图谱</el-button>
-        </div>
+        <!--<div class="top-tip">-->
+          <!--请选择表格：-->
+          <!--<el-select v-model="tableIndex" placeholder="" size="small" style="margin-left:20px;">-->
+            <!--<el-option-->
+              <!--v-for="(item, index) in properties"-->
+              <!--:key="index"-->
+              <!--:label="item"-->
+              <!--:value="item">-->
+            <!--</el-option>-->
+          <!--</el-select>-->
+          <!--<el-button style="margin-left:20px;" class="blueBtn" size="small" @click="chooseTable">确定</el-button>-->
+          <!--<el-button type="primary" class="darkBtn" size="small" style="float:right; margin-right:20px;" @click="showGraph">查看图谱</el-button>-->
+        <!--</div>-->
         <!-- 上传窗口-->
         <div id="upload" v-if="isUpload">
 
@@ -82,32 +82,101 @@
           </el-card>
         </div>
         <!--结构化数据列表-->
-        <el-table
-          :data="tableData.slice((curPage - 1) * 10, curPage * 10)"
-          :header-cell-style="{background:'#EBEEF7',color:'#606266'}"
-          height="626"
-          border>
-          <el-table-column 
-            v-for="(item, index) in columnNames"
-            :key="index"
-            :prop="item.prop"
-            :label="item.label">
-          </el-table-column>
-          <!-- <el-table-column
-            label="操作"
-            align="center">
-            <template slot-scope="scope">
-              <el-button class="blueBtn" @click="handleAnalysis(scope.row)" type="primary" plain size="small">分析</el-button>
-            </template>
-          </el-table-column> -->
-        </el-table>
-        <!-- 分页符-->
-        <el-pagination
-          background
-          layout="prev, pager, next"
-          :total="fileCount"
-          @current-change="handleCurrentChange">
-        </el-pagination>
+        <div id="tablePart">
+          <el-row>
+            <el-col :span="6">
+              <el-table
+                :data="tableData1.slice((curPage - 1) * 10, curPage * 10)"
+                :header-cell-style="{background:'#EBEEF7',color:'#606266'}"
+                height="626"
+                border
+                @selection-change="handleSelectionChange1">
+                <el-table-column
+                  type="selection"
+                  width="55">
+                </el-table-column>
+                <el-table-column>
+                  <template slot="header" slot-scope="scope">
+                    <el-button class="blueBtn" size="small" @click="">设为正样例</el-button>
+                  </template>
+                  <template slot-scope="scope">
+                    <span style="margin-left: 10px">{{ scope.row.prop }}</span>
+                  </template>
+                </el-table-column>
+              </el-table>
+            </el-col>
+            <el-col :span="6">
+              <el-table
+                :data="tableData2.slice((curPage - 1) * 10, curPage * 10)"
+                :header-cell-style="{background:'#EBEEF7',color:'#606266'}"
+                height="626"
+                border
+                @selection-change="handleSelectionChange2">
+                <el-table-column
+                  type="selection"
+                  width="55">
+                </el-table-column>
+                <el-table-column>
+                  <template slot="header" slot-scope="scope">
+                    <el-button class="blueBtn" size="small" @click="">设为正样例</el-button>
+                  </template>
+                  <template slot-scope="scope">
+                    <span style="margin-left: 10px">{{ scope.row.prop }}</span>
+                  </template>
+                </el-table-column>
+              </el-table>
+            </el-col>
+            <el-col :span="6">
+              <el-table
+                :data="tableData3.slice((curPage - 1) * 10, curPage * 10)"
+                :header-cell-style="{background:'#EBEEF7',color:'#606266'}"
+                height="626"
+                border
+                @selection-change="handleSelectionChange3">
+                <el-table-column
+                  type="selection"
+                  width="55">
+                </el-table-column>
+                <el-table-column>
+                  <template slot="header" slot-scope="scope">
+                    <el-button class="blueBtn" size="small" @click="">设为正样例</el-button>
+                  </template>
+                  <template slot-scope="scope">
+                    <span style="margin-left: 10px">{{ scope.row.prop }}</span>
+                  </template>
+                </el-table-column>
+              </el-table>
+            </el-col>
+            <el-col :span="6">
+              <el-table
+                :data="tableData4.slice((curPage - 1) * 10, curPage * 10)"
+                :header-cell-style="{background:'#EBEEF7',color:'#606266'}"
+                height="626"
+                border
+                @selection-change="handleSelectionChange4">
+                <el-table-column
+                  type="selection"
+                  width="55">
+                </el-table-column>
+                <el-table-column>
+                  <template slot="header" slot-scope="scope">
+                    <el-button class="blueBtn" size="small" @click="">设为正样例</el-button>
+                  </template>
+                  <template slot-scope="scope">
+                    <span style="margin-left: 10px">{{ scope.row.prop }}</span>
+                  </template>
+                </el-table-column>
+              </el-table>
+            </el-col>
+          </el-row>
+          <!-- 分页符-->
+          <el-pagination
+            background
+            layout="prev, pager, next"
+            :total="fileCount"
+            @current-change="handleCurrentChange">
+          </el-pagination>
+        </div>
       </div>
     </el-main>
     <!--分析页-->
@@ -146,14 +215,41 @@
         //上传的文件列表
         fileList: [],
         //表格数据，结构化数据列表
-        tableData: [],
+        tableData1: [
+          {ind:1,prop:'entity1'},
+          {ind:2,prop:'entity2'},
+          {ind:3,prop:'entity3'},
+          {ind:4,prop:'entity4'},
+          {ind:5,prop:'entity5'},
+          ],
+        tableData2: [
+          {ind:6,prop:'entity6'},
+          {ind:7,prop:'entity7'},
+          {ind:8,prop:'entity8'},
+          {ind:9,prop:'entity9'},
+          {ind:10,prop:'entity10'},
+        ],
+        tableData3: [
+          {ind:11,prop:'entity11'},
+          {ind:12,prop:'entity12'},
+          {ind:13,prop:'entity13'},
+          {ind:14,prop:'entity14'},
+          {ind:15,prop:'entity15'},
+        ],
+        tableData4: [
+          {ind:16,prop:'entity16'},
+          {ind:17,prop:'entity17'},
+          {ind:18,prop:'entity18'},
+          {ind:19,prop:'entity19'},
+          {ind:20,prop:'entity20'},
+        ],
         //选中行
         choosenRow:{},
         //三元组数据
         tripleData:[],
-        properties:[],
+        rawData:[],
         tableIndex:"",
-        columnNames:[]
+        choosenInd:[],
       }
     },
 
@@ -161,7 +257,7 @@
       chooseTable() {
         // console.log(this.tableIndex)
         if(this.tableIndex === '') return;
-        
+
         this.columnNames = []
         this.tableData = []
 
@@ -210,14 +306,6 @@
         this.fileCount = this.tableData.length;
         this.isUpload = false;
         this.fileList =[];
-
-        // for(let i = 0; i < 9; i ++){
-        //   this.tableData.push({
-        //     date: '2016-05-03',
-        //     title: '文书'+i
-        //   })
-        // }
-        // this.fileCount = this.tableData.length;
       },
       handleRemove(file, fileList) {
         this.fileList = fileList;
@@ -230,6 +318,18 @@
       handleCurrentChange(cpage) {
         this.curPage = cpage;
       },
+      handleSelectionChange1(row){
+        console.log(row)
+      },
+      handleSelectionChange2(row){
+
+      },
+      handleSelectionChange3(row){
+
+      },
+      handleSelectionChange4(row){
+
+      },
       showGraph(){
         this.$http.post(
           'http://49.232.95.141:8000/pic/struct_extract',
@@ -237,7 +337,8 @@
             headers: {
               'Content-Type': 'multipart/form-data'
             }
-          }).then((res) => {
+          }).then((res) =>
+        {
             console.log(res)
             let graphPoint = [];
             let graphLink = [];
@@ -388,18 +489,18 @@
 
 
     mounted() {
-      this.$http.post(
-      'http://49.232.95.141:8000/pic/show_table',
-        {
-          headers: {
-            'Content-Type': 'multipart/form-data'
-          }
-        }).then((res) => {
-          this.properties = res.data
-        }).catch((res) => {
-        //请求失败
-          console.log(res)
-      })
+      // this.$http.post(
+      // 'http://49.232.95.141:8000/pic/show_table',
+      //   {
+      //     headers: {
+      //       'Content-Type': 'multipart/form-data'
+      //     }
+      //   }).then((res) => {
+      //     this.row = res.data
+      //   }).catch((res) => {
+      //   //请求失败
+      //     console.log(res)
+      // })
     }
     }
 </script>
@@ -469,7 +570,10 @@
   .el-table{
     height: 80%;
     width: 100%;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, .12), 0 0 6px rgba(0, 0, 0, .04);
+    /*box-shadow: 0 2px 4px rgba(0, 0, 0, .12), 0 0 6px rgba(0, 0, 0, .04);*/
+  }
+  .el-table--border, .el-table--group{
+    border: 0;
   }
   /*分页符*/
   .el-pagination{
