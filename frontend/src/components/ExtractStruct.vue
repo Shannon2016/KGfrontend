@@ -303,7 +303,8 @@
         }
       },
       setPositive(){
-        this.checkList = this.checkList.sort()
+        this.checkList.sort(function(a,b){return a>b?1:-1})
+        console.log(this.checkList)
         let oldCount, newCount, index;
         index = this.checkList[0]
         //计算正例个数
@@ -327,7 +328,7 @@
         this.checkList = [];
       },
       setNegative(){
-        this.checkList = this.checkList.sort()
+        this.checkList.sort(function(a,b){return a>b?1:-1})
         let oldCount, newCount, index;
         index = this.checkList[0]
         //计算负例个数
