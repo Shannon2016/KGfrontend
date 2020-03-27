@@ -27,7 +27,7 @@
         </el-menu-item>
       </el-menu>
     </el-aside>
-    <!--内容块-->
+    <!--内容块实体对齐-->
     <el-main v-if="isList">
       <!--顶部-->
       <div class="header">
@@ -37,21 +37,8 @@
       </div>
       <el-divider></el-divider>
       <!--中心-->
-      <!--      列表页-->
+      <!--列表页-->
       <div class="main" >
-        <!--<div class="top-tip">-->
-          <!--请选择表格：-->
-          <!--<el-select v-model="tableIndex" placeholder="" size="small" style="margin-left:20px;">-->
-            <!--<el-option-->
-              <!--v-for="(item, index) in properties"-->
-              <!--:key="index"-->
-              <!--:label="item"-->
-              <!--:value="item">-->
-            <!--</el-option>-->
-          <!--</el-select>-->
-          <!--<el-button style="margin-left:20px;" class="blueBtn" size="small" @click="chooseTable">确定</el-button>-->
-          <!--<el-button type="primary" class="darkBtn" size="small" style="float:right; margin-right:20px;" @click="showGraph">查看图谱</el-button>-->
-        <!--</div>-->
         <!-- 上传窗口-->
         <div id="upload" v-if="isUpload">
           <el-card class="box-card">
@@ -80,132 +67,44 @@
             <el-button style="margin-left: 10px;" class="darkBtn" size="small" type="primary" @click="submitUpload">上传并分析</el-button>
           </el-card>
         </div>
-        <!--用户操作-->
-        <div style="margin:10px 0;">
-          <span>现有正样例：{{positiveCount}}个</span>
-          <el-button class="blueBtn" size="small" @click="setPositive" style="margin-left:15px;">设为正样例</el-button>
-          
-          <span style="margin-left:50px;">现有负样例：{{negativeCount}}个</span>
-          <el-button class="blueBtn" size="small" @click="setNegative" style="margin-left:15px;">设为负样例</el-button>
-          
-          <span style="margin-left:50px;">选择用于训练集、测试集的样例比例：</span>
-          <el-select v-model="portion" placeholder="请选择" size="small">
+        <!--表格查看-->
+        <div class="top-tip">
+          请选择表格：
+          <el-select v-model="tableIndex" placeholder="" size="small" style="margin-left:20px;">
             <el-option
-              v-for="item in portionList"
-              :key="item"
+              v-for="(item, index) in properties"
+              :key="index"
               :label="item"
               :value="item">
             </el-option>
           </el-select>
+          <el-button style="margin-left:20px;" class="blueBtn" size="small" @click="chooseTable">确定</el-button>
+          <el-button type="primary" class="darkBtn" size="small" style="float:right; margin-right:20px;" @click="goMark">属性去噪</el-button>
+        </div>
 
-          <el-button class="darkBtn" size="small" @click="submitMarks" style="float:right; margin-right:20px;">提交</el-button>
-        </div>
         <!--结构化数据列表-->
-        <div style="margin:10px 0;font-size:large;font-weight:bold;">实体选择</div>
-        <div id="tablePart" >
-          <el-row>
-            <el-checkbox-group v-model="checkList">
-              <el-col :span="6">
-                <el-table
-                  :data="tableData1.slice((curPage - 1) * 10, curPage * 10)"
-                  :header-cell-style="{background:'#EBEEF7',color:'#606266'}"
-                  height="626"
-                  border
-                  >
-                  <!-- <el-table-column
-                    type="selection"
-                    width="55">
-                  </el-table-column> -->
-                  <el-table-column
-                    label="实体">
-                    <template slot-scope="scope">
-                      <el-checkbox :label="scope.row.ind">{{ scope.row.prop }}</el-checkbox>
-                    </template>
-                  </el-table-column>
-                </el-table>
-              </el-col>
-              <el-col :span="6">
-                <el-table
-                  :data="tableData2.slice((curPage - 1) * 10, curPage * 10)"
-                  :header-cell-style="{background:'#EBEEF7',color:'#606266'}"
-                  height="626"
-                  border>
-                  <!-- <el-table-column
-                    type="selection"
-                    width="55">
-                  </el-table-column> -->
-                  <el-table-column
-                    label="实体">
-                    <template slot-scope="scope">
-                      <el-checkbox :label="scope.row.ind">{{ scope.row.prop }}</el-checkbox>
-                    </template>
-                    <!-- <template slot="header" slot-scope="scope">
-                      <el-button class="blueBtn" size="small" @click="">设为正样例</el-button>
-                    </template>
-                    <template slot-scope="scope">
-                      <span style="margin-left: 10px">{{ scope.row.prop }}</span>
-                    </template> -->
-                  </el-table-column>
-                </el-table>
-              </el-col>
-              <el-col :span="6">
-                <el-table
-                  :data="tableData3.slice((curPage - 1) * 10, curPage * 10)"
-                  :header-cell-style="{background:'#EBEEF7',color:'#606266'}"
-                  height="626"
-                  border>
-                  <!-- <el-table-column
-                    type="selection"
-                    width="55">
-                  </el-table-column> -->
-                  <el-table-column
-                    label="实体">
-                    <template slot-scope="scope">
-                      <el-checkbox :label="scope.row.ind">{{ scope.row.prop }}</el-checkbox>
-                    </template>
-                    <!-- <template slot="header" slot-scope="scope">
-                      <el-button class="blueBtn" size="small" @click="">设为正样例</el-button>
-                    </template>
-                    <template slot-scope="scope">
-                      <span style="margin-left: 10px">{{ scope.row.prop }}</span>
-                    </template> -->
-                  </el-table-column>
-                </el-table>
-              </el-col>
-              <el-col :span="6">
-                <el-table
-                  :data="tableData4.slice((curPage - 1) * 10, curPage * 10)"
-                  :header-cell-style="{background:'#EBEEF7',color:'#606266'}"
-                  height="626"
-                  border>
-                  <!-- <el-table-column
-                    type="selection"
-                    width="55">
-                  </el-table-column> -->
-                  <el-table-column
-                    label="实体">
-                    <template slot-scope="scope">
-                      <el-checkbox :label="scope.row.ind">{{ scope.row.prop }}</el-checkbox>
-                    </template>
-                    <!-- <template slot="header" slot-scope="scope">
-                      <el-button class="blueBtn" size="small" @click="">设为正样例</el-button>
-                    </template>
-                    <template slot-scope="scope">
-                      <span style="margin-left: 10px">{{ scope.row.prop }}</span>
-                    </template> -->
-                  </el-table-column>
-                </el-table>
-              </el-col>
-            </el-checkbox-group>
-          </el-row>
-          <!-- 分页符-->
-          <el-pagination
-            background
-            layout="prev, pager, next"
-            :total="fileCount"
-            @current-change="handleCurrentChange">
-          </el-pagination>
-        </div>
+        <el-table
+          :data="tableData.slice((curPage - 1) * 20, curPage * 20)"
+          :header-cell-style="{background:'#EBEEF7',color:'#606266'}"
+          height="626"
+          border>
+          <el-table-column
+            v-for="(item, index) in columnNames"
+            :key="index"
+            :prop="item.prop"
+            :label="item.label">
+          </el-table-column>
+        </el-table>
+        <!-- 分页符-->
+        <el-pagination
+          background
+          layout="prev, pager, next"
+          :total="fileCount"
+          :page-size="20"
+          @current-change="handleCurrentChange"
+          :current-page="curPage">
+        </el-pagination>
+        
       </div>
     </el-main>
     <!--分析页-->
@@ -213,12 +112,67 @@
       <!--顶部-->
       <div class="header">
         <i class="el-icon-back" @click="isList=true"></i>
+        <span style="margin-left:10px;font-size:large;font-weight:bold;">实体对齐</span>
         <el-button class="headbutton darkBtn" size="small" @click="handleExport">导出</el-button>
       </div>
       <el-divider></el-divider>
       <!--中心-->
-      <div class="main" id="daddy">
-        <div id="graph" style="width: 1600px;height:800px;"></div>
+      <!--用户操作-->
+      <div style="margin:10px 0;">
+        <span>选择用于训练集、测试集的样例比例：</span>
+        <el-select v-model="portion" placeholder="请选择" size="small">
+          <el-option
+            v-for="item in portionList"
+            :key="item"
+            :label="item"
+            :value="item">
+          </el-option>
+        </el-select>
+        
+        <span style="margin-left:20px;">标记样例总数：</span>
+        <el-input v-model="markSum" type="number" style="width:250px;" size="small"></el-input>
+
+        <el-button class="darkBtn" size="small" @click="submitMarks" style="float:right; margin-right:20px;">提交</el-button>
+      </div>
+      <div style="margin:20px 0;">
+        <span>现有正样例：{{positiveCount}}个</span>
+        <el-button class="blueBtn" size="small" @click="setPositive" style="margin-left:15px;">设为正样例</el-button>
+        
+        <span style="margin-left:50px;">现有负样例：{{negativeCount}}个</span>
+        <el-button class="blueBtn" size="small" @click="setNegative" style="margin-left:15px;">设为负样例</el-button>
+      </div>
+
+      <!--结构化数据列表-->
+      <div id="tablePart" >
+        <el-checkbox-group v-model="checkList">
+          <el-table
+            :data="tableData.slice((curPage - 1) * 20, curPage * 20)"
+            :header-cell-style="{background:'#EBEEF7',color:'#606266'}"
+            height="626"
+            border
+            >
+            <el-table-column width="40">
+              <template slot-scope="scope">
+                <el-checkbox :label="scope.row.index">{{""}}</el-checkbox>
+              </template>
+            </el-table-column>
+            <el-table-column
+              v-for="(item, index) in columnNames"
+              :key="index"
+              :prop="item.prop"
+              :label="item.label">
+            </el-table-column>
+          </el-table>
+        </el-checkbox-group>
+        <!-- 分页符-->
+        <el-pagination
+          background
+          layout="prev, pager, next"
+          :total="fileCount"
+          :page-size="20"
+          @current-change="handleCurrentChange"
+          :current-page="curPage">
+        </el-pagination>
       </div>
     </el-main>
   </el-container>
@@ -237,6 +191,7 @@
     name: "ExtractStruct",
     data () {
       return {
+        markSum:"",
         isList:true,
         fileCount:0,
         isUpload:false,
@@ -244,34 +199,7 @@
         //上传的文件列表
         fileList: [],
         //表格数据，结构化数据列表
-        tableData1: [
-          {ind:1,prop:'entity1'},
-          {ind:2,prop:'entity2'},
-          {ind:3,prop:'entity3'},
-          {ind:4,prop:'entity4'},
-          {ind:5,prop:'entity5'},
-          ],
-        tableData2: [
-          {ind:6,prop:'entity6'},
-          {ind:7,prop:'entity7'},
-          {ind:8,prop:'entity8'},
-          {ind:9,prop:'entity9'},
-          {ind:10,prop:'entity10'},
-        ],
-        tableData3: [
-          {ind:11,prop:'entity11'},
-          {ind:12,prop:'entity12'},
-          {ind:13,prop:'entity13'},
-          {ind:14,prop:'entity14'},
-          {ind:15,prop:'entity15'},
-        ],
-        tableData4: [
-          {ind:16,prop:'entity16'},
-          {ind:17,prop:'entity17'},
-          {ind:18,prop:'entity18'},
-          {ind:19,prop:'entity19'},
-          {ind:20,prop:'entity20'},
-        ],
+        tableData: [],
         //选中行
         choosenRow:{},
         //三元组数据
@@ -283,11 +211,27 @@
         negativeCount:0,
         positiveCount:0,
         portion:"",
-        portionList:["8:2", "7:3", "6:4"]
+        portionList:["8:2", "7:3", "6:4"],
+        positiveMap:{},
+        negativeMap:{},
+        properties:[],
+        columnNames:[]
       }
     },
 
     methods: {
+      goMark(){
+        //加载去噪后数据
+        this.tableData = this.tableData.map((cur, index) => {
+            cur["index"] = index;
+            cur["negativeMark"] = null;
+            return cur;
+          })
+        this.columnNames = [{prop:"index", label:"序号"},{prop:"negativeMark", label:"与x为负例"}].concat(this.columnNames);
+        this.isList=false
+        this.positiveMap={}
+        this.negativeMap={}
+      },
       chooseTable() {
         // console.log(this.tableIndex)
         if(this.tableIndex === '') return;
@@ -304,22 +248,22 @@
               'Content-Type': 'multipart/form-data'
             }
           }).then((res) => {
-            this.columnNames = res.data[0].map((cur) => {
-              return {prop:cur, label:cur}
-            })
+          this.columnNames = res.data[0].map((cur) => {
+            return {prop:cur, label:cur}
+          })
 
-            let column = res.data[0]
-            this.tableData = res.data[1].map((cur) => {
-              let res={}
-              for(let i = 0; i < column.length; i ++)
-                res[column[i]] = cur[i]
-              return res
-            })
+          let column = res.data[0]
+          this.tableData = res.data[1].map((cur) => {
+            let res={}
+            for(let i = 0; i < column.length; i ++)
+              res[column[i]] = cur[i]
+            return res
+          })
 
-            this.fileCount = res.data[1].length
-          }).catch((res) => {
+          this.fileCount = res.data[1].length
+        }).catch((res) => {
           //请求失败
-            console.log(res)
+          console.log(res)
         })
       },
       cancelUpload(){
@@ -352,155 +296,79 @@
       handleCurrentChange(cpage) {
         this.curPage = cpage;
       },
+      findIndex(index){
+        //简单遍历查找 后期改为二分查找
+        for(let i = 0; i < this.tableData.length; i ++) {
+          if(this.tableData[i].index === index) return i;
+        }
+      },
       setPositive(){
-        console.log(this.checkList)
-        let length = this.checkList.length
-        this.positiveCount += length * (length - 1) / 2;
+        this.checkList = this.checkList.sort()
+        let oldCount, newCount, index;
+        index = this.checkList[0]
+        //计算正例个数
+        if(!this.positiveMap[index]) {
+          this.positiveMap[index] = new Set();
+          oldCount = 0;
+        } else {
+          oldCount = this.getCombinationNum(this.positiveMap[index].size + 1);
+        }
+        for(let i = 1; i < this.checkList.length; i ++) {
+          this.positiveMap[index].add(this.checkList[i]);
+          //删除表中相同正例
+          let flag = this.findIndex(this.checkList[i]);
+          delete this.tableData[flag];
+          this.tableData = this.tableData.filter(item => item)
+        }
+        newCount = this.getCombinationNum(this.positiveMap[index].size + 1);
+        this.positiveCount += newCount - oldCount;
+
+        console.log(this.positiveMap);
         this.checkList = [];
       },
       setNegative(){
+        this.checkList = this.checkList.sort()
+        let oldCount, newCount, index;
+        index = this.checkList[0]
+        //计算负例个数
+        if(!this.negativeMap[index]) {
+          this.negativeMap[index] = new Set();
+          oldCount = 0;
+        } else {
+          oldCount = this.getCombinationNum(this.negativeMap[index].size + 1);
+        }
+        
+        let length = this.checkList.length;
+        for(let i = 1; i < length; i ++) {
+          if(this.negativeMap[index].has(this.checkList[i])) {
+            delete this.checkList[i];
+            this.checkList = this.checkList.filter(item => item)
+            i--; length--;
+            continue;
+          }
+          this.negativeMap[index].add(this.checkList[i]);
+        }
         console.log(this.checkList)
-        let length = this.checkList.length
-        this.negativeCount += length * (length - 1) / 2;
+
+        for(let i = 0; i < this.checkList.length; i ++){
+          let indexi = this.findIndex(this.checkList[i]);
+          for(let j = 0; j < this.checkList.length; j ++){
+            if(i === j) continue;
+            // let indexj = this.findIndex(this.checkList[j]);
+            if(this.tableData[indexi].negativeMark)
+              this.tableData[indexi].negativeMark += ", " + this.checkList[j];
+            else this.tableData[indexi].negativeMark = this.checkList[j] + "";
+          }
+        }
+
+        newCount = this.getCombinationNum(this.negativeMap[index].size + 1);
+        this.negativeCount += newCount - oldCount;
+
+        console.log(this.negativeMap);
         this.checkList = [];
       },
-      showGraph(){
-        this.$http.post(
-          'http://49.232.95.141:8000/pic/struct_extract',
-          {
-            headers: {
-              'Content-Type': 'multipart/form-data'
-            }
-          }).then((res) =>
-        {
-            console.log(res)
-            let graphPoint = [];
-            let graphLink = [];
-            let pointSet = new Set();
-            for(let i = 0; i < res.data.length; i ++){
-              let tmp = {};
-              tmp.entity1 = res.data[i][0];
-              tmp.entity2 = res.data[i][2];
-              tmp.relation = res.data[i][1];
-
-              if(!pointSet.has(tmp.entity1)) {
-                pointSet.add(tmp.entity1);
-                graphPoint.push({name:tmp.entity1,category:1,des:tmp.entity1});
-              }
-              if(!pointSet.has(tmp.entity2)) {
-                pointSet.add(tmp.entity2);
-                graphPoint.push({name:tmp.entity2,category:1,des:tmp.entity2});
-              }
-
-              graphLink.push({
-                source: tmp.entity1,
-                target: tmp.entity2,
-                name: tmp.relation,
-                des: tmp.entity1 + "->" + tmp.entity2
-              });
-            }
-
-            let categories=[
-              {name:'属性A'},
-              {name:'属性B'},
-            ];
-            let option ={
-              // 图的标题
-              title: {
-                text: ""
-              },
-              // 提示框的配置
-              tooltip: {
-                formatter: function (x) {
-                  return x.data.des;
-                }
-              },
-              // 工具箱
-              toolbox: {
-                // 显示工具箱
-                show: true,
-                feature: {
-                  mark: {
-                    show: true
-                  },
-                  // 还原
-                  restore: {
-                    show: true
-                  },
-                  // 保存为图片
-                  saveAsImage: {
-                    show: true
-                  }
-                }
-              },
-              legend: [{
-                // selectedMode: 'single',
-                data: categories.map(function (a) {
-                  return a.name;
-                })
-              }],
-              series: [{
-                type: 'graph', // 类型:关系图
-                layout: 'force', //图的布局，类型为力导图
-                symbolSize: 40, // 调整节点的大小
-                roam: true, // 是否开启鼠标缩放和平移漫游。默认不开启。如果只想要开启缩放或者平移,可以设置成 'scale' 或者 'move'。设置成 true 为都开启
-                edgeSymbol: ['circle', 'arrow'],
-                edgeSymbolSize: [2, 10],
-                edgeLabel: {
-                  normal: {
-                    textStyle: {
-                      fontSize: 20
-                    }
-                  }
-                },
-                force: {
-                  repulsion: 2500,
-                  edgeLength: [10, 50]
-                },
-                draggable: true,
-                lineStyle: {
-                  normal: {
-                    width: 2,
-                    color: '#4b565b',
-                  }
-                },
-                edgeLabel: {
-                  normal: {
-                    show: true,
-                    formatter: function (x) {
-                      return x.data.name;
-                    }
-                  }
-                },
-                label: {
-                  normal: {
-                    show: true,
-                    textStyle: {}
-                  }
-                },
-                // 数据
-                data: graphPoint,
-                links: graphLink,
-                categories: categories,
-              }],
-              grid:{
-                top:"10px",
-                bottom:"10px",
-                height:"10px",
-                width:"10px"
-              }
-            }
-
-            myChart= echarts.init(document.getElementById('graph'));
-            // 绘制图表
-            myChart.setOption(option);
-
-            this.isList = false;
-
-          }).catch((res) => {
-          //请求失败
-            console.log(res)
-        })
+      getCombinationNum(n){
+        return n * (n - 1) / 2;
       },
       submitMarks(){
         
@@ -522,23 +390,21 @@
         save_link.click();
       },
     },
-
-
     mounted() {
-      // this.$http.post(
-      // 'http://49.232.95.141:8000/pic/show_table',
-      //   {
-      //     headers: {
-      //       'Content-Type': 'multipart/form-data'
-      //     }
-      //   }).then((res) => {
-      //     this.row = res.data
-      //   }).catch((res) => {
-      //   //请求失败
-      //     console.log(res)
-      // })
+      this.$http.post(
+        'http://49.232.95.141:8000/pic/show_table',
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          }
+        }).then((res) => {
+        this.properties = res.data
+      }).catch((res) => {
+        //请求失败
+        console.log(res)
+      })
     }
-    }
+  }
 </script>
 
 <style scoped>

@@ -264,7 +264,6 @@
               des: tmp.entity1 + "->" + tmp.entity2
             });
           }
-
           let categories=[
             {name:'属性A'},
             {name:'属性B'},
