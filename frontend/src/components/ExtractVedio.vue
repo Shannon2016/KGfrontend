@@ -68,7 +68,12 @@
       </div>
       <el-divider></el-divider>
       <!--中心-->
-      <div class="main">
+      <div class="main"
+           v-loading="loadingRes"
+           element-loading-text="视频正在分析中，请稍等……"
+           element-loading-spinner="el-icon-loading"
+           element-loading-background="rgba(0, 0, 0, 0.1)"
+      >
         <div v-if="!flag" style="margin-left:50px;">提示：请先上传视频进行分析</div>
         <div class="resultContainer" style="height:50px;" v-if="vedioList.length!==0">
           <div class="picStyle title">抽取结果</div>
@@ -111,6 +116,7 @@
         fileName:'',
         //三元组数据
         tripleData:[],
+        loadingRes:false,
       }
     },
 
@@ -143,6 +149,9 @@
         }
       },
       submitUpload() {
+        this.loadingRes=true;
+        this.flag = true;
+        this.isUpload = false;
       //上传
         let fd = new FormData()
         fd.append('video',this.uploadList[0].raw)
@@ -299,12 +308,12 @@
           this.fileName = this.uploadList[0].name;
           //清空上传列表
           this.uploadList=[];
+          this.loadingRes=false;
         }).catch((res) => {
           //请求失败
+          this.loadingRes=false;
         });
 
-        this.flag = true;
-        this.isUpload = false;
       },
       handleRemove(file, fileList) {
         this.uploadList = fileList;

@@ -68,7 +68,12 @@
       </div>
       <el-divider></el-divider>
       <!--中心-->
-      <div class="main" >
+      <div class="main"
+           v-loading="loadingRes"
+           element-loading-text="图片正在分析中，请稍等……"
+           element-loading-spinner="el-icon-loading"
+           element-loading-background="rgba(0, 0, 0, 0.1)"
+      >
         <div v-if="!flag" style="margin-left:50px;">提示：请先上传图片进行分析</div>
         <div class="resultContainer" style="height:50px;border:none;" v-if="picList.length!==0">
           <div class="picStyle title" style="height:50px;">抽取结果</div>
@@ -123,6 +128,7 @@
         // [[ent1,rel,ent2],[ent1,rel,ent2]……]图2
         // ]
         tripleData:[],
+        loadingRes:false,
       }
     },
 
@@ -158,6 +164,7 @@
       },
       submitUpload() {
         //上传的请求
+        this.loadingRes = true;
         let fd = new FormData();
         for(let i=0;i<this.uploadList.length;i++)
           fd.append('pic',this.uploadList[i].raw)
@@ -286,8 +293,10 @@
               };
               this.picList.push({src: res.data[0][i], options:option})
             }
+            this.loadingRes = false;
             this.uploadList = []
           }).catch((e)=>{
+          this.loadingRes = false;
           console.log(e)
         });
         this.flag = true;
