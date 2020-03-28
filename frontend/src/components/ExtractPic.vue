@@ -168,7 +168,7 @@
         let fd = new FormData();
         for(let i=0;i<this.uploadList.length;i++)
           fd.append('pic',this.uploadList[i].raw)
-        this.$http.post('http://49.232.95.141:8000/extract',fd,
+        this.$http.post('http://49.232.95.141:8000/pic/pic_extract',fd,
           {
             headers: {'Content-Type': 'multipart/form-data'}
           }).then((res) => {
