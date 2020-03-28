@@ -105,7 +105,7 @@
           @current-change="handleCurrentChange"
           :current-page="curPage">
         </el-pagination>
-        
+
       </div>
     </el-main>
     <!--分析页-->
@@ -129,7 +129,7 @@
             :value="item">
           </el-option>
         </el-select>
-        
+
         <span style="margin-left:20px;">标记样例总数：</span>
         <el-input v-model="markSum" type="number" style="width:250px;" size="small"></el-input>
 
@@ -138,19 +138,19 @@
       <div style="margin:20px 0;">
         <span>现有正样例：{{positiveCount}}个</span>
         <el-button class="blueBtn" size="small" @click="setPositive" style="margin-left:15px;">设为正样例</el-button>
-        
+
         <span style="margin-left:50px;">现有负样例：{{negativeCount}}个</span>
         <el-button class="blueBtn" size="small" @click="setNegative" style="margin-left:15px;">设为负样例</el-button>
-      
+
         <span v-if="showRes" style="float:right; margin-right:20px;">召回率：{{recall}}%</span>
         <span v-if="showRes" style="float:right; margin-right:20px;">准确率：{{accuracy}}%</span>
       </div>
 
       <!--结构化数据列表-->
       <div id="tablePart" >
-        <el-checkbox-group v-model="checkList">
+        <el-checkbox-group v-model="checkList" :max="2">
           <el-table
-            :data="tableData.slice((curPage - 1) * 20, curPage * 20)"
+            :data="tableData.slice((curPage - 1) * 10, curPage * 10)"
             :header-cell-style="{background:'#EBEEF7',color:'#606266'}"
             height="626"
             border
@@ -253,7 +253,7 @@
                 cur["index"] = index;
                 cur["negativeMark"] = null;
                 return cur;
-              })
+              });
             this.columnNames = [{prop:"index", label:"序号"},{prop:"negativeMark", label:"与x为负例"}].concat(this.columnNames);
             this.positiveMap={}
             this.negativeMap={}
@@ -290,7 +290,7 @@
 
           let column = res.data[0]
           this.tableData = res.data[1].map((cur) => {
-            let res={}
+            let res={};
             for(let i = 0; i < column.length; i ++)
               res[column[i]] = cur[i]
             return res
@@ -341,50 +341,54 @@
       },
       setPositive(){
         this.checkList.sort(function(a,b){return a>b?1:-1})
-        console.log(this.checkList)
-        let oldCount, newCount, index;
+        // console.log(this.checkList)
+        let index;
         index = this.checkList[0]
         //计算正例个数
         if(!this.positiveMap[index]) {
           this.positiveMap[index] = new Set();
-          oldCount = 0;
-        } else {
-          oldCount = this.getCombinationNum(this.positiveMap[index].size + 1);
+          // oldCount = 0;
         }
-        for(let i = 1; i < this.checkList.length; i ++) {
-          this.positiveMap[index].add(this.checkList[i]);
-          //删除表中相同正例
-          let flag = this.findIndex(this.checkList[i]);
-          delete this.tableData[flag];
-          this.tableData = this.tableData.filter(item => item)
-        }
-        newCount = this.getCombinationNum(this.positiveMap[index].size + 1);
-        this.positiveCount += newCount - oldCount;
-
+        //  else {
+        //   oldCount = this.getCombinationNum(this.positiveMap[index].size + 1);
+        // }
+        // for(let i = 1; i < this.checkList.length; i ++) {
+        this.positiveMap[index].add(this.checkList[1]);
+        //删除表中相同正例
+        let flag = this.findIndex(this.checkList[1]);
+        delete this.tableData[flag];
+        this.tableData = this.tableData.filter(item => item)
+        // }
+        // newCount = this.getCombinationNum(this.positiveMap[index].size + 1);
+        // this.positiveCount += newCount - oldCount;
+        this.positiveCount += 1;
         console.log(this.positiveMap);
         this.checkList = [];
       },
       setNegative(){
         this.checkList.sort(function(a,b){return a>b?1:-1})
-        let oldCount, newCount, index;
+        let index;
         index = this.checkList[0]
         //计算负例个数
         if(!this.negativeMap[index]) {
           this.negativeMap[index] = new Set();
-          oldCount = 0;
-        } else {
-          oldCount = this.getCombinationNum(this.negativeMap[index].size + 1);
+          // oldCount = 0;
         }
-        
+        // else {
+        //   oldCount = this.getCombinationNum(this.negativeMap[index].size + 1);
+        // }
+
         let length = this.checkList.length;
         for(let i = 1; i < length; i ++) {
           if(this.negativeMap[index].has(this.checkList[i])) {
-            delete this.checkList[i];
-            this.checkList = this.checkList.filter(item => item)
-            i--; length--;
-            continue;
+            this.checkList = [];
+            return;
+            // delete this.checkList[i];
+            // this.checkList = this.checkList.filter(item => item)
+            // i--; length--;
+            // continue;
           }
-          this.negativeMap[index].add(this.checkList[i]);
+          this.negativeMap[index].add(this.checkList[1]);
         }
         console.log(this.checkList)
 
@@ -399,12 +403,13 @@
           }
         }
 
-        newCount = this.getCombinationNum(this.negativeMap[index].size + 1);
-        this.negativeCount += newCount - oldCount;
-
+        // newCount = this.getCombinationNum(this.negativeMap[index].size + 1);
+        // this.negativeCount += newCount - oldCount;
+        this.negativeCount += 1
         console.log(this.negativeMap);
         this.checkList = [];
       },
+
       getCombinationNum(n){
         return n * (n - 1) / 2;
       },
@@ -452,38 +457,62 @@
         let rec = new Set();
         let positiveArray = this.getCombinationArray(this.positiveMap, 1, rec);
         let negativeArray = this.getCombinationArray(this.negativeMap, 0, rec);
-        let Arr = positiveArray.concat(negativeArray)
-        console.log(rec)
+        let Arr = positiveArray.concat(negativeArray);
         rec = Array.from(rec);
-        console.log(this.rawData)
-        for(let i = 0; i < rec.length; i ++){
-          delete this.rawData[i]
-        }
-        this.rawData = this.rawData.filter(item => item)
-        console.log(this.rawData)
-        // let fd = new FormData()
-        // fd.append('struct_train_test_data',Arr)
-        // fd.append('ratio', this.portion)
-        // this.$http.post(
-        //   'http://49.232.95.141:8000/pic/entity_match',fd,
-        //   {
-        //     headers: {
-        //       'Content-Type': 'multipart/form-data'
-        //     }
-        //   }).then((res) => {
-        //     console.log(res)
-        //   // this.properties = res.data
+        rec.sort((a,b)=>a>b?1:-1);
+        console.log("rec:");
+        console.log(rec);
+        // console.log(this.rawData)
+        // for(let i = 0; i < rec.length; i ++){
+        //   delete this.rawData[i]
+        // }
+        // this.rawData = this.rawData.filter(item => item)
+        // console.log(this.rawData)
+        let data = JSON.stringify(Arr);
+        console.log(data);
+        let fd = new FormData();
+        fd.append('struct_train_test_data',data);
+        fd.append('ratio', this.portion);
+        this.$http.post(
+          'http://49.232.95.141:8000/pic/entity_match',fd,
+          {
+            headers: {
+              'Content-Type': 'multipart/form-data'
+            }
+          }).then((res) => {
+          console.log(res)
+          // this.properties = res.data
 
-        //   this.accuracy = res.data[0] * 100;
-        //   this.recall = res.data[1] * 100;
+          this.accuracy = res.data[0] * 100;
+          this.recall = res.data[1] * 100;
+          this.showRes = true;
 
-        //   this.showRes = true;
-        // }).catch((res) => {
-        //   //请求失败
-        //   console.log(res)
-        // })
-        
+          //原rawData删除已标记数据(rec中)
+          for(let i=rec.length-1;i>=0;i--){
+            this.rawData.splice(rec[i],1);
+          }
+          //在头部添加新数据
+          for(let i=0;i<res.data[2].length;i++){
+            this.rawData.unshift(res.data[2][i]);
+          }
+          //更新tableData
+          console.log(this.columnNames)
+          this.tableData = this.rawData.map((cur,index) => {
+            let res={};
+            res["index"] = index;
+            res["negativeMark"] = null;
+            for(let i = 0; i < this.columnNames.length-2; i ++)
+              res[this.columnNames[i+2].prop] = cur[i]
+            return res
+          });
+
+        }).catch((res) => {
+          //请求失败
+          console.log(res)
+        })
+
       },
+
       //导出三元组
       handleExport(){
         //处理数据
@@ -516,7 +545,7 @@
       }
     },
     mounted() {
-      
+
     }
   }
 </script>
