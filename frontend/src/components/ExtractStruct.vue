@@ -80,6 +80,7 @@
           </el-select>
           <el-button style="margin-left:20px;" class="blueBtn" size="small" @click="chooseTable">确定</el-button>
           <el-button type="primary" class="darkBtn" size="small" style="float:right; margin-right:20px;" @click="goMark">属性去噪</el-button>
+          <el-button type="primary" class="darkBtn" size="small" style="float:right; margin-right:20px;" @click="loadData">加载数据</el-button>
         </div>
 
         <!--结构化数据列表-->
@@ -140,6 +141,9 @@
         
         <span style="margin-left:50px;">现有负样例：{{negativeCount}}个</span>
         <el-button class="blueBtn" size="small" @click="setNegative" style="margin-left:15px;">设为负样例</el-button>
+      
+        <span v-if="showRes" style="float:right; margin-right:20px;">召回率：{{recall}}%</span>
+        <span v-if="showRes" style="float:right; margin-right:20px;">准确率：{{accuracy}}%</span>
       </div>
 
       <!--结构化数据列表-->
@@ -215,22 +219,54 @@
         positiveMap:{},
         negativeMap:{},
         properties:[],
-        columnNames:[]
+        columnNames:[],
+        showRes:false,
+        accuracy:0,
+        recall:0
       }
     },
 
     methods: {
       goMark(){
-        //加载去噪后数据
-        this.tableData = this.tableData.map((cur, index) => {
-            cur["index"] = index;
-            cur["negativeMark"] = null;
-            return cur;
-          })
-        this.columnNames = [{prop:"index", label:"序号"},{prop:"negativeMark", label:"与x为负例"}].concat(this.columnNames);
-        this.isList=false
-        this.positiveMap={}
-        this.negativeMap={}
+        if(this.tableIndex === ""){
+          this.$message({
+            message: '请选择需要进行去噪的表单！',
+            type: 'warning'
+          });
+          return;
+        }
+        console.log(this.tableIndex)
+        let fd = new FormData()
+        fd.append('table',this.tableIndex)
+        this.$http.post(
+          'http://49.232.95.141:8000/pic/data_filter',fd,
+          {
+            headers: {
+              'Content-Type': 'multipart/form-data'
+            }
+          }).then((res) => {
+            // console.log(res)
+            // this.rawData = res.data[1]
+
+            //加载去噪后数据
+            this.tableData = this.tableData.map((cur, index) => {
+                cur["index"] = index;
+                cur["negativeMark"] = null;
+                return cur;
+              })
+            this.columnNames = [{prop:"index", label:"序号"},{prop:"negativeMark", label:"与x为负例"}].concat(this.columnNames);
+            this.positiveMap={}
+            this.negativeMap={}
+            this.positiveCount = 0;
+            this.negativeCount = 0;
+            this.portion = "";
+            this.fileCount = this.rawData.length
+            this.isList=false
+          // this.properties = res.data
+        }).catch((res) => {
+          //请求失败
+          console.log(res)
+        })
       },
       chooseTable() {
         // console.log(this.tableIndex)
@@ -259,6 +295,7 @@
               res[column[i]] = cur[i]
             return res
           })
+          this.rawData = res.data[1];
 
           this.fileCount = res.data[1].length
         }).catch((res) => {
@@ -371,7 +408,80 @@
       getCombinationNum(n){
         return n * (n - 1) / 2;
       },
+      getCombinationArray(map, flag, rec){
+        let res = [];
+        for(let key in map){
+          // console.log(key)
+          // console.log(map[key])
+          let tmp = Array.from(map[key]);
+          tmp.push(parseInt(key))
+          // console.log("!!!")
+          // console.log(key, tmp)
+          for(let i = 0; i < tmp.length; i ++) {
+            rec.add(tmp[i])
+            for(let j = i + 1; j < tmp.length; j ++) {
+              res.push([this.rawData[tmp[i]],this.rawData[tmp[j]], flag])
+              rec.add(tmp[j])
+              // console.log("---")
+              // console.log(tmp[i], this.rawData[tmp[i]])
+              // console.log(tmp[j], this.rawData[tmp[j]])
+            }
+          }
+        }
+        // console.log('---')
+        // console.log(res);
+        return res;
+      },
       submitMarks(){
+        console.log(this.markSum)
+        if(this.portion === ""){
+          this.$message({
+            message: '请选择用于训练集、测试集的比例！',
+            type: 'warning'
+          });
+          return;
+        }
+        this.markSum = parseInt(this.markSum)
+        if(this.markSum !== (this.negativeCount + this.positiveCount)){
+          this.$message({
+            message: '已标注的样例数与输入的样例总数不符！',
+            type: 'warning'
+          });
+          return;
+        }
+        let rec = new Set();
+        let positiveArray = this.getCombinationArray(this.positiveMap, 1, rec);
+        let negativeArray = this.getCombinationArray(this.negativeMap, 0, rec);
+        let Arr = positiveArray.concat(negativeArray)
+        console.log(rec)
+        rec = Array.from(rec);
+        console.log(this.rawData)
+        for(let i = 0; i < rec.length; i ++){
+          delete this.rawData[i]
+        }
+        this.rawData = this.rawData.filter(item => item)
+        console.log(this.rawData)
+        // let fd = new FormData()
+        // fd.append('struct_train_test_data',Arr)
+        // fd.append('ratio', this.portion)
+        // this.$http.post(
+        //   'http://49.232.95.141:8000/pic/entity_match',fd,
+        //   {
+        //     headers: {
+        //       'Content-Type': 'multipart/form-data'
+        //     }
+        //   }).then((res) => {
+        //     console.log(res)
+        //   // this.properties = res.data
+
+        //   this.accuracy = res.data[0] * 100;
+        //   this.recall = res.data[1] * 100;
+
+        //   this.showRes = true;
+        // }).catch((res) => {
+        //   //请求失败
+        //   console.log(res)
+        // })
         
       },
       //导出三元组
@@ -390,20 +500,23 @@
         save_link.download = filename+".csv";
         save_link.click();
       },
+      loadData() {
+        this.$http.post(
+          'http://49.232.95.141:8000/pic/show_table',
+          {
+            headers: {
+              'Content-Type': 'multipart/form-data'
+            }
+          }).then((res) => {
+          this.properties = res.data
+        }).catch((res) => {
+          //请求失败
+          console.log(res)
+        })
+      }
     },
     mounted() {
-      this.$http.post(
-        'http://49.232.95.141:8000/pic/show_table',
-        {
-          headers: {
-            'Content-Type': 'multipart/form-data'
-          }
-        }).then((res) => {
-        this.properties = res.data
-      }).catch((res) => {
-        //请求失败
-        console.log(res)
-      })
+      
     }
   }
 </script>
