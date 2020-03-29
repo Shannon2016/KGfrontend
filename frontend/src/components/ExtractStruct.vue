@@ -69,8 +69,8 @@
         </div>
         <!--表格查看-->
         <div class="top-tip">
-          请选择表格：
-          <el-select v-model="tableIndex" placeholder="" size="small" style="margin-left:20px;">
+          <span v-if="!isList">请选择表格：</span>
+          <el-select v-model="tableIndex" placeholder="" size="small" style="margin-left:20px;" v-if="!isList">
             <el-option
               v-for="(item, index) in properties"
               :key="index"
@@ -78,10 +78,15 @@
               :value="item">
             </el-option>
           </el-select>
-          <el-button style="margin-left:20px;" class="blueBtn" size="small" @click="chooseTable">确定</el-button>
+          <el-button v-if="!isList" style="margin-left:20px;" class="blueBtn" size="small" @click="chooseTable">确定</el-button>
+          <el-button v-if="isList" class="blueBtn" size="small" @click="setPositive" style="margin-left:15px;">设为正样例</el-button>
+          <!-- <span style="margin-left:50px;">现有负样例：{{negativeCount}}个</span> -->
+          <el-button v-if="isList" class="blueBtn" size="small" @click="setNegative" style="margin-left:15px;">设为负样例</el-button>
+
           <el-button type="primary" class="darkBtn" size="small" style="float:right; margin-right:20px;" @click="entityMark">实体对齐</el-button>
           <el-button type="primary" class="darkBtn" size="small" style="float:right; margin-right:20px;" @click="deNoise">属性去噪</el-button>
-          <el-button type="primary" class="darkBtn" size="small" style="float:right; margin-right:20px;" @click="loadData">加载数据</el-button>
+          <el-button v-if="!isList" type="primary" class="darkBtn" size="small" style="float:right; margin-right:20px;" @click="loadData">加载数据</el-button>
+          <el-button v-if="isList" type="primary" class="darkBtn" size="small" style="float:right; margin-right:20px;" @click="isList=false">返回</el-button>
         </div>
         <!--用户操作-->
         <div style="margin-left:20px;" v-if="isList">
@@ -119,10 +124,6 @@
             <span v-if="showRes" style="float:right; margin-right:20px;">召回率：{{recall}}%</span>
             <span v-if="showRes" style="float:right; margin-right:20px;">准确率：{{accuracy}}%</span>
           </div>
-          <el-button class="blueBtn" size="small" @click="setPositive" style="margin-left:15px;">设为正样例</el-button>
-          <!-- <span style="margin-left:50px;">现有负样例：{{negativeCount}}个</span> -->
-          <el-button class="blueBtn" size="small" @click="setNegative" style="margin-left:15px;">设为负样例</el-button>
-
         </div>
         <!--表格部分-->
         <el-checkbox-group v-model="checkList" :max="2" >
@@ -301,9 +302,10 @@
             }
             console.log(res);//count,column,data
             this.trainCount = res.data[0];
-            // this.columnNames = [].concat(res.data[1].map((cur) => {
-            //   return {prop:cur, label:cur}
-            // }));
+            this.positiveMap = {};
+            this.negativeMap = {};
+
+            //重新获取表头
             this.columnNames=[
               {prop:"index",label:"序号"},
               {prop:"positiveMark",label:"正例"},
@@ -322,8 +324,8 @@
                 res[this.columnNames[i].prop] = cur[i]
               return res;
             }));
-
             this.fileCount = this.rawData.length;
+
         }).catch((res) => {
           //请求失败
           console.log(res)
@@ -564,7 +566,7 @@
         return res;
       },
       submitMarks(){
-        console.log(this.markSum)
+        console.log(this.markSum);
         if(this.portion === ""){
           this.$message({
             message: '请选择用于训练集、测试集的比例！',
@@ -572,7 +574,7 @@
           });
           return;
         }
-        this.markSum = parseInt(this.markSum)
+        this.markSum = parseInt(this.markSum);
         if(this.markSum !== (this.negativeCount + this.positiveCount)){
           this.$message({
             message: '已标注的样例数与输入的样例总数不符！',
@@ -606,7 +608,7 @@
               'Content-Type': 'multipart/form-data'
             }
           }).then((res) => {
-          console.log(res)
+          console.log(res);
           // this.properties = res.data
 
           this.accuracy = res.data[0] * 100;
