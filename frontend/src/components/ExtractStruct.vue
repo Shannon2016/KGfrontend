@@ -40,7 +40,7 @@
       <!--列表页-->
       <div class="main" >
         <!-- 上传窗口-->
-        <div id="upload" v-if="isUpload">
+        <div class="upload" id="upload" v-if="isUpload">
           <el-card class="box-card">
             <div slot="header" class="clearfix">
               <span>数据上传</span>
@@ -79,8 +79,8 @@
             </el-option>
           </el-select>
           <el-button style="margin-left:20px;" class="blueBtn" size="small" @click="chooseTable">确定</el-button>
-          <el-button type="primary" class="darkBtn" size="small" style="float:right; margin-right:20px;" @click="goMark">属性去噪</el-button>
           <el-button type="primary" class="darkBtn" size="small" style="float:right; margin-right:20px;" @click="entityMark">实体对齐</el-button>
+          <el-button type="primary" class="darkBtn" size="small" style="float:right; margin-right:20px;" @click="goMark">属性去噪</el-button>
           <el-button type="primary" class="darkBtn" size="small" style="float:right; margin-right:20px;" @click="loadData">加载数据</el-button>
         </div>
         <!--用户操作-->
@@ -98,9 +98,20 @@
 
           <span style="margin-left:20px;">标记样例总数：</span>
           <el-input v-model="markSum" type="number" style="width:250px;" size="small"  @change="setSumCount"></el-input>
-
+          
           <el-button class="darkBtn" size="small" @click="submitMarks" style="float:right; margin-right:20px;">提交</el-button>
+          <el-button type="text" v-if="showRes" @click="resDetailFlag=true" style="float:right; margin-right:20px;" class="textBtn">查看上次标注结果>></el-button>
         </div>
+        <!--查看结果框-->
+        <el-card v-if="resDetailFlag"  class="upload">
+          <div slot="header" class="clearfix">
+            <span>上次标注结果</span>
+            <i class="el-icon-close" style="float: right; padding: 3px 0" @click="resDetailFlag=false"></i>
+          </div>
+          <div v-for="o in 4" :key="o" class="text item">
+            {{'列表内容 ' + o }}
+          </div>
+        </el-card>
         <div v-if="isList" style="margin-left:10px; margin-bottom:20px; margin-top:10px;">
           <!-- <span>现有正样例：{{positiveCount}}个</span> -->
           <el-button class="blueBtn" size="small" @click="setPositive" style="margin-left:15px;">设为正样例</el-button>
@@ -122,6 +133,21 @@
               <template slot-scope="scope">
                 <el-checkbox :label="scope.row.index">{{""}}</el-checkbox>
               </template>
+            </el-table-column>
+            <el-table-column
+              prop="index"
+              label="序号"
+              v-if="isList">
+            </el-table-column>
+            <el-table-column
+              prop="positiveMark"
+              label="与x为正例"
+              v-if="isList">
+            </el-table-column>
+            <el-table-column
+              prop="negativeMark"
+              label="与x为负例"
+              v-if="isList">
             </el-table-column>
             <el-table-column
               v-for="(item, index) in columnNames"
@@ -205,7 +231,8 @@
         accuracy:0,
         recall:0,
         negativeFlag:true,
-        positiveFlag:true
+        positiveFlag:true,
+        resDetailFlag:false
       }
     },
 
@@ -247,10 +274,8 @@
               cur["positiveMark"] = null;
               return cur;
             })
-          this.columnNames = [
-            {prop:"index", label:"序号"},
-            {prop:"positiveMark", label:"与x为正例"},
-            {prop:"negativeMark", label:"与x为负例"}].concat(this.columnNames);
+          // this.columnNames = [
+          //   {prop:"index", label:"序号"}].concat(this.columnNames);
         }
         this.positiveMap={}
         this.negativeMap={}
@@ -261,6 +286,7 @@
         this.isList=true
       },
       goMark(){
+        this.isList = false;
         let fd = new FormData()
         fd.append('table',this.tableIndex)
         this.$http.post(
@@ -270,31 +296,11 @@
               'Content-Type': 'multipart/form-data'
             }
           }).then((res) => {
-            // console.log(res)
+            console.log(res)
             // this.rawData = res.data[1]
 
-            //加载去噪后数据
-            console.log(this.tableData[0]["index"])
-            if(!this.tableData[1]["index"]){
-              this.tableData = this.tableData.map((cur, index) => {
-                  cur["index"] = index;
-                  cur["negativeMark"] = null;
-                  cur["positiveMark"] = null;
-                  return cur;
-                })
-              this.columnNames = [
-                {prop:"index", label:"序号"},
-                {prop:"positiveMark", label:"与x为正例"},
-                {prop:"negativeMark", label:"与x为负例"}].concat(this.columnNames);
-            }
-            this.positiveMap={}
-            this.negativeMap={}
-            this.positiveCount = 0;
-            this.negativeCount = 0;
-            this.portion = "";
-            this.fileCount = this.rawData.length
-            this.isList=true
-          // this.properties = res.data
+            //加载去噪后数据替换在tableData中
+            
         }).catch((res) => {
           //请求失败
           console.log(res)
@@ -376,7 +382,7 @@
         //未填写时不可选
         if(this.positiveFlag){
           this.$message({
-            message: '请先输入样例总数',
+            message: '请先输入样例总数或将样例总数设置为更大值',
             type: 'warning'
           });
           return;
@@ -421,7 +427,7 @@
         //未填写时不可选
         if(this.negativeFlag){
           this.$message({
-            message: '请先输入样例总数',
+            message: '请先输入样例总数或将样例总数设置为更大值',
             type: 'warning'
           });
           return;
@@ -685,7 +691,7 @@
   }
 
   /***************上传弹窗***********/
-  #upload{
+  .upload{
     text-align: center;
     z-index: 99;
     position: fixed;
@@ -728,5 +734,14 @@
   }
   .darkBtn:hover{
     background-color: #708BF7;
+  }
+
+  .textBtn {
+    color:#606266;
+    text-decoration: underline;
+  }
+
+  .textBtn:hover {
+    color: #7c7c7c;
   }
 </style>
