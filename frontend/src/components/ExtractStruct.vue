@@ -204,13 +204,20 @@
         showRes:false,
         accuracy:0,
         recall:0,
-        negativeFlag:false,
-        positiveFlag:false
+        negativeFlag:true,
+        positiveFlag:true
       }
     },
 
     methods: {
       setSumCount() {
+        if(this.markSum === "") {
+          this.positiveMax = 0;
+          this.negativeMax = 0;
+          this.negativeFlag = true;
+          this.positiveFlag = true;
+          return;
+        }
         this.markSum = parseInt(this.markSum);
         this.positiveMax = parseInt(this.markSum * 2 / 3);
         this.negativeMax = this.markSum - this.positiveMax;
@@ -233,16 +240,18 @@
           return;
         }
         console.log(this.tableIndex)
-        this.tableData = this.tableData.map((cur, index) => {
-            cur["index"] = index;
-            cur["negativeMark"] = null;
-            cur["positiveMark"] = null;
-            return cur;
-          })
-        this.columnNames = [
-          {prop:"index", label:"序号"},
-          {prop:"positiveMark", label:"与x为正例"},
-          {prop:"negativeMark", label:"与x为负例"}].concat(this.columnNames);
+        if(!this.tableData[1]["index"]){
+          this.tableData = this.tableData.map((cur, index) => {
+              cur["index"] = index;
+              cur["negativeMark"] = null;
+              cur["positiveMark"] = null;
+              return cur;
+            })
+          this.columnNames = [
+            {prop:"index", label:"序号"},
+            {prop:"positiveMark", label:"与x为正例"},
+            {prop:"negativeMark", label:"与x为负例"}].concat(this.columnNames);
+        }
         this.positiveMap={}
         this.negativeMap={}
         this.positiveCount = 0;
@@ -265,7 +274,8 @@
             // this.rawData = res.data[1]
 
             //加载去噪后数据
-            if(!this.tableData[0].index){
+            console.log(this.tableData[0]["index"])
+            if(!this.tableData[1]["index"]){
               this.tableData = this.tableData.map((cur, index) => {
                   cur["index"] = index;
                   cur["negativeMark"] = null;
@@ -369,7 +379,9 @@
         //计算正例个数并维护对应的set
         if(!this.positiveMap[index]) {
           this.positiveMap[index] = new Set();
-          // oldCount = 0;
+          oldCount = 0;
+        } else {
+          oldCount = this.getCombinationNum(this.positiveMap[index].size + 1);
         }
 
         if(this.positiveMap[index].has(this.checkList[1])) {
@@ -392,7 +404,7 @@
             else this.tableData[indexi].positiveMark = this.checkList[j] + "";
           }
         }
-
+        this.setSumCount();
         console.log(this.positiveMap);
         this.checkList = [];
       },
@@ -405,7 +417,9 @@
         //计算负例个数并维护对应的set
         if(!this.negativeMap[index]) {
           this.negativeMap[index] = new Set();
-          // oldCount = 0;
+          oldCount = 0;
+        } else {
+          oldCount = this.getCombinationNum(this.negativeMap[index].size + 1);
         }
 
         if(this.negativeMap[index].has(this.checkList[1])) {
@@ -428,7 +442,7 @@
             else this.tableData[indexi].negativeMark = this.checkList[j] + "";
           }
         }
-
+        this.setSumCount();
         console.log(this.negativeMap);
         this.checkList = [];
       },

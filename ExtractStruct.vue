@@ -28,7 +28,7 @@
       </el-menu>
     </el-aside>
     <!--内容块实体对齐-->
-    <el-main v-if="isList">
+    <el-main>
       <!--顶部-->
       <div class="header">
         结构化数据抽取
@@ -80,83 +80,45 @@
           </el-select>
           <el-button style="margin-left:20px;" class="blueBtn" size="small" @click="chooseTable">确定</el-button>
           <el-button type="primary" class="darkBtn" size="small" style="float:right; margin-right:20px;" @click="goMark">属性去噪</el-button>
+          <el-button type="primary" class="darkBtn" size="small" style="float:right; margin-right:20px;" @click="entityMark">实体对齐</el-button>
           <el-button type="primary" class="darkBtn" size="small" style="float:right; margin-right:20px;" @click="loadData">加载数据</el-button>
         </div>
+        <!--用户操作-->
+        <div style="margin-left:20px;" v-if="isList">
+          <span>选择用于训练集、测试集的样例比例：</span>
+          <el-input v-model="portion" placeholder="格式：x:y" style="width:250px;"></el-input>
+          <!-- <el-select v-model="portion" placeholder="请选择" size="small">
+            <el-option
+              v-for="item in portionList"
+              :key="item"
+              :label="item"
+              :value="item">
+            </el-option>
+          </el-select> -->
+          
+          <span style="margin-left:20px;">标记样例总数：</span>
+          <el-input v-model="markSum" type="number" style="width:250px;" size="small"  @change="setSumCount"></el-input>
 
-        <!--结构化数据列表-->
-        <el-table
-          :data="tableData.slice((curPage - 1) * 20, curPage * 20)"
-          :header-cell-style="{background:'#EBEEF7',color:'#606266'}"
-          height="626"
-          border>
-          <el-table-column
-            v-for="(item, index) in columnNames"
-            :key="index"
-            :prop="item.prop"
-            :label="item.label">
-          </el-table-column>
-        </el-table>
-        <!-- 分页符-->
-        <el-pagination
-          background
-          layout="prev, pager, next"
-          :total="fileCount"
-          :page-size="20"
-          @current-change="handleCurrentChange"
-          :current-page="curPage">
-        </el-pagination>
+          <el-button class="darkBtn" size="small" @click="submitMarks" style="float:right; margin-right:20px;">提交</el-button>
+        </div>
+        <div v-if="isList" style="margin-left:10px; margin-bottom:20px; margin-top:10px;">
+          <!-- <span>现有正样例：{{positiveCount}}个</span> -->
+          <el-button class="blueBtn" :disabled="positiveFlag" size="small" @click="setPositive" style="margin-left:15px;">设为正样例</el-button>
+          <!-- <span style="margin-left:50px;">现有负样例：{{negativeCount}}个</span> -->
+          <el-button class="blueBtn" :disabled="negativeFlag" size="small" @click="setNegative" style="margin-left:15px;">设为负样例</el-button>
         
-      </div>
-    </el-main>
-    <!--分析页-->
-    <el-main v-show="!isList">
-      <!--顶部-->
-      <div class="header">
-        <i class="el-icon-back" @click="isList=true"></i>
-        <span style="margin-left:10px;font-size:large;font-weight:bold;">实体对齐</span>
-        <el-button class="headbutton darkBtn" size="small" @click="handleExport">导出</el-button>
-      </div>
-      <el-divider></el-divider>
-      <!--中心-->
-      <!--用户操作-->
-      <div style="margin:10px 0;">
-        <span>选择用于训练集、测试集的样例比例：</span>
-        <el-select v-model="portion" placeholder="请选择" size="small">
-          <el-option
-            v-for="item in portionList"
-            :key="item"
-            :label="item"
-            :value="item">
-          </el-option>
-        </el-select>
-        
-        <span style="margin-left:20px;">标记样例总数：</span>
-        <el-input v-model="markSum" type="number" style="width:250px;" size="small"></el-input>
-
-        <el-button class="darkBtn" size="small" @click="submitMarks" style="float:right; margin-right:20px;">提交</el-button>
-      </div>
-      <div style="margin:20px 0;">
-        <span>现有正样例：{{positiveCount}}个</span>
-        <el-button class="blueBtn" size="small" @click="setPositive" style="margin-left:15px;">设为正样例</el-button>
-        
-        <span style="margin-left:50px;">现有负样例：{{negativeCount}}个</span>
-        <el-button class="blueBtn" size="small" @click="setNegative" style="margin-left:15px;">设为负样例</el-button>
-      
-        <span v-if="showRes" style="float:right; margin-right:20px;">召回率：{{recall}}%</span>
-        <span v-if="showRes" style="float:right; margin-right:20px;">准确率：{{accuracy}}%</span>
-      </div>
-
-      <!--结构化数据列表-->
-      <div id="tablePart" >
+          <span v-if="showRes" style="float:right; margin-right:20px;">召回率：{{recall}}%</span>
+          <span v-if="showRes" style="float:right; margin-right:20px;">准确率：{{accuracy}}%</span>
+        </div>
+        <!--表格部分-->
         <el-checkbox-group v-model="checkList" :max="2">
           <el-table
             :data="tableData.slice((curPage - 1) * 20, curPage * 20)"
             :header-cell-style="{background:'#EBEEF7',color:'#606266'}"
             height="626"
             border
-            :select="selectRow"
             >
-            <el-table-column width="40">
+            <el-table-column width="40" v-if="isList">
               <template slot-scope="scope">
                 <el-checkbox :label="scope.row.index">{{""}}</el-checkbox>
               </template>
@@ -180,6 +142,22 @@
         </el-pagination>
       </div>
     </el-main>
+    <!--分析页-->
+    <!-- <el-main v-show="!isList"> -->
+      <!--顶部-->
+      <!-- <div class="header">
+        <i class="el-icon-back" @click="isList=true"></i>
+        <span style="margin-left:10px;font-size:large;font-weight:bold;">实体对齐</span>
+        <el-button class="headbutton darkBtn" size="small" @click="handleExport">导出</el-button>
+      </div>
+      <el-divider></el-divider> -->
+      <!--中心-->
+      
+      <!--结构化数据列表-->
+      <!-- <div id="tablePart" >
+        
+      </div>
+    </el-main> -->
   </el-container>
 </template>
 
@@ -197,7 +175,7 @@
     data () {
       return {
         markSum:"",
-        isList:true,
+        isList:false,
         fileCount:0,
         isUpload:false,
         curPage:1,
@@ -213,25 +191,40 @@
         tableIndex:"",
         choosenInd:[],
         checkList:[],
+        negativeMax:-1,
         negativeCount:0,
+        positiveMax:-1,
         positiveCount:0,
         portion:"",
-        portionList:["8:2", "7:3", "6:4"],
+        // portionList:["8:2", "7:3", "6:4"],
         positiveMap:{},
         negativeMap:{},
         properties:[],
         columnNames:[],
         showRes:false,
         accuracy:0,
-        recall:0
+        recall:0,
+        negativeFlag:false,
+        positiveFlag:false
       }
     },
 
     methods: {
-      selectRow(selection, row){
-        console.log(selection, row)
+      setSumCount() {
+        this.markSum = parseInt(this.markSum);
+        this.positiveMax = parseInt(this.markSum * 2 / 3);
+        this.negativeMax = this.markSum - this.positiveMax;
+        if(this.negativeMax <= this.negativeCount) this.negativeFlag = true;
+        else this.negativeFlag = false;
+
+        if(this.positiveMax <= this.positiveCount) this.positiveFlag = true;
+        else this.positiveFlag = false;
+        console.log(this.positiveMax, this.negativeMax)
+        console.log(this.positiveCount, this.negativeCount)
+        
       },
-      goMark(){
+      entityMark() {
+        this.isList = true;
         if(this.tableIndex === ""){
           this.$message({
             message: '请选择需要进行去噪的表单！',
@@ -240,6 +233,25 @@
           return;
         }
         console.log(this.tableIndex)
+        this.tableData = this.tableData.map((cur, index) => {
+            cur["index"] = index;
+            cur["negativeMark"] = null;
+            cur["positiveMark"] = null;
+            return cur;
+          })
+        this.columnNames = [
+          {prop:"index", label:"序号"},
+          {prop:"positiveMark", label:"与x为正例"},
+          {prop:"negativeMark", label:"与x为负例"}].concat(this.columnNames);
+        this.positiveMap={}
+        this.negativeMap={}
+        this.positiveCount = 0;
+        this.negativeCount = 0;
+        this.portion = "";
+        this.fileCount = this.rawData.length
+        this.isList=true
+      },
+      goMark(){
         let fd = new FormData()
         fd.append('table',this.tableIndex)
         this.$http.post(
@@ -253,19 +265,25 @@
             // this.rawData = res.data[1]
 
             //加载去噪后数据
-            this.tableData = this.tableData.map((cur, index) => {
-                cur["index"] = index;
-                cur["negativeMark"] = null;
-                return cur;
-              })
-            this.columnNames = [{prop:"index", label:"序号"},{prop:"negativeMark", label:"与x为负例"}].concat(this.columnNames);
+            if(!this.tableData[0].index){
+              this.tableData = this.tableData.map((cur, index) => {
+                  cur["index"] = index;
+                  cur["negativeMark"] = null;
+                  cur["positiveMark"] = null;
+                  return cur;
+                })
+              this.columnNames = [
+                {prop:"index", label:"序号"},
+                {prop:"positiveMark", label:"与x为正例"},
+                {prop:"negativeMark", label:"与x为负例"}].concat(this.columnNames);
+            }
             this.positiveMap={}
             this.negativeMap={}
             this.positiveCount = 0;
             this.negativeCount = 0;
             this.portion = "";
             this.fileCount = this.rawData.length
-            this.isList=false
+            this.isList=true
           // this.properties = res.data
         }).catch((res) => {
           //请求失败
@@ -345,57 +363,65 @@
       },
       setPositive(){
         this.checkList.sort(function(a,b){return a>b?1:-1})
-        // console.log(this.checkList)
-        let index;
+        let index, oldCount, newCount;
         index = this.checkList[0]
-        //计算正例个数
+
+        //计算正例个数并维护对应的set
         if(!this.positiveMap[index]) {
           this.positiveMap[index] = new Set();
-          // oldCount = 0;
+          oldCount = 0;
+        } else {
+          oldCount = this.getCombinationNum(this.positiveMap[index].size + 1);
         }
-        //  else {
-        //   oldCount = this.getCombinationNum(this.positiveMap[index].size + 1);
-        // }
-        // for(let i = 1; i < this.checkList.length; i ++) {
-        this.positiveMap[index].add(this.checkList[1]);
-        //删除表中相同正例
-        let flag = this.findIndex(this.checkList[1]);
-        delete this.tableData[flag];
-        this.tableData = this.tableData.filter(item => item)
-        // }
-        // newCount = this.getCombinationNum(this.positiveMap[index].size + 1);
-        // this.positiveCount += newCount - oldCount;
-        this.positiveCount += 1;
+
+        if(this.positiveMap[index].has(this.checkList[1])) {
+          this.checkList = [];
+          return;
+        }
+        else this.positiveMap[index].add(this.checkList[1]);
+
+        newCount = this.getCombinationNum(this.positiveMap[index].size + 1);
+        this.positiveCount += newCount - oldCount;
+
+        //处理表格“与x为正例列字符串”
+        for(let i = 0; i < this.checkList.length; i ++){
+          let indexi = this.findIndex(this.checkList[i]);
+          for(let j = 0; j < this.checkList.length; j ++){
+            if(i === j) continue;
+            // let indexj = this.findIndex(this.checkList[j]);
+            if(this.tableData[indexi].positiveMark)
+              this.tableData[indexi].positiveMark += ", " + this.checkList[j];
+            else this.tableData[indexi].positiveMark = this.checkList[j] + "";
+          }
+        }
+
         console.log(this.positiveMap);
         this.checkList = [];
       },
       setNegative(){
         this.checkList.sort(function(a,b){return a>b?1:-1})
-        let index;
+        let index, oldCount, newCount;
         index = this.checkList[0]
-        //计算负例个数
+        
+
+        //计算负例个数并维护对应的set
         if(!this.negativeMap[index]) {
           this.negativeMap[index] = new Set();
-          // oldCount = 0;
-        } 
-        // else {
-        //   oldCount = this.getCombinationNum(this.negativeMap[index].size + 1);
-        // }
-        
-        let length = this.checkList.length;
-        for(let i = 1; i < length; i ++) {
-          if(this.negativeMap[index].has(this.checkList[i])) {
-            this.checkList = [];
-            return;
-            // delete this.checkList[i];
-            // this.checkList = this.checkList.filter(item => item)
-            // i--; length--;
-            // continue;
-          }
-          this.negativeMap[index].add(this.checkList[1]);
+          oldCount = 0;
+        } else {
+          oldCount = this.getCombinationNum(this.negativeMap[index].size + 1);
         }
-        console.log(this.checkList)
 
+        if(this.negativeMap[index].has(this.checkList[1])) {
+          this.checkList = [];
+          return;
+        }
+        else this.negativeMap[index].add(this.checkList[1]);
+
+        newCount = this.getCombinationNum(this.negativeMap[index].size + 1);
+        this.negativeCount += newCount - oldCount;
+
+        //处理表格“与x为负例列字符串”
         for(let i = 0; i < this.checkList.length; i ++){
           let indexi = this.findIndex(this.checkList[i]);
           for(let j = 0; j < this.checkList.length; j ++){
@@ -407,9 +433,6 @@
           }
         }
 
-        // newCount = this.getCombinationNum(this.negativeMap[index].size + 1);
-        // this.negativeCount += newCount - oldCount;
-        this.negativeCount += 1
         console.log(this.negativeMap);
         this.checkList = [];
       },
