@@ -86,7 +86,7 @@
           <el-button type="primary" class="darkBtn" size="small" style="float:right; margin-right:20px;" @click="entityMark">实体对齐</el-button>
           <el-button type="primary" class="darkBtn" size="small" style="float:right; margin-right:20px;" @click="deNoise">属性去噪</el-button>
           <el-button v-if="!isList" type="primary" class="darkBtn" size="small" style="float:right; margin-right:20px;" @click="loadData">加载数据</el-button>
-          <el-button v-if="isList" type="primary" class="darkBtn" size="small" style="float:right; margin-right:20px;" @click="isList=false">返回</el-button>
+          <el-button v-if="isList" type="primary" class="darkBtn" size="small" style="float:right; margin-right:20px;" @click="backToView">返回</el-button>
         </div>
         <!--用户操作-->
         <div style="margin-left:20px;" v-if="isList">
@@ -262,6 +262,14 @@
         console.log(this.positiveMax, this.negativeMax)
         console.log(this.positiveCount, this.negativeCount)
 
+      },
+      backToView(){
+        //清空表格并返回
+        this.isList=false;
+        this.showRes=false;
+        this.columnNames = [];
+        this.tableData=[];
+        this.rawData=[];
       },
       entityMark() {
         this.isList = true;
