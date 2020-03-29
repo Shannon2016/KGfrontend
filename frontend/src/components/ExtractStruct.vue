@@ -564,7 +564,7 @@
         return res;
       },
       submitMarks(){
-        console.log(this.markSum)
+        console.log(this.tableData)
         if(this.portion === ""){
           this.$message({
             message: '请选择用于训练集、测试集的比例！',
@@ -572,33 +572,50 @@
           });
           return;
         }
-        this.markSum = parseInt(this.markSum)
-        if(this.markSum !== (this.negativeCount + this.positiveCount)){
-          this.$message({
-            message: '已标注的样例数与输入的样例总数不符！',
-            type: 'warning'
-          });
-          return;
-        }
+        // this.markSum = parseInt(this.markSum)
+        // if(this.markSum !== (this.negativeCount + this.positiveCount)){
+        //   this.$message({
+        //     message: '已标注的样例数与输入的样例总数不符！',
+        //     type: 'warning'
+        //   });
+        //   return;
+        // }
         let rec = new Set();
         let positiveArray = this.getCombinationArray(this.positiveMap, 1, rec);
         let negativeArray = this.getCombinationArray(this.negativeMap, 0, rec);
         let Arr = positiveArray.concat(negativeArray);
         rec = Array.from(rec);
         rec.sort((a,b)=>a>b?1:-1);
-        console.log("rec:");
-        console.log(rec);
-        // console.log(this.rawData)
-        // for(let i = 0; i < rec.length; i ++){
-        //   delete this.rawData[i]
-        // }
-        // this.rawData = this.rawData.filter(item => item)
-        // console.log(this.rawData)
-        let data = JSON.stringify(Arr);
-        console.log(data);
+        // console.log("rec:");
+        // console.log(rec);
+        let portion = this.portion.split(":");
+        if(portion.length !== 2) {
+          this.$message({
+            message: '用于训练集、测试集的样例比例输入格式有误！',
+            type: 'warning'
+          });
+          return;
+        }
+        portion[0] = parseInt(portion[0]);
+        portion[1] = parseInt(portion[1]);
+        let tableName = [this.tableIndex]
+        let positiveMarkList = [];
+        let negativeMarkList = [];
+        for(let i = 0; i < this.tableData.length; i ++){
+          positiveMarkList.push(this.tableData[i].positiveMark)
+          negativeMarkList.push(this.tableData[i].negativeMark)
+        }
+
+
         let fd = new FormData();
-        fd.append('struct_train_test_data',data);
-        fd.append('ratio', this.portion);
+        fd.append('struct_train_test_data',JSON.stringify(Arr));
+        fd.append('ratio', JSON.stringify(this.portion));
+        fd.append('table', JSON.stringify(tableName));
+        fd.append('mark', JSON.stringify([positiveMarkList, negativeMarkList]))
+        // console.log(Arr)
+        // console.log(this.portion)
+        // console.log(tableName)
+        // console.log(positiveMarkList, negativeMarkList)
         this.$http.post(
           'http://49.232.95.141:8000/pic/entity_match',fd,
           {
@@ -609,28 +626,28 @@
           console.log(res)
           // this.properties = res.data
 
-          this.accuracy = res.data[0] * 100;
-          this.recall = res.data[1] * 100;
-          this.showRes = true;
+          // this.accuracy = res.data[0] * 100;
+          // this.recall = res.data[1] * 100;
+          // this.showRes = true;
 
-          //原rawData删除已标记数据(rec中)
-          for(let i=rec.length-1;i>=0;i--){
-            this.rawData.splice(rec[i],1);
-          }
-          //在头部添加新数据
-          for(let i=0;i<res.data[2].length;i++){
-            this.rawData.unshift(res.data[2][i]);
-          }
-          //更新tableData
-          console.log(this.columnNames)
-          this.tableData = this.rawData.map((cur,index) => {
-            let res={};
-            res["index"] = index;
-            res["negativeMark"] = null;
-            for(let i = 0; i < this.columnNames.length-2; i ++)
-              res[this.columnNames[i+2].prop] = cur[i]
-            return res
-          });
+          // //原rawData删除已标记数据(rec中)
+          // for(let i=rec.length-1;i>=0;i--){
+          //   this.rawData.splice(rec[i],1);
+          // }
+          // //在头部添加新数据
+          // for(let i=0;i<res.data[2].length;i++){
+          //   this.rawData.unshift(res.data[2][i]);
+          // }
+          // //更新tableData
+          // console.log(this.columnNames)
+          // this.tableData = this.rawData.map((cur,index) => {
+          //   let res={};
+          //   res["index"] = index;
+          //   res["negativeMark"] = null;
+          //   for(let i = 0; i < this.columnNames.length-2; i ++)
+          //     res[this.columnNames[i+2].prop] = cur[i]
+          //   return res
+          // });
 
         }).catch((res) => {
           //请求失败
