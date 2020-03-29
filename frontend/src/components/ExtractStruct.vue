@@ -114,13 +114,11 @@
         </el-card>
         <div v-if="isList" style="margin-left:10px; margin-bottom:20px; margin-top:10px;">
           <!-- <span>现有正样例：{{positiveCount}}个</span> -->
-          <el-alert
-            :title="'已有训练数据数量 : '+trainCount"
-            type="success"
-            style="margin-bottom: 10px">
+          <div id="matchInfo">
+            已有训练数据数量 : {{trainCount}}
             <span v-if="showRes" style="float:right; margin-right:20px;">召回率：{{recall}}%</span>
             <span v-if="showRes" style="float:right; margin-right:20px;">准确率：{{accuracy}}%</span>
-          </el-alert>
+          </div>
           <el-button class="blueBtn" size="small" @click="setPositive" style="margin-left:15px;">设为正样例</el-button>
           <!-- <span style="margin-left:50px;">现有负样例：{{negativeCount}}个</span> -->
           <el-button class="blueBtn" size="small" @click="setNegative" style="margin-left:15px;">设为负样例</el-button>
@@ -470,16 +468,26 @@
         this.positiveCount += newCount - oldCount;
 
         //处理表格“与x为正例列字符串”
-        for(let i = 0; i < this.checkList.length; i ++){
-          let indexi = this.findIndex(this.checkList[i]);
-          for(let j = 0; j < this.checkList.length; j ++){
-            if(i === j) continue;
-            // let indexj = this.findIndex(this.checkList[j]);
-            if(this.tableData[indexi].positiveMark)
-              this.tableData[indexi].positiveMark += ", " + this.checkList[j];
-            else this.tableData[indexi].positiveMark = this.checkList[j] + "";
-          }
-        }
+        let indexi = this.findIndex(this.checkList[0]);
+        let indexj = this.findIndex(this.checkList[1]);
+        if(this.tableData[indexi].positiveMark===" ")
+          this.tableData[indexi].positiveMark = this.checkList[1] + "";
+        else
+          this.tableData[indexi].positiveMark += "," + this.checkList[1];
+        if(this.tableData[indexj].positiveMark===" ")
+          this.tableData[indexj].positiveMark = this.checkList[0] + "";
+        else
+          this.tableData[indexj].positiveMark += "," + this.checkList[0];
+        // for(let i = 0; i < this.checkList.length; i ++){
+        //   let indexi = this.findIndex(this.checkList[i]);
+        //   for(let j = 0; j < this.checkList.length; j ++){
+        //     if(i === j) continue;
+        //     // let indexj = this.findIndex(this.checkList[j]);
+        //     if(this.tableData[indexi].positiveMark)
+        //       this.tableData[indexi].positiveMark += ", " + this.checkList[j];
+        //     else this.tableData[indexi].positiveMark = this.checkList[j] + "";
+        //   }
+        // }
         this.setSumCount();
         console.log(this.positiveMap);
         this.checkList = [];
@@ -745,6 +753,16 @@
     margin-top: 40px;
   }
 
+  #matchInfo{
+    background-color: #F0F9EB;
+    color: #67C23A;
+    padding: 8px 16px;
+    width: 95%;
+    padding:8px 16px;
+    border-radius: 10px;
+    margin: 0 0 15px 10px;
+    font-size: 13px;
+  }
   .el-pagination.is-background .el-pager li:not(.disabled).active{
     background-color: #5775FB !important;
   }
