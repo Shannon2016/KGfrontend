@@ -80,7 +80,7 @@
           </el-select>
           <el-button style="margin-left:20px;" class="blueBtn" size="small" @click="chooseTable">确定</el-button>
           <el-button type="primary" class="darkBtn" size="small" style="float:right; margin-right:20px;" @click="entityMark">实体对齐</el-button>
-          <el-button type="primary" class="darkBtn" size="small" style="float:right; margin-right:20px;" @click="goMark">属性去噪</el-button>
+          <el-button type="primary" class="darkBtn" size="small" style="float:right; margin-right:20px;" @click="deNoise">属性去噪</el-button>
           <el-button type="primary" class="darkBtn" size="small" style="float:right; margin-right:20px;" @click="loadData">加载数据</el-button>
         </div>
         <!--用户操作-->
@@ -98,7 +98,7 @@
 
           <span style="margin-left:20px;">标记样例总数：</span>
           <el-input v-model="markSum" type="number" style="width:250px;" size="small"  @change="setSumCount"></el-input>
-          
+
           <el-button class="darkBtn" size="small" @click="submitMarks" style="float:right; margin-right:20px;">提交</el-button>
           <el-button type="text" v-if="showRes" @click="resDetailFlag=true" style="float:right; margin-right:20px;" class="textBtn">查看上次标注结果>></el-button>
         </div>
@@ -114,17 +114,22 @@
         </el-card>
         <div v-if="isList" style="margin-left:10px; margin-bottom:20px; margin-top:10px;">
           <!-- <span>现有正样例：{{positiveCount}}个</span> -->
+          <el-alert
+            :title="'已有训练数据数量 : '+trainCount"
+            type="success"
+            style="margin-bottom: 10px">
+            <span v-if="showRes" style="float:right; margin-right:20px;">召回率：{{recall}}%</span>
+            <span v-if="showRes" style="float:right; margin-right:20px;">准确率：{{accuracy}}%</span>
+          </el-alert>
           <el-button class="blueBtn" size="small" @click="setPositive" style="margin-left:15px;">设为正样例</el-button>
           <!-- <span style="margin-left:50px;">现有负样例：{{negativeCount}}个</span> -->
           <el-button class="blueBtn" size="small" @click="setNegative" style="margin-left:15px;">设为负样例</el-button>
 
-          <span v-if="showRes" style="float:right; margin-right:20px;">召回率：{{recall}}%</span>
-          <span v-if="showRes" style="float:right; margin-right:20px;">准确率：{{accuracy}}%</span>
         </div>
         <!--表格部分-->
-        <el-checkbox-group v-model="checkList" :max="2">
+        <el-checkbox-group v-model="checkList" :max="2" >
           <el-table
-            :data="tableData.slice((curPage - 1) * 10, curPage * 10)"
+            :data="tableData.slice((curPage - 1) * 20, curPage * 20)"
             :header-cell-style="{background:'#EBEEF7',color:'#606266'}"
             height="626"
             border
@@ -134,21 +139,21 @@
                 <el-checkbox :label="scope.row.index">{{""}}</el-checkbox>
               </template>
             </el-table-column>
-            <el-table-column
-              prop="index"
-              label="序号"
-              v-if="isList">
-            </el-table-column>
-            <el-table-column
-              prop="positiveMark"
-              label="与x为正例"
-              v-if="isList">
-            </el-table-column>
-            <el-table-column
-              prop="negativeMark"
-              label="与x为负例"
-              v-if="isList">
-            </el-table-column>
+            <!--<el-table-column-->
+              <!--prop="index"-->
+              <!--label="序号"-->
+              <!--v-if="isList">-->
+            <!--</el-table-column>-->
+            <!--<el-table-column-->
+              <!--prop="positiveMark"-->
+              <!--label="与x为正例"-->
+              <!--v-if="isList">-->
+            <!--</el-table-column>-->
+            <!--<el-table-column-->
+              <!--prop="negativeMark"-->
+              <!--label="与x为负例"-->
+              <!--v-if="isList">-->
+            <!--</el-table-column>-->
             <el-table-column
               v-for="(item, index) in columnNames"
               :key="index"
@@ -232,7 +237,9 @@
         recall:0,
         negativeFlag:true,
         positiveFlag:true,
-        resDetailFlag:false
+        resDetailFlag:false,
+        //实体对齐时已有训练数据集的数量
+        trainCount:0,
       }
     },
 
@@ -266,29 +273,74 @@
           });
           return;
         }
-        console.log(this.tableIndex)
-        if(!this.tableData[1]["index"]){
-          this.tableData = this.tableData.map((cur, index) => {
-              cur["index"] = index;
-              cur["negativeMark"] = null;
-              cur["positiveMark"] = null;
-              return cur;
-            })
-          // this.columnNames = [
-          //   {prop:"index", label:"序号"}].concat(this.columnNames);
-        }
-        this.positiveMap={}
-        this.negativeMap={}
+
+        // if(!this.tableData[1]["index"]){
+        //   this.tableData = this.tableData.map((cur, index) => {
+        //       cur["index"] = index;
+        //       cur["negativeMark"] = null;
+        //       cur["positiveMark"] = null;
+        //       return cur;
+        //     })
+        //   // this.columnNames = [
+        //   //   {prop:"index", label:"序号"}].concat(this.columnNames);
+        // }
+
+        let fd = new FormData();
+        fd.append('table',this.tableIndex);
+        this.$http.post(
+          'http://49.232.95.141:8000/pic/start_entity_match',fd,
+          {
+            headers: {
+              'Content-Type': 'multipart/form-data'
+            }
+          }).then((res) => {
+            if(res.data===1){
+              this.$message({
+                message: '请点击属性去噪后再进行实体对齐！',
+                type: 'warning'
+              });
+              return;
+            }
+            console.log(res);//count,column,data
+            this.trainCount = res.data[0];
+            // this.columnNames = [].concat(res.data[1].map((cur) => {
+            //   return {prop:cur, label:cur}
+            // }));
+            this.columnNames=[
+              {prop:"index",label:"序号"},
+              {prop:"positiveMark",label:"正例"},
+              {prop:"negativeMark",label:"负例"}];
+            for(let i=3;i<res.data[1].length;i++)
+              this.columnNames.push({prop:res.data[1][i],label:res.data[1][i]});
+            this.rawData = [].concat(res.data[2]);
+
+            //加载去噪后数据替换在tableData中
+            this.tableData = [].concat(res.data[2].map((cur)=>{
+              let res={};
+              res["index"] = cur[0];
+              res["positiveMark"] = cur[1];
+              res["negativeMark"] = cur[2];
+              for(let i = 0; i < this.columnNames.length; i ++)
+                res[this.columnNames[i].prop] = cur[i]
+              return res;
+            }));
+
+            this.fileCount = this.rawData.length;
+        }).catch((res) => {
+          //请求失败
+          console.log(res)
+        });
+        this.positiveMap={};
+        this.negativeMap={};
         this.positiveCount = 0;
         this.negativeCount = 0;
         this.portion = "";
-        this.fileCount = this.rawData.length
         this.isList=true
       },
-      goMark(){
+      deNoise(){
         this.isList = false;
-        let fd = new FormData()
-        fd.append('table',this.tableIndex)
+        let fd = new FormData();
+        fd.append('table',this.tableIndex);
         this.$http.post(
           'http://49.232.95.141:8000/pic/data_filter',fd,
           {
@@ -296,11 +348,21 @@
               'Content-Type': 'multipart/form-data'
             }
           }).then((res) => {
-            console.log(res)
-            // this.rawData = res.data[1]
+            this.rawData = [].concat(res.data[1]);
 
-            //加载去噪后数据替换在tableData中
-            
+            this.columnNames = [].concat(res.data[0].map((cur) => {
+              return {prop:cur, label:cur}
+            }));
+
+          //加载去噪后数据替换在tableData中
+            this.tableData = [].concat(res.data[1].map((cur)=>{
+              let res={};
+              for(let i = 0; i < this.columnNames.length; i ++)
+                res[this.columnNames[i].prop] = cur[i]
+              return res;
+            }));
+           this.fileCount = res.data[1].length
+
         }).catch((res) => {
           //请求失败
           console.log(res)
@@ -322,20 +384,20 @@
               'Content-Type': 'multipart/form-data'
             }
           }).then((res) => {
-          this.columnNames = res.data[0].map((cur) => {
-            return {prop:cur, label:cur}
-          })
+            this.columnNames = res.data[0].map((cur) => {
+              return {prop:cur, label:cur}
+            });
 
-          let column = res.data[0]
-          this.tableData = res.data[1].map((cur) => {
-            let res={};
-            for(let i = 0; i < column.length; i ++)
-              res[column[i]] = cur[i]
-            return res
-          })
-          this.rawData = res.data[1];
+            let column = res.data[0];
+            this.tableData = res.data[1].map((cur) => {
+              let res={};
+              for(let i = 0; i < column.length; i ++)
+                res[column[i]] = cur[i]
+              return res
+            });
+            this.rawData = res.data[1];
 
-          this.fileCount = res.data[1].length
+            this.fileCount = res.data[1].length
         }).catch((res) => {
           //请求失败
           console.log(res)
