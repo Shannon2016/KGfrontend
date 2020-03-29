@@ -28,7 +28,7 @@
       </el-menu>
     </el-aside>
     <!--内容块实体对齐-->
-    <el-main>
+    <el-main v-if="resDetailFlag===false">
       <!--顶部-->
       <div class="header">
         结构化数据抽取
@@ -107,16 +107,7 @@
           <el-button class="darkBtn" size="small" @click="submitMarks" style="float:right; margin-right:20px;">提交</el-button>
           <el-button type="text" v-if="showRes" @click="resDetailFlag=true" style="float:right; margin-right:20px;" class="textBtn">查看上次标注结果>></el-button>
         </div>
-        <!--查看结果框-->
-        <el-card v-if="resDetailFlag"  class="upload">
-          <div slot="header" class="clearfix">
-            <span>上次标注结果</span>
-            <i class="el-icon-close" style="float: right; padding: 3px 0" @click="resDetailFlag=false"></i>
-          </div>
-          <div v-for="o in 4" :key="o" class="text item">
-            {{'列表内容 ' + o }}
-          </div>
-        </el-card>
+        
         <div v-if="isList" style="margin-left:10px; margin-bottom:20px; margin-top:10px;">
           <!-- <span>现有正样例：{{positiveCount}}个</span> -->
           <div id="matchInfo">
@@ -172,22 +163,43 @@
         </el-pagination>
       </div>
     </el-main>
-    <!--分析页-->
-    <!-- <el-main v-show="!isList"> -->
+    <!--查看结果页-->
+    <el-main v-show="resDetailFlag">
       <!--顶部-->
-      <!-- <div class="header">
-        <i class="el-icon-back" @click="isList=true"></i>
-        <span style="margin-left:10px;font-size:large;font-weight:bold;">实体对齐</span>
-        <el-button class="headbutton darkBtn" size="small" @click="handleExport">导出</el-button>
+      <div class="header">
+        <i class="el-icon-back" @click="resDetailFlag=false"></i>
+        <span style="margin-left:10px;font-size:large;font-weight:bold;">查看上次标注结果</span>
+        <!-- <el-button class="headbutton darkBtn" size="small" @click="handleExport">导出</el-button> -->
       </div>
-      <el-divider></el-divider> -->
+      <el-divider></el-divider>
       <!--中心-->
 
       <!--结构化数据列表-->
-      <!-- <div id="tablePart" >
-
+      <div id="tablePart" >
+        <el-table
+          :data="resTableData"
+          :header-cell-style="{background:'#EBEEF7',color:'#606266'}"
+          height="626"
+          border
+          >
+          <el-table-column
+            v-for="(item, index) in resColumnNames"
+            :key="index"
+            :prop="item.prop"
+            :label="item.label">
+          </el-table-column>
+        </el-table>
+        <!-- 分页符-->
+        <!-- <el-pagination
+          background
+          layout="prev, pager, next"
+          :total="fileCount"
+          :page-size="20"
+          @current-change="handleCurrentChange"
+          :current-page="curPage">
+        </el-pagination> -->
       </div>
-    </el-main> -->
+    </el-main>
   </el-container>
 </template>
 
@@ -239,6 +251,8 @@
         resDetailFlag:false,
         //实体对齐时已有训练数据集的数量
         trainCount:0,
+        resTableData:[],
+        resColumnNames:[]
       }
     },
 
@@ -536,7 +550,7 @@
           for(let j = 0; j < this.checkList.length; j ++){
             if(i === j) continue;
             // let indexj = this.findIndex(this.checkList[j]);
-            if(this.tableData[indexi].negativeMark)
+            if(this.tableData[indexi].negativeMark!==" ")
               this.tableData[indexi].negativeMark += ", " + this.checkList[j];
             else this.tableData[indexi].negativeMark = this.checkList[j] + "";
           }
@@ -574,7 +588,7 @@
         return res;
       },
       submitMarks(){
-        console.log(this.tableData)
+        console.log(this.tableData, this.columnNames)
         if(this.portion === ""){
           this.$message({
             message: '请选择用于训练集、测试集的比例！',
@@ -634,11 +648,35 @@
             }
           }).then((res) => {
           console.log(res);
-          // this.properties = res.data
 
-          // this.accuracy = res.data[0] * 100;
-          // this.recall = res.data[1] * 100;
-          // this.showRes = true;
+          this.trainCount = res.data[0]
+          this.accuracy = res.data[1] * 100;
+          this.recall = res.data[2] * 100;
+          //查看结果页表格数据
+          this.resColumnNames = [];
+          this.resTableData = [];
+          let rawColumnNames = []
+          for(let i = 0; i < this.columnNames.length; i ++) {
+            rawColumnNames.push(this.columnNames[i])
+          }
+          this.resColumnNames = [{prop:"flag", label:"结果"}].concat(rawColumnNames.splice(3))
+          let correct = res.data[3][0].map((cur) => {
+            let res={};
+            res["flag"]="正确"
+            for(let i = 1; i < this.resColumnNames.length; i ++)
+              res[this.resColumnNames[i].prop] = cur[i - 1]
+            return res
+          });
+          let fault = res.data[4][0].map((cur) => {
+            let res={};
+            res["flag"]="错误"
+            for(let i = 1; i < this.resColumnNames.length; i ++)
+              res[this.resColumnNames[i].prop] = cur[i - 1]
+            return res
+          });
+          this.resTableData = correct.concat(fault)
+
+          this.showRes = true;
 
           // //原rawData删除已标记数据(rec中)
           // for(let i=rec.length-1;i>=0;i--){
