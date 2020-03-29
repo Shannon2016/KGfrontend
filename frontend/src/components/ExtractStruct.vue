@@ -113,7 +113,7 @@
         <!--表格部分-->
         <el-checkbox-group v-model="checkList" :max="2">
           <el-table
-            :data="tableData.slice((curPage - 1) * 20, curPage * 20)"
+            :data="tableData.slice((curPage - 1) * 10, curPage * 10)"
             :header-cell-style="{background:'#EBEEF7',color:'#606266'}"
             height="626"
             border
@@ -312,7 +312,7 @@
 
           let column = res.data[0]
           this.tableData = res.data[1].map((cur) => {
-            let res={}
+            let res={};
             for(let i = 0; i < column.length; i ++)
               res[column[i]] = cur[i]
             return res
@@ -369,9 +369,7 @@
         //计算正例个数并维护对应的set
         if(!this.positiveMap[index]) {
           this.positiveMap[index] = new Set();
-          oldCount = 0;
-        } else {
-          oldCount = this.getCombinationNum(this.positiveMap[index].size + 1);
+          // oldCount = 0;
         }
 
         if(this.positiveMap[index].has(this.checkList[1])) {
@@ -407,9 +405,7 @@
         //计算负例个数并维护对应的set
         if(!this.negativeMap[index]) {
           this.negativeMap[index] = new Set();
-          oldCount = 0;
-        } else {
-          oldCount = this.getCombinationNum(this.negativeMap[index].size + 1);
+          // oldCount = 0;
         }
 
         if(this.negativeMap[index].has(this.checkList[1])) {
@@ -436,6 +432,7 @@
         console.log(this.negativeMap);
         this.checkList = [];
       },
+
       getCombinationNum(n){
         return n * (n - 1) / 2;
       },
@@ -483,9 +480,11 @@
         let rec = new Set();
         let positiveArray = this.getCombinationArray(this.positiveMap, 1, rec);
         let negativeArray = this.getCombinationArray(this.negativeMap, 0, rec);
-        let Arr = positiveArray.concat(negativeArray)
-        console.log(rec)
+        let Arr = positiveArray.concat(negativeArray);
         rec = Array.from(rec);
+        rec.sort((a,b)=>a>b?1:-1);
+        console.log("rec:");
+        console.log(rec);
         // console.log(this.rawData)
         // for(let i = 0; i < rec.length; i ++){
         //   delete this.rawData[i]
@@ -493,10 +492,10 @@
         // this.rawData = this.rawData.filter(item => item)
         // console.log(this.rawData)
         let data = JSON.stringify(Arr);
-        console.log(data)
-        let fd = new FormData()
-        fd.append('struct_train_test_data',data)
-        fd.append('ratio', this.portion)
+        console.log(data);
+        let fd = new FormData();
+        fd.append('struct_train_test_data',data);
+        fd.append('ratio', this.portion);
         this.$http.post(
           'http://49.232.95.141:8000/pic/entity_match',fd,
           {
@@ -504,19 +503,38 @@
               'Content-Type': 'multipart/form-data'
             }
           }).then((res) => {
-            console.log(res)
+          console.log(res)
           // this.properties = res.data
 
           this.accuracy = res.data[0] * 100;
           this.recall = res.data[1] * 100;
-
           this.showRes = true;
+
+          //原rawData删除已标记数据(rec中)
+          for(let i=rec.length-1;i>=0;i--){
+            this.rawData.splice(rec[i],1);
+          }
+          //在头部添加新数据
+          for(let i=0;i<res.data[2].length;i++){
+            this.rawData.unshift(res.data[2][i]);
+          }
+          //更新tableData
+          console.log(this.columnNames)
+          this.tableData = this.rawData.map((cur,index) => {
+            let res={};
+            res["index"] = index;
+            res["negativeMark"] = null;
+            for(let i = 0; i < this.columnNames.length-2; i ++)
+              res[this.columnNames[i+2].prop] = cur[i]
+            return res
+          });
+
         }).catch((res) => {
           //请求失败
           console.log(res)
         })
-        
       },
+
       //导出三元组
       handleExport(){
         //处理数据
@@ -549,7 +567,7 @@
       }
     },
     mounted() {
-      
+
     }
   }
 </script>
