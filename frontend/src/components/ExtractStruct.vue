@@ -95,7 +95,7 @@
               :value="item">
             </el-option>
           </el-select> -->
-          
+
           <span style="margin-left:20px;">标记样例总数：</span>
           <el-input v-model="markSum" type="number" style="width:250px;" size="small"  @change="setSumCount"></el-input>
 
@@ -103,10 +103,10 @@
         </div>
         <div v-if="isList" style="margin-left:10px; margin-bottom:20px; margin-top:10px;">
           <!-- <span>现有正样例：{{positiveCount}}个</span> -->
-          <el-button class="blueBtn" :disabled="positiveFlag" size="small" @click="setPositive" style="margin-left:15px;">设为正样例</el-button>
+          <el-button class="blueBtn" size="small" @click="setPositive" style="margin-left:15px;">设为正样例</el-button>
           <!-- <span style="margin-left:50px;">现有负样例：{{negativeCount}}个</span> -->
-          <el-button class="blueBtn" :disabled="negativeFlag" size="small" @click="setNegative" style="margin-left:15px;">设为负样例</el-button>
-        
+          <el-button class="blueBtn" size="small" @click="setNegative" style="margin-left:15px;">设为负样例</el-button>
+
           <span v-if="showRes" style="float:right; margin-right:20px;">召回率：{{recall}}%</span>
           <span v-if="showRes" style="float:right; margin-right:20px;">准确率：{{accuracy}}%</span>
         </div>
@@ -152,10 +152,10 @@
       </div>
       <el-divider></el-divider> -->
       <!--中心-->
-      
+
       <!--结构化数据列表-->
       <!-- <div id="tablePart" >
-        
+
       </div>
     </el-main> -->
   </el-container>
@@ -228,7 +228,7 @@
         else this.positiveFlag = false;
         console.log(this.positiveMax, this.negativeMax)
         console.log(this.positiveCount, this.negativeCount)
-        
+
       },
       entityMark() {
         this.isList = true;
@@ -371,10 +371,20 @@
           if(this.tableData[i].index === index) return i;
         }
       },
+      //设为正样例
       setPositive(){
+        //未填写时不可选
+        if(this.positiveFlag){
+          this.$message({
+            message: '请先输入样例总数',
+            type: 'warning'
+          });
+          return;
+        }
+
         this.checkList.sort(function(a,b){return a>b?1:-1})
         let index, oldCount, newCount;
-        index = this.checkList[0]
+        index = this.checkList[0];
 
         //计算正例个数并维护对应的set
         if(!this.positiveMap[index]) {
@@ -383,13 +393,11 @@
         } else {
           oldCount = this.getCombinationNum(this.positiveMap[index].size + 1);
         }
-
         if(this.positiveMap[index].has(this.checkList[1])) {
           this.checkList = [];
           return;
         }
         else this.positiveMap[index].add(this.checkList[1]);
-
         newCount = this.getCombinationNum(this.positiveMap[index].size + 1);
         this.positiveCount += newCount - oldCount;
 
@@ -408,28 +416,33 @@
         console.log(this.positiveMap);
         this.checkList = [];
       },
+      //设为负样例
       setNegative(){
-        this.checkList.sort(function(a,b){return a>b?1:-1})
-        let index, oldCount, newCount;
-        index = this.checkList[0]
-        
+        //未填写时不可选
+        if(this.negativeFlag){
+          this.$message({
+            message: '请先输入样例总数',
+            type: 'warning'
+          });
+          return;
+        }
+
+        this.checkList.sort(function(a,b){return a>b?1:-1});
+        let index;
+        index = this.checkList[0];
 
         //计算负例个数并维护对应的set
         if(!this.negativeMap[index]) {
           this.negativeMap[index] = new Set();
-          oldCount = 0;
-        } else {
-          oldCount = this.getCombinationNum(this.negativeMap[index].size + 1);
         }
-
         if(this.negativeMap[index].has(this.checkList[1])) {
           this.checkList = [];
           return;
         }
-        else this.negativeMap[index].add(this.checkList[1]);
-
-        newCount = this.getCombinationNum(this.negativeMap[index].size + 1);
-        this.negativeCount += newCount - oldCount;
+        else {
+          this.negativeMap[index].add(this.checkList[1]);
+        }
+        this.negativeCount += 1;
 
         //处理表格“与x为负例列字符串”
         for(let i = 0; i < this.checkList.length; i ++){
