@@ -79,9 +79,9 @@
             </el-option>
           </el-select>
           <el-button v-if="!isList" style="margin-left:20px;" class="blueBtn" size="small" @click="chooseTable">确定</el-button>
-          <el-button v-if="isList" class="blueBtn" size="small" @click="setPositive" style="margin-left:15px;">设为正样例</el-button>
-          <!-- <span style="margin-left:50px;">现有负样例：{{negativeCount}}个</span> -->
-          <el-button v-if="isList" class="blueBtn" size="small" @click="setNegative" style="margin-left:15px;">设为负样例</el-button>
+          <div v-if="markSum==='' && isList" style="margin-bottom:10px;">如要标记样例，请先填写标记样例数，默认正负样例比占总样例数2:1</div>
+          <el-button :disabled="positiveFlag" v-if="isList" class="blueBtn" size="small" @click="setPositive" style="margin-left:15px;">设为正样例</el-button>
+          <el-button :disabled="negativeFlag" v-if="isList" class="blueBtn" size="small" @click="setNegative" style="margin-left:15px;">设为负样例</el-button>
 
           <el-button type="primary" class="darkBtn" size="small" style="float:right; margin-right:20px;" @click="entityMark">实体对齐</el-button>
           <el-button type="primary" class="darkBtn" size="small" style="float:right; margin-right:20px;" @click="deNoise">属性去噪</el-button>
@@ -259,6 +259,29 @@
     },
 
     methods: {
+      changeDisableFlag(flag) {
+        console.log("judge  max  count")
+        console.log(this.positiveMax, this.negativeMax)
+        console.log(this.positiveCount, this.negativeCount)
+        if((flag == 1 || flag === 3) && this.negativeMax <= this.negativeCount) {
+          this.negativeFlag = true;
+          this.$message({
+            message: '负样例总数已达到最大值，若仍需标记请填写更大的用例总数',
+            type: 'warning'
+          });
+        }
+        else if(flag == 1 || flag === 3) this.negativeFlag = false;
+
+        if((flag == 2 || flag === 3) && this.positiveMax <= this.positiveCount) {
+          this.positiveFlag = true;
+          this.$message({
+            message: '正样例总数已达到最大值，若仍需标记请填写更大的用例总数',
+            type: 'warning'
+          });
+        } 
+        else if(flag == 2 || flag === 3) this.positiveFlag = false;
+        console.log(this.positiveFlag, this.negativeFlag)
+      },
       setSumCount() {
         if(this.markSum === "") {
           this.positiveMax = 0;
@@ -267,14 +290,11 @@
           this.positiveFlag = true;
           return;
         }
-        this.markSum = parseInt(this.markSum);
-        this.positiveMax = parseInt(this.markSum * 2 / 3);
-        this.negativeMax = this.markSum - this.positiveMax;
-        if(this.negativeMax <= this.negativeCount) this.negativeFlag = true;
-        else this.negativeFlag = false;
-
-        if(this.positiveMax <= this.positiveCount) this.positiveFlag = true;
-        else this.positiveFlag = false;
+        let num = parseInt(this.markSum);
+        this.positiveMax = Math.ceil(num * 2 / 3);//向上取整
+        this.negativeMax = Math.ceil(num * 1 / 3);
+        this.changeDisableFlag(3);
+        console.log("set  max  count")
         console.log(this.positiveMax, this.negativeMax)
         console.log(this.positiveCount, this.negativeCount)
 
@@ -483,7 +503,7 @@
       //设为正样例
       setPositive(){
         //未填写时不可选
-        if(this.positiveFlag){
+        if(this.markSum === ""){
           this.$message({
             message: '请先输入样例总数或将样例总数设置为更大值',
             type: 'warning'
@@ -517,6 +537,8 @@
         this.positiveMap[index].add(this.checkList[1]);
         newCount = this.getCombinationNum(this.positiveMap[index].size + 1);
         this.positiveCount += newCount - oldCount;
+        //修改btn是否禁用
+        this.changeDisableFlag(2);
 
         //处理表格“与x为正例列字符串”
         let indexi = this.findIndex(this.checkList[0]);
@@ -539,14 +561,13 @@
         //     else this.tableData[indexi].positiveMark = this.checkList[j] + "";
         //   }
         // }
-        this.setSumCount();
         console.log(this.positiveMap);
         this.checkList = [];
       },
       //设为负样例
       setNegative(){
         //未填写时不可选
-        if(this.negativeFlag){
+        if(this.markSum === ""){
           this.$message({
             message: '请先输入样例总数或将样例总数设置为更大值',
             type: 'warning'
@@ -559,16 +580,16 @@
         index = this.checkList[0];
 
         //判断是否重复标记
-        if(this.pastSumMap[this.checkList[0]].has(this.checkList[1])||
-          this.positiveMap[this.checkList[0]].has(this.checkList[1])||
-          this.negativeMap[this.checkList[0]].has(this.checkList[1])){
-          this.checkList=[];
-          this.$message({
-            message: '该对实体已标记，请重新选择',
-            type: 'warning'
-          });
-          return;
-        }
+        // if(this.pastSumMap[this.checkList[0]].has(this.checkList[1])||
+        //   this.positiveMap[this.checkList[0]].has(this.checkList[1])||
+        //   this.negativeMap[this.checkList[0]].has(this.checkList[1])){
+        //   this.checkList=[];
+        //   this.$message({
+        //     message: '该对实体已标记，请重新选择',
+        //     type: 'warning'
+        //   });
+        //   return;
+        // }
 
         //计算负例个数并维护对应的set
         if(!this.negativeMap[index]) {
@@ -582,6 +603,8 @@
           this.negativeMap[index].add(this.checkList[1]);
         }
         this.negativeCount += 1;
+        //修改btn是否禁用
+        this.changeDisableFlag(1);
 
         //处理表格“与x为负例列字符串”
         let indexi = this.findIndex(this.checkList[0]);
@@ -604,7 +627,6 @@
         //     else this.tableData[indexi].negativeMark = this.checkList[j] + "";
         //   }
         // }
-        this.setSumCount();
         console.log(this.negativeMap);
         this.checkList = [];
       },
@@ -645,14 +667,14 @@
           });
           return;
         }
-        // this.markSum = parseInt(this.markSum)
-        // if(this.markSum !== (this.negativeCount + this.positiveCount)){
-        //   this.$message({
-        //     message: '已标注的样例数与输入的样例总数不符！',
-        //     type: 'warning'
-        //   });
-        //   return;
-        // }
+        let num = parseInt(this.markSum)
+        if(num > (this.negativeCount + this.positiveCount)){
+          this.$message({
+            message: '输入的样例总数仍大于已标注的样例数！请标注更多样例或减小总数！',
+            type: 'warning'
+          });
+          return;
+        }
         let rec = new Set();
         let positiveArray = this.getCombinationArray(this.positiveMap, 1, rec);
         let negativeArray = this.getCombinationArray(this.negativeMap, 0, rec);
