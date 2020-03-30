@@ -107,7 +107,7 @@
           <el-button class="darkBtn" size="small" @click="submitMarks" style="float:right; margin-right:20px;">提交</el-button>
           <el-button type="text" v-if="showRes" @click="resDetailFlag=true" style="float:right; margin-right:20px;" class="textBtn">查看上次标注结果>></el-button>
         </div>
-        
+
         <div v-if="isList" style="margin-left:10px; margin-bottom:20px; margin-top:10px;">
           <!-- <span>现有正样例：{{positiveCount}}个</span> -->
           <div id="matchInfo">
@@ -252,7 +252,9 @@
         //实体对齐时已有训练数据集的数量
         trainCount:0,
         resTableData:[],
-        resColumnNames:[]
+        resColumnNames:[],
+        //上次已标记的map
+        pastSumMap:{},
       }
     },
 
@@ -342,10 +344,27 @@
               res["index"] = cur[0];
               res["positiveMark"] = cur[1];
               res["negativeMark"] = cur[2];
+
+              //维护上次标记结果
+              if(!this.pastSumMap[cur[0]]) {
+                this.pastSumMap[cur[0]] = new Set();
+              }
+              let str = cur[1]+","+cur[2];
+              let sep = str.split(",");
+              //默认上次标记时同时记录了a->b和b->a；否则需添加b->a的映射
+              for(let i = 0;i <sep.length; i++){
+                if(!sep[i]||sep[i]===" "||sep[i]==="")continue;
+                if(this.pastSumMap[cur[0]].has(sep[i]))
+                  continue;
+                else
+                  this.pastSumMap[cur[0]].add(parseInt(sep[i]));
+              }
+
               for(let i = 0; i < this.columnNames.length; i ++)
                 res[this.columnNames[i].prop] = cur[i]
               return res;
             }));
+            console.log(this.pastSumMap)
             this.fileCount = this.rawData.length;
 
         }).catch((res) => {
@@ -476,6 +495,18 @@
         let index, oldCount, newCount;
         index = this.checkList[0];
 
+        //判断是否重复标记
+        if((this.pastSumMap[this.checkList[0]]&&this.pastSumMap[this.checkList[0]].has(this.checkList[1]))||
+          (this.positiveMap[this.checkList[0]]&&this.positiveMap[this.checkList[0]].has(this.checkList[1]))||
+          (this.negativeMap[this.checkList[0]]&&this.negativeMap[this.checkList[0]].has(this.checkList[1]))){
+          this.checkList=[];
+          this.$message({
+            message: '该对实体已标记，请重新选择',
+            type: 'warning'
+          });
+          return;
+        }
+
         //计算正例个数并维护对应的set
         if(!this.positiveMap[index]) {
           this.positiveMap[index] = new Set();
@@ -483,11 +514,7 @@
         } else {
           oldCount = this.getCombinationNum(this.positiveMap[index].size + 1);
         }
-        if(this.positiveMap[index].has(this.checkList[1])) {
-          this.checkList = [];
-          return;
-        }
-        else this.positiveMap[index].add(this.checkList[1]);
+        this.positiveMap[index].add(this.checkList[1]);
         newCount = this.getCombinationNum(this.positiveMap[index].size + 1);
         this.positiveCount += newCount - oldCount;
 
@@ -531,6 +558,18 @@
         let index;
         index = this.checkList[0];
 
+        //判断是否重复标记
+        if(this.pastSumMap[this.checkList[0]].has(this.checkList[1])||
+          this.positiveMap[this.checkList[0]].has(this.checkList[1])||
+          this.negativeMap[this.checkList[0]].has(this.checkList[1])){
+          this.checkList=[];
+          this.$message({
+            message: '该对实体已标记，请重新选择',
+            type: 'warning'
+          });
+          return;
+        }
+
         //计算负例个数并维护对应的set
         if(!this.negativeMap[index]) {
           this.negativeMap[index] = new Set();
@@ -545,16 +584,26 @@
         this.negativeCount += 1;
 
         //处理表格“与x为负例列字符串”
-        for(let i = 0; i < this.checkList.length; i ++){
-          let indexi = this.findIndex(this.checkList[i]);
-          for(let j = 0; j < this.checkList.length; j ++){
-            if(i === j) continue;
-            // let indexj = this.findIndex(this.checkList[j]);
-            if(this.tableData[indexi].negativeMark!==" ")
-              this.tableData[indexi].negativeMark += ", " + this.checkList[j];
-            else this.tableData[indexi].negativeMark = this.checkList[j] + "";
-          }
-        }
+        let indexi = this.findIndex(this.checkList[0]);
+        let indexj = this.findIndex(this.checkList[1]);
+        if(this.tableData[indexi].negativeMark===" ")
+          this.tableData[indexi].negativeMark = this.checkList[1] + "";
+        else
+          this.tableData[indexi].negativeMark += "," + this.checkList[1];
+        if(this.tableData[indexj].negativeMark===" ")
+          this.tableData[indexj].negativeMark = this.checkList[0] + "";
+        else
+          this.tableData[indexj].negativeMark += "," + this.checkList[0];
+        // for(let i = 0; i < this.checkList.length; i ++){
+        //   let indexi = this.findIndex(this.checkList[i]);
+        //   for(let j = 0; j < this.checkList.length; j ++){
+        //     if(i === j) continue;
+        //     // let indexj = this.findIndex(this.checkList[j]);
+        //     if(this.tableData[indexi].negativeMark!==" ")
+        //       this.tableData[indexi].negativeMark += ", " + this.checkList[j];
+        //     else this.tableData[indexi].negativeMark = this.checkList[j] + "";
+        //   }
+        // }
         this.setSumCount();
         console.log(this.negativeMap);
         this.checkList = [];
@@ -622,12 +671,12 @@
         }
         portion[0] = parseInt(portion[0]);
         portion[1] = parseInt(portion[1]);
-        let tableName = [this.tableIndex]
+        let tableName = [this.tableIndex];
         let positiveMarkList = [];
         let negativeMarkList = [];
         for(let i = 0; i < this.tableData.length; i ++){
-          positiveMarkList.push(this.tableData[i].positiveMark)
-          negativeMarkList.push(this.tableData[i].negativeMark)
+          positiveMarkList.push(this.tableData[i].positiveMark);
+          negativeMarkList.push(this.tableData[i].negativeMark);
         }
 
 
@@ -635,7 +684,7 @@
         fd.append('struct_train_test_data',JSON.stringify(Arr));
         fd.append('ratio', JSON.stringify(this.portion));
         fd.append('table', JSON.stringify(tableName));
-        fd.append('mark', JSON.stringify([positiveMarkList, negativeMarkList]))
+        fd.append('mark', JSON.stringify([positiveMarkList, negativeMarkList]));
         // console.log(Arr)
         // console.log(this.portion)
         // console.log(tableName)
@@ -649,7 +698,7 @@
           }).then((res) => {
           console.log(res);
 
-          this.trainCount = res.data[0]
+          this.trainCount = res.data[0];
           this.accuracy = res.data[1] * 100;
           this.recall = res.data[2] * 100;
           //查看结果页表格数据
@@ -659,22 +708,28 @@
           for(let i = 0; i < this.columnNames.length; i ++) {
             rawColumnNames.push(this.columnNames[i])
           }
-          this.resColumnNames = [{prop:"flag", label:"结果"}].concat(rawColumnNames.splice(3))
-          let correct = res.data[3][0].map((cur) => {
-            let res={};
-            res["flag"]="正确"
-            for(let i = 1; i < this.resColumnNames.length; i ++)
-              res[this.resColumnNames[i].prop] = cur[i - 1]
-            return res
-          });
-          let fault = res.data[4][0].map((cur) => {
-            let res={};
-            res["flag"]="错误"
-            for(let i = 1; i < this.resColumnNames.length; i ++)
-              res[this.resColumnNames[i].prop] = cur[i - 1]
-            return res
-          });
-          this.resTableData = correct.concat(fault)
+          this.resColumnNames = [{prop:"flag", label:"结果"}].concat(rawColumnNames.splice(3));
+          let correct = [];
+          if(res.data[3][0]) {
+             correct = correct.concat(res.data[3][0].map((cur) => {
+               let res = {};
+               res["flag"] = "正确"
+               for (let i = 1; i < this.resColumnNames.length; i++)
+                 res[this.resColumnNames[i].prop] = cur[i - 1]
+               return res
+             }));
+          }
+          let fault = [];
+          if(res.data[4][0]) {
+            fault = fault.concat(res.data[4][0].map((cur) => {
+              let res = {};
+              res["flag"] = "错误"
+              for (let i = 1; i < this.resColumnNames.length; i++)
+                res[this.resColumnNames[i].prop] = cur[i - 1]
+              return res
+            }));
+          }
+          this.resTableData = correct.concat(fault);
 
           this.showRes = true;
 
