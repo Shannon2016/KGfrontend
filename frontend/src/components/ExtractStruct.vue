@@ -10,19 +10,19 @@
         active-text-color="#fff"
         :router="true">
         <el-menu-item index="/extract">
-          <i class="el-icon-menu"></i>
+          <i class="el-icon-document"></i>
           <span slot="title">文本抽取</span>
         </el-menu-item>
         <el-menu-item index="/extractStruct" class="is-active">
-          <i class="el-icon-menu"></i>
+          <i class="el-icon-s-grid"></i>
           <span slot="title">结构化数据抽取</span>
         </el-menu-item>
         <el-menu-item index="/extractPic">
-          <i class="el-icon-menu"></i>
+          <i class="el-icon-picture-outline"></i>
           <span slot="title" >图片抽取</span>
         </el-menu-item>
         <el-menu-item index="/extractVedio">
-          <i class="el-icon-document"></i>
+          <i class="el-icon-video-camera"></i>
           <span slot="title">视频抽取</span>
         </el-menu-item>
       </el-menu>
@@ -121,8 +121,8 @@
           <el-table
             :data="tableData.slice((curPage - 1) * 20, curPage * 20)"
             :header-cell-style="{background:'#EBEEF7',color:'#606266'}"
-            height="626"
             border
+            height="626"
             >
             <el-table-column width="40" v-if="isList">
               <template slot-scope="scope">
@@ -278,7 +278,7 @@
             message: '正样例总数已达到最大值，若仍需标记请填写更大的用例总数',
             type: 'warning'
           });
-        } 
+        }
         else if(flag == 2 || flag === 3) this.positiveFlag = false;
         console.log(this.positiveFlag, this.negativeFlag)
       },
@@ -579,7 +579,6 @@
         index = this.checkList[0];
 
         //判断是否重复标记
-<<<<<<< HEAD
         if((this.pastSumMap[this.checkList[0]]&&this.pastSumMap[this.checkList[0]].has(this.checkList[1]))||
           (this.positiveMap[this.checkList[0]]&&this.positiveMap[this.checkList[0]].has(this.checkList[1]))||
           (this.negativeMap[this.checkList[0]]&&this.negativeMap[this.checkList[0]].has(this.checkList[1]))){
@@ -590,18 +589,6 @@
           });
           return;
         }
-=======
-        // if(this.pastSumMap[this.checkList[0]].has(this.checkList[1])||
-        //   this.positiveMap[this.checkList[0]].has(this.checkList[1])||
-        //   this.negativeMap[this.checkList[0]].has(this.checkList[1])){
-        //   this.checkList=[];
-        //   this.$message({
-        //     message: '该对实体已标记，请重新选择',
-        //     type: 'warning'
-        //   });
-        //   return;
-        // }
->>>>>>> 6fbc742377ad0d23334c924fea721c5b5ab39c7d
 
         //计算负例个数并维护对应的set
         if(!this.negativeMap[index]) {

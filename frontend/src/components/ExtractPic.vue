@@ -10,19 +10,19 @@
         active-text-color="#fff"
         :router="true">
         <el-menu-item index="/extract">
-          <i class="el-icon-menu"></i>
+          <i class="el-icon-document"></i>
           <span slot="title">文本抽取</span>
         </el-menu-item>
         <el-menu-item index="/extractStruct">
-          <i class="el-icon-menu"></i>
+          <i class="el-icon-s-grid"></i>
           <span slot="title">结构化数据抽取</span>
         </el-menu-item>
         <el-menu-item index="/extractPic" class="is-active">
-          <i class="el-icon-menu"></i>
+          <i class="el-icon-picture-outline"></i>
           <span slot="title" >图片抽取</span>
         </el-menu-item>
         <el-menu-item index="/extractVedio">
-          <i class="el-icon-document"></i>
+          <i class="el-icon-video-camera"></i>
           <span slot="title">视频抽取</span>
         </el-menu-item>
       </el-menu>

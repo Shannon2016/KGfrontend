@@ -13,7 +13,7 @@
           <span slot="title" >实体检索</span>
         </el-menu-item>
         <el-menu-item index="/relationsearch" class="is-active">
-          <i class="el-icon-document"></i>
+          <i class="el-icon-search"></i>
           <span slot="title">关系检索</span>
         </el-menu-item>
       </el-menu>
