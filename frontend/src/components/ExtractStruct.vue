@@ -91,7 +91,7 @@
         <!--用户操作-->
         <div style="margin-left:20px;" v-if="isList">
           <span>选择用于训练集、测试集的样例比例：</span>
-          <el-input v-model="portion" placeholder="格式：x:y" style="width:250px;"></el-input>
+          <el-input v-model="portion" placeholder="格式：x:y"  size="small" style="width:250px;"></el-input>
           <!-- <el-select v-model="portion" placeholder="请选择" size="small">
             <el-option
               v-for="item in portionList"
@@ -364,7 +364,6 @@
                 res[this.columnNames[i].prop] = cur[i]
               return res;
             }));
-            console.log(this.pastSumMap)
             this.fileCount = this.rawData.length;
 
         }).catch((res) => {
@@ -559,9 +558,9 @@
         index = this.checkList[0];
 
         //判断是否重复标记
-        if(this.pastSumMap[this.checkList[0]].has(this.checkList[1])||
-          this.positiveMap[this.checkList[0]].has(this.checkList[1])||
-          this.negativeMap[this.checkList[0]].has(this.checkList[1])){
+        if((this.pastSumMap[this.checkList[0]]&&this.pastSumMap[this.checkList[0]].has(this.checkList[1]))||
+          (this.positiveMap[this.checkList[0]]&&this.positiveMap[this.checkList[0]].has(this.checkList[1]))||
+          (this.negativeMap[this.checkList[0]]&&this.negativeMap[this.checkList[0]].has(this.checkList[1]))){
           this.checkList=[];
           this.$message({
             message: '该对实体已标记，请重新选择',
@@ -850,6 +849,7 @@
     margin-bottom: 10px;
     padding-left: 20px;
   }
+
   /*************内容中心*************/
   .main{
     line-height: 30px;
