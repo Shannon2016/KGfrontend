@@ -10,19 +10,19 @@
         active-text-color="#fff"
         :router="true">
         <el-menu-item index="/extract">
-          <i class="el-icon-menu"></i>
+          <i class="el-icon-document"></i>
           <span slot="title">文本抽取</span>
         </el-menu-item>
         <el-menu-item index="/extractStruct" class="is-active">
-          <i class="el-icon-menu"></i>
+          <i class="el-icon-s-grid"></i>
           <span slot="title">结构化数据抽取</span>
         </el-menu-item>
         <el-menu-item index="/extractPic">
-          <i class="el-icon-menu"></i>
+          <i class="el-icon-picture-outline"></i>
           <span slot="title" >图片抽取</span>
         </el-menu-item>
         <el-menu-item index="/extractVedio">
-          <i class="el-icon-document"></i>
+          <i class="el-icon-video-camera"></i>
           <span slot="title">视频抽取</span>
         </el-menu-item>
       </el-menu>
@@ -91,7 +91,7 @@
         <!--用户操作-->
         <div style="margin-left:20px;" v-if="isList">
           <span>选择用于训练集、测试集的样例比例：</span>
-          <el-input v-model="portion" placeholder="格式：x:y" style="width:250px;"></el-input>
+          <el-input v-model="portion" placeholder="格式：x:y"  size="small" style="width:250px;"></el-input>
           <!-- <el-select v-model="portion" placeholder="请选择" size="small">
             <el-option
               v-for="item in portionList"
@@ -121,8 +121,8 @@
           <el-table
             :data="tableData.slice((curPage - 1) * 20, curPage * 20)"
             :header-cell-style="{background:'#EBEEF7',color:'#606266'}"
-            height="626"
             border
+            height="626"
             >
             <el-table-column width="40" v-if="isList">
               <template slot-scope="scope">
@@ -278,7 +278,7 @@
             message: '正样例总数已达到最大值，若仍需标记请填写更大的用例总数',
             type: 'warning'
           });
-        } 
+        }
         else if(flag == 2 || flag === 3) this.positiveFlag = false;
         console.log(this.positiveFlag, this.negativeFlag)
       },
@@ -384,7 +384,6 @@
                 res[this.columnNames[i].prop] = cur[i]
               return res;
             }));
-            console.log(this.pastSumMap)
             this.fileCount = this.rawData.length;
 
         }).catch((res) => {
@@ -580,16 +579,16 @@
         index = this.checkList[0];
 
         //判断是否重复标记
-        // if(this.pastSumMap[this.checkList[0]].has(this.checkList[1])||
-        //   this.positiveMap[this.checkList[0]].has(this.checkList[1])||
-        //   this.negativeMap[this.checkList[0]].has(this.checkList[1])){
-        //   this.checkList=[];
-        //   this.$message({
-        //     message: '该对实体已标记，请重新选择',
-        //     type: 'warning'
-        //   });
-        //   return;
-        // }
+        if((this.pastSumMap[this.checkList[0]]&&this.pastSumMap[this.checkList[0]].has(this.checkList[1]))||
+          (this.positiveMap[this.checkList[0]]&&this.positiveMap[this.checkList[0]].has(this.checkList[1]))||
+          (this.negativeMap[this.checkList[0]]&&this.negativeMap[this.checkList[0]].has(this.checkList[1]))){
+          this.checkList=[];
+          this.$message({
+            message: '该对实体已标记，请重新选择',
+            type: 'warning'
+          });
+          return;
+        }
 
         //计算负例个数并维护对应的set
         if(!this.negativeMap[index]) {
@@ -887,6 +886,7 @@
     margin-bottom: 10px;
     padding-left: 20px;
   }
+
   /*************内容中心*************/
   .main{
     line-height: 30px;

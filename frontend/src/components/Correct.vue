@@ -9,7 +9,7 @@
         text-color="#fff"
         active-text-color="#fff">
         <el-menu-item index="1">
-          <i class="el-icon-menu"></i>
+          <i class="el-icon-edit"></i>
           <span slot="title">知识校正</span>
         </el-menu-item>
       </el-menu>
