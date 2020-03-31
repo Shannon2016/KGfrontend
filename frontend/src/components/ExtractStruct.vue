@@ -730,26 +730,41 @@
           for(let i = 0; i < this.columnNames.length; i ++) {
             rawColumnNames.push(this.columnNames[i])
           }
-          this.resColumnNames = [{prop:"flag", label:"结果"}].concat(rawColumnNames.splice(3));
+          this.resColumnNames = [{prop:"num", label:"组号"},{prop:"flag", label:"结果"}].concat(rawColumnNames.splice(3));
           let correct = [];
-          if(res.data[3][0]) {
-             correct = correct.concat(res.data[3][0].map((cur) => {
-               let res = {};
-               res["flag"] = "正确"
-               for (let i = 1; i < this.resColumnNames.length; i++)
-                 res[this.resColumnNames[i].prop] = cur[i - 1]
-               return res
-             }));
+          if(res.data[3]) {
+            for(let i = 0; i < res.data[3].length; i ++){
+              let tmp = res.data[3][i];
+              tmp = tmp.map((cur) => {
+                let rec = {};
+                rec["flag"] = "正确";
+                rec["num"] = "正确组-"(i + 1) + "";
+                for (let i = 2; i < this.resColumnNames.length; i++)
+                  rec[this.resColumnNames[i].prop] = cur[i - 1]
+                return rec
+              })
+              for(let j = 0; j < tmp.length; j ++){
+                correct.push(tmp[j])
+              }
+            }
           }
+
           let fault = [];
           if(res.data[4][0]) {
-            fault = fault.concat(res.data[4][0].map((cur) => {
-              let res = {};
-              res["flag"] = "错误"
-              for (let i = 1; i < this.resColumnNames.length; i++)
-                res[this.resColumnNames[i].prop] = cur[i - 1]
-              return res
-            }));
+            for(let i = 0; i < res.data[4].length; i ++){
+              let tmp = res.data[4][i];
+              tmp = tmp.map((cur) => {
+                let rec = {};
+                rec["flag"] = "错误";
+                rec["num"] = "错误组-"(i + 1) + "";
+                for (let i = 2; i < this.resColumnNames.length; i++)
+                  rec[this.resColumnNames[i].prop] = cur[i - 1]
+                return rec
+              })
+              for(let j = 0; j < tmp.length; j ++){
+                fault.push(tmp[j])
+              }
+            }
           }
           this.resTableData = correct.concat(fault);
 
