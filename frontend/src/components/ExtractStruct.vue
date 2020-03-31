@@ -730,6 +730,7 @@
             rawColumnNames.push(this.columnNames[i])
           }
           this.resColumnNames = [{prop:"num", label:"组号"},{prop:"flag", label:"结果"}].concat(rawColumnNames.splice(3));
+          let count = 1;
           let correct = [];
           if(res.data[3]) {
             for(let i = 0; i < res.data[3].length; i ++){
@@ -737,7 +738,7 @@
               tmp = tmp.map((cur) => {
                 let rec = {};
                 rec["flag"] = "正确";
-                rec["num"] = "正确组-"(i + 1) + "";
+                rec["num"] = count + "";
                 for (let i = 2; i < this.resColumnNames.length; i++)
                   rec[this.resColumnNames[i].prop] = cur[i - 1]
                 return rec
@@ -745,6 +746,7 @@
               for(let j = 0; j < tmp.length; j ++){
                 correct.push(tmp[j])
               }
+              count++;
             }
           }
 
@@ -755,7 +757,7 @@
               tmp = tmp.map((cur) => {
                 let rec = {};
                 rec["flag"] = "错误";
-                rec["num"] = "错误组-"(i + 1) + "";
+                rec["num"] = count+"";
                 for (let i = 2; i < this.resColumnNames.length; i++)
                   rec[this.resColumnNames[i].prop] = cur[i - 1]
                 return rec
@@ -763,6 +765,7 @@
               for(let j = 0; j < tmp.length; j ++){
                 fault.push(tmp[j])
               }
+              count++;
             }
           }
           this.resTableData = correct.concat(fault);
