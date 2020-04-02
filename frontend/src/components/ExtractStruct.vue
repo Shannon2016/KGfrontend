@@ -28,7 +28,7 @@
       </el-menu>
     </el-aside>
     <!--内容块实体对齐-->
-    <el-main v-if="resDetailFlag===false">
+    <el-main v-if="resDetailFlag===false && graphFlag===false">
       <!--顶部-->
       <div class="header">
         结构化数据抽取
@@ -83,7 +83,7 @@
           <el-button :disabled="positiveFlag" v-if="isList" class="blueBtn" size="small" @click="setPositive" style="margin-left:15px;">设为正样例</el-button>
           <el-button :disabled="negativeFlag" v-if="isList" class="blueBtn" size="small" @click="setNegative" style="margin-left:15px;">设为负样例</el-button>
 
-          <el-button type="primary" class="darkBtn" size="small" style="float:right; margin-right:20px;" @click="entityMark">实体对齐</el-button>
+          <el-button type="primary" class="darkBtn" size="small" style="float:right; margin-right:20px;" @click="entityMark">交互训练</el-button>
           <el-button type="primary" class="darkBtn" size="small" style="float:right; margin-right:20px;" @click="deNoise">属性去噪</el-button>
           <el-button v-if="!isList" type="primary" class="darkBtn" size="small" style="float:right; margin-right:20px;" @click="loadData">加载数据</el-button>
           <el-button v-if="isList" type="primary" class="darkBtn" size="small" style="float:right; margin-right:20px;" @click="backToView">返回</el-button>
@@ -104,6 +104,8 @@
           <span style="margin-left:20px;">标记样例总数：</span>
           <el-input v-model="markSum" type="number" style="width:250px;" size="small"  @change="setSumCount"></el-input>
 
+          <el-button class="darkBtn" size="small" style="float:right; margin-right:20px;" @click="returnUnmarks">实体对齐</el-button>
+          <el-button class="darkBtn" size="small" style="float:right; margin-right:30px;" @click="showGraph">图谱展示</el-button><!-- v-if="graphBtn"-->
           <el-button class="darkBtn" size="small" @click="submitMarks" style="float:right; margin-right:20px;">提交</el-button>
           <el-button type="text" v-if="showRes" @click="resDetailFlag=true" style="float:right; margin-right:20px;" class="textBtn">查看上次标注结果>></el-button>
         </div>
@@ -163,7 +165,7 @@
         </el-pagination>
       </div>
     </el-main>
-    <!--查看结果页-->
+    <!--查看结果内容块-->
     <el-main v-show="resDetailFlag">
       <!--顶部-->
       <div class="header">
@@ -200,6 +202,27 @@
         </el-pagination> -->
       </div>
     </el-main>
+    <!--查看图谱内容块-->
+    <el-main v-show="graphFlag">
+      <!--顶部-->
+      <div class="header">
+        <i class="el-icon-back" @click="graphFlag=false"></i>
+        <span style="margin-left:10px;font-size:large;font-weight:bold;">图谱展示</span>
+        <!-- <el-button class="headbutton darkBtn" size="small" @click="handleExport">导出</el-button> -->
+      </div>
+      <el-divider></el-divider>
+      <!--搜索栏-->
+        请输入搜索关键词：
+        <el-input v-model="keyword" placeholder="关键词" style="width:250px;"></el-input>
+        <el-button style="margin-left:20px;height: 40px" class="darkBtn" size="small" @click="searchGraph">搜索</el-button>
+
+        <div class="result" style="margin-bottom:50px;">
+          <!--关系图谱-->
+          <div id="kgPic">
+            <div id="graph" style="height:800px; width:1200px;"></div>
+          </div>
+        </div>
+    </el-main>
   </el-container>
 </template>
 
@@ -233,28 +256,36 @@
         tableIndex:"",
         choosenInd:[],
         checkList:[],
-        negativeMax:-1,
-        negativeCount:0,
-        positiveMax:-1,
-        positiveCount:0,
         portion:"",
         // portionList:["8:2", "7:3", "6:4"],
+        //记录标记样例情况
+        positiveFatherIndex:{},
         positiveMap:{},
         negativeMap:{},
         properties:[],
         columnNames:[],
+        //提交后展示相关信息的显示控制
         showRes:false,
         accuracy:0,
         recall:0,
+        resDetailFlag:false,
+        //控制设置样例btn禁用
         negativeFlag:true,
         positiveFlag:true,
-        resDetailFlag:false,
+        negativeMax:-1,
+        negativeCount:0,
+        positiveMax:-1,
+        positiveCount:0,
         //实体对齐时已有训练数据集的数量
         trainCount:0,
         resTableData:[],
         resColumnNames:[],
         //上次已标记的map
         pastSumMap:{},
+        //控制显示图谱的相关变量
+        graphBtn:false,
+        graphFlag:false,
+        keyword:""
       }
     },
 
@@ -525,15 +556,47 @@
           });
           return;
         }
-
+        
         //计算正例个数并维护对应的set
-        if(!this.positiveMap[index]) {
-          this.positiveMap[index] = new Set();
-          oldCount = 0;
-        } else {
-          oldCount = this.getCombinationNum(this.positiveMap[index].size + 1);
+        //为解决已标记AB1再标记BC1的情况时，将C放入A的value中，而不是B的value中
+        //positiveFatherIndex用于记录A的位置
+        if(!this.positiveFatherIndex[index]) {
+          if(!this.positiveMap[index]) {
+            this.positiveMap[index] = new Set();
+            oldCount = 0;
+          } else {
+            oldCount = this.getCombinationNum(this.positiveMap[index].size + 1);
+          }
+          this.positiveMap[index].add(this.checkList[1]);
+          this.positiveFatherIndex[this.checkList[1]] = index;
         }
-        this.positiveMap[index].add(this.checkList[1]);
+        else {
+          let fatherIndex = -1;
+          for(;;){
+            index = this.positiveFatherIndex[index];
+            fatherIndex = this.positiveFatherIndex[index];
+            if(!fatherIndex) break;
+          }
+          if(this.positiveMap[index].has(this.checkList[1])) {
+            this.checkList=[];
+            this.$message({
+              message: '该对实体已标记，请重新选择',
+              type: 'warning'
+            });
+            return;
+          }
+          else {
+            if(!this.positiveMap[index]) {
+              this.positiveMap[index] = new Set();
+              oldCount = 0;
+            } else {
+              oldCount = this.getCombinationNum(this.positiveMap[index].size + 1);
+            }
+            this.positiveFatherIndex[this.checkList[1]] = index;
+            this.positiveMap[index].add(this.checkList[1]);
+          }
+        }
+
         newCount = this.getCombinationNum(this.positiveMap[index].size + 1);
         this.positiveCount += newCount - oldCount;
         //修改btn是否禁用
@@ -633,28 +696,38 @@
       getCombinationNum(n){
         return n * (n - 1) / 2;
       },
-      getCombinationArray(map, flag, rec){
+      getCombinationArray(map, flag){
         let res = [];
-        for(let key in map){
-          // console.log(key)
-          // console.log(map[key])
-          let tmp = Array.from(map[key]);
-          tmp.push(parseInt(key))
-          // console.log("!!!")
-          // console.log(key, tmp)
-          for(let i = 0; i < tmp.length; i ++) {
-            rec.add(tmp[i])
-            for(let j = i + 1; j < tmp.length; j ++) {
-              res.push([this.rawData[tmp[i]],this.rawData[tmp[j]], flag])
-              rec.add(tmp[j])
-              // console.log("---")
-              // console.log(tmp[i], this.rawData[tmp[i]])
-              // console.log(tmp[j], this.rawData[tmp[j]])
+        if(flag === 1){
+          for(let key in map){
+            // console.log(key)
+            // console.log(map[key])
+            let tmp = Array.from(map[key]);
+            tmp.push(parseInt(key))
+            // console.log("!!!")
+            // console.log(key, tmp)
+            for(let i = 0; i < tmp.length; i ++) {
+              for(let j = i + 1; j < tmp.length; j ++) {
+                res.push([this.rawData[tmp[i]],this.rawData[tmp[j]], flag])
+                // console.log("---")
+                // console.log(tmp[i], this.rawData[tmp[i]])
+                // console.log(tmp[j], this.rawData[tmp[j]])
+              }
             }
           }
         }
-        // console.log('---')
-        // console.log(res);
+        else if(flag === 0){
+          for(let key in map){
+            let tmp = Array.from(map[key]);
+            // tmp.push(parseInt(key))
+            let index = parseInt(key);
+            for(let i = 0; i < tmp.length; i ++) {
+              res.push([this.rawData[index],this.rawData[tmp[i]], flag])
+            }
+          }
+        }
+        console.log('---')
+        console.log(res);
         return res;
       },
       submitMarks(){
@@ -674,12 +747,9 @@
           });
           return;
         }
-        let rec = new Set();
-        let positiveArray = this.getCombinationArray(this.positiveMap, 1, rec);
-        let negativeArray = this.getCombinationArray(this.negativeMap, 0, rec);
+        let positiveArray = this.getCombinationArray(this.positiveMap, 1);
+        let negativeArray = this.getCombinationArray(this.negativeMap, 0);
         let Arr = positiveArray.concat(negativeArray);
-        rec = Array.from(rec);
-        rec.sort((a,b)=>a>b?1:-1);
         // console.log("rec:");
         // console.log(rec);
         let portion = this.portion.split(":");
@@ -771,6 +841,7 @@
           this.resTableData = correct.concat(fault);
 
           this.showRes = true;
+          this.graphBtn = true;
 
           // //原rawData删除已标记数据(rec中)
           // for(let i=rec.length-1;i>=0;i--){
@@ -796,7 +867,12 @@
           console.log(res)
         })
       },
-
+      returnUnmarks(){
+        this.$message({
+          message: '剩余数据标注完成！',
+          type: 'success'
+        });
+      },
       //导出三元组
       handleExport(){
         //处理数据
@@ -826,6 +902,122 @@
           //请求失败
           console.log(res)
         })
+      },
+      showGraph(){
+        this.graphFlag=true
+        let graphPoint = [];
+        let graphLink = [];
+        
+        graphPoint=[{
+          name:'1',
+          category:0
+          },{
+          name:'2',
+          category:1
+          },{
+          name:'3',
+          category:1
+          }]
+        graphLink.push({
+          source: '1',
+          target: '2',
+          name: 'r',
+        });
+        let categories=[
+          {name:'属性1'},
+          {name:'属性2'},
+        ];
+
+        let option ={
+          // 提示框的配置
+          tooltip: {
+            formatter: function (x) {
+              return x.data.des;
+            }
+          },
+
+          // 工具箱
+          toolbox: {
+              // 显示工具箱
+              show: true,
+              feature: {
+                mark: {
+                  show: true
+                },
+                // 还原
+                restore: {
+                  show: true
+                },
+                // 保存为图片
+                saveAsImage: {
+                  show: true
+                }
+              }
+            },
+            legend: [{
+              // selectedMode: 'single',
+              data: categories.map(function (a) {
+                return a.name;
+              })
+            }],
+
+            series: [{
+              type: 'graph', // 类型:关系图
+              layout: 'force', //图的布局，类型为力导图
+              symbolSize: 40, // 调整节点的大小
+              roam: true, // 是否开启鼠标缩放和平移漫游。默认不开启。如果只想要开启缩放或者平移,可以设置成 'scale' 或者 'move'。设置成 true 为都开启
+              edgeSymbol: ['circle', 'arrow'],
+              edgeSymbolSize: [2, 10],
+              edgeLabel: {
+                normal: {
+                  textStyle: {
+                    fontSize: 20
+                  }
+                }
+              },
+              force: {
+                repulsion: 2500,
+                edgeLength: [10, 50]
+              },
+              draggable: true,
+              lineStyle: {
+                normal: {
+                  width: 2,
+                  color: '#4b565b',
+                }
+              },
+              edgeLabel: {
+                normal: {
+                  show: true,
+                  formatter: function (x) {
+                    return x.data.name;
+                  }
+                }
+              },
+              label: {
+                normal: {
+                  show: true,
+                  textStyle: {}
+                }
+              },
+              // 数据
+              data:graphPoint,
+              links:graphLink,
+              categories: categories,
+            }],
+            grid:{
+              top:"10px",
+              bottom:"10px",
+              height:"10px",
+              width:"10px"
+            }
+          };
+        myChart= echarts.init(document.getElementById('graph'));
+        // 绘制图表
+        myChart.setOption(option, true);
+      },
+      searchGraph(){
+        console.log(this.keyword)
       }
     },
     mounted() {
@@ -983,5 +1175,16 @@
 
   .textBtn:hover {
     color: #7c7c7c;
+  }
+  /*关系图*/
+  #kgPic{
+    height: 800px;
+    width: 100%;
+    margin-top: 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, .12), 0 0 6px rgba(0, 0, 0, .04);
+    background-color: #fff;
+  }
+  .result{
+    width:100%;
   }
 </style>
