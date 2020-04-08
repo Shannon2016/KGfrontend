@@ -602,27 +602,18 @@
         //修改btn是否禁用
         this.changeDisableFlag(2);
 
-        //处理表格“与x为正例列字符串”
-        let indexi = this.findIndex(this.checkList[0]);
-        let indexj = this.findIndex(this.checkList[1]);
-        if(this.tableData[indexi].positiveMark===" ")
-          this.tableData[indexi].positiveMark = this.checkList[1] + "";
-        else
-          this.tableData[indexi].positiveMark += "," + this.checkList[1];
-        if(this.tableData[indexj].positiveMark===" ")
-          this.tableData[indexj].positiveMark = this.checkList[0] + "";
-        else
-          this.tableData[indexj].positiveMark += "," + this.checkList[0];
-        // for(let i = 0; i < this.checkList.length; i ++){
-        //   let indexi = this.findIndex(this.checkList[i]);
-        //   for(let j = 0; j < this.checkList.length; j ++){
-        //     if(i === j) continue;
-        //     // let indexj = this.findIndex(this.checkList[j]);
-        //     if(this.tableData[indexi].positiveMark)
-        //       this.tableData[indexi].positiveMark += ", " + this.checkList[j];
-        //     else this.tableData[indexi].positiveMark = this.checkList[j] + "";
-        //   }
-        // }
+        // //处理表格“与x为正例列字符串”
+        // let indexi = this.findIndex(this.checkList[0]);
+        // let indexj = this.findIndex(this.checkList[1]);
+        // if(this.tableData[indexi].positiveMark===" ")
+        //   this.tableData[indexi].positiveMark = this.checkList[1] + "";
+        // else
+        //   this.tableData[indexi].positiveMark += "," + this.checkList[1];
+        // if(this.tableData[indexj].positiveMark===" ")
+        //   this.tableData[indexj].positiveMark = this.checkList[0] + "";
+        // else
+        //   this.tableData[indexj].positiveMark += "," + this.checkList[0];
+
         console.log(this.positiveMap);
         this.checkList = [];
       },

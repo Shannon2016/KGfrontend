@@ -131,7 +131,7 @@
           return;
         }
 
-        this.$http.get('http://49.232.95.141:8000/search_entity?user_text='+this.inputEntity).then((res) => {
+        this.$http.get('http://49.232.95.141:8000/search_entity?user_text='+this.inputEntity+'&number=' + this.level).then((res) => {
           console.log(res.data.entityRelation) ;
           if(!res.data.entityRelation){
             let option ={};

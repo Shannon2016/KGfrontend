@@ -140,7 +140,7 @@
             return;
           }
           /*逻辑和实体检索类似*/
-          this.$http.get('http://127.0.0.1:8000/search_relation?entity1_text='+this.inputEntity1+'&relation_name_text='+this.inputRelation+'&entity2_text='+this.inputEntity2).then(
+          this.$http.get('http://127.0.0.1:8000/search_relation?entity1_text='+this.inputEntity1+'&relation_name_text='+this.inputRelation+'&entity2_text='+this.inputEntity2 +'&number=' + this.level).then(
             (res) =>
             {
             console.log(res.data.searchResult) ;
