@@ -42,7 +42,7 @@
         </el-select>
         <el-button style="margin-left:20px;height: 40px" class="darkBtn" size="small" @click="onSearchClick">搜索</el-button>
 
-        <div class="result" v-if="searchDone" style="margin-bottom:50px;">
+        <div class="result" v-show="searchDone" style="margin-bottom:50px;">
           <!--关系图谱-->
           <div id="kgPic"
                v-loading="loadingRes"
@@ -138,7 +138,7 @@
           //空值检索
           if (this.inputEntity1 === '' && this.inputEntity2 === '' && this.inputRelation === '') {
             let option = {};
-            myChart = echarts.init(document.getElementById('kgPic'));
+            myChart = echarts.init(document.getElementById('graph'));
             // 绘制图表
             myChart.setOption(option, true);
             this.tableData = [];
@@ -146,15 +146,16 @@
           }
           this.loadingRes = true;
           /*逻辑和实体检索类似*/
-          this.$http.get('http://127.0.0.1:8000/search_relation?entity1_text=' + this.inputEntity1 + '&relation_name_text=' + this.inputRelation + '&entity2_text=' + this.inputEntity2 + '&number=' + this.level).then(
+          this.$http.get('http://49.232.95.141:8000/search_relation?entity1_text=' + this.inputEntity1 + '&relation_name_text=' + this.inputRelation + '&entity2_text=' + this.inputEntity2 + '&number=' + this.level).then(
             (res) => {
               console.log(res.data.searchResult);
               if (!res.data.searchResult) {
                 let option = {};
-                myChart = echarts.init(document.getElementById('kgPic'));
+                myChart = echarts.init(document.getElementById('graph'));
                 // 绘制图表
                 myChart.setOption(option, true);
                 this.tableData = [];
+                this.loadingRes = false;
                 return;
               }
               this.tableData = [];
@@ -196,10 +197,9 @@
 
               //   this.tableData.push(tmp);  //将三元组加入到表中
               // }
-              for (let i = 0; i < res.data.searchResult.length; i++) {
-
+              for (let i = 0; i < res.data.searchResult.length; i++)
+              {
                 let tmp = {};
-                let tmpPoint = {};
                 let tmpLink = {};
 
                 //三元组数据提取
@@ -210,7 +210,7 @@
                 this.tableData.push(tmp);
 
                 //根据关系连线
-                tmpLink.source = tmp.entity1;
+                tmpLink.source = tmp.entity1+".";
                 tmpLink.target = tmp.entity2;
                 tmpLink.name = tmp.relationship;
                 tmpLink.des = tmp.entity1 + "->" + tmp.relationship + "->" + tmp.entity2;
@@ -221,18 +221,20 @@
                 for (let j = 0; j < graphPoint.length; j++) {
                   if (e1Flag && e2Flag)
                     break;
-                  if (!e1Flag && graphPoint[j].name === tmp.entity1) e1Flag = true;
-                  if (!e2Flag && graphPoint[i].name === tmp.entity2) e2Flag = true;
+                  if (!e1Flag && graphPoint[j].name === tmp.entity1+".") e1Flag = true;
+                  if (!e2Flag && graphPoint[j].name === tmp.entity2) e2Flag = true;
                 }
                 if (!e1Flag)//entity1节点为新节点
                 {
-                  tmpPoint.name = tmp.entity1;
+                  let tmpPoint = {};
+                  tmpPoint.name = tmp.entity1+".";
                   tmpPoint.category = 0;
                   tmpPoint.des = tmp.entity1;
                   graphPoint.push(tmpPoint);
                 }
                 if (!e2Flag)//entity2节点为新节点
                 {
+                  let tmpPoint = {};
                   tmpPoint.name = tmp.entity2;
                   tmpPoint.category = 1;
                   tmpPoint.des = tmp.entity2;
@@ -331,6 +333,10 @@
               };
               myChart = echarts.init(document.getElementById('graph'));
               // 绘制图表
+
+              console.log(graphPoint)
+              console.log(graphLink)
+
               myChart.setOption(option);
               myChart.on('click', function (params) {
                 let obj = params.data;

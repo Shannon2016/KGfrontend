@@ -295,18 +295,21 @@
         //处理表格“与x为正例列字符串”
         let indexSet = new Set();
         indexSet.add(fatherIndex);
-        for (let i = 0; i < this.positiveMap[fatherIndex].length; i++) {
-          indexSet.add(this.positiveMap[fatherIndex][i]);
+        for (let i of this.positiveMap[fatherIndex]) {
+          indexSet.add(i);
         }
-        for (let i = 0; i < indexSet.length; i++) {
-          for (let j = 0; j < indexSet.length; j++) {
-            if (j === i)
+        let indexArray = Array.from(indexSet);
+        for (let k=0 ; k< indexArray.length ; k++) {
+          let flag=true;
+          for (let j=0; j< indexArray.length ; j++) {
+            if (j === k)
               continue;
-            if (this.tableData[indexSet[i]].positiveMap === " ") {
-              this.tableData[indexSet[i]].positiveMap = indexSet[j] + "";
+            if(flag){
+              this.tableData[indexArray[k]-1].positiveMark = indexArray[j] + "";
+              flag=false;
             }
             else {
-              this.tableData[indexSet[i]].positiveMap += "," + indexSet[j];
+              this.tableData[indexArray[k]-1].positiveMark += "," + indexArray[j];
             }
           }
         }
@@ -693,9 +696,9 @@
         console.log(this.positiveMap);
         console.log(this.positiveFatherIndex);
         console.log(indexMin);
-        
-        //修改字符串与x为正例------------------------------------------留给可爱的卢葛格-----------------------
-        // this.修改字符串(indexMin)
+
+        //修改字符串与x为正例
+        this.changeTableData(indexMin);
 
         //修改btn是否禁用
         this.changeDisableFlag(2);
