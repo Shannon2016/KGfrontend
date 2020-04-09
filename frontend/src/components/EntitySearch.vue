@@ -108,7 +108,7 @@
           label:"三级查询",
           value:3
         }],
-        level:"",
+        level:1,
         loadingRes:false,
       }
     },
