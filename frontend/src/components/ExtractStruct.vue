@@ -290,6 +290,27 @@
     },
 
     methods: {
+      //修改表格显示值
+      changeTableData(fatherIndex) {
+        //处理表格“与x为正例列字符串”
+        let indexSet = new Set();
+        indexSet.add(fatherIndex);
+        for (let i = 0; i < this.positiveMap[fatherIndex].length; i++) {
+          indexSet.add(this.positiveMap[fatherIndex][i]);
+        }
+        for (let i = 0; i < indexSet.length; i++) {
+          for (let j = 0; j < indexSet.length; j++) {
+            if (j === i)
+              continue;
+            if (this.tableData[indexSet[i]].positiveMap === " ") {
+              this.tableData[indexSet[i]].positiveMap = indexSet[j] + "";
+            }
+            else {
+              this.tableData[indexSet[i]].positiveMap += "," + indexSet[j];
+            }
+          }
+        }
+      },
       changeDisableFlag(flag) {
         console.log("judge  max  count")
         console.log(this.positiveMax, this.negativeMax)
@@ -556,7 +577,7 @@
           });
           return;
         }
-        
+
         //计算正例个数并维护对应的set
         //为解决已标记AB1再标记BC1的情况时，将C放入A的value中，而不是B的value中
         //positiveFatherIndex用于记录A的位置
@@ -898,7 +919,7 @@
         this.graphFlag=true
         let graphPoint = [];
         let graphLink = [];
-        
+
         graphPoint=[{
           name:'1',
           category:0

@@ -42,7 +42,11 @@
 
         <div class="result" v-if="searchDone">
           <!--关系图谱-->
-          <div id="kgPic">
+          <div id="kgPic"
+               v-loading="loadingRes"
+               element-loading-text="正在搜索中，请稍等……"
+               element-loading-spinner="el-icon-loading"
+               element-loading-background="rgba(0, 0, 0, 0.1)">
             <div class="title">关系图谱</div>
             <div id="graph" style="width: 1200px;height:800px;"></div>
           </div>
@@ -51,7 +55,8 @@
             :data="tableData"
             :header-cell-style="{background:'#EBEEF7',color:'#606266'}"
             :height="60+50*tableData.length"
-            border>
+            border
+            v-loading="loadingRes">
             <el-table-column
               prop="entity1"
               label="实体1"
@@ -103,7 +108,8 @@
           label:"三级查询",
           value:3
         }],
-        level:""
+        level:"",
+        loadingRes:false,
       }
     },
 
@@ -130,8 +136,9 @@
           this.tableData = [];
           return;
         }
-
-        this.$http.get('http://49.232.95.141:8000/search_entity?user_text='+this.inputEntity+'&number=' + this.level).then((res) => {
+        this.loadingRes = true;
+        this.$http.get('http://49.232.95.141:8000/search_entity?user_text='+this.inputEntity+'&number=' + this.level).then
+        ((res) => {
           console.log(res.data.entityRelation) ;
           if(!res.data.entityRelation){
             let option ={};
@@ -139,30 +146,34 @@
             // 绘制图表
             myChart.setOption(option, true);
             this.tableData = [];
+            this.loadingRes=false;
             return;
           }
 
           this.tableData = [];
-          let graphPoint=[{name:this.inputEntity,category:0}];
+          let graphPoint=[{name:this.inputEntity,category:0,des:this.inputEntity}];
           let graphLink=[];
           //遍历关系
           for(let i=0;i<res.data.entityRelation.length;i++)
           {
+            //实体2与实体1重名
+            if(res.data.entityRelation[i].n2.title === this.inputEntity)
+              continue;
+
             let tmp={};//表格中一行
             let tmpLink={};//关系图中的连线
             tmp.entity1=this.inputEntity;
             tmp.relationship=res.data.entityRelation[i].rel.type;
-            tmp.entity2=res.data.entityRelation[i].entity2.title;
-            //重名
-            if(tmp.entity2 === this.inputEntity) continue;
+            tmp.entity2=res.data.entityRelation[i].n2.title;
 
             tmpLink.source=this.inputEntity;
             tmpLink.target=tmp.entity2;
             tmpLink.name=tmp.relationship;
-            tmpLink.des=this.inputEntity+"->"+tmp.entity2;
+            tmpLink.des=this.inputEntity+"->"+tmp.relationship+"->"+tmp.entity2;
             this.tableData.push(tmp);
             graphLink.push(tmpLink);
-            //去除重复节点
+
+            //向前查，去除重复节点
             for(let k =0;k<graphPoint.length;k++)
             {
               if(tmp.entity2===graphPoint[k].name)
@@ -282,8 +293,10 @@
               alert("2");
             }
           });
+          this.loadingRes=false;
         }).catch((res)=>{
-          console.log("fail")
+          this.loadingRes=false;
+          console.log("fail");
           console.log(res);
           let option ={};
             myChart= echarts.init(document.getElementById('graph'));
