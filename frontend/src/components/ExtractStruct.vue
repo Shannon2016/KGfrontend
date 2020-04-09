@@ -83,6 +83,7 @@
           <el-button :disabled="positiveFlag" v-if="isList" class="blueBtn" size="small" @click="setPositive" style="margin-left:15px;">设为正样例</el-button>
           <el-button :disabled="negativeFlag" v-if="isList" class="blueBtn" size="small" @click="setNegative" style="margin-left:15px;">设为负样例</el-button>
 
+          <el-button class="darkBtn" size="small" style="float:right; margin-right:30px;" @click="showGraph">图谱展示</el-button><!-- v-if="graphBtn"-->
           <el-button type="primary" class="darkBtn" size="small" style="float:right; margin-right:20px;" @click="entityMark">交互训练</el-button>
           <el-button type="primary" class="darkBtn" size="small" style="float:right; margin-right:20px;" @click="deNoise">属性去噪</el-button>
           <el-button v-if="!isList" type="primary" class="darkBtn" size="small" style="float:right; margin-right:20px;" @click="loadData">加载数据</el-button>
@@ -105,7 +106,6 @@
           <el-input v-model="markSum" type="number" style="width:250px;" size="small"  @change="setSumCount"></el-input>
 
           <el-button class="darkBtn" size="small" style="float:right; margin-right:20px;" @click="returnUnmarks">实体对齐</el-button>
-          <el-button class="darkBtn" size="small" style="float:right; margin-right:30px;" @click="showGraph">图谱展示</el-button><!-- v-if="graphBtn"-->
           <el-button class="darkBtn" size="small" @click="submitMarks" style="float:right; margin-right:20px;">提交</el-button>
           <el-button type="text" v-if="showRes" @click="resDetailFlag=true" style="float:right; margin-right:20px;" class="textBtn">查看上次标注结果>></el-button>
         </div>
@@ -214,6 +214,14 @@
       <!--搜索栏-->
         请输入搜索关键词：
         <el-input v-model="keyword" placeholder="关键词" style="width:250px;"></el-input>
+        <el-select v-model="level" placeholder="请选择查询级数">
+          <el-option
+            v-for="item in levelList"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value">
+          </el-option>
+        </el-select>
         <el-button style="margin-left:20px;height: 40px" class="darkBtn" size="small" @click="searchGraph">搜索</el-button>
 
         <div class="result" style="margin-bottom:50px;">
@@ -285,7 +293,18 @@
         //控制显示图谱的相关变量
         graphBtn:false,
         graphFlag:false,
-        keyword:""
+        keyword:"",
+        levelList:[{
+          label:"一级查询",
+          value:1
+        },{
+          label:"二级查询",
+          value:2
+        },{
+          label:"三级查询",
+          value:3
+        }],
+        level:1,
       }
     },
 
