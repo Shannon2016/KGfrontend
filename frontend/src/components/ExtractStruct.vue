@@ -665,53 +665,17 @@
             }
           }
         }
+        newCount = this.getCombinationNum(this.positiveMap[indexMin].size + 1);
+        this.positiveCount += newCount - oldCount;
+
         console.log("---")
         console.log(this.positiveMap);
         console.log(this.positiveFatherIndex);
         console.log(indexMin);
-        newCount = this.getCombinationNum(this.positiveMap[indexMin].size + 1);
-        this.positiveCount += newCount - oldCount;
-        // let index, oldCount, newCount;
-        // index = this.checkList[0];
-        // if(!this.positiveFatherIndex[index]) {
-        //   if(!this.positiveMap[index]) {
-        //     this.positiveMap[index] = new Set();
-        //     oldCount = 0;
-        //   } else {
-        //     oldCount = this.getCombinationNum(this.positiveMap[index].size + 1);
-        //   }
-        //   this.positiveMap[index].add(this.checkList[1]);
-        //   this.positiveFatherIndex[this.checkList[1]] = index;
-        // }
-        // else {
-        //   let fatherIndex = -1;
-        //   for(;;){
-        //     index = this.positiveFatherIndex[index];
-        //     fatherIndex = this.positiveFatherIndex[index];
-        //     if(!fatherIndex) break;
-        //   }
-        //   if(this.positiveMap[index].has(this.checkList[1])) {
-        //     this.checkList=[];
-        //     this.$message({
-        //       message: '该对实体已标记，请重新选择',
-        //       type: 'warning'
-        //     });
-        //     return;
-        //   }
-        //   else {
-        //     if(!this.positiveMap[index]) {
-        //       this.positiveMap[index] = new Set();
-        //       oldCount = 0;
-        //     } else {
-        //       oldCount = this.getCombinationNum(this.positiveMap[index].size + 1);
-        //     }
-        //     this.positiveFatherIndex[this.checkList[1]] = index;
-        //     this.positiveMap[index].add(this.checkList[1]);
-        //   }
-        // }
-        // newCount = this.getCombinationNum(this.positiveMap[index].size + 1);
-        //修改字符串与x为正例
+        
+        //修改字符串与x为正例------------------------------------------留给可爱的卢葛格-----------------------
         // this.修改字符串(indexMin)
+
         //修改btn是否禁用
         this.changeDisableFlag(2);
         this.checkList = [];
