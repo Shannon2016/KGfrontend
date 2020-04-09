@@ -312,9 +312,9 @@
         }
       },
       changeDisableFlag(flag) {
-        console.log("judge  max  count")
-        console.log(this.positiveMax, this.negativeMax)
-        console.log(this.positiveCount, this.negativeCount)
+        // console.log("judge  max  count")
+        // console.log(this.positiveMax, this.negativeMax)
+        // console.log(this.positiveCount, this.negativeCount)
         if((flag == 1 || flag === 3) && this.negativeMax <= this.negativeCount) {
           this.negativeFlag = true;
           this.$message({
@@ -332,7 +332,7 @@
           });
         }
         else if(flag == 2 || flag === 3) this.positiveFlag = false;
-        console.log(this.positiveFlag, this.negativeFlag)
+        // console.log(this.positiveFlag, this.negativeFlag)
       },
       setSumCount() {
         if(this.markSum === "") {
@@ -346,9 +346,9 @@
         this.positiveMax = Math.ceil(num * 2 / 3);//向上取整
         this.negativeMax = Math.ceil(num * 1 / 3);
         this.changeDisableFlag(3);
-        console.log("set  max  count")
-        console.log(this.positiveMax, this.negativeMax)
-        console.log(this.positiveCount, this.negativeCount)
+        // console.log("set  max  count")
+        // console.log(this.positiveMax, this.negativeMax)
+        // console.log(this.positiveCount, this.negativeCount)
 
       },
       backToView(){
@@ -563,8 +563,6 @@
         }
 
         this.checkList.sort(function(a,b){return a>b?1:-1})
-        let index, oldCount, newCount;
-        index = this.checkList[0];
 
         //判断是否重复标记
         if((this.pastSumMap[this.checkList[0]]&&this.pastSumMap[this.checkList[0]].has(this.checkList[1]))||
@@ -581,61 +579,126 @@
         //计算正例个数并维护对应的set
         //为解决已标记AB1再标记BC1的情况时，将C放入A的value中，而不是B的value中
         //positiveFatherIndex用于记录A的位置
-        if(!this.positiveFatherIndex[index]) {
-          if(!this.positiveMap[index]) {
-            this.positiveMap[index] = new Set();
+        let indexMin, oldCount, newCount;
+        if(!this.positiveFatherIndex[this.checkList[0]] && !this.positiveFatherIndex[this.checkList[1]]) {
+          //这一组实体都没被标记过
+          if(!this.positiveMap[this.checkList[0]]) {
+            this.positiveMap[this.checkList[0]] = new Set();
             oldCount = 0;
-          } else {
-            oldCount = this.getCombinationNum(this.positiveMap[index].size + 1);
-          }
-          this.positiveMap[index].add(this.checkList[1]);
-          this.positiveFatherIndex[this.checkList[1]] = index;
-        }
-        else {
-          let fatherIndex = -1;
-          for(;;){
-            index = this.positiveFatherIndex[index];
-            fatherIndex = this.positiveFatherIndex[index];
-            if(!fatherIndex) break;
-          }
-          if(this.positiveMap[index].has(this.checkList[1])) {
-            this.checkList=[];
-            this.$message({
-              message: '该对实体已标记，请重新选择',
-              type: 'warning'
-            });
-            return;
           }
           else {
-            if(!this.positiveMap[index]) {
-              this.positiveMap[index] = new Set();
-              oldCount = 0;
-            } else {
-              oldCount = this.getCombinationNum(this.positiveMap[index].size + 1);
+            oldCount = this.getCombinationNum(this.positiveMap[this.checkList[0]].size +1);
+          }
+          if(this.positiveMap[this.checkList[1]]) {
+            oldCount += this.getCombinationNum(this.positiveMap[this.checkList[1]].size + 1);
+            for(let i of this.positiveMap[this.checkList[1]]) {
+              this.positiveMap[this.checkList[0]].add(i);
+              this.positiveFatherIndex[i] = this.checkList[0];
             }
-            this.positiveFatherIndex[this.checkList[1]] = index;
-            this.positiveMap[index].add(this.checkList[1]);
+            this.positiveMap[this.checkList[1]] = null;
+          }
+          this.positiveMap[this.checkList[0]].add(this.checkList[1]);
+          this.positiveFatherIndex[this.checkList[1]] = this.checkList[0];
+          indexMin = this.checkList[0]
+        }
+        else {
+          //若标注的(a,b)任意之一被标记过则最小实体序号有三种可能：fatherA, fatherB, a
+          //a(this.checkList[0])最小
+          //此时一定不存在fatherA且fatherB小于a，由于不属于上种情况，一定存在fatherB
+          if(!this.positiveFatherIndex[this.checkList[0]] &&
+          this.positiveFatherIndex[this.checkList[1]] > this.checkList[0]) {
+            indexMin = this.checkList[0];
+            let fatherB = this.positiveFatherIndex[this.checkList[1]]
+            if(!this.positiveMap[indexMin]) {
+              this.positiveMap[indexMin] = new Set();
+              oldCount = 0;
+            }
+            else {
+              oldCount = this.getCombinationNum(this.positiveMap[indexMin].size +1);
+            }
+            oldCount += this.getCombinationNum(this.positiveMap[fatherB].size + 1);
+            for(let i of this.positiveMap[fatherB]) {
+              this.positiveMap[indexMin].add(i);
+              this.positiveFatherIndex[i] = indexMin;
+            }
+            this.positiveFatherIndex[fatherB] = indexMin;
+            this.positiveMap[fatherB] = null;
+            this.positiveMap[indexMin].add(fatherB);
+          }
+          //fatherA最小
+          else if(this.positiveFatherIndex[this.checkList[0]] &&
+          ((!this.positiveFatherIndex[this.checkList[1]] && this.positiveFatherIndex[this.checkList[0]] < this.checkList[1])
+          ||(this.positiveFatherIndex[this.checkList[1]] && this.positiveFatherIndex[this.checkList[0]] < this.positiveFatherIndex[this.checkList[1]]))) {
+            indexMin = this.positiveFatherIndex[this.checkList[0]];
+            oldCount = this.getCombinationNum(this.positiveMap[indexMin].size + 1);
+            let fatherB = this.positiveFatherIndex[this.checkList[1]];
+            if(fatherB) {
+              oldCount += this.getCombinationNum(this.positiveMap[fatherB].size + 1);
+              for(let i of this.positiveMap[fatherB]) {
+                this.positiveMap[indexMin].add(i);
+                this.positiveFatherIndex[i] = indexMin;
+              }
+              this.positiveFatherIndex[fatherB] = indexMin;
+              this.positiveMap[fatherB] = null;
+              this.positiveMap[indexMin].add(fatherB);
+            }
+            else {
+              if(this.positiveMap[this.checkList[1]]) {
+                oldCount += this.getCombinationNum(this.positiveMap[this.checkList[1]].size + 1);
+                for(let i of this.positiveMap[this.checkList[1]]) {
+                  this.positiveMap[indexMin].add(i);
+                  this.positiveFatherIndex[i] = indexMin;
+                }
+                this.positiveMap[this.checkList[1]] = null;
+              }
+              this.positiveFatherIndex[this.checkList[1]] = indexMin;
+              this.positiveMap[indexMin].add(this.checkList[1]);
+            }
+          }
+          //fatherB最小
+          else if(this.positiveFatherIndex[this.checkList[1]] &&
+          ((!this.positiveFatherIndex[this.checkList[0]] && this.positiveFatherIndex[this.checkList[1]] < this.checkList[0])
+          ||(this.positiveFatherIndex[this.checkList[0]] && this.positiveFatherIndex[this.checkList[1]] < this.positiveFatherIndex[this.checkList[0]]))){
+            indexMin = this.positiveFatherIndex[this.checkList[1]];
+            oldCount = this.getCombinationNum(this.positiveMap[indexMin].size + 1);
+            let fatherA = this.positiveFatherIndex[this.checkList[0]];
+            if(fatherA) {
+              oldCount += this.getCombinationNum(this.positiveMap[fatherA].size + 1);
+              for(let i of this.positiveMap[fatherA]) {
+                this.positiveMap[indexMin].add(i);
+                this.positiveFatherIndex[i] = indexMin;
+              }
+              this.positiveFatherIndex[fatherA] = indexMin;
+              this.positiveMap[fatherA] = null;
+              this.positiveMap[indexMin].add(fatherA);
+            }
+            else {
+              if(this.positiveMap[this.checkList[0]]) {
+                oldCount += this.getCombinationNum(this.positiveMap[this.checkList[0]].size + 1);
+                for(let i of this.positiveMap[this.checkList[0]]) {
+                  this.positiveMap[indexMin].add(i);
+                  this.positiveFatherIndex[i] = indexMin;
+                }
+                this.positiveMap[this.checkList[0]] = null;
+              }
+              this.positiveFatherIndex[this.checkList[0]] = indexMin;
+              this.positiveMap[indexMin].add(this.checkList[0]);
+            }
           }
         }
-
-        newCount = this.getCombinationNum(this.positiveMap[index].size + 1);
+        newCount = this.getCombinationNum(this.positiveMap[indexMin].size + 1);
         this.positiveCount += newCount - oldCount;
+
+        console.log("---")
+        console.log(this.positiveMap);
+        console.log(this.positiveFatherIndex);
+        console.log(indexMin);
+        
+        //修改字符串与x为正例------------------------------------------留给可爱的卢葛格-----------------------
+        // this.修改字符串(indexMin)
+
         //修改btn是否禁用
         this.changeDisableFlag(2);
-
-        // //处理表格“与x为正例列字符串”
-        // let indexi = this.findIndex(this.checkList[0]);
-        // let indexj = this.findIndex(this.checkList[1]);
-        // if(this.tableData[indexi].positiveMark===" ")
-        //   this.tableData[indexi].positiveMark = this.checkList[1] + "";
-        // else
-        //   this.tableData[indexi].positiveMark += "," + this.checkList[1];
-        // if(this.tableData[indexj].positiveMark===" ")
-        //   this.tableData[indexj].positiveMark = this.checkList[0] + "";
-        // else
-        //   this.tableData[indexj].positiveMark += "," + this.checkList[0];
-
-        console.log(this.positiveMap);
         this.checkList = [];
       },
       //设为负样例
