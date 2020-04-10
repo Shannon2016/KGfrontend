@@ -28,7 +28,7 @@
       </el-menu>
     </el-aside>
     <!--内容块实体对齐-->
-    <div 
+    <div
       v-loading.fullscreen.lock="loadingRes"
       element-loading-text="正在处理中，请稍等……"
       element-loading-spinner="el-icon-loading"
@@ -335,7 +335,10 @@
             if (j === k)
               continue;
             if(flag){
-              this.tableData[indexArray[k]-1].positiveMark = indexArray[j] + "";
+              if(this.tableData[indexArray[k]-1].pastMark===" ")//上次未标记
+                this.tableData[indexArray[k]-1].positiveMark = indexArray[j] + "";
+              else
+                this.tableData[indexArray[k]-1].positiveMark = this.tableData[indexArray[k]-1].pastMark + "," + indexArray[j];
               flag=false;
             }
             else {
@@ -447,7 +450,7 @@
             this.tableData = [].concat(res.data[2].map((cur)=>{
               let res={};
               res["index"] = cur[0];
-              res["positiveMark"] = cur[1];
+              res["positiveMark"] = "";
               res["negativeMark"] = cur[2];
 
               //维护上次标记结果
@@ -467,6 +470,9 @@
 
               for(let i = 0; i < this.columnNames.length; i ++)
                 res[this.columnNames[i].prop] = cur[i]
+
+              //上次标记的结果
+              res['pastMark'] = cur[1];
               return res;
             }));
             this.fileCount = this.rawData.length;
@@ -1306,7 +1312,7 @@
           myChart= echarts.init(document.getElementById('graph'));
           // 绘制图表
           myChart.setOption(option, true);
-          
+
           if(res.data === 1){
             this.$message({
               message: '未查询到该实体信息！',
