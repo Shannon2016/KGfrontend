@@ -28,6 +28,11 @@
       </el-menu>
     </el-aside>
     <!--内容块实体对齐-->
+    <div 
+      v-loading.fullscreen.lock="loadingRes"
+      element-loading-text="正在处理中，请稍等……"
+      element-loading-spinner="el-icon-loading"
+      element-loading-background="rgba(0, 0, 0, 0.5)"></div>
     <el-main v-if="resDetailFlag===false && graphFlag===false">
       <!--顶部-->
       <div class="header">
@@ -226,7 +231,11 @@
 
         <div class="result" style="margin-bottom:50px;">
           <!--关系图谱-->
-          <div id="kgPic">
+          <div id="kgPic"
+               v-loading="loadingResGraph"
+               element-loading-text="正在加载中，请稍等……"
+               element-loading-spinner="el-icon-loading"
+               element-loading-background="rgba(0, 0, 0, 0.1)">
             <div id="graph" style="height:800px; width:1200px;"></div>
           </div>
         </div>
@@ -305,6 +314,8 @@
           value:3
         }],
         level:1,
+        loadingRes:false,
+        loadingResGraph:false
       }
     },
 
@@ -965,10 +976,34 @@
         })
       },
       returnUnmarks(){
-        this.$message({
-          message: '剩余数据标注完成！',
-          type: 'success'
-        });
+        this.loadingRes= true;
+        let fd = new FormData();
+        fd.append('table',this.tableIndex);
+        this.$http.post(
+          'http://49.232.95.141:8000/pic/submit_remain_data',fd,
+          {
+            headers: {
+              'Content-Type': 'multipart/form-data'
+            }
+          }).then((res) => {
+          console.log(res);
+          this.loadingRes = false;
+          if(res.data === 1){
+            this.$message({
+              message: '剩余数据标注完成！',
+              type: 'success'
+            });
+          }
+          else{
+            this.$message.error('剩余实体标注出错！');
+          }
+
+        }).catch((res) => {
+          //请求失败
+          console.log(res)
+          this.loadingRes = false;
+          this.$message.error('剩余实体标注出错！');
+        })
       },
       //导出三元组
       handleExport(){
@@ -1002,39 +1037,57 @@
       },
       showGraph(){
         this.graphFlag=true
-        let graphPoint = [];
-        let graphLink = [];
-
-        graphPoint=[{
-          name:'1',
-          category:0
-          },{
-          name:'2',
-          category:1
-          },{
-          name:'3',
-          category:1
-          }]
-        graphLink.push({
-          source: '1',
-          target: '2',
-          name: 'r',
-        });
-        let categories=[
-          {name:'属性1'},
-          {name:'属性2'},
-        ];
-
-        let option ={
-          // 提示框的配置
-          tooltip: {
-            formatter: function (x) {
-              return x.data.des;
+        this.loadingResGraph=true
+        this.$http.post(
+          'http://49.232.95.141:8000/pic/show_structTuple',
+          {
+            headers: {
+              'Content-Type': 'multipart/form-data'
             }
-          },
+          }).then((res) => {
+          console.log(res)
+          let graphPoint = [];
+          let graphLink = [];
+          let pointName = new Set();
+          for(let i = 0; i < res.data.length; i ++) {
+            let tmp = {};
+            tmp.entity1 = res.data[i][0];
+            tmp.relation = res.data[i][1];
+            tmp.entity2 = res.data[i][2];
+            if(!pointName.has(tmp.entity1)) {
+              pointName.add(tmp.entity1);
+              graphPoint.push({
+                name:tmp.entity1,
+                category: 0
+              })
+            }
+            if(!pointName.has(tmp.entity2)) {
+              pointName.add(tmp.entity2);
+              graphPoint.push({
+                name:tmp.entity2,
+                category:1
+              })
+            }
+            graphLink.push({
+              source: tmp.entity1,
+              target: tmp.entity2,
+              name: tmp.relation,
+            });
+          }
+          let categories=[
+            {name:'属性1'},
+            {name:'属性2'},
+          ];
 
-          // 工具箱
-          toolbox: {
+          let option ={
+            // 提示框的配置
+            tooltip: {
+              formatter: function (x) {
+                return x.data.des;
+              }
+            },
+            // 工具箱
+            toolbox: {
               // 显示工具箱
               show: true,
               feature: {
@@ -1109,12 +1162,163 @@
               width:"10px"
             }
           };
-        myChart= echarts.init(document.getElementById('graph'));
-        // 绘制图表
-        myChart.setOption(option, true);
+          myChart= echarts.init(document.getElementById('graph'));
+          // 绘制图表
+          myChart.setOption(option, true);
+          this.loadingResGraph=false;
+        }).catch((res) => {
+          //请求失败
+          alert("出错了")
+          this.loadingResGraph=false
+        })
       },
       searchGraph(){
-        console.log(this.keyword)
+        this.loadingResGraph=true;
+        let fd = new FormData();
+        fd.append('entity', this.keyword);
+        fd.append('number', this.level);
+        this.$http.post(
+          'http://49.232.95.141:8000/pic/search_struct_data',fd,
+          {
+            headers: {
+              'Content-Type': 'multipart/form-data'
+            }
+          }).then((res) => {
+          console.log(res)
+          let graphPoint = [];
+          let graphLink = [];
+          if(res.data !== 1){
+            let pointName = new Set();
+            for(let i = 0; i < res.data.length; i ++) {
+              let tmp = {};
+              tmp.entity1 = res.data[i][0];
+              tmp.relation = res.data[i][1];
+              tmp.entity2 = res.data[i][2];
+              if(!pointName.has(tmp.entity1)) {
+                pointName.add(tmp.entity1);
+                graphPoint.push({
+                  name:tmp.entity1,
+                  category: 0
+                })
+              }
+              if(!pointName.has(tmp.entity2)) {
+                pointName.add(tmp.entity2);
+                graphPoint.push({
+                  name:tmp.entity2,
+                  category:1
+                })
+              }
+              graphLink.push({
+                source: tmp.entity1,
+                target: tmp.entity2,
+                name: tmp.relation,
+              });
+            }
+          }
+          let categories=[
+            {name:'属性1'},
+            {name:'属性2'},
+          ];
+
+          let option ={
+            // 提示框的配置
+            tooltip: {
+              formatter: function (x) {
+                return x.data.des;
+              }
+            },
+            // 工具箱
+            toolbox: {
+              // 显示工具箱
+              show: true,
+              feature: {
+                mark: {
+                  show: true
+                },
+                // 还原
+                restore: {
+                  show: true
+                },
+                // 保存为图片
+                saveAsImage: {
+                  show: true
+                }
+              }
+            },
+            legend: [{
+              // selectedMode: 'single',
+              data: categories.map(function (a) {
+                return a.name;
+              })
+            }],
+
+            series: [{
+              type: 'graph', // 类型:关系图
+              layout: 'force', //图的布局，类型为力导图
+              symbolSize: 40, // 调整节点的大小
+              roam: true, // 是否开启鼠标缩放和平移漫游。默认不开启。如果只想要开启缩放或者平移,可以设置成 'scale' 或者 'move'。设置成 true 为都开启
+              edgeSymbol: ['circle', 'arrow'],
+              edgeSymbolSize: [2, 10],
+              edgeLabel: {
+                normal: {
+                  textStyle: {
+                    fontSize: 20
+                  }
+                }
+              },
+              force: {
+                repulsion: 2500,
+                edgeLength: [10, 50]
+              },
+              draggable: true,
+              lineStyle: {
+                normal: {
+                  width: 2,
+                  color: '#4b565b',
+                }
+              },
+              edgeLabel: {
+                normal: {
+                  show: true,
+                  formatter: function (x) {
+                    return x.data.name;
+                  }
+                }
+              },
+              label: {
+                normal: {
+                  show: true,
+                  textStyle: {}
+                }
+              },
+              // 数据
+              data:graphPoint,
+              links:graphLink,
+              categories: categories,
+            }],
+            grid:{
+              top:"10px",
+              bottom:"10px",
+              height:"10px",
+              width:"10px"
+            }
+          };
+          myChart= echarts.init(document.getElementById('graph'));
+          // 绘制图表
+          myChart.setOption(option, true);
+          
+          if(res.data === 1){
+            this.$message({
+              message: '未查询到该实体信息！',
+              type: 'warning'
+            });
+          }
+          this.loadingResGraph=false;
+        }).catch((res) => {
+          //请求失败
+          alert("出错了")
+          this.loadingResGraph=false;
+        })
       }
     },
     mounted() {
