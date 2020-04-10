@@ -88,6 +88,7 @@
           <el-button :disabled="positiveFlag" v-if="isList" class="blueBtn" size="small" @click="setPositive" style="margin-left:15px;">设为正样例</el-button>
           <el-button :disabled="negativeFlag" v-if="isList" class="blueBtn" size="small" @click="setNegative" style="margin-left:15px;">设为负样例</el-button>
 
+          <el-button class="darkBtn" size="small" style="float:right; margin-right:30px;" @click="showOntology">本体展示</el-button><!-- v-if="graphBtn"-->
           <el-button class="darkBtn" size="small" style="float:right; margin-right:30px;" @click="showGraph">图谱展示</el-button><!-- v-if="graphBtn"-->
           <el-button type="primary" class="darkBtn" size="small" style="float:right; margin-right:20px;" @click="entityMark">交互训练</el-button>
           <el-button type="primary" class="darkBtn" size="small" style="float:right; margin-right:20px;" @click="deNoise">属性去噪</el-button>
@@ -211,14 +212,30 @@
     <el-main v-show="graphFlag">
       <!--顶部-->
       <div class="header">
-        <i class="el-icon-back" @click="graphFlag=false"></i>
-        <span style="margin-left:10px;font-size:large;font-weight:bold;">图谱展示</span>
+        <i class="el-icon-back"
+           @click="function() {graphFlag=false;ontologyFlag=false;}">
+        </i>
+        <span v-if="ontologyFlag" style="margin-left:10px;font-size:large;font-weight:bold;">本体展示</span>
+        <span v-else style="margin-left:10px;font-size:large;font-weight:bold;">图谱展示</span>
         <!-- <el-button class="headbutton darkBtn" size="small" @click="handleExport">导出</el-button> -->
       </div>
       <el-divider></el-divider>
+      <div v-if="!ontologyFlag">
       <!--搜索栏-->
-        请输入搜索关键词：
-        <el-input v-model="keyword" placeholder="关键词" style="width:250px;"></el-input>
+        <!--请输入搜索关键词：-->
+        <!--<el-input  v-model="keyword" placeholder="关键词" style="width:250px;"></el-input>-->
+        <!--<el-select v-model="level" placeholder="请选择查询级数">-->
+          <!--<el-option-->
+            <!--v-for="item in levelList"-->
+            <!--:key="item.value"-->
+            <!--:label="item.label"-->
+            <!--:value="item.value">-->
+          <!--</el-option>-->
+        <!--</el-select>-->
+        <!--<el-button style="margin-left:20px;height: 40px" class="darkBtn" size="small" @click="searchGraph">搜索</el-button>-->
+        <el-input v-model="inputEntity1" placeholder="实体1"></el-input>
+        <el-input v-model="inputRelation" placeholder="关系"></el-input>
+        <el-input v-model="inputEntity2" placeholder="实体2"></el-input>
         <el-select v-model="level" placeholder="请选择查询级数">
           <el-option
             v-for="item in levelList"
@@ -228,7 +245,7 @@
           </el-option>
         </el-select>
         <el-button style="margin-left:20px;height: 40px" class="darkBtn" size="small" @click="searchGraph">搜索</el-button>
-
+      </div>
         <div class="result" style="margin-bottom:50px;">
           <!--关系图谱-->
           <div id="kgPic"
@@ -302,7 +319,11 @@
         //控制显示图谱的相关变量
         graphBtn:false,
         graphFlag:false,
-        keyword:"",
+        ontologyFlag:false,
+        // keyword:"",
+        inputEntity1:"",
+        inputRelation:"",
+        inputEntity2:"",
         levelList:[{
           label:"一级查询",
           value:1
@@ -895,7 +916,7 @@
         // console.log(tableName)
         // console.log(positiveMarkList, negativeMarkList)
         this.$http.post(
-          'http://49.232.95.141:8000/pic/entity_match',fd,
+          'http://49.232.95.141:8000/pic/struct_submit',fd,
           {
             headers: {
               'Content-Type': 'multipart/form-data'
@@ -1041,6 +1062,7 @@
           console.log(res)
         })
       },
+      //展示图谱
       showGraph(){
         this.graphFlag=true
         this.loadingResGraph=true
@@ -1081,8 +1103,8 @@
             });
           }
           let categories=[
-            {name:'属性1'},
-            {name:'属性2'},
+            {name:'实体1'},
+            {name:'实体2'},
           ];
 
           let option ={
@@ -1178,10 +1200,154 @@
           this.loadingResGraph=false
         })
       },
+      //展示本体
+      showOntology(){
+        this.graphFlag=true;
+        this.ontologyFlag=true;
+        this.loadingResGraph=true;
+        this.$http.post(
+          'http://49.232.95.141:8000/pic/show_structTuple',
+          {
+            headers: {
+              'Content-Type': 'multipart/form-data'
+            }
+          }).then((res) => {
+          console.log(res)
+          let graphPoint = [];
+          let graphLink = [];
+          let pointName = new Set();
+          for(let i = 0; i < res.data.length; i ++) {
+            let tmp = {};
+            tmp.entity1 = res.data[i][0];
+            tmp.relation = res.data[i][1];
+            tmp.entity2 = res.data[i][2];
+            if(!pointName.has(tmp.entity1)) {
+              pointName.add(tmp.entity1);
+              graphPoint.push({
+                name:tmp.entity1,
+                category: 0
+              })
+            }
+            if(!pointName.has(tmp.entity2)) {
+              pointName.add(tmp.entity2);
+              graphPoint.push({
+                name:tmp.entity2,
+                category:1
+              })
+            }
+            graphLink.push({
+              source: tmp.entity1,
+              target: tmp.entity2,
+              name: tmp.relation,
+            });
+          }
+          let categories=[
+            {name:'实体1'},
+            {name:'实体2'},
+          ];
+
+          let option ={
+            // 提示框的配置
+            tooltip: {
+              formatter: function (x) {
+                return x.data.des;
+              }
+            },
+            // 工具箱
+            toolbox: {
+              // 显示工具箱
+              show: true,
+              feature: {
+                mark: {
+                  show: true
+                },
+                // 还原
+                restore: {
+                  show: true
+                },
+                // 保存为图片
+                saveAsImage: {
+                  show: true
+                }
+              }
+            },
+            color:['#4472C5','#FF8096'],
+            legend: [{
+              // selectedMode: 'single',
+              data: categories.map(function (a) {
+                return a.name;
+              })
+            }],
+
+            series: [{
+              symbol:'rect',
+              type: 'graph', // 类型:关系图
+              layout: 'force', //图的布局，类型为力导图
+              symbolSize: 40, // 调整节点的大小
+              roam: true, // 是否开启鼠标缩放和平移漫游。默认不开启。如果只想要开启缩放或者平移,可以设置成 'scale' 或者 'move'。设置成 true 为都开启
+              edgeSymbol: ['circle', 'arrow'],
+              edgeSymbolSize: [2, 10],
+              edgeLabel: {
+                normal: {
+                  textStyle: {
+                    fontSize: 20
+                  }
+                }
+              },
+              force: {
+                repulsion: 2500,
+                edgeLength: [10, 50]
+              },
+              draggable: true,
+              lineStyle: {
+                normal: {
+                  width: 2,
+                  color: '#4b565b',
+                }
+              },
+              edgeLabel: {
+                normal: {
+                  show: true,
+                  formatter: function (x) {
+                    return x.data.name;
+                  }
+                }
+              },
+              label: {
+                normal: {
+                  show: true,
+                  textStyle: {}
+                }
+              },
+              // 数据
+              data:graphPoint,
+              links:graphLink,
+              categories: categories,
+            }],
+            grid:{
+              top:"10px",
+              bottom:"10px",
+              height:"10px",
+              width:"10px"
+            }
+          };
+          myChart= echarts.init(document.getElementById('graph'));
+          // 绘制图表
+          myChart.setOption(option, true);
+          this.loadingResGraph=false;
+        }).catch((res) => {
+          //请求失败
+          alert("出错了")
+          this.loadingResGraph=false
+        })
+      },
+      //在图谱中搜索
       searchGraph(){
         this.loadingResGraph=true;
         let fd = new FormData();
-        fd.append('entity', this.keyword);
+        fd.append('entity1', this.inputEntity1);
+        fd.append('relation', this.inputRelation);
+        fd.append('entity2', this.inputEntity2);
         fd.append('number', this.level);
         this.$http.post(
           'http://49.232.95.141:8000/pic/search_struct_data',fd,
