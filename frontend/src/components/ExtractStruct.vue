@@ -233,9 +233,9 @@
           <!--</el-option>-->
         <!--</el-select>-->
         <!--<el-button style="margin-left:20px;height: 40px" class="darkBtn" size="small" @click="searchGraph">搜索</el-button>-->
-        <el-input v-model="inputEntity1" placeholder="实体1"></el-input>
-        <el-input v-model="inputRelation" placeholder="关系"></el-input>
-        <el-input v-model="inputEntity2" placeholder="实体2"></el-input>
+        <el-input v-model="inputEntity1" placeholder="实体1" style="width:250px;"></el-input>
+        <el-input v-model="inputRelation" placeholder="关系" style="width:250px;" v-if="entityRelationFlag"></el-input>
+        <el-input v-model="inputEntity2" placeholder="实体2" style="width:250px;" v-if="entityRelationFlag"></el-input>
         <el-select v-model="level" placeholder="请选择查询级数">
           <el-option
             v-for="item in levelList"
@@ -245,6 +245,8 @@
           </el-option>
         </el-select>
         <el-button style="margin-left:20px;height: 40px" class="darkBtn" size="small" @click="searchGraph">搜索</el-button>
+        <el-button type="text" class="textBtn" style="margin-left:20px;" v-if="entityRelationFlag" @click="changeToEntitySearch"> &lt; &lt;切换为实体搜索</el-button>
+        <el-button type="text" class="textBtn" style="margin-left:20px;" v-if="!entityRelationFlag" @click="changeToRelationSearch"> &lt; &lt;切换为关系搜索</el-button>
       </div>
         <div class="result" style="margin-bottom:50px;">
           <!--关系图谱-->
@@ -324,6 +326,7 @@
         inputEntity1:"",
         inputRelation:"",
         inputEntity2:"",
+        entityRelationFlag:true,
         levelList:[{
           label:"一级查询",
           value:1
@@ -341,6 +344,20 @@
     },
 
     methods: {
+      changeToEntitySearch() {
+        this.inputEntity1 = "";
+        this.inputEntity2 = "";
+        this.inputRelation = "";
+        this.level = 1;
+        this.entityRelationFlag = false;
+      },
+      changeToRelationSearch() {
+        this.inputEntity1 = "";
+        this.inputEntity2 = "";
+        this.inputRelation = "";
+        this.level = 1;
+        this.entityRelationFlag = true;
+      },
       //修改表格显示值
       changeTableData(fatherIndex) {
         //处理表格“与x为正例列字符串”
@@ -843,7 +860,7 @@
             // console.log(key, tmp)
             for(let i = 0; i < tmp.length; i ++) {
               for(let j = i + 1; j < tmp.length; j ++) {
-                res.push([this.rawData[tmp[i]],this.rawData[tmp[j]], flag])
+                res.push([this.rawData[tmp[i] - 1],this.rawData[tmp[j] - 1], flag])
                 // console.log("---")
                 // console.log(tmp[i], this.rawData[tmp[i]])
                 // console.log(tmp[j], this.rawData[tmp[j]])
@@ -857,7 +874,7 @@
             // tmp.push(parseInt(key))
             let index = parseInt(key);
             for(let i = 0; i < tmp.length; i ++) {
-              res.push([this.rawData[index],this.rawData[tmp[i]], flag])
+              res.push([this.rawData[index - 1],this.rawData[tmp[i] - 1], flag])
             }
           }
         }
@@ -866,7 +883,7 @@
         return res;
       },
       submitMarks(){
-        console.log(this.tableData, this.columnNames)
+        // console.log(this.tableData, this.columnNames)
         if(this.portion === ""){
           this.$message({
             message: '请选择用于训练集、测试集的比例！',
@@ -881,6 +898,22 @@
             type: 'warning'
           });
           return;
+        }
+        if(this.trainCount === 0) {
+          if(this.negativeCount === 0){
+            this.$message({
+              message: '首次标注至少有一个负例！',
+              type: 'warning'
+            });
+            return;
+          }
+          if(this.positiveCount === 0){
+            this.$message({
+              message: '首次标注至少有一个正例！',
+              type: 'warning'
+            });
+            return;
+          }
         }
         let positiveArray = this.getCombinationArray(this.positiveMap, 1);
         let negativeArray = this.getCombinationArray(this.negativeMap, 0);
@@ -911,10 +944,10 @@
         fd.append('ratio', JSON.stringify(this.portion));
         fd.append('table', JSON.stringify(tableName));
         fd.append('mark', JSON.stringify([positiveMarkList, negativeMarkList]));
-        // console.log(Arr)
-        // console.log(this.portion)
-        // console.log(tableName)
-        // console.log(positiveMarkList, negativeMarkList)
+        console.log(Arr)
+        console.log(this.portion)
+        console.log(tableName)
+        console.log(positiveMarkList, negativeMarkList)
         this.$http.post(
           'http://49.232.95.141:8000/pic/struct_submit',fd,
           {
