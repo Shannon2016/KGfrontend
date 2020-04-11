@@ -13,7 +13,7 @@
           <span slot="title" >实体检索</span>
         </el-menu-item>
         <el-menu-item index="/relationsearch" class="is-active">
-          <i class="el-icon-document"></i>
+          <i class="el-icon-search"></i>
           <span slot="title">关系检索</span>
         </el-menu-item>
       </el-menu>
@@ -44,15 +44,21 @@
 
         <div class="result" v-if="searchDone" style="margin-bottom:50px;">
           <!--关系图谱-->
-          <div id="kgPic">
+          <div id="kgPic"
+               v-loading="loadingRes"
+               element-loading-text="正在搜索中，请稍等……"
+               element-loading-spinner="el-icon-loading"
+               element-loading-background="rgba(0, 0, 0, 0.1)">
             <div class="title">关系图谱</div>
+            <div id="graph" style="width: 1200px;height:800px;"></div>
           </div>
           <!--三元组列表-->
           <el-table
             :data="tableData"
             :header-cell-style="{background:'#EBEEF7',color:'#606266'}"
             height="626"
-            border>
+            border
+            v-loading="loadingRes">
             <el-table-column
               prop="entity1"
               label="实体1"
@@ -112,7 +118,8 @@
             label:"三级查询",
             value:3
           }],
-          level:""
+          level:1,
+          loadingRes:false,
         }
       },
 
@@ -128,6 +135,7 @@
           }
 
           this.searchDone=true;
+          this.loadingRes=true;
 
           //空值检索
           if(this.inputEntity1 === '' && this.inputEntity2 === '' && this.inputRelation === '')
@@ -137,6 +145,7 @@
             // 绘制图表
             myChart.setOption(option, true);
             this.tableData = [];
+            this.loadingRes=false;
             return;
           }
           /*逻辑和实体检索类似*/
@@ -150,6 +159,7 @@
               // 绘制图表
               myChart.setOption(option, true);
               this.tableData = [];
+              this.loadingRes=false;
               return;
             }
             this.tableData = [];
@@ -163,7 +173,7 @@
 				tmp.entity1 = res.data.searchResult[i].n1.title;
 				tmp.entity2 = res.data.searchResult[i].n2.title;
 				tmp.relation = res.data.searchResult[i].rel.type;
-				
+
 				for(let j = 0; j < this.tableData.length; j++ ){
 					if(this.tableData[j].entity1 == tmp.entity1 && this.tableData[j].entity2 == tmp.entity2 && this.tableData[j].relation == tmp.relation)tableflag = 1;
 				}
@@ -184,7 +194,7 @@
 				  des: tmp.entity1 + "->" + tmp.entity2
 				});
 			  }
-            
+
           let categories=[
                   {name:'entity1'},
                   {name:'entity2'},
@@ -296,7 +306,9 @@
                     alert("2");
                   }
                 });
+              this.loadingRes=false;
               }).catch((res)=>{
+                this.loadingRes=false;
                 console.log("fail")
                 console.log(res);
                 let option ={};

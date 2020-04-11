@@ -13,7 +13,7 @@
           <span slot="title" >实体检索</span>
         </el-menu-item>
         <el-menu-item index="/relationsearch">
-          <i class="el-icon-document"></i>
+          <i class="el-icon-search"></i>
           <span slot="title">关系检索</span>
         </el-menu-item>
       </el-menu>
@@ -42,7 +42,10 @@
 
         <div class="result" v-if="searchDone">
           <!--关系图谱-->
-          <div id="kgPic">
+          <div id="kgPic"
+               v-loading="loadingRes"
+               element-loading-text="正在搜索中，请稍等……"
+               element-loading-spinner="el-icon-loading">
             <div class="title">关系图谱</div>
             <div id="graph" style="width: 1200px;height:800px;"></div>
           </div>
@@ -51,7 +54,8 @@
             :data="tableData"
             :header-cell-style="{background:'#EBEEF7',color:'#606266'}"
             :height="60+50*tableData.length"
-            border>
+            border
+            v-loading="loadingRes">
             <el-table-column
               prop="entity1"
               label="实体1"
@@ -103,7 +107,8 @@
           label:"三级查询",
           value:3
         }],
-        level:""
+        level:1,
+        loadingRes:false,
       }
     },
 
@@ -120,6 +125,8 @@
 
         this.searchDone=true;
 
+        this.loadingRes = true;
+
         //空值检索
         if(this.inputEntity === '')
         {
@@ -128,6 +135,7 @@
           // 绘制图表
           myChart.setOption(option, true);
           this.tableData = [];
+          this.loadingRes= false;
           return;
         }
 
@@ -139,6 +147,7 @@
             // 绘制图表
             myChart.setOption(option, true);
             this.tableData = [];
+            this.loadingRes=false;
             return;
           }
 
@@ -282,7 +291,9 @@
               alert("2");
             }
           });
+          this.loadingRes=false;
         }).catch((res)=>{
+          this.loadingRes=false;
           console.log("fail")
           console.log(res);
           let option ={};
