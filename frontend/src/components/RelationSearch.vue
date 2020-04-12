@@ -42,7 +42,7 @@
         </el-select>
         <el-button style="margin-left:20px;height: 40px" class="darkBtn" size="small" @click="onSearchClick">搜索</el-button>
 
-        <div class="result" v-show="searchDone" style="margin-bottom:50px;">
+        <div class="result" v-if="searchDone" style="margin-bottom:50px;">
           <!--关系图谱-->
           <div id="kgPic"
                v-loading="loadingRes"
@@ -65,7 +65,7 @@
               fixed>
             </el-table-column>
             <el-table-column
-              prop="relationship"
+              prop="relation"
               label="关系">
             </el-table-column>
             <el-table-column
@@ -128,247 +128,197 @@
         // handleCurrentChange(cpage) {
         //   this.curPage = cpage;
         // },
-        onSearchClick() {
-          if (this.inputEntity1 === '' && this.inputEntity2 === '' && this.inputRelation === '' && !this.searchDone) {
+        onSearchClick(){
+          if(this.inputEntity1 === '' && this.inputEntity2 === '' && this.inputRelation === '' && !this.searchDone)
+          {
             return;
           }
 
-          this.searchDone = true;
+          this.searchDone=true;
+          this.loadingRes=true;
 
           //空值检索
-          if (this.inputEntity1 === '' && this.inputEntity2 === '' && this.inputRelation === '') {
-            let option = {};
-            myChart = echarts.init(document.getElementById('graph'));
+          if(this.inputEntity1 === '' && this.inputEntity2 === '' && this.inputRelation === '')
+          {
+            let option ={};
+            myChart= echarts.init(document.getElementById('kgPic'));
             // 绘制图表
             myChart.setOption(option, true);
             this.tableData = [];
+            this.loadingRes=false;
             return;
           }
-          this.loadingRes = true;
           /*逻辑和实体检索类似*/
-          this.$http.get('http://49.232.95.141:8000/search_relation?entity1_text=' + this.inputEntity1 + '&relation_name_text=' + this.inputRelation + '&entity2_text=' + this.inputEntity2 + '&number=' + this.level).then(
-            (res) => {
-              console.log(res.data.searchResult);
-              if (!res.data.searchResult) {
-                let option = {};
-                myChart = echarts.init(document.getElementById('graph'));
-                // 绘制图表
-                myChart.setOption(option, true);
-                this.tableData = [];
-                this.loadingRes = false;
-                return;
-              }
-              this.tableData = [];
-
-              let graphPoint = [];
-              let graphLink = [];
-              let flag = true;
-              // for(let i = 0; i < res.data.searchResult.length && flag; i++) {
-              //   let tmp = {};
-              //   let tmpPoint = {};
-              //   let tmpLink = {};
-
-              //   //三元组数据提取
-              // tmp.entity1=this.inputEntity1;
-              // tmp.relationship=res.data.searchResult[i].rel.type;
-              // tmp.entity2=res.data.searchResult[i].n2.title;
-
-              //   //节点提取，按{名称，类别，ID}进行加入；
-              //   tmpPoint.name = res.data.searchResult[i].n2.title;
-              //   tmpPoint.category = 1;
-              //   tmpPoint.id = (i+1);
-              //   if(graphPoint.indexOf(tmpPoint) === -1)
-              //     graphPoint.push(tmpPoint);  //如果没有在已有点中找到这样的结点，说明这是一个新节点，我们将节点加入到图节点集合中
-              //   else continue;
-
-              //   if(graphPoint.length === 20) flag = false;//控制20个结点
-
-              //   //关系组装，添加至graphLink
-              //   tmpLink.name = tmp.relationship;
-              //   tmpLink.source = 0;
-              //   tmpLink.target = 0; //防止报错，先设置一个值
-              //   for(let j = 0; j < graphPoint.length; j++ ){
-              //     if(graphPoint[j].name == tmp.entity2){
-              //       tmpLink.target = graphPoint[j].id;
-              //       break;
-              //     }
-              //   }
-              //   graphLink.push(tmpLink);// 将关系添加到graphLink
-
-              //   this.tableData.push(tmp);  //将三元组加入到表中
-              // }
-              for (let i = 0; i < res.data.searchResult.length; i++)
-              {
-                let tmp = {};
-                let tmpLink = {};
-
-                //三元组数据提取
-                tmp.entity1 = res.data.searchResult[i].n1.title;
-                tmp.relationship = res.data.searchResult[i].rel.type;
-                tmp.entity2 = res.data.searchResult[i].n2.title;
-                //将三元组加入到表中
-                this.tableData.push(tmp);
-
-                //根据关系连线
-                tmpLink.source = tmp.entity1+".";
-                tmpLink.target = tmp.entity2;
-                tmpLink.name = tmp.relationship;
-                tmpLink.des = tmp.entity1 + "->" + tmp.relationship + "->" + tmp.entity2;
-                graphLink.push(tmpLink);
-
-                //节点提取，查重后按{名称，类别, 描述}进行加入；
-                let e1Flag = false, e2Flag = false;
-                for (let j = 0; j < graphPoint.length; j++) {
-                  if (e1Flag && e2Flag)
-                    break;
-                  if (!e1Flag && graphPoint[j].name === tmp.entity1+".") e1Flag = true;
-                  if (!e2Flag && graphPoint[j].name === tmp.entity2) e2Flag = true;
-                }
-                if (!e1Flag)//entity1节点为新节点
-                {
-                  let tmpPoint = {};
-                  tmpPoint.name = tmp.entity1+".";
-                  tmpPoint.category = 0;
-                  tmpPoint.des = tmp.entity1;
-                  graphPoint.push(tmpPoint);
-                }
-                if (!e2Flag)//entity2节点为新节点
-                {
-                  let tmpPoint = {};
-                  tmpPoint.name = tmp.entity2;
-                  tmpPoint.category = 1;
-                  tmpPoint.des = tmp.entity2;
-                  graphPoint.push(tmpPoint);
-                }
-              }
-
-              let categories = [
-                {name: 'entity1'},
-                {name: 'entity2'},
-              ];
-
-              let option = {
-                // 提示框的配置
-                tooltip: {
-                  formatter: function (x) {
-                    return x.data.des;
-                  }
-                },
-
-                // 工具箱
-                toolbox: {
-                  // 显示工具箱
-                  show: true,
-                  feature: {
-                    mark: {
-                      show: true
-                    },
-                    // 还原
-                    restore: {
-                      show: true
-                    },
-                    // 保存为图片
-                    saveAsImage: {
-                      show: true
-                    }
-                  }
-                },
-                legend: [{
-                  // selectedMode: 'single',
-                  data: categories.map(function (a) {
-                    return a.name;
-                  })
-                }],
-
-                series: [{
-                  type: 'graph', // 类型:关系图
-                  layout: 'force', //图的布局，类型为力导图
-                  symbolSize: 40, // 调整节点的大小
-                  roam: true, // 是否开启鼠标缩放和平移漫游。默认不开启。如果只想要开启缩放或者平移,可以设置成 'scale' 或者 'move'。设置成 true 为都开启
-                  edgeSymbol: ['circle', 'arrow'],
-                  edgeSymbolSize: [2, 10],
-                  edgeLabel: {
-                    normal: {
-                      textStyle: {
-                        fontSize: 20
-                      }
-                    }
-                  },
-                  force: {
-                    repulsion: 2500,
-                    edgeLength: [10, 50]
-                  },
-                  draggable: true,
-                  lineStyle: {
-                    normal: {
-                      width: 2,
-                      color: '#4b565b',
-                    }
-                  },
-                  edgeLabel: {
-                    normal: {
-                      show: true,
-                      formatter: function (x) {
-                        return x.data.name;
-                      }
-                    }
-                  },
-                  label: {
-                    normal: {
-                      show: true,
-                      textStyle: {}
-                    }
-                  },
-                  // 数据
-                  data: graphPoint,
-                  links: graphLink,
-                  categories: categories,
-                }],
-                grid: {
-                  top: "10px",
-                  bottom: "10px",
-                  height: "10px",
-                  width: "10px"
-                }
-              };
-              myChart = echarts.init(document.getElementById('graph'));
-              // 绘制图表
-
-              console.log(graphPoint)
-              console.log(graphLink)
-
-              myChart.setOption(option);
-              myChart.on('click', function (params) {
-                let obj = params.data;
-                console.log(obj);
-                if (obj.hasOwnProperty("source"))//links
-                {
-                  ////obj.source+obj.name+obj.target 头节点、关系、尾节点
-                  // this.$http.get('http://49.232.95.141:8000/search_entity?head='+obj.source+"&relation="+obj.name+"&tail="+obj.target).then(
-                  //   (res) => {
-                  //   })
-                  alert("1");
-                }
-                else //points
-                {
-                  ////实体名为obj.name
-                  // this.$http.get('http://49.232.95.141:8000/search_entity?entity='+obj.name).then((res) => {
-                  // })
-                  alert("2");
-                }
-              });
-              this.loadingRes = false;
-            }).catch((res) => {
-              this.loadingRes = false;
-              console.log("fail");
-              console.log(res);
-              let option = {};
-              myChart = echarts.init(document.getElementById('kgPic'));
+          this.$http.get('http://49.232.95.141:8000/search_relation?entity1_text='+this.inputEntity1+'&relation_name_text='+this.inputRelation+'&entity2_text='+this.inputEntity2+'&number='+this.level).then(
+            (res) =>
+            {
+            console.log(res.data.searchResult) ;
+            if(!res.data.searchResult) {
+              let option ={};
+              myChart= echarts.init(document.getElementById('kgPic'));
               // 绘制图表
               myChart.setOption(option, true);
               this.tableData = [];
-            })
-        }
+              this.loadingRes=false;
+              return;
+            }
+            this.tableData = [];
+
+			let graphPoint = [];
+			let graphLink = [];
+			let pointSet = new Set();
+			for(let i = 0; i < res.data.searchResult.length; i ++){
+				let tmp = {};
+				let tableflag = 0;
+				tmp.entity1 = res.data.searchResult[i].n1.title;
+				tmp.entity2 = res.data.searchResult[i].n2.title;
+				tmp.relation = res.data.searchResult[i].rel.type;
+
+				for(let j = 0; j < this.tableData.length; j++ ){
+					if(this.tableData[j].entity1 == tmp.entity1 && this.tableData[j].entity2 == tmp.entity2 && this.tableData[j].relation == tmp.relation)tableflag = 1;
+				}
+				if(tableflag == 0)this.tableData.push(tmp);
+				if(!pointSet.has(tmp.entity1)) {
+				  pointSet.add(tmp.entity1);
+				  graphPoint.push({name:tmp.entity1,category:0,des:tmp.entity1});
+				}
+				if(!pointSet.has(tmp.entity2)) {
+				  pointSet.add(tmp.entity2);
+				  graphPoint.push({name:tmp.entity2,category:1,des:tmp.entity2});
+				}
+
+				graphLink.push({
+				  source: tmp.entity1,
+				  target: tmp.entity2,
+				  name: tmp.relation,
+				  des: tmp.entity1 + "->" + tmp.entity2
+				});
+			  }
+
+          let categories=[
+                  {name:'entity1'},
+                  {name:'entity2'},
+                ];
+
+          let option ={
+                  // 提示框的配置
+                  tooltip: {
+                    formatter: function (x) {
+                      return x.data.des;
+                    }
+                  },
+
+          // 工具箱
+                toolbox: {
+                    // 显示工具箱
+                    show: true,
+                    feature: {
+                      mark: {
+                        show: true
+                      },
+                      // 还原
+                      restore: {
+                        show: true
+                      },
+                      // 保存为图片
+                      saveAsImage: {
+                        show: true
+                      }
+                    }
+                  },
+                  legend: [{
+                    // selectedMode: 'single',
+                    data: categories.map(function (a) {
+                      return a.name;
+                    })
+                  }],
+
+                  series: [{
+                    type: 'graph', // 类型:关系图
+                    layout: 'force', //图的布局，类型为力导图
+                    symbolSize: 40, // 调整节点的大小
+                    roam: true, // 是否开启鼠标缩放和平移漫游。默认不开启。如果只想要开启缩放或者平移,可以设置成 'scale' 或者 'move'。设置成 true 为都开启
+                    edgeSymbol: ['circle', 'arrow'],
+                    edgeSymbolSize: [2, 10],
+                    edgeLabel: {
+                      normal: {
+                        textStyle: {
+                          fontSize: 20
+                        }
+                      }
+                    },
+                    force: {
+                      repulsion: 2500,
+                      edgeLength: [10, 50]
+                    },
+                    draggable: true,
+                    lineStyle: {
+                      normal: {
+                        width: 2,
+                        color: '#4b565b',
+                      }
+                    },
+                    edgeLabel: {
+                      normal: {
+                        show: true,
+                        formatter: function (x) {
+                          return x.data.name;
+                        }
+                      }
+                    },
+                    label: {
+                      normal: {
+                        show: true,
+                        textStyle: {}
+                      }
+                    },
+                    // 数据
+                    data:graphPoint,
+                    links:graphLink,
+                    categories: categories,
+                  }],
+                  grid:{
+                    top:"10px",
+                    bottom:"10px",
+                    height:"10px",
+                    width:"10px"
+                  }
+                };
+                myChart= echarts.init(document.getElementById('kgPic'));
+                // 绘制图表
+                myChart.setOption(option);
+                myChart.on('click',function(params){
+                  let obj = params.data;
+                  console.log(obj);
+                  if(obj.hasOwnProperty("source"))//links
+                  {
+                    ////obj.source+obj.name+obj.target 头节点、关系、尾节点
+                    // this.$http.get('http://49.232.95.141:8000/search_entity?head='+obj.source+"&relation="+obj.name+"&tail="+obj.target).then(
+                    //   (res) => {
+                    //   })
+                    alert("1");
+                  }
+                  else //points
+                  {
+                    ////实体名为obj.name
+                    // this.$http.get('http://49.232.95.141:8000/search_entity?entity='+obj.name).then((res) => {
+                    // })
+                    alert("2");
+                  }
+                });
+              this.loadingRes=false;
+              }).catch((res)=>{
+                this.loadingRes=false;
+                console.log("fail")
+                console.log(res);
+                let option ={};
+                myChart= echarts.init(document.getElementById('kgPic'));
+                // 绘制图表
+                myChart.setOption(option, true);
+                this.tableData = [];
+                return;
+              })
+            }
       },
     }
 </script>
