@@ -37,15 +37,15 @@
       <!--顶部-->
       <div class="header">
         结构化数据抽取
-        <el-button type="primary" class="darkBtn headbutton" size="small" @click="isUpload=true">上传与分析</el-button>
-        <el-button type="primary" class="darkBtn headbutton" size="small" >训练</el-button>
+        <!-- <el-button type="primary" class="darkBtn headbutton" size="small" @click="isUpload=true">上传与分析</el-button>
+        <el-button type="primary" class="darkBtn headbutton" size="small" >训练</el-button> -->
       </div>
       <el-divider></el-divider>
       <!--中心-->
       <!--列表页-->
       <div class="main" >
         <!-- 上传窗口-->
-        <div class="upload" id="upload" v-if="isUpload">
+        <!-- <div class="upload" id="upload" v-if="isUpload">
           <el-card class="box-card">
             <div slot="header" class="clearfix">
               <span>数据上传</span>
@@ -71,7 +71,7 @@
             <el-button size="small" @click="cancelUpload">取消</el-button>
             <el-button style="margin-left: 10px;" class="darkBtn" size="small" type="primary" @click="submitUpload">上传并分析</el-button>
           </el-card>
-        </div>
+        </div> -->
         <!--表格查看-->
         <div class="top-tip">
           <span v-if="!isList">请选择表格：</span>
@@ -88,11 +88,11 @@
           <el-button :disabled="positiveFlag" v-if="isList" class="blueBtn" size="small" @click="setPositive" style="margin-left:15px;">设为正样例</el-button>
           <el-button :disabled="negativeFlag" v-if="isList" class="blueBtn" size="small" @click="setNegative" style="margin-left:15px;">设为负样例</el-button>
 
-          <el-button class="darkBtn" size="small" style="float:right; margin-right:30px;" @click="showOntology">本体展示</el-button><!-- v-if="graphBtn"-->
-          <el-button class="darkBtn" size="small" style="float:right; margin-right:30px;" @click="showGraph">图谱展示</el-button><!-- v-if="graphBtn"-->
+          <el-button class="darkBtn" size="small" style="float:right; margin-right:20px;" @click="showGraph">图谱展示</el-button><!--v-if="graphBtn"-->
           <el-button type="primary" class="darkBtn" size="small" style="float:right; margin-right:20px;" @click="entityMark">交互训练</el-button>
           <el-button type="primary" class="darkBtn" size="small" style="float:right; margin-right:20px;" @click="deNoise">属性去噪</el-button>
           <el-button v-if="!isList" type="primary" class="darkBtn" size="small" style="float:right; margin-right:20px;" @click="loadData">加载数据</el-button>
+          <el-button class="darkBtn" size="small" style="float:right; margin-right:20px;" @click="showOntology">本体展示</el-button><!-- v-if="graphBtn"-->
           <el-button v-if="isList" type="primary" class="darkBtn" size="small" style="float:right; margin-right:20px;" @click="backToView">返回</el-button>
         </div>
         <!--用户操作-->
@@ -112,7 +112,7 @@
           <el-input v-model="markSum" type="number" style="width:250px;" size="small"  @change="setSumCount"></el-input>
 
           <el-button class="darkBtn" size="small" style="float:right; margin-right:20px;" @click="returnUnmarks">实体对齐</el-button>
-          <el-button class="darkBtn" size="small" @click="submitMarks" style="float:right; margin-right:20px;">提交</el-button>
+          <el-button class="darkBtn" size="small" @click="submitMarks" style="float:right; margin-right:30px;">提交</el-button>
           <el-button type="text" v-if="showRes" @click="resDetailFlag=true" style="float:right; margin-right:20px;" class="textBtn">查看上次标注结果>></el-button>
         </div>
 
@@ -414,6 +414,7 @@
           this.negativeMax = 0;
           this.negativeFlag = true;
           this.positiveFlag = true;
+          this.isList = true;
           return;
         }
         let num = parseInt(this.markSum);
@@ -434,10 +435,10 @@
         this.rawData=[];
       },
       entityMark() {
-        this.isList = true;
+        // this.isList = true;
         if(this.tableIndex === ""){
           this.$message({
-            message: '请选择需要进行去噪的表单！',
+            message: '请选择需要进行交互训练的表单！',
             type: 'warning'
           });
           return;
@@ -524,7 +525,9 @@
         this.positiveCount = 0;
         this.negativeCount = 0;
         this.portion = "";
-        this.isList=true
+        this.isList=true;
+        this.markSum = "";
+        this.setSumCount();
       },
       deNoise(){
         this.isList = false;
@@ -592,25 +595,25 @@
           console.log(res)
         })
       },
-      cancelUpload(){
-        this.isUpload=false;
-        this.fileList=[];
-      },
-      submitUpload() {
-        this.fileCount = this.tableData.length;
-        let now = new Date();
-        let date =  now.getFullYear() + "-" + ((now.getMonth() + 1) < 10 ? "0" : "") + (now.getMonth() + 1) + "-" + (now.getDate() < 10 ? "0" : "") + now.getDate();
-        this.$refs.upload.submit();
-        for(let i=0;i<this.fileList.length;i++) {
-          this.tableData.push({
-            date:  date,
-            title: this.fileList[i].raw.name
-          })
-        }
-        this.fileCount = this.tableData.length;
-        this.isUpload = false;
-        this.fileList =[];
-      },
+      // cancelUpload(){
+      //   this.isUpload=false;
+      //   this.fileList=[];
+      // },
+      // submitUpload() {
+      //   this.fileCount = this.tableData.length;
+      //   let now = new Date();
+      //   let date =  now.getFullYear() + "-" + ((now.getMonth() + 1) < 10 ? "0" : "") + (now.getMonth() + 1) + "-" + (now.getDate() < 10 ? "0" : "") + now.getDate();
+      //   this.$refs.upload.submit();
+      //   for(let i=0;i<this.fileList.length;i++) {
+      //     this.tableData.push({
+      //       date:  date,
+      //       title: this.fileList[i].raw.name
+      //     })
+      //   }
+      //   this.fileCount = this.tableData.length;
+      //   this.isUpload = false;
+      //   this.fileList =[];
+      // },
       handleRemove(file, fileList) {
         this.fileList = fileList;
       },
@@ -1029,10 +1032,11 @@
           //     res[this.columnNames[i+2].prop] = cur[i]
           //   return res
           // });
-
+          this.entityMark();
         }).catch((res) => {
           //请求失败
           console.log(res)
+          alert("请求失败！")
         })
       },
       returnUnmarks(){
@@ -1239,7 +1243,7 @@
         this.ontologyFlag=true;
         this.loadingResGraph=true;
         this.$http.post(
-          'http://49.232.95.141:8000/pic/show_structTuple',
+          'http://49.232.95.141:8000/pic/view_ontology',
           {
             headers: {
               'Content-Type': 'multipart/form-data'
@@ -1379,7 +1383,7 @@
         this.loadingResGraph=true;
         let fd = new FormData();
         fd.append('entity1', this.inputEntity1);
-        fd.append('relation', this.inputRelation);
+        fd.append('realtion', this.inputRelation);
         fd.append('entity2', this.inputEntity2);
         fd.append('number', this.level);
         this.$http.post(

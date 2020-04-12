@@ -32,8 +32,8 @@
       <!--顶部-->
       <div class="header">
         结构化数据浏览
-        <el-button type="primary" class="darkBtn headbutton" size="small" @click="isUpload=true">上传与分析</el-button>
-        <el-button type="primary" class="darkBtn headbutton" size="small" >训练</el-button>
+        <!-- <el-button type="primary" class="darkBtn headbutton" size="small" @click="isUpload=true">上传与分析</el-button>
+        <el-button type="primary" class="darkBtn headbutton" size="small" >训练</el-button> -->
       </div>
       <el-divider></el-divider>
       <!--中心-->
@@ -50,7 +50,7 @@
             </el-option>
           </el-select>
           <el-button style="margin-left:20px;" class="blueBtn" size="small" @click="chooseTable">确定</el-button>
-          <el-button type="primary" class="darkBtn" size="small" style="float:right; margin-right:20px;" @click="showGraph">查看图谱</el-button>
+          <!-- <el-button type="primary" class="darkBtn" size="small" style="float:right; margin-right:20px;" @click="showGraph">查看图谱</el-button> -->
         </div>
         <!-- 上传窗口-->
         <div id="upload" v-if="isUpload">
