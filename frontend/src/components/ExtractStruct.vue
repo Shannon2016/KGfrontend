@@ -1279,8 +1279,8 @@
             });
           }
           let categories=[
-            {name:'实体1'},
-            {name:'实体2'},
+            {name:'本体'},
+            {name:'属性'},
           ];
 
           let option ={
