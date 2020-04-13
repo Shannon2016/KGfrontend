@@ -310,8 +310,10 @@
         positiveFlag:true,
         negativeMax:-1,
         negativeCount:0,
+        negativeOldCount:0,
         positiveMax:-1,
         positiveCount:0,
+        positiveOldCount:0,
         //实体对齐时已有训练数据集的数量
         trainCount:0,
         resTableData:[],
@@ -369,6 +371,7 @@
         let indexArray = Array.from(indexSet);
         for (let k=0 ; k< indexArray.length ; k++) {
           let flag=true;
+          this.tableData[indexArray[k]-1].pastMark=" "
           for (let j=0; j< indexArray.length ; j++) {
             if (j === k)
               continue;
@@ -386,10 +389,11 @@
         }
       },
       changeDisableFlag(flag) {
-        // console.log("judge  max  count")
-        // console.log(this.positiveMax, this.negativeMax)
-        // console.log(this.positiveCount, this.negativeCount)
-        if((flag == 1 || flag === 3) && this.negativeMax <= this.negativeCount) {
+        console.log("judge  max  count")
+        console.log(this.positiveMax, this.negativeMax)
+        console.log(this.positiveCount, this.negativeCount)
+        console.log(this.positiveOldCount, this.negativeOldCount)
+        if((flag == 1 || flag === 3) && this.negativeMax <= (this.negativeCount - this.negativeOldCount)) {
           this.negativeFlag = true;
           this.$message({
             message: '负样例总数已达到最大值，若仍需标记请填写更大的用例总数',
@@ -398,7 +402,7 @@
         }
         else if(flag == 1 || flag === 3) this.negativeFlag = false;
 
-        if((flag == 2 || flag === 3) && this.positiveMax <= this.positiveCount) {
+        if((flag == 2 || flag === 3) && this.positiveMax <= (this.positiveCount - this.positiveOldCount)) {
           this.positiveFlag = true;
           this.$message({
             message: '正样例总数已达到最大值，若仍需标记请填写更大的用例总数',
@@ -406,7 +410,7 @@
           });
         }
         else if(flag == 2 || flag === 3) this.positiveFlag = false;
-        // console.log(this.positiveFlag, this.negativeFlag)
+        console.log(this.positiveFlag, this.negativeFlag)
       },
       setSumCount() {
         if(this.markSum === "") {
@@ -443,18 +447,17 @@
           });
           return;
         }
-
-        // if(!this.tableData[1]["index"]){
-        //   this.tableData = this.tableData.map((cur, index) => {
-        //       cur["index"] = index;
-        //       cur["negativeMark"] = null;
-        //       cur["positiveMark"] = null;
-        //       return cur;
-        //     })
-        //   // this.columnNames = [
-        //   //   {prop:"index", label:"序号"}].concat(this.columnNames);
-        // }
-
+        //清空上次记录
+        this.fatherIndex = {};
+        this.positiveMap={};
+        this.negativeMap={};
+        this.positiveCount = 0;
+        this.negativeCount = 0;
+        this.positiveOldCount = 0;
+        this.negativeOldCount = 0;
+        this.portion = "";
+        this.isList=true;
+        this.markSum = "";
         let fd = new FormData();
         fd.append('table',this.tableIndex);
         this.$http.post(
@@ -506,6 +509,39 @@
                 else
                   this.pastSumMap[cur[0]].add(parseInt(sep[i]));
               }
+              let oldCount, newCount;
+              //维护上次标记结果-positiveMap
+              let tmp = cur[1].split(",");
+              if(tmp[0] && tmp[0] !== " " && tmp[0] !== ""){
+                tmp = tmp.map(Number);
+                tmp.push(cur[0])
+                tmp.sort(function(a,b){return a>b?1:-1})
+                if(!this.positiveMap[tmp[0]]) this.positiveMap[tmp[0]] = new Set();
+                oldCount = this.getCombinationNum(this.positiveMap[tmp[0]].size + 1);
+                for(let i = 1; i < tmp.length; i ++) {
+                  this.positiveMap[tmp[0]].add(tmp[i]);
+                  if(!this.positiveFatherIndex[tmp[i]] ||(this.positiveFatherIndex[tmp[0]] && this.positiveFatherIndex[tmp[i]] > tmp[0]))
+                    this.positiveFatherIndex[tmp[i]] = tmp[0];
+                }
+                newCount = this.getCombinationNum(this.positiveMap[tmp[0]].size + 1);
+                this.positiveOldCount += newCount - oldCount;
+                this.positiveCount += newCount - oldCount;
+              }
+              //维护上次标记结果-negativeMap
+              tmp = cur[2].split(",");
+              if(tmp[0] && tmp[0] !== " " && tmp[0] !== "") {
+                tmp = tmp.map(Number);
+                tmp.push(cur[0])
+                tmp.sort(function(a,b){return a>b?1:-1})
+                if(!this.negativeMap[tmp[0]]) this.negativeMap[tmp[0]] = new Set();
+                oldCount = this.negativeMap[tmp[0]].size;
+                for(let i = 1; i < tmp.length; i ++) {
+                  this.negativeMap[tmp[0]].add(tmp[i]);
+                }
+                newCount = this.negativeMap[tmp[0]].size;
+                this.negativeOldCount += newCount - oldCount;
+                this.negativeCount += newCount - oldCount;
+              }
 
               for(let i = 0; i < this.columnNames.length; i ++)
                 res[this.columnNames[i].prop] = cur[i]
@@ -515,18 +551,14 @@
               return res;
             }));
             this.fileCount = this.rawData.length;
-
+            console.log(this.pastSumMap);
+            console.log("----")
+            console.log(this.positiveMap, this.negativeMap);
+            console.log(this.positiveFatherIndex);
         }).catch((res) => {
           //请求失败
           console.log(res)
         });
-        this.positiveMap={};
-        this.negativeMap={};
-        this.positiveCount = 0;
-        this.negativeCount = 0;
-        this.portion = "";
-        this.isList=true;
-        this.markSum = "";
         this.setSumCount();
       },
       deNoise(){
@@ -857,6 +889,7 @@
           for(let key in map){
             // console.log(key)
             // console.log(map[key])
+            if(!map[key]) continue;
             let tmp = Array.from(map[key]);
             tmp.push(parseInt(key))
             // console.log("!!!")
@@ -895,7 +928,7 @@
           return;
         }
         let num = parseInt(this.markSum)
-        if(num > (this.negativeCount + this.positiveCount)){
+        if(num > (this.negativeCount + this.positiveCount - this.negativeOldCount - this.positiveOldCount)){
           this.$message({
             message: '输入的样例总数仍大于已标注的样例数！请标注更多样例或减小总数！',
             type: 'warning'
@@ -961,8 +994,8 @@
           console.log(res);
 
           this.trainCount = res.data[0];
-          this.accuracy = res.data[1] * 100;
-          this.recall = res.data[2] * 100;
+          this.accuracy = Math.round(res.data[1] * 10000) / 100;
+          this.recall = Math.round(res.data[2] * 10000) / 100;
           //查看结果页表格数据
           this.resColumnNames = [];
           this.resTableData = [];
