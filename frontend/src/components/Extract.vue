@@ -3,25 +3,14 @@
     <!-- 左侧导航栏-->
     <el-aside width="200px">
       <el-menu
-        default-active=""
+        default-active
         class="el-menu-vertical-demo"
         background-color="#343643"
         text-color="#fff"
         active-text-color="#fff"
-        :router="true">
+        :router="true"
+      >
         <el-submenu index="1">
-          <template slot="title">
-            <i class="el-icon-document"></i>
-            <span>文本抽取</span>
-          </template>
-          <el-menu-item-group>
-            <el-menu-item index="/showDict">词典展示</el-menu-item>
-          </el-menu-item-group>
-          <el-menu-item-group>
-            <el-menu-item index="/extract"  class="is-active">知识抽取</el-menu-item>
-          </el-menu-item-group>
-        </el-submenu>
-        <el-submenu index="2">
           <template slot="title">
             <i class="el-icon-s-grid"></i>
             <span>结构化数据抽取</span>
@@ -36,9 +25,21 @@
             <el-menu-item index="/entityMatch">实体对齐</el-menu-item>
           </el-menu-item-group>
         </el-submenu>
+        <el-submenu index="2">
+          <template slot="title">
+            <i class="el-icon-document"></i>
+            <span>文本抽取</span>
+          </template>
+          <el-menu-item-group>
+            <el-menu-item index="/showDict">词典展示</el-menu-item>
+          </el-menu-item-group>
+          <el-menu-item-group>
+            <el-menu-item index="/extract" class="is-active">知识抽取</el-menu-item>
+          </el-menu-item-group>
+        </el-submenu>
         <el-menu-item index="/extractPic">
           <i class="el-icon-picture-outline"></i>
-          <span slot="title" >图片抽取</span>
+          <span slot="title">图片抽取</span>
         </el-menu-item>
         <el-menu-item index="/extractVedio">
           <i class="el-icon-video-camera"></i>
@@ -50,7 +51,7 @@
     <el-main v-if="isList">
       <!--顶部-->
       <div class="header">
-        文本抽取
+        知识抽取
         <el-button type="primary" class="darkBtn headbutton" size="small" @click="isUpload=true">上传与分析</el-button>
         <el-button type="primary" class="darkBtn headbutton" size="small" >训练</el-button>
       </div>
