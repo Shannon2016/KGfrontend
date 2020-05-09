@@ -9,7 +9,7 @@
         text-color="#fff"
         active-text-color="#fff"
         :router="true">
-        <el-submenu>
+        <el-submenu index="1">
           <template slot="title">
             <i class="el-icon-document"></i>
             <span>文本抽取</span>
@@ -21,7 +21,7 @@
             <el-menu-item index="/extract">知识抽取</el-menu-item>
           </el-menu-item-group>
         </el-submenu>
-        <el-submenu>
+        <el-submenu index="2">
           <template slot="title">
             <i class="el-icon-s-grid"></i>
             <span>结构化数据抽取</span>
@@ -65,7 +65,15 @@
 
 <script>
     export default {
-        name: "ShowOntoloty"
+        name: "ShowOntoloty",
+      data(){
+          return{
+            loadingRes:false,
+          }
+      },
+      methods:{
+
+      }
     }
 </script>
 
