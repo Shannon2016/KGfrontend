@@ -9,14 +9,33 @@
         text-color="#fff"
         active-text-color="#fff"
         :router="true">
-        <el-menu-item index="/extract">
-          <i class="el-icon-document"></i>
-          <span slot="title">文本抽取</span>
-        </el-menu-item>
-        <el-menu-item index="/extractStruct">
-          <i class="el-icon-s-grid"></i>
-          <span slot="title">结构化数据抽取</span>
-        </el-menu-item>
+        <el-submenu>
+          <template slot="title">
+            <i class="el-icon-document"></i>
+            <span>文本抽取</span>
+          </template>
+          <el-menu-item-group>
+            <el-menu-item index="/showDict">词典展示</el-menu-item>
+          </el-menu-item-group>
+          <el-menu-item-group>
+            <el-menu-item index="/extract">知识抽取</el-menu-item>
+          </el-menu-item-group>
+        </el-submenu>
+        <el-submenu>
+          <template slot="title">
+            <i class="el-icon-s-grid"></i>
+            <span>结构化数据抽取</span>
+          </template>
+          <el-menu-item-group>
+            <el-menu-item index="/showOntoloty">本体展示</el-menu-item>
+          </el-menu-item-group>
+          <el-menu-item-group>
+            <el-menu-item index="/extractStruct">知识抽取</el-menu-item>
+          </el-menu-item-group>
+          <el-menu-item-group>
+            <el-menu-item index="/entityMatch">实体对齐</el-menu-item>
+          </el-menu-item-group>
+        </el-submenu>
         <el-menu-item index="/extractPic">
           <i class="el-icon-picture-outline"></i>
           <span slot="title" >图片抽取</span>
@@ -376,6 +395,10 @@
     border-right: 4px solid #5775FB !important;
   }
   .el-menu-item{
+    text-align: left;
+    width: 200px;
+  }
+  .el-submenu{
     text-align: left;
     width: 200px;
   }
