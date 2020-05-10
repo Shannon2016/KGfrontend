@@ -2,8 +2,6 @@
   <el-container>
     <!--内容块 模式定义-->
     <el-main>
-      <el-button @click="testapishow">testshowBtn</el-button>
-      <el-button @click="testapiadd">testaddBtn</el-button>
       <div class="header">
         模式定义
       </div>

@@ -1,6 +1,5 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import DataLabel from "../components/DataLabel";
 import Extract from "../components/Extract";
 import ExtractPic from "../components/ExtractPic";
 import ExtractVedio from "../components/ExtractVedio"
@@ -21,8 +20,8 @@ export default new Router({
   routes: [
     {
       path: '/',
-      name: 'DataLabel',
-      component: DataLabel,
+      name: 'DefineLabel',
+      component: DefineLabel,
       children:[
         {
           path: 'definelabel',

@@ -7,7 +7,8 @@
       text-color="#fff"
       active-text-color="#409EFF"
       :router="true"
-      style="position:absolute; right:0;">
+      style="position:absolute; right:0;"
+      @select="selectMenu">
       <el-menu-item index="/relationalData">数据浏览</el-menu-item>
       <el-menu-item index="/">数据标注</el-menu-item>
       <el-menu-item index="/showOntology">知识抽取</el-menu-item>
@@ -21,6 +22,12 @@
     name: 'MyMenu',
     data () {
       return {
+        activeIndex:''
+      }
+    },
+    methods:{
+      selectMenu(index){
+        this.$store.dispatch('changeIndex',index);
       }
     }
   }

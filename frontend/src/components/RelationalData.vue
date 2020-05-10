@@ -1,32 +1,5 @@
 <template>
   <el-container>
-    <!-- 左侧导航栏-->
-    <el-aside width="200px">
-      <el-menu
-        default-active=""
-        class="el-menu-vertical-demo"
-        background-color="#343643"
-        text-color="#fff"
-        active-text-color="#fff"
-        :router="true">
-        <!--<el-menu-item index="/extract">-->
-          <!--<i class="el-icon-menu"></i>-->
-          <!--<span slot="title">文本抽取</span>-->
-        <!--</el-menu-item>-->
-        <el-menu-item index="/RelationalData" class="is-active">
-          <i class="el-icon-menu"></i>
-          <span slot="title">结构化数据浏览</span>
-        </el-menu-item>
-        <!--<el-menu-item index="/extractPic">-->
-          <!--<i class="el-icon-menu"></i>-->
-          <!--<span slot="title" >图片抽取</span>-->
-        <!--</el-menu-item>-->
-        <!--<el-menu-item index="/extractVedio">-->
-          <!--<i class="el-icon-document"></i>-->
-          <!--<span slot="title">视频抽取</span>-->
-        <!--</el-menu-item>-->
-      </el-menu>
-    </el-aside>
     <!--内容块-->
     <el-main v-if="isList">
       <!--顶部-->

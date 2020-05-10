@@ -6,7 +6,7 @@ import 'element-ui/lib/theme-chalk/index.css';
 import App from './App'
 import router from './router'
 import axios from 'axios'
-
+import store from '../src/store/index'
 import ECharts from "vue-echarts";
 import "echarts/lib/chart/line";
 Vue.component("v-echart", ECharts);
@@ -16,6 +16,7 @@ Vue.config.productionTip = false
 new Vue({
   el: '#app',
   router,
+  store,
   components: { App },
   template: '<App/>'
 })

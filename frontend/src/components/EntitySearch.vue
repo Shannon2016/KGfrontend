@@ -1,23 +1,5 @@
 <template>
   <el-container>
-    <!-- 左侧导航栏-->
-    <el-aside width="200px">
-      <el-menu
-        default-active=""
-        background-color="#343643"
-        text-color="#fff"
-        active-text-color="#fff"
-        :router="true">
-        <el-menu-item index="/entitysearch" class="is-active">
-          <i class="el-icon-menu"></i>
-          <span slot="title" >实体检索</span>
-        </el-menu-item>
-        <el-menu-item index="/relationsearch">
-          <i class="el-icon-search"></i>
-          <span slot="title">关系检索</span>
-        </el-menu-item>
-      </el-menu>
-    </el-aside>
     <!--内容块-->
     <el-main>
       <!--顶部-->

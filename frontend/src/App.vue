@@ -11,88 +11,166 @@
           <!-- <el-col id="logo" :span="3">
             <img src="./assets/KGLogo.png" />
             作战文书管理系统
-          </el-col> -->
+          </el-col>-->
           <el-col style="position:relative;">
-            <MyMenu/>
+            <MyMenu />
           </el-col>
           <el-col id="user" :span="2">
-            <MyDropdown :username="usrName"/>
+            <MyDropdown :username="usrName" ref="menuIndex" />
           </el-col>
         </el-row>
       </el-header>
-      <router-view/>
+      <el-container style="height:calc(100% - 60px);">
+        <el-aside style="width:205px;">
+          <el-menu
+            background-color="#343643"
+            text-color="#fff"
+            active-text-color="#fff"
+            :router="true"
+          >
+            <!--数据浏览菜单-->
+            <el-menu-item index="/RelationalData" v-if="activeIndex==='/relationalData'">
+              <i class="el-icon-menu"></i>
+              <span slot="title">结构化数据浏览</span>
+            </el-menu-item>
+            <!--数据标注菜单-->
+            <el-menu-item index="/definelabel" v-if="activeIndex==='/'">
+              <i class="el-icon-menu"></i>
+              <span slot="title">模式定义</span>
+            </el-menu-item>
+            <el-menu-item index="/corpustagging" v-if="activeIndex==='/'">
+              <i class="el-icon-document"></i>
+              <span slot="title">语料标注</span>
+            </el-menu-item>
+            <!--知识抽取菜单-->
+            <el-submenu index="1" v-if="activeIndex==='/showOntology'">
+              <template slot="title">
+                <i class="el-icon-s-grid"></i>
+                <span>结构化数据抽取</span>
+              </template>
+              <el-menu-item-group>
+                <el-menu-item index="/showOntology">本体展示</el-menu-item>
+              </el-menu-item-group>
+              <el-menu-item-group>
+                <el-menu-item index="/extractStruct">知识抽取</el-menu-item>
+              </el-menu-item-group>
+              <el-menu-item-group>
+                <el-menu-item index="/entityMatch">实体对齐</el-menu-item>
+              </el-menu-item-group>
+            </el-submenu>
+            <el-submenu index="2" v-if="activeIndex==='/showOntology'">
+              <template slot="title">
+                <i class="el-icon-document"></i>
+                <span>文本抽取</span>
+              </template>
+              <el-menu-item-group>
+                <el-menu-item index="/showDict">预处理</el-menu-item>
+              </el-menu-item-group>
+              <el-menu-item-group>
+                <el-menu-item index="/extract">知识抽取</el-menu-item>
+              </el-menu-item-group>
+            </el-submenu>
+            <el-menu-item index="/extractPic" v-if="activeIndex==='/showOntology'">
+              <i class="el-icon-picture-outline"></i>
+              <span slot="title">图片抽取</span>
+            </el-menu-item>
+            <el-menu-item index="/extractVedio" v-if="activeIndex==='/showOntology'">
+              <i class="el-icon-video-camera"></i>
+              <span slot="title">视频抽取</span>
+            </el-menu-item>
+            <!--知识校正菜单-->
+            <el-menu-item index="/correct" v-if="activeIndex==='/correct'">
+              <i class="el-icon-edit"></i>
+              <span slot="title">知识校正</span>
+            </el-menu-item>
+            <!--知识检索菜单-->
+            <el-menu-item index="/entitysearch" v-if="activeIndex==='/entitySearch'">
+              <i class="el-icon-menu"></i>
+              <span slot="title">实体检索</span>
+            </el-menu-item>
+            <el-menu-item index="/relationsearch" v-if="activeIndex==='/entitySearch'">
+              <i class="el-icon-search"></i>
+              <span slot="title">关系检索</span>
+            </el-menu-item>
+          </el-menu>
+        </el-aside>
+        <el-main>
+          <router-view />
+        </el-main>
+      </el-container>
     </el-container>
   </div>
 </template>
 
 <script>
-import DataLabel from "./components/DataLabel"
-import MyMenu from "./components/MyMenu"
-import MyDropdown from "./components/MyDropdown"
+import MyMenu from "./components/MyMenu";
+import MyDropdown from "./components/MyDropdown";
+import { mapGetters } from "vuex";
 export default {
-  name: 'App',
-  components:{
-    DataLabel,
+  name: "App",
+  components: {
     MyMenu,
     MyDropdown
   },
-  data(){
+  data() {
     return {
-      usrName:"Admin"
-    }
+      usrName: "Admin"
+    };
   },
-
-  methods: {
+  computed: {
+    ...mapGetters(["activeIndex"])
   }
-}
+};
 </script>
 
 <style>
-  html,body,#app,.el-container{
-    width: 100%;
-    height: 100%;
-    margin: 0 auto;
-    padding: 0;
-  }
-
+html,
+body,
+#app,
+.el-container {
+  width: 100%;
+  height: 100%;
+  margin: 0 auto;
+  padding: 0;
+}
 
 #app {
-  font-family: 'Avenir', Helvetica, Arial, sans-serif;
+  font-family: "Avenir", Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
 }
 
- body > .el-container {
-   width: 100%;
-   height: 100%;
- }
+body > .el-container {
+  width: 100%;
+  height: 100%;
+}
 
-.el-header{
-  background-color: #B3C0D1;
+.el-header {
+  background-color: #b3c0d1;
   color: #333;
   text-align: center;
   line-height: 60px;
 }
 
 .el-aside {
-  background-color: #D3DCE6;
+  background-color: #d3dce6;
   color: #333;
   text-align: center;
   height: 100%;
 }
 
 .el-main {
-  background-color: #E9EEF3;
+  background-color: #e9eef3;
   color: #333;
   text-align: center;
   height: 100%;
 }
 
-#logo >img{
+#logo > img {
   width: 40px;
-  vertical-align:middle;
+  vertical-align: middle;
 }
 
 .el-dropdown {
@@ -105,12 +183,15 @@ export default {
   font-size: 12px;
 }
 
-header div div ul{
+header div div ul {
   width: fit-content;
 }
 
-.el-header{
-  background-color: #2C2B31;
+.el-header {
+  background-color: #2c2b31;
   color: white;
+}
+.el-aside {
+  background-color: #343643;
 }
 </style>

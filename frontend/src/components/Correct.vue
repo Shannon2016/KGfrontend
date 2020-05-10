@@ -1,19 +1,5 @@
 <template>
   <el-container>
-    <!-- 左侧导航栏-->
-    <el-aside width="200px">
-      <el-menu
-        default-active="1"
-        class="el-menu-vertical-demo"
-        background-color="#343643"
-        text-color="#fff"
-        active-text-color="#fff">
-        <el-menu-item index="1">
-          <i class="el-icon-edit"></i>
-          <span slot="title">知识校正</span>
-        </el-menu-item>
-      </el-menu>
-    </el-aside>
     <!--内容块-->
     <el-main>
       <el-row type="flex" align="middle">
