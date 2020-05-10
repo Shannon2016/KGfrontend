@@ -157,7 +157,36 @@ export default {
   },
   methods: {
     onReflect() {
-      this.highlight.push(2)
+      let fd = new FormData();
+      fd.append("table", this.tableIndex);
+      fd.append("ontology", this.typeSelect);
+      this.$http
+        .post("http://49.232.95.141:8000/pic/establish_map", fd, {
+          headers: {
+            "Content-Type": "multipart/form-data"
+          }
+        })
+        .then(res => {
+          let columnNames = this.columnNames.map(cur => {
+            return cur.prop;
+          })
+          this.highlight = [];
+          for(let i of res.data) {
+            let index = columnNames.indexOf(i);
+            if(index !== -1){
+              this.highlight.push(index)
+            }
+          }
+          this.$message({
+          message: '映射建立完成！',
+          type: 'success'
+        });
+        })
+        .catch(res => {
+          //请求失败
+          alert("出错了！")
+          console.log(res);
+        });
     },
     cellStyle({ row, column, rowIndex, columnIndex }) {
       if (this.highlight.indexOf(columnIndex) !== -1) {
@@ -206,7 +235,7 @@ export default {
       this.graphFlag = true;
       this.loadingResGraph = true;
       this.$http
-        .post("http://49.232.95.141:8000/pic/show_structTuple", {
+        .post("http://49.232.95.141:8000/pic/show_structDirtyTuple", {
           headers: {
             "Content-Type": "multipart/form-data"
           }
@@ -216,37 +245,37 @@ export default {
           let graphPoint = [];
           let graphLink = [];
           let pointName = new Set();
-          for (let i = 0; i < res.data.length; i++) {
-            let tmp = {};
-            tmp.entity1 = res.data[i][0];
-            tmp.relation = res.data[i][1];
-            tmp.entity2 = res.data[i][2];
-            if (!pointName.has(tmp.entity1)) {
-              pointName.add(tmp.entity1);
-              graphPoint.push({
-                name: tmp.entity1,
-                category: 0
-              });
-            }
-            if (!pointName.has(tmp.entity2)) {
-              pointName.add(tmp.entity2);
-              graphPoint.push({
-                name: tmp.entity2,
-                category: 1
-              });
-            }
-            graphLink.push({
-              source: tmp.entity1,
-              target: tmp.entity2,
-              name: tmp.relation
-            });
-          }
-          let Myoption = option;
-          Myoption['series'][0]['data'] = graphPoint;
-          Myoption['series'][0]['links'] = graphLink;
-          myChart = echarts.init(document.getElementById("graph"));
-          // 绘制图表
-          myChart.setOption(Myoption, true);
+          // for (let i = 0; i < res.data.length; i++) {
+          //   let tmp = {};
+          //   tmp.entity1 = res.data[i][0];
+          //   tmp.relation = res.data[i][1];
+          //   tmp.entity2 = res.data[i][2];
+          //   if (!pointName.has(tmp.entity1)) {
+          //     pointName.add(tmp.entity1);
+          //     graphPoint.push({
+          //       name: tmp.entity1,
+          //       category: 0
+          //     });
+          //   }
+          //   if (!pointName.has(tmp.entity2)) {
+          //     pointName.add(tmp.entity2);
+          //     graphPoint.push({
+          //       name: tmp.entity2,
+          //       category: 1
+          //     });
+          //   }
+          //   graphLink.push({
+          //     source: tmp.entity1,
+          //     target: tmp.entity2,
+          //     name: tmp.relation
+          //   });
+          // }
+          // let Myoption = option;
+          // Myoption['series'][0]['data'] = graphPoint;
+          // Myoption['series'][0]['links'] = graphLink;
+          // myChart = echarts.init(document.getElementById("graph"));
+          // // 绘制图表
+          // myChart.setOption(Myoption, true);
           this.loadingResGraph = false;
         })
         .catch(res => {

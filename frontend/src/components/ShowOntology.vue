@@ -77,20 +77,24 @@
 
 <script>
 import { option } from "../js/echartSettings";
+let echarts = require('echarts');
+let myChart;
 export default {
   name: "ShowOntology",
   data() {
     return {
       typeSelect: "",
       loadingResGraph: false,
-      typeList: ["本体1", "本体2", "本体3"]
+      typeList: ["本体库1", "本体库2", "本体库3", "本体库4"]
     };
   },
   methods: {
     showOntology() {
       this.loadingResGraph = true;
+      let fd = new FormData();
+      fd.append('ontology', this.typeSelect)
       this.$http
-        .post("http://49.232.95.141:8000/pic/view_ontology", {
+        .post("http://49.232.95.141:8000/pic/view_ontology", fd, {
           headers: {
             "Content-Type": "multipart/form-data"
           }
@@ -136,6 +140,7 @@ export default {
         .catch(res => {
           //请求失败
           alert("出错了");
+          console.log(res)
           this.loadingResGraph = false;
         });
     }

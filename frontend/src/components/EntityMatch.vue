@@ -75,8 +75,6 @@
           </el-select>
           <el-button v-if="!isList" style="margin-left:20px;" class="blueBtn" size="small" @click="chooseTable">确定</el-button>
           <div v-if="markSum==='' && isList" style="margin-bottom:10px;">如要标记样例，请先填写标记样例数，默认正负样例比占总样例数2:1</div>
-          <el-button :disabled="positiveFlag" v-if="isList" class="blueBtn" size="small" @click="setPositive" style="margin-left:15px;">设为正样例</el-button>
-          <el-button :disabled="negativeFlag" v-if="isList" class="blueBtn" size="small" @click="setNegative" style="margin-left:15px;">设为负样例</el-button>
 
           <el-button v-if="!isList" class="darkBtn" size="small" style="float:right; margin-right:20px;" @click="showGraph">图谱展示</el-button><!--v-if="graphBtn"-->
           <el-button v-if="!isList" type="primary" class="darkBtn" size="small" style="float:right; margin-right:20px;" @click="entityMark">交互训练</el-button>
@@ -102,12 +100,15 @@
 
           <span style="margin-left:20px;">标记样例总数：</span>
           <el-input v-model="markSum" type="number" style="width:250px;" size="small"  @change="setSumCount"></el-input>
+        </div>
+        <div v-if="isList">
+          <el-button :disabled="positiveFlag" class="blueBtn" size="small" @click="setPositive" style="margin-left:15px;">设为正样例</el-button>
+          <el-button :disabled="negativeFlag" class="blueBtn" size="small" @click="setNegative" style="margin-left:15px;">设为负样例</el-button>
 
           <el-button class="darkBtn" size="small" style="float:right; margin-right:20px;" @click="returnUnmarks">实体对齐</el-button>
           <el-button class="darkBtn" size="small" @click="submitMarks" style="float:right; margin-right:30px;">提交</el-button>
           <el-button type="text" v-if="showRes" @click="resDetailFlag=true" style="float:right; margin-right:20px;" class="textBtn">查看上次标注结果>></el-button>
         </div>
-
         <div v-if="isList" style="margin-left:10px; margin-bottom:20px; margin-top:10px;">
           <!-- <span>现有正样例：{{positiveCount}}个</span> -->
           <div id="matchInfo">
