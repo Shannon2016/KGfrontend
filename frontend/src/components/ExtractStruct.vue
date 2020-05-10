@@ -136,7 +136,9 @@
 </template>
 
 <script>
-import {option} from '../js/echartSettings'
+import { option } from "../js/echartSettings";
+let echarts = require('echarts');
+let myChart;
 export default {
   name: "ExtractStruct",
   data() {
@@ -149,8 +151,8 @@ export default {
       fileCount: 0,
       loadingResGraph: false,
       graphFlag: false,
-      reflectTable:false,
-      highlight:[],
+      reflectTable: false,
+      highlight: [],
       typeSelect: "",
       typeList: ["本体1", "本体2", "本体3"]
     };
@@ -169,22 +171,22 @@ export default {
         .then(res => {
           let columnNames = this.columnNames.map(cur => {
             return cur.prop;
-          })
+          });
           this.highlight = [];
-          for(let i of res.data) {
+          for (let i of res.data) {
             let index = columnNames.indexOf(i);
-            if(index !== -1){
-              this.highlight.push(index)
+            if (index !== -1) {
+              this.highlight.push(index);
             }
           }
           this.$message({
-          message: '映射建立完成！',
-          type: 'success'
-        });
+            message: "映射建立完成！",
+            type: "success"
+          });
         })
         .catch(res => {
           //请求失败
-          alert("出错了！")
+          alert("出错了！");
           console.log(res);
         });
     },
@@ -245,42 +247,45 @@ export default {
           let graphPoint = [];
           let graphLink = [];
           let pointName = new Set();
-          // for (let i = 0; i < res.data.length; i++) {
-          //   let tmp = {};
-          //   tmp.entity1 = res.data[i][0];
-          //   tmp.relation = res.data[i][1];
-          //   tmp.entity2 = res.data[i][2];
-          //   if (!pointName.has(tmp.entity1)) {
-          //     pointName.add(tmp.entity1);
-          //     graphPoint.push({
-          //       name: tmp.entity1,
-          //       category: 0
-          //     });
-          //   }
-          //   if (!pointName.has(tmp.entity2)) {
-          //     pointName.add(tmp.entity2);
-          //     graphPoint.push({
-          //       name: tmp.entity2,
-          //       category: 1
-          //     });
-          //   }
-          //   graphLink.push({
-          //     source: tmp.entity1,
-          //     target: tmp.entity2,
-          //     name: tmp.relation
-          //   });
-          // }
-          // let Myoption = option;
-          // Myoption['series'][0]['data'] = graphPoint;
-          // Myoption['series'][0]['links'] = graphLink;
-          // myChart = echarts.init(document.getElementById("graph"));
-          // // 绘制图表
-          // myChart.setOption(Myoption, true);
+          for (let j = 0; j < 3; j++) {
+            for (let i = 0; i < res.data[j].length; i++) {
+              let tmp = {};
+              tmp.entity1 = res.data[j][i][0];
+              tmp.relation = res.data[j][i][1];
+              tmp.entity2 = res.data[j][i][2];
+              if (!pointName.has(tmp.entity1)) {
+                pointName.add(tmp.entity1);
+                graphPoint.push({
+                  name: tmp.entity1,
+                  category: j*2
+                });
+              }
+              if (!pointName.has(tmp.entity2)) {
+                pointName.add(tmp.entity2);
+                graphPoint.push({
+                  name: tmp.entity2,
+                  category: j*2+1
+                });
+              }
+              graphLink.push({
+                source: tmp.entity1,
+                target: tmp.entity2,
+                name: tmp.relation
+              });
+            }
+          }
+          let Myoption = option;
+          Myoption['series'][0]['data'] = graphPoint;
+          Myoption['series'][0]['links'] = graphLink;
+          myChart = echarts.init(document.getElementById("graph"));
+          // 绘制图表
+          myChart.setOption(Myoption, true);
           this.loadingResGraph = false;
         })
         .catch(res => {
           //请求失败
           alert("出错了");
+          console.log(res)
           this.loadingResGraph = false;
         });
     },
