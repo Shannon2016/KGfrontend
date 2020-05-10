@@ -21,7 +21,7 @@
         </el-row>
       </el-header>
       <el-container style="height:calc(100% - 60px);">
-        <el-aside style="width:205px;">
+        <el-aside style="width:200px;">
           <el-menu
             background-color="#343643"
             text-color="#fff"
@@ -193,5 +193,17 @@ header div div ul {
 }
 .el-aside {
   background-color: #343643;
+}
+.el-aside .is-active {
+  background-color: rgba(255, 255, 255, 0.2) !important;
+  border-right: 4px solid #5775fb !important;
+}
+.el-aside .el-menu-item{
+   text-align: left;
+   width: 200px;
+ }
+.el-aside .el-submenu{
+  text-align: left;
+  width: 200px;
 }
 </style>
