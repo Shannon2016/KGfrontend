@@ -83,26 +83,27 @@
           <el-button v-if="isList" type="primary" class="darkBtn" size="small" style="float:right; margin-right:20px;" @click="backToView">返回</el-button>
         </div>
         <!--用户操作-->
-        <div v-if="isList" style="margin: 20px">
-          <span>选择所用算法：</span>
-          <el-select v-model="algorithm" placeholder="请选择算法" size="small">
-            <el-option
-              v-for="item in algorithmList"
-              :key="item"
-              :label="item"
-              :value="item">
-            </el-option>
-          </el-select>
-        </div>
-        <div style="margin-left:20px;" v-if="isList">
+        <div style="margin-left:20px;margin-bottom: 10px;" v-if="isList">
           <span>选择用于训练集、测试集的样例比例：</span>
-          <el-input v-model="portion" placeholder="格式：x:y"  size="small" style="width:250px;"></el-input>
+          <el-input v-model="portion" placeholder="格式：x:y"  size="small" style="width:150px;"></el-input>
 
           <span style="margin-left:20px;">标记样例总数：</span>
-          <el-input v-model="markSum" type="number" style="width:250px;" size="small"  @change="setSumCount"></el-input>
+          <el-input v-model="markSum" type="number" style="width:150px;" size="small"  @change="setSumCount"></el-input>
+
+          <span style="margin-left:20px;">选择所用算法：</span>
+          <el-select v-model="algorithm" style="width:150px;"  placeholder="请选择算法" size="small">
+              <el-option
+                v-for="item in algorithmList"
+                :key="item"
+                :label="item"
+                :value="item">
+              </el-option>
+          </el-select>
         </div>
+
+
         <div v-if="isList">
-          <el-button :disabled="positiveFlag" class="blueBtn" size="small" @click="setPositive" style="margin-left:15px;">设为正样例</el-button>
+          <el-button :disabled="positiveFlag" class="blueBtn" size="small" @click="setPositive" style="margin-left:20px;">设为正样例</el-button>
           <el-button :disabled="negativeFlag" class="blueBtn" size="small" @click="setNegative" style="margin-left:15px;">设为负样例</el-button>
 
           <el-button class="darkBtn" size="small" style="float:right; margin-right:20px;" @click="returnUnmarks">实体对齐</el-button>

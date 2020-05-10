@@ -157,6 +157,13 @@ export default {
   },
   methods: {
     onReflect() {
+      if(this.typeSelect===""){
+        this.$message({
+          message: '请先选择本体类型！',
+          type: 'warning'
+        });
+        return;
+      }
       let fd = new FormData();
       fd.append("table", this.tableIndex);
       fd.append("ontology", this.typeSelect);

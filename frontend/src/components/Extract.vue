@@ -128,7 +128,18 @@
           <!--@current-change="handleCurrentChange">-->
         <!--</el-pagination>-->
       </div>
+
+      <!--文书内容-->
+      <el-dialog :title="selectTitle" :visible.sync="diaVisible">
+        <p>
+          <pre>
+            文书详情文书详情文书详情文书详情文书,
+        详情文书详情文书详情文书详情文书详情文书详情文书详情文书详情文书详情文书详情
+          </pre>
+        </p>
+      </el-dialog>
     </el-main>
+
     <!--分析页-->
     <el-main v-show="!isList">
       <!--顶部-->
@@ -177,29 +188,16 @@
         algorithm:"",
         algorithmList:[
           "正则表达式","深度学习算法"
-        ]
+        ],
+        //弹出框可视
+        diaVisible:false,
+        selectTitle:"文书名",
       }
     },
 
     methods: {
       showGraph(){
         this.isList=false;
-      },
-      modelTest(){
-
-      },
-      chooseTable(){
-
-      },
-      handleCurrentChange(cpage) {
-        this.curPage = cpage;
-      },
-      handleAnalysis(row){
-        this.choosenRow = row;
-        this.isList = false;
-        //需根据返回值修改
-        this.tripleData =row.link
-        let graphPoint= row.point
         let categories=[
           {name:'属性A'},
           {name:'属性B'},
@@ -207,7 +205,7 @@
         let option ={
           // 图的标题
           title: {
-            text: row.name
+            text: "图谱"
           },
           // 提示框的配置
           tooltip: {
@@ -279,8 +277,8 @@
               }
             },
             // 数据
-            data: graphPoint,
-            links: this.tripleData,
+            //data: graphPoint,
+            //links: graphLink,
             categories: categories,
           }],
           grid:{
@@ -290,10 +288,36 @@
             width:"10px"
           }
         }
-
         myChart= echarts.init(document.getElementById('graph'));
         // 绘制图表
         myChart.setOption(option);
+      },
+      modelTest(){
+        if(1) {//正则表达式
+          this.$alert('<p><strong>实体属性抽取效率： <i>999</i> 条/秒</strong></p>' +
+            '<p><strong>实体关系抽取效率： <i>998</i> 条/秒</strong></p>', '正则表达式模型测试结果', {
+            dangerouslyUseHTMLString: true
+          });
+        }
+        else{//深度学习
+          this.$alert('<p><strong>实体抽取准确率： <i>HTML</i> %</strong></p>' +
+            '<p><strong>实体抽取召回率： <i>HTML</i> %</strong></p>', '深度学习模型测试结果', {
+            dangerouslyUseHTMLString: true
+          });
+        }
+      },
+      //选择算法，显示对应测试集和训练集
+      chooseTable(){
+
+      },
+      handleCurrentChange(cpage) {
+        this.curPage = cpage;
+      },
+      //查看文书内容
+      handleAnalysis(row){
+        this.selectTitle = row.title;
+        this.diaVisible=true;
+
       },
       //导出三元组
       handleExport(){
