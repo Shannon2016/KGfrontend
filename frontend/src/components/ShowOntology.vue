@@ -77,7 +77,7 @@
 
 <script>
 import { option } from "../js/echartSettings";
-let echarts = require('echarts');
+let echarts = require("echarts");
 let myChart;
 export default {
   name: "ShowOntology",
@@ -92,7 +92,7 @@ export default {
     showOntology() {
       this.loadingResGraph = true;
       let fd = new FormData();
-      fd.append('ontology', this.typeSelect)
+      fd.append("ontology", this.typeSelect);
       this.$http
         .post("http://49.232.95.141:8000/pic/view_ontology", fd, {
           headers: {
@@ -129,9 +129,28 @@ export default {
               name: tmp.relation
             });
           }
-          let Myoption = option;
+          let Myoption = JSON.parse(JSON.stringify(option));
           Myoption["series"][0]["data"] = graphPoint;
           Myoption["series"][0]["links"] = graphLink;
+
+          let categories = [{
+            name: "本体-中心",
+            symbol: "diamond",
+            itemStyle:{color:"#749f83"}
+          }, {
+            name: "本体-非中心",
+            symbol: "diamond",
+            itemStyle:{color:"#91c7ae"}
+          }];
+          
+          Myoption["series"][0]["categories"] = categories;
+          Myoption["legend"] = []
+          Myoption['legend'].push({
+            data: categories.map(function (a) {
+                return {name:a.name,icon:a.symbol}
+            })
+          })
+
           myChart = echarts.init(document.getElementById("graph"));
           // 绘制图表
           myChart.setOption(Myoption, true);
@@ -140,7 +159,7 @@ export default {
         .catch(res => {
           //请求失败
           alert("出错了");
-          console.log(res)
+          console.log(res);
           this.loadingResGraph = false;
         });
     }

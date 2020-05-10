@@ -154,7 +154,7 @@ export default {
       reflectTable: false,
       highlight: [],
       typeSelect: "",
-      typeList: ["本体1", "本体2", "本体3"]
+      typeList: ["本体库1", "本体库2", "本体库3", "本体库4"]
     };
   },
   methods: {
@@ -274,7 +274,7 @@ export default {
               });
             }
           }
-          let Myoption = option;
+          let Myoption = JSON.parse(JSON.stringify(option));
           Myoption['series'][0]['data'] = graphPoint;
           Myoption['series'][0]['links'] = graphLink;
           myChart = echarts.init(document.getElementById("graph"));
