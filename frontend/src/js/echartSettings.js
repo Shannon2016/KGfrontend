@@ -1,4 +1,22 @@
-let categories = [{ name: "本体" }, { name: "属性" }];
+let categories = [{
+        name: "概念与实体-中心",
+        symbol: "circle"
+    },{
+        name: "概念与实体-非中心",
+        symbol: "circle"
+    }, {
+        name: "关系-中心",
+        symbol: "triangle"
+    }, {
+        name: "关系-非中心",
+        symbol: "triangle"
+    }, {
+        name: "实体与属性-中心",
+        symbol: "rect"
+    },{
+        name: "实体与属性-非中心",
+        symbol: "rect"
+    }];
 
 let option = {
     // 提示框的配置
@@ -25,12 +43,12 @@ let option = {
             }
         }
     },
-    color: ["#4472C5", "#FF8096"],
+    color: ['#2f4554', "#61a0a8", "#749f83", "#91c7ae", "#ca8622", "#F7C172"],
     legend: [
         {
             // selectedMode: 'single',
             data: categories.map(function (a) {
-                return a.name;
+                return {name:a.name,icon:a.symbol}
             })
         }
     ],

@@ -168,7 +168,7 @@ export default {
               name: tmp.relation
             });
           }
-          let Myoption = option;
+          let Myoption = JSON.parse(JSON.stringify(option));
           Myoption["series"][0]["data"] = graphPoint;
           Myoption["series"][0]["links"] = graphLink;
           myChart = echarts.init(document.getElementById("graph"));
