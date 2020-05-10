@@ -16,7 +16,7 @@
             <span>结构化数据抽取</span>
           </template>
           <el-menu-item-group>
-            <el-menu-item index="/showOntoloty" class="is-active">本体展示</el-menu-item>
+            <el-menu-item index="/showOntology" class="is-active">本体展示</el-menu-item>
           </el-menu-item-group>
           <el-menu-item-group>
             <el-menu-item index="/extractStruct">知识抽取</el-menu-item>
@@ -31,7 +31,7 @@
             <span>文本抽取</span>
           </template>
           <el-menu-item-group>
-            <el-menu-item index="/showDict">词典展示</el-menu-item>
+            <el-menu-item index="/showDict">预处理</el-menu-item>
           </el-menu-item-group>
           <el-menu-item-group>
             <el-menu-item index="/extract">知识抽取</el-menu-item>
@@ -78,7 +78,7 @@
 <script>
 import { option } from "../js/echartSettings";
 export default {
-  name: "ShowOntoloty",
+  name: "ShowOntology",
   data() {
     return {
       typeSelect: "",

@@ -16,7 +16,7 @@
             <span>结构化数据抽取</span>
           </template>
           <el-menu-item-group>
-            <el-menu-item index="/showOntoloty">本体展示</el-menu-item>
+            <el-menu-item index="/showOntology">本体展示</el-menu-item>
           </el-menu-item-group>
           <el-menu-item-group>
             <el-menu-item index="/extractStruct">知识抽取</el-menu-item>
@@ -31,7 +31,7 @@
             <span>文本抽取</span>
           </template>
           <el-menu-item-group>
-            <el-menu-item index="/showDict">词典展示</el-menu-item>
+            <el-menu-item index="/showDict">预处理</el-menu-item>
           </el-menu-item-group>
           <el-menu-item-group>
             <el-menu-item index="/extract" class="is-active">知识抽取</el-menu-item>
@@ -51,77 +51,82 @@
     <el-main v-if="isList">
       <!--顶部-->
       <div class="header">
-        知识抽取
-        <el-button type="primary" class="darkBtn headbutton" size="small" @click="isUpload=true">上传与分析</el-button>
-        <el-button type="primary" class="darkBtn headbutton" size="small" >训练</el-button>
+        文本抽取
+        <!--<el-button type="primary" class="darkBtn headbutton" size="small" @click="isUpload=true">上传与分析</el-button>-->
+        <!--<el-button type="primary" class="darkBtn headbutton" size="small" >训练</el-button>-->
       </div>
       <el-divider></el-divider>
       <!--中心-->
       <!--      列表页-->
       <div class="main" >
         <div class="top-tip">
-          数据总量:{{fileCount}}
-        </div>
-        <!-- 上传窗口-->
-        <div id="upload" v-if="isUpload">
+          <span>请选择算法：</span>
+          <el-select v-model="algorithm" placeholder size="small" style="margin-left:20px;">
+            <el-option v-for="(item, index) in algorithmList" :key="index" :label="item" :value="item"></el-option>
+          </el-select>
 
-          <el-card class="box-card">
-            <div slot="header" class="clearfix">
-              <span>数据上传</span>
-              <i class="el-icon-close" style="float: right; padding: 3px 0" @click="cancelUpload"></i>
-            </div>
-            <el-upload
-              class="upload-demo"
-              drag
-              ref="upload"
-              :auto-upload="false"
-              accept=".txt"
-              action="https://jsonplaceholder.typicode.com/posts/"
-              :on-remove="handleRemove"
-              :on-change="handleAddFile"
-              :file-list="fileList"
-              multiple>
-              <i class="el-icon-upload"></i>
-              <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
-              <div class="el-upload__tip" slot="tip">
-                仅支持上传txt文件<br>
-              </div>
-            </el-upload>
-            <el-button size="small" @click="cancelUpload">取消</el-button>
-            <el-button style="margin-left: 10px;" class="darkBtn" size="small" type="primary" @click="submitUpload">上传并分析</el-button>
-          </el-card>
+          <el-button style="margin-left:20px;" class="blueBtn" size="small" @click="chooseTable">文本输入</el-button>
+
+          <el-button
+            class="darkBtn"
+            size="small"
+            style="float:right; margin-right:20px;"
+            @click="showGraph"
+          >图谱展示</el-button>
+          <el-button
+            type="primary"
+            class="darkBtn"
+            size="small"
+            style="float:right; margin-right:20px;"
+            @click="modelTest"
+          >模型测试</el-button>
         </div>
         <!--文书列表-->
-        <el-table
-          :data="tableData.slice((curPage - 1) * 10, curPage * 10)"
-          :header-cell-style="{background:'#EBEEF7',color:'#606266'}"
-          height="626"
-          border>
-          <el-table-column
-            prop="title"
-            label="标题">
-          </el-table-column>
-          <el-table-column
-            prop="date"
-            label="上传时间"
-            width="180">
-          </el-table-column>
-          <el-table-column
-            label="操作"
-            width="100"
-            align="center">
-            <template slot-scope="scope">
-              <el-button class="blueBtn" @click="handleAnalysis(scope.row)" type="primary" plain size="small">分析</el-button>
-            </template>
-          </el-table-column>
-        </el-table>
+          <el-table
+            :data="trainData"
+            :header-cell-style="{background:'#EBEEF7',color:'#606266'}"
+            height="626"
+            style="margin-right: 2%;"
+            border>
+            <el-table-column
+              prop="title"
+              label="训练数据">
+            </el-table-column>
+            <el-table-column
+              label="操作"
+              width="100"
+              align="center">
+              <template slot-scope="scope">
+                <el-button class="blueBtn" @click="handleAnalysis(scope.row)" type="primary" plain size="small">浏览</el-button>
+              </template>
+            </el-table-column>
+          </el-table>
+          <el-table
+            :data="testData"
+            :header-cell-style="{background:'#EBEEF7',color:'#606266'}"
+            height="626"
+            style="margin-left: 2%;"
+            border>
+            <el-table-column
+              prop="title"
+              label="测试数据">
+            </el-table-column>
+            <el-table-column
+              label="操作"
+              width="100"
+              align="center">
+              <template slot-scope="scope">
+                <el-button class="blueBtn" @click="handleAnalysis(scope.row)" type="primary" plain size="small">浏览</el-button>
+              </template>
+            </el-table-column>
+          </el-table>
         <!-- 分页符-->
-        <el-pagination
-          background
-          layout="prev, pager, next"
-          :total="fileCount"
-          @current-change="handleCurrentChange">
-        </el-pagination>
+        <!--<el-pagination-->
+          <!--background-->
+          <!--layout="prev, pager, next"-->
+          <!--:total="fileCount"-->
+          <!--@current-change="handleCurrentChange">-->
+        <!--</el-pagination>-->
       </div>
     </el-main>
     <!--分析页-->
@@ -143,11 +148,6 @@
 <script>
   let echarts = require('echarts');
   let myChart;
-  // window.onresize = function() {
-  //   document.getElementById("graph").style.width="100%";
-  //   document.getElementById("graph").style.height="100%";
-  //   myChart.resize();
-  // };
 
   export default {
     name: 'Extract',
@@ -159,88 +159,37 @@
         curPage:1,
         //上传的文件列表
         fileList: [],
-        //表格数据，文书列表
-        tableData: [],
+        //表格数据 训练集与测试集
+        testData: [
+          {title:'1'},
+          {title:'2'},
+          {title:'2'},
+        ],
+        trainData: [
+          {title:'1'},
+          {title:'2'},
+          {title:'2'},
+        ],
         //选中行
         choosenRow:{},
         //三元组数据
         tripleData:[],
+        algorithm:"",
+        algorithmList:[
+          "正则表达式","深度学习算法"
+        ]
       }
     },
 
     methods: {
-      cancelUpload(){
-        this.isUpload=false;
-        this.fileList=[];
+      showGraph(){
+        this.isList=false;
       },
-      submitUpload() {
-        this.fileCount = this.tableData.length;
-        let now = new Date();
-        let date =  now.getFullYear() + "-" + ((now.getMonth() + 1) < 10 ? "0" : "") + (now.getMonth() + 1) + "-" + (now.getDate() < 10 ? "0" : "") + now.getDate();
-        // this.$refs.upload.submit();
+      modelTest(){
 
-        let fd = new FormData()
-        for(let i=0;i<this.fileList.length;i++)
-          fd.append('text',this.fileList[i].raw)
-        this.$http.post(
-          'http://49.232.95.141:8000/pic/text_extract',fd,
-          {
-         headers: {
-          'Content-Type': 'multipart/form-data'
-          }
-        }).then((res) => {
-          this.tableData = [];
-          for(let i=0;i<this.fileList.length;i++) {
-            let graphPoint = [];
-            let graphLink = [];
-            let pointSet = new Set();
-
-            for(let j = 0; j < res.data[1][i].length; j ++) {
-                let tmp = {};
-                tmp.entity1 = res.data[1][i][j][0];
-                tmp.entity2 = res.data[1][i][j][2];
-                tmp.relation = res.data[1][i][j][1];
-
-                if(!pointSet.has(tmp.entity1)) {
-                  pointSet.add(tmp.entity1);
-                  graphPoint.push({name:tmp.entity1,category:1,des:tmp.entity1});
-                }
-                if(!pointSet.has(tmp.entity2)) {
-                  pointSet.add(tmp.entity2);
-                  graphPoint.push({name:tmp.entity2,category:1,des:tmp.entity2});
-                }
-
-                graphLink.push({
-                  source: tmp.entity1,
-                  target: tmp.entity2,
-                  name: tmp.relation,
-                  des: tmp.entity1 + "->" + tmp.entity2
-                });
-            }
-
-            this.tableData.push({
-              date:  date,
-              title: this.fileList[i].raw.name,
-              point: graphPoint,
-              link: graphLink
-            })
-          }
-          this.fileCount = this.tableData.length;
-          this.fileList=[];
-
-        }).catch((res) => {
-          //请求失败
-          console.log('fail')
-        })
-
-        this.isUpload = false;
       },
-      handleRemove(file, fileList) {
-        this.fileList = fileList;
-      },
-      handleAddFile(file,fileList){
-        console.log(fileList);
-        this.fileList = fileList;
+      chooseTable(){
+
       },
       handleCurrentChange(cpage) {
         this.curPage = cpage;
@@ -346,7 +295,6 @@
         // 绘制图表
         myChart.setOption(option);
       },
-
       //导出三元组
       handleExport(){
         //处理数据
@@ -436,7 +384,8 @@
   /*表格*/
   .el-table{
     height: 80%;
-    width: 100%;
+    width: 47%;
+    display: inline-block;
     box-shadow: 0 2px 4px rgba(0, 0, 0, .12), 0 0 6px rgba(0, 0, 0, .04);
   }
   /*分页符*/

@@ -16,7 +16,7 @@
             <span>结构化数据抽取</span>
           </template>
           <el-menu-item-group>
-            <el-menu-item index="/showOntoloty">本体展示</el-menu-item>
+            <el-menu-item index="/showOntology">本体展示</el-menu-item>
           </el-menu-item-group>
           <el-menu-item-group>
             <el-menu-item index="/extractStruct" class="is-active">知识抽取</el-menu-item>
@@ -31,7 +31,7 @@
             <span>文本抽取</span>
           </template>
           <el-menu-item-group>
-            <el-menu-item index="/showDict">词典展示</el-menu-item>
+            <el-menu-item index="/showDict">预处理</el-menu-item>
           </el-menu-item-group>
           <el-menu-item-group>
             <el-menu-item index="/extract">知识抽取</el-menu-item>
@@ -51,6 +51,7 @@
       <!--顶部-->
       <div class="header" v-if="!graphFlag">结构化数据抽取</div>
       <el-divider v-if="!graphFlag"></el-divider>
+      <!--中心-->
       <div class="main" v-if="!graphFlag">
         <!--表格查看-->
         <div class="top-tip">
@@ -58,7 +59,13 @@
           <el-select v-model="tableIndex" placeholder size="small" style="margin-left:20px;">
             <el-option v-for="(item, index) in properties" :key="index" :label="item" :value="item"></el-option>
           </el-select>
+
           <el-button style="margin-left:20px;" class="blueBtn" size="small" @click="chooseTable">确定</el-button>
+
+          <span style="margin-left:10px;">请选择本体类型：</span>
+          <el-select v-model="typeSelect" placeholder size="small" style="margin-left:20px;">
+            <el-option v-for="(item, index) in typeList" :key="index" :label="item" :value="item"></el-option>
+          </el-select>
 
           <el-button
             class="darkBtn"
@@ -143,7 +150,9 @@ export default {
       loadingResGraph: false,
       graphFlag: false,
       reflectTable:false,
-      highlight:[]
+      highlight:[],
+      typeSelect: "",
+      typeList: ["本体1", "本体2", "本体3"]
     };
   },
   methods: {

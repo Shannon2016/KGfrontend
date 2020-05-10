@@ -12,7 +12,7 @@ import EntitySearch from "../components/EntitySearch";
 import RelationSearch from "../components/RelationSearch";
 import ExtractStruct from "../components/ExtractStruct"
 import ShowDict from "../components/ShowDict"
-import ShowOntoloty from "../components/ShowOntoloty"
+import ShowOntology from "../components/ShowOntology"
 import EntityMatch from "../components/EntityMatch"
 
 Vue.use(Router)
@@ -82,9 +82,9 @@ export default new Router({
       component: EntityMatch
     },
     {
-      path: '/showontoloty',
-      name: '/showOntoloty',
-      component: ShowOntoloty,
+      path: '/showontology',
+      name: '/showOntology',
+      component: ShowOntology,
     },
     {
       path: '/showdict',

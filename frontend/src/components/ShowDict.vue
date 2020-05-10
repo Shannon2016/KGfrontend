@@ -16,7 +16,7 @@
             <span>结构化数据抽取</span>
           </template>
           <el-menu-item-group>
-            <el-menu-item index="/showOntoloty">本体展示</el-menu-item>
+            <el-menu-item index="/showOntology">本体展示</el-menu-item>
           </el-menu-item-group>
           <el-menu-item-group>
             <el-menu-item index="/extractStruct">知识抽取</el-menu-item>
@@ -31,7 +31,7 @@
             <span>文本抽取</span>
           </template>
           <el-menu-item-group>
-            <el-menu-item index="/showDict" class="is-active">词典展示</el-menu-item>
+            <el-menu-item index="/showDict" class="is-active">预处理</el-menu-item>
           </el-menu-item-group>
           <el-menu-item-group>
             <el-menu-item index="/extract">知识抽取</el-menu-item>
@@ -50,15 +50,43 @@
     <!--内容块实体对齐-->
     <el-main>
       <!--顶部-->
-      <div class="header">词典展示</div>
+      <div class="header">文本预处理</div>
       <el-divider></el-divider>
       <!--中心-->
-      <div>
+      <div class="top-tip">
         <span style="margin-left:10px;">请选择词典：</span>
         <el-select v-model="typeSelect" placeholder size="small" style="margin-left:20px;">
           <el-option v-for="(item, index) in typeList" :key="index" :label="item" :value="item"></el-option>
         </el-select>
         <el-button style="margin-left:20px;" class="blueBtn" size="small" @click="showDict">确定</el-button>
+
+        <el-button
+          type="primary"
+          class="darkBtn"
+          size="small"
+          style="float:right; margin-right:20px;"
+          @click=""
+        >文本纠错</el-button>
+        <el-button
+          type="primary"
+          class="darkBtn"
+          size="small"
+          style="float:right; margin-right:20px;"
+          @click=""
+        >OCR识别</el-button>
+        <el-button
+          type="primary"
+          class="darkBtn"
+          size="small"
+          style="float:right; margin-right:20px;"
+          @click=""
+        >标注</el-button>
+        <el-button
+          class="darkBtn"
+          size="small"
+          style="float:right; margin-right:20px;"
+          @click=""
+        >分词</el-button>
       </div>
       <div class="result" style="margin-bottom:50px;">
         <div
@@ -70,6 +98,19 @@
         >
           <div id="graph" style="height:800px; width:1200px;"></div>
         </div>
+        <!--表格部分-->
+        <el-table
+          :data="tableData"
+          :header-cell-style="{background:'#EBEEF7',color:'#606266'}"
+          border
+        >
+          <el-table-column
+            v-for="(item, index) in columnNames"
+            :key="index"
+            :prop="item.prop"
+            :label="item.label"
+          ></el-table-column>
+        </el-table>
       </div>
     </el-main>
   </el-container>
@@ -83,7 +124,9 @@ export default {
     return {
       typeSelect: "",
       loadingResGraph: false,
-      typeList: ["词典1", "词典2", "词典3"]
+      typeList: ["词典1", "词典2", "词典3"],
+      columnNames:[],
+      tableData:[],
     };
   },
   methods: {

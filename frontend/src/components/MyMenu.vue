@@ -8,11 +8,11 @@
       active-text-color="#409EFF"
       :router="true"
       style="position:absolute; right:0;">
-      <el-menu-item index="/relationaldata">数据浏览</el-menu-item>
+      <el-menu-item index="/relationalData">数据浏览</el-menu-item>
       <el-menu-item index="/">数据标注</el-menu-item>
-      <el-menu-item index="/extract">知识抽取</el-menu-item>
+      <el-menu-item index="/showOntology">知识抽取</el-menu-item>
       <el-menu-item index="/correct">知识校正</el-menu-item>
-      <el-menu-item index="/entitysearch">知识检索</el-menu-item>
+      <el-menu-item index="/entitySearch">知识检索</el-menu-item>
     </el-menu>
 </template>
 
