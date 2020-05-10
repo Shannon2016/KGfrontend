@@ -294,8 +294,8 @@
       },
       modelTest(){
         if(1) {//正则表达式
-          this.$alert('<p><strong>实体属性抽取效率： <i>999</i> 条/秒</strong></p>' +
-            '<p><strong>实体关系抽取效率： <i>998</i> 条/秒</strong></p>', '正则表达式模型测试结果', {
+          this.$alert('<p><strong>实体抽取效率： <i>999</i> 条/秒</strong></p>' +
+            '<p><strong>关系抽取效率： <i>998</i> 条/秒</strong></p>', '正则表达式模型测试结果', {
             dangerouslyUseHTMLString: true
           });
         }
