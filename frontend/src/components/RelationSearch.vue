@@ -138,6 +138,12 @@
           this.$http.post('http://49.232.95.141:8000/neo/search_relation',fd).then((res) =>
             {
               console.log(res);
+              if(res.data[0][1].length === 0&&res.data[0][2].length === 0&&res.data[0][0].length === 0){
+                this.$message({
+                  message: '未查询相关信息！',
+                  type: 'warning'
+                });
+              }
               let graphPoint = [];
               let graphLink = [];
               let pointName = new Set();

@@ -24,3 +24,43 @@ new Vue({
 
 Vue.prototype.$http = axios
 
+
+let axiosPromiseArr=[] //储存cancel token
+
+axios.interceptors.request.use(function (config) {
+  // 在发送请求设置cancel token
+  config.cancelToken = new axios.CancelToken(cancel => {
+    axiosPromiseArr.push({cancel})
+  });
+  return config;
+}, function (error) {
+  // 对请求错误的处理
+  return Promise.reject(error);
+});
+
+
+router.beforeEach((to, from, next) => {
+  axiosPromiseArr.forEach((ele, index) => {
+    ele.cancel();
+    delete axiosPromiseArr[index];
+  });
+  next();
+});
+
+// axios.interceptors.response.use(response => {
+//   //请求成功时的处理
+// }, error => {
+//   //请求取消时，也会进入error，根据axios.isCancel()：true--请求取消  false--请求失败
+//   //仅在请求失败时做后续处理
+//   if(axios.isCancel(error)) {
+//     alert('请求取消')
+//   }else {
+//     Toast({
+//       message: '连接服务器失败，请稍后再试！',
+//       duration: 2000,
+//       className: 'globalMsg'
+//     });
+//     return Promise.reject(error);
+//   }
+// });
+

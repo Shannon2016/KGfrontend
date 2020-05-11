@@ -1,5 +1,7 @@
 <template>
-  <el-container>
+  <el-container
+    v-loading="fullscreenLoading"
+    element-loading-text="模型测试中，离开将中断测试……">
     <!--内容块-->
     <el-main v-if="isList">
       <!--顶部-->
@@ -102,11 +104,9 @@
 
       <!--文书内容-->
       <el-dialog :title="selectTitle" :visible.sync="diaVisible">
-        <p>
           <pre style="word-break: break-word;word-wrap: break-word;white-space: break-spaces;">
             {{textData}}
           </pre>
-        </p>
       </el-dialog>
     </el-main>
 
@@ -159,7 +159,8 @@
         curPageTrain:1,
         fileCountTrain:0,
         loadingRes:false,
-        textData:''
+        textData:'',
+        fullscreenLoading:false,
       }
     },
 
@@ -261,6 +262,7 @@
         myChart.setOption(option);
       },
       modelTest(){
+        this.fullscreenLoading = true;
         let fd = new FormData();
         fd.append('algorithm', this.algorithm);
         console.log(this.algorithm)
@@ -272,6 +274,7 @@
             }
           }).then((res) => {
             console.log(res)
+            this.fullscreenLoading = false;
             this.$alert('<p><strong>实体抽取效率： <i>' + res.data[1] + '</i> 条/秒</strong></p>' +
               '<p><strong>关系抽取效率： <i>' + res.data[2] + '</i> 条/秒</strong></p>', this.algorithm + '模型测试结果', {
               dangerouslyUseHTMLString: true
@@ -284,7 +287,6 @@
       chooseTable(){
         let fd = new FormData();
         fd.append('algorithm', this.algorithm);
-        console.log(this.algorithm)
         this.loadingRes = true;
         this.$http.post(
           'http://49.232.95.141:8000/pic/load_textData',fd,
@@ -293,7 +295,7 @@
               'Content-Type': 'multipart/form-data'
             }
           }).then((res) => {
-            // console.log(res)
+             console.log(res)
             this.trainData = res.data[0].map((cur) => {
               return {title:cur};
             });
@@ -302,7 +304,7 @@
             });
             this.fileCountTest = this.testData.length;
             this.fileCountTrain = this.trainData.length;
-            
+
             this.loadingRes = false;
           }).catch((res) => {
             console.log(res)

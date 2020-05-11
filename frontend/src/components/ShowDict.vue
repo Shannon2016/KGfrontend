@@ -46,7 +46,7 @@
         element-loading-text="正在加载中，请稍等……"
         element-loading-spinner="el-icon-loading"
         element-loading-background="rgba(0, 0, 0, 0.1)">
-        <span v-if="tipFlag" style="margin-left:25px;margin-top:20px;">请选择词典进行查看</span>
+        <span v-if="tipFlag" style="margin-left:30px;margin-top:20px;font-weight: bold">请选择词典进行查看</span>
         <div style="text-align:center;">
           <el-tag
             v-for="(item, index) in tags.slice((curPage - 1) * 100, curPage * 100)"
@@ -125,7 +125,7 @@ export default {
         })
         .catch(res => {
           //请求失败
-          alert("出错了");
+          console.log(res)
           this.loadingRes = false;
         });
     },
