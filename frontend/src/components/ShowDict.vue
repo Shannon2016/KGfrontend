@@ -62,6 +62,7 @@
           layout="prev, pager, next, jumper"
           :total="dictCount"
           :current-page.sync="curPage"
+          :page-size="100"
           @current-change="handleCurrentChange">
         </el-pagination>
       </div>

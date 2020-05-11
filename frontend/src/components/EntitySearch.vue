@@ -50,7 +50,7 @@
               fixed>
             </el-table-column>
             <el-table-column
-              prop="relationship"
+              prop="relation"
               label="关系">
             </el-table-column>
             <el-table-column

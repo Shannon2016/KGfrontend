@@ -43,7 +43,7 @@ let option = {
             }
         }
     },
-    color: ['#2f4554', "#61a0a8", "#749f83", "#91c7ae", "#ca8622", "#F7C172"],
+    color: ["#ca8622", "#F7C172", "#749f83", "#91c7ae", '#2f4554', "#61a0a8"],
     legend: [
         {
             // selectedMode: 'single',
