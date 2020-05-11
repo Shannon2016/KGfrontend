@@ -41,17 +41,31 @@
           @click=""
         >分词</el-button>
       </div>
-      <div class="result" style="margin-bottom:50px;">
-        <div
-          id="kgPic"
-          v-loading="loadingResGraph"
-          element-loading-text="正在加载中，请稍等……"
-          element-loading-spinner="el-icon-loading"
-          element-loading-background="rgba(0, 0, 0, 0.1)"
-        >
-          <div id="graph" style="height:800px; width:1200px;"></div>
+      <div class="result" style="margin-bottom:50px;height:100%"
+        v-loading="loadingRes"
+        element-loading-text="正在加载中，请稍等……"
+        element-loading-spinner="el-icon-loading"
+        element-loading-background="rgba(0, 0, 0, 0.1)">
+        <span v-if="tipFlag" style="margin-left:25px;margin-top:20px;">请选择词典进行查看</span>
+        <div style="text-align:center;">
+          <el-tag
+            v-for="(item, index) in tags.slice((curPage - 1) * 100, curPage * 100)"
+            :key="index"
+            :type="tagType"
+            class="tagStyle">
+            {{item}}
+          </el-tag>
         </div>
-        <!--表格部分-->
+        <el-pagination
+          v-if="paginationFlag"
+          background
+          layout="prev, pager, next, jumper"
+          :total="dictCount"
+          :current-page.sync="curPage"
+          @current-change="handleCurrentChange">
+        </el-pagination>
+      </div>
+        <!-- 表格部分
         <el-table
           :data="tableData"
           :header-cell-style="{background:'#EBEEF7',color:'#606266'}"
@@ -64,7 +78,7 @@
             :label="item.label"
           ></el-table-column>
         </el-table>
-      </div>
+      </div> -->
     </el-main>
   </el-container>
 </template>
@@ -76,64 +90,55 @@ export default {
   data() {
     return {
       typeSelect: "",
-      loadingResGraph: false,
-      typeList: ["词典1", "词典2", "词典3"],
+      loadingRes: false,
+      typeList: ["通用词典", "军语词典", "地名词典"],
       columnNames:[],
       tableData:[],
+      dictCount:0,
+      curPage:1,
+      tags:[],
+      tagType:''
     };
   },
   methods: {
     showDict() {
-      this.loadingResGraph = true;
+      this.loadingRes = true;
+      this.curPage = 1;
+      let fd = new FormData();
+      fd.append('dict', this.typeSelect+".csv")
       this.$http
-        .post("http://49.232.95.141:8000/pic/view_ontology", {
+        .post("http://49.232.95.141:8000/pic/show_dict", fd, {
           headers: {
             "Content-Type": "multipart/form-data"
           }
         })
         .then(res => {
           console.log(res);
-          let graphPoint = [];
-          let graphLink = [];
-          let pointName = new Set();
-          for (let i = 0; i < res.data.length; i++) {
-            let tmp = {};
-            tmp.entity1 = res.data[i][0];
-            tmp.relation = res.data[i][1];
-            tmp.entity2 = res.data[i][2];
-            if (!pointName.has(tmp.entity1)) {
-              pointName.add(tmp.entity1);
-              graphPoint.push({
-                name: tmp.entity1,
-                category: 0
-              });
-            }
-            if (!pointName.has(tmp.entity2)) {
-              pointName.add(tmp.entity2);
-              graphPoint.push({
-                name: tmp.entity2,
-                category: 1
-              });
-            }
-            graphLink.push({
-              source: tmp.entity1,
-              target: tmp.entity2,
-              name: tmp.relation
-            });
-          }
-          let Myoption = JSON.parse(JSON.stringify(option));
-          Myoption["series"][0]["data"] = graphPoint;
-          Myoption["series"][0]["links"] = graphLink;
-          myChart = echarts.init(document.getElementById("graph"));
-          // 绘制图表
-          myChart.setOption(Myoption, true);
-          this.loadingResGraph = false;
+          this.tags = res.data.map(cur => {
+            return cur[0];
+          })
+          this.dictCount = res.data.length;
+          if(this.typeSelect === '军语词典') this.tagType = 'success';
+          else if (this.typeSelect === '地名词典') this.tagType = 'warning';
+          else this.tagType = '';
+          this.loadingRes = false;
         })
         .catch(res => {
           //请求失败
           alert("出错了");
-          this.loadingResGraph = false;
+          this.loadingRes = false;
         });
+    },
+    handleCurrentChange(cpage) {
+      this.curPage = cpage;
+    }
+  },
+  computed: {
+    tipFlag: function(){
+      return (!this.loadingRes && this.tags.length === 0)
+    },
+    paginationFlag: function() {
+      return (!this.loadingRes && this.tags.length > 0)
     }
   }
 };
@@ -248,5 +253,12 @@ body > .el-container {
 }
 .darkBtn:hover {
   background-color: #708bf7;
+}
+
+.tagStyle{
+  width:150px;
+  text-align: center;
+  margin-top:20px;
+  margin-left:20px;
 }
 </style>
