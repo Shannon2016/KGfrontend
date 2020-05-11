@@ -1121,13 +1121,17 @@
             graphLink.push({
               source: tmp.entity1,
               target: tmp.entity2,
-              name: tmp.relation
+              name: tmp.relation,
+              des: tmp.relation,
             });
           }
         }
         let Myoption = JSON.parse(JSON.stringify(option));
         Myoption["series"][0]["data"] = graphPoint;
         Myoption["series"][0]["links"] = graphLink;
+        Myoption["series"][0]["edgeLabel"]["normal"]["formatter"] = function (x) {
+          return x.data.name;
+        };
 
         myChart = echarts.init(document.getElementById("graph"));
         // 绘制图表

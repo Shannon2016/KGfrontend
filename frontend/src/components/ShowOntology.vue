@@ -79,12 +79,16 @@ export default {
             graphLink.push({
               source: tmp.entity1,
               target: tmp.entity2,
-              name: tmp.relation
+              name: tmp.relation,
+              des: tmp.relation
             });
           }
           let Myoption = JSON.parse(JSON.stringify(option));
           Myoption["series"][0]["data"] = graphPoint;
           Myoption["series"][0]["links"] = graphLink;
+          Myoption["series"][0]["edgeLabel"]["normal"]["formatter"] = function (x) {
+            return x.data.name;
+          };
 
           let categories = [{
             name: "本体-中心",
@@ -95,7 +99,7 @@ export default {
             symbol: "diamond",
             itemStyle:{color:"#91c7ae"}
           }];
-          
+
           Myoption["series"][0]["categories"] = categories;
           Myoption["legend"] = []
           Myoption['legend'].push({

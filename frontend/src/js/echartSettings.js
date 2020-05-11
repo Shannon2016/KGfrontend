@@ -63,11 +63,15 @@ let option = {
             edgeSymbol: ["circle", "arrow"],
             edgeSymbolSize: [2, 10],
             edgeLabel: {
-                normal: {
-                    textStyle: {
-                        fontSize: 20
-                    }
+              normal: {
+                show: true,
+                formatter: function (x) {
+                  return x.data.name;
+                },
+                textStyle: {
+                  fontSize: 10
                 }
+              }
             },
             force: {
                 repulsion: 2500,
@@ -78,14 +82,6 @@ let option = {
                 normal: {
                     width: 2,
                     color: "#4b565b"
-                }
-            },
-            edgeLabel: {
-                normal: {
-                    show: true,
-                    formatter: function (x) {
-                        return x.data.name;
-                    }
                 }
             },
             label: {

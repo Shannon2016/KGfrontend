@@ -203,8 +203,16 @@
               graphLink.push({
                 source: tmp.entity1,
                 target: tmp.entity2,
-                name: tmp.relation
+                name: tmp.relation,
+                des: tmp.relation,
+                // label:{
+                //   show:true,
+                //   formatter: function (x) {
+                //     return x.data.name;
+                //   },
+                // }
               });
+              console.log(tmp);
               this.tableData.push({
                 entity1:tmp.entity1,
                 entity2:tmp.entity2,
@@ -214,6 +222,9 @@
           }
           Myoption["series"][0]["data"] = graphPoint;
           Myoption["series"][0]["links"] = graphLink;
+          Myoption["series"][0]["edgeLabel"]["normal"]["formatter"] = function (x) {
+            return x.data.name;
+          };
 
           myChart = echarts.init(document.getElementById("graph"));
           // 绘制图表
