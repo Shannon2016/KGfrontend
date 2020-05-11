@@ -35,59 +35,76 @@
           >模型测试</el-button>
         </div>
         <!--文书列表-->
-          <el-table
-            :data="trainData"
-            :header-cell-style="{background:'#EBEEF7',color:'#606266'}"
-            height="626"
-            style="margin-right: 2%;"
-            border>
-            <el-table-column
-              prop="title"
-              label="训练数据">
-            </el-table-column>
-            <el-table-column
-              label="操作"
-              width="100"
-              align="center">
-              <template slot-scope="scope">
-                <el-button class="blueBtn" @click="handleAnalysis(scope.row)" type="primary" plain size="small">浏览</el-button>
-              </template>
-            </el-table-column>
-          </el-table>
-          <el-table
-            :data="testData"
-            :header-cell-style="{background:'#EBEEF7',color:'#606266'}"
-            height="626"
-            style="margin-left: 2%;"
-            border>
-            <el-table-column
-              prop="title"
-              label="测试数据">
-            </el-table-column>
-            <el-table-column
-              label="操作"
-              width="100"
-              align="center">
-              <template slot-scope="scope">
-                <el-button class="blueBtn" @click="handleAnalysis(scope.row)" type="primary" plain size="small">浏览</el-button>
-              </template>
-            </el-table-column>
-          </el-table>
-        <!-- 分页符-->
-        <!--<el-pagination-->
-          <!--background-->
-          <!--layout="prev, pager, next"-->
-          <!--:total="fileCount"-->
-          <!--@current-change="handleCurrentChange">-->
-        <!--</el-pagination>-->
+        <el-row
+          v-loading="loadingRes"
+          element-loading-text="正在加载中，请稍等……"
+          element-loading-spinner="el-icon-loading">
+          <el-col :span="12">
+            <el-table
+              :data="trainData.slice((curPageTrain - 1) * 10, curPageTrain * 10)"
+              :header-cell-style="{background:'#EBEEF7',color:'#606266'}"
+              height="626"
+              style="width:97%"
+              border>
+              <el-table-column
+                prop="title"
+                label="训练数据">
+              </el-table-column>
+              <el-table-column
+                label="操作"
+                width="100"
+                align="center">
+                <template slot-scope="scope">
+                  <el-button class="blueBtn" @click="handleAnalysis(scope.row)" type="primary" plain size="small">浏览</el-button>
+                </template>
+              </el-table-column>
+            </el-table>
+            <!-- 分页符-->
+            <el-pagination
+              background
+              layout="prev, pager, next, jumper"
+              :total="fileCountTrain"
+              :current-page.sync="curPageTrain"
+              @current-change="handleCurrentChangeTrain">
+              </el-pagination>
+        <!--</el-pagination> -->
+          </el-col>
+          <el-col :span="12">
+            <el-table
+              :data="testData.slice((curPageTest - 1) * 10, curPageTest * 10)"
+              :header-cell-style="{background:'#EBEEF7',color:'#606266'}"
+              height="626"
+              style="width:97%;"
+              border>
+              <el-table-column
+                prop="title"
+                label="测试数据">
+              </el-table-column>
+              <el-table-column
+                label="操作"
+                width="100"
+                align="center">
+                <template slot-scope="scope">
+                  <el-button class="blueBtn" @click="handleAnalysis(scope.row)" type="primary" plain size="small">浏览</el-button>
+                </template>
+              </el-table-column>
+            </el-table>
+            <el-pagination
+              background
+              layout="prev, pager, next, jumper"
+              :total="fileCountTest"
+              :current-page.sync="curPageTest"
+              @current-change="handleCurrentChangeTest">
+              </el-pagination>
+          </el-col>
+        </el-row>
       </div>
 
       <!--文书内容-->
       <el-dialog :title="selectTitle" :visible.sync="diaVisible">
         <p>
-          <pre>
-            文书详情文书详情文书详情文书详情文书,
-        详情文书详情文书详情文书详情文书详情文书详情文书详情文书详情文书详情文书详情
+          <pre style="word-break: break-word;word-wrap: break-word;white-space: break-spaces;">
+            {{textData}}
           </pre>
         </p>
       </el-dialog>
@@ -124,16 +141,8 @@
         //上传的文件列表
         fileList: [],
         //表格数据 训练集与测试集
-        testData: [
-          {title:'1'},
-          {title:'2'},
-          {title:'2'},
-        ],
-        trainData: [
-          {title:'1'},
-          {title:'2'},
-          {title:'2'},
-        ],
+        testData: [],
+        trainData: [],
         //选中行
         choosenRow:{},
         //三元组数据
@@ -145,6 +154,12 @@
         //弹出框可视
         diaVisible:false,
         selectTitle:"文书名",
+        fileCountTest:0,
+        curPageTest:1,
+        curPageTrain:1,
+        fileCountTrain:0,
+        loadingRes:false,
+        textData:''
       }
     },
 
@@ -246,29 +261,83 @@
         myChart.setOption(option);
       },
       modelTest(){
-        if(1) {//正则表达式
-          this.$alert('<p><strong>实体抽取效率： <i>999</i> 条/秒</strong></p>' +
-            '<p><strong>关系抽取效率： <i>998</i> 条/秒</strong></p>', '正则表达式模型测试结果', {
-            dangerouslyUseHTMLString: true
-          });
-        }
-        else{//深度学习
-          this.$alert('<p><strong>实体抽取准确率： <i>HTML</i> %</strong></p>' +
-            '<p><strong>实体抽取召回率： <i>HTML</i> %</strong></p>', '深度学习模型测试结果', {
-            dangerouslyUseHTMLString: true
-          });
-        }
+        let fd = new FormData();
+        fd.append('algorithm', this.algorithm);
+        console.log(this.algorithm)
+        this.$http.post(
+          'http://49.232.95.141:8000/pic/text_test',fd,
+          {
+            headers: {
+              'Content-Type': 'multipart/form-data'
+            }
+          }).then((res) => {
+            console.log(res)
+            this.$alert('<p><strong>实体抽取效率： <i>' + res.data[1] + '</i> 条/秒</strong></p>' +
+              '<p><strong>关系抽取效率： <i>' + res.data[2] + '</i> 条/秒</strong></p>', this.algorithm + '模型测试结果', {
+              dangerouslyUseHTMLString: true
+            });
+          }).catch((res) => {
+
+          })
       },
       //选择算法，显示对应测试集和训练集
       chooseTable(){
-
+        let fd = new FormData();
+        fd.append('algorithm', this.algorithm);
+        console.log(this.algorithm)
+        this.loadingRes = true;
+        this.$http.post(
+          'http://49.232.95.141:8000/pic/load_textData',fd,
+          {
+            headers: {
+              'Content-Type': 'multipart/form-data'
+            }
+          }).then((res) => {
+            // console.log(res)
+            this.trainData = res.data[0].map((cur) => {
+              return {title:cur};
+            });
+            this.testData = res.data[1].map((cur) => {
+              return {title:cur};
+            });
+            this.fileCountTest = this.testData.length;
+            this.fileCountTrain = this.trainData.length;
+            
+            this.loadingRes = false;
+          }).catch((res) => {
+            console.log(res)
+            alert('出错了！')
+            this.loadingRes = false;
+          })
       },
-      handleCurrentChange(cpage) {
-        this.curPage = cpage;
+      handleCurrentChangeTest(cpage) {
+        this.curPageTest = cpage;
+      },
+      handleCurrentChangeTrain(cpage) {
+        this.curPageTrain = cpage;
       },
       //查看文书内容
       handleAnalysis(row){
         this.selectTitle = row.title;
+        let fd = new FormData();
+        fd.append('algorithm', this.algorithm);
+        fd.append('filename', row.title);
+        console.log(this.algorithm)
+        this.loadingRes = true;
+        this.$http.post(
+          'http://49.232.95.141:8000/pic/view_textData',fd,
+          {
+            headers: {
+              'Content-Type': 'multipart/form-data'
+            }
+          }).then((res) => {
+            console.log(res.data)
+            this.textData = res.data;
+            this.loadingRes = false;
+          }).catch((res) =>{
+            console.log(res)
+            this.loadingRes = false;
+          })
         this.diaVisible=true;
 
       },

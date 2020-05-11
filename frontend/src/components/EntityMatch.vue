@@ -195,6 +195,7 @@
 </template>
 
 <script>
+  import {option} from '../js/echartSettings'
   let echarts = require('echarts');
   let myChart;
 
@@ -1050,126 +1051,44 @@
           let graphPoint = [];
           let graphLink = [];
           let pointName = new Set();
-          for(let i = 0; i < res.data.length; i ++) {
-            let tmp = {};
-            tmp.entity1 = res.data[i][0];
-            tmp.relation = res.data[i][1];
-            tmp.entity2 = res.data[i][2];
-            if(!pointName.has(tmp.entity1)) {
-              pointName.add(tmp.entity1);
-              graphPoint.push({
-                name:tmp.entity1,
-                category: 0
-              })
+          for (let j = 0; j < 3; j++) {
+            for (let i = 0; i < res.data[j].length; i++) {
+              let tmp = {};
+              tmp.entity1 = res.data[j][i][0];
+              tmp.relation = res.data[j][i][1];
+              tmp.entity2 = res.data[j][i][2];
+              if (!pointName.has(tmp.entity1)) {
+                pointName.add(tmp.entity1);
+                graphPoint.push({
+                  name: tmp.entity1,
+                  category: j*2
+                });
+              }
+              if (!pointName.has(tmp.entity2)) {
+                pointName.add(tmp.entity2);
+                graphPoint.push({
+                  name: tmp.entity2,
+                  category: j*2+1
+                });
+              }
+              graphLink.push({
+                source: tmp.entity1,
+                target: tmp.entity2,
+                name: tmp.relation
+              });
             }
-            if(!pointName.has(tmp.entity2)) {
-              pointName.add(tmp.entity2);
-              graphPoint.push({
-                name:tmp.entity2,
-                category:1
-              })
-            }
-            graphLink.push({
-              source: tmp.entity1,
-              target: tmp.entity2,
-              name: tmp.relation,
-            });
           }
-          let categories=[
-            {name:'实体1'},
-            {name:'实体2'},
-          ];
-
-          let option ={
-            // 提示框的配置
-            tooltip: {
-              formatter: function (x) {
-                return x.data.des;
-              }
-            },
-            // 工具箱
-            toolbox: {
-              // 显示工具箱
-              show: true,
-              feature: {
-                mark: {
-                  show: true
-                },
-                // 还原
-                restore: {
-                  show: true
-                },
-                // 保存为图片
-                saveAsImage: {
-                  show: true
-                }
-              }
-            },
-            legend: [{
-              // selectedMode: 'single',
-              data: categories.map(function (a) {
-                return a.name;
-              })
-            }],
-
-            series: [{
-              type: 'graph', // 类型:关系图
-              layout: 'force', //图的布局，类型为力导图
-              symbolSize: 40, // 调整节点的大小
-              roam: true, // 是否开启鼠标缩放和平移漫游。默认不开启。如果只想要开启缩放或者平移,可以设置成 'scale' 或者 'move'。设置成 true 为都开启
-              edgeSymbol: ['circle', 'arrow'],
-              edgeSymbolSize: [2, 10],
-              edgeLabel: {
-                normal: {
-                  textStyle: {
-                    fontSize: 20
-                  }
-                }
-              },
-              force: {
-                repulsion: 2500,
-                edgeLength: [10, 50]
-              },
-              draggable: true,
-              lineStyle: {
-                normal: {
-                  width: 2,
-                  color: '#4b565b',
-                }
-              },
-              edgeLabel: {
-                normal: {
-                  show: true,
-                  formatter: function (x) {
-                    return x.data.name;
-                  }
-                }
-              },
-              label: {
-                normal: {
-                  show: true,
-                  textStyle: {}
-                }
-              },
-              // 数据
-              data:graphPoint,
-              links:graphLink,
-              categories: categories,
-            }],
-            grid:{
-              top:"10px",
-              bottom:"10px",
-              height:"10px",
-              width:"10px"
-            }
-          };
+          let Myoption = JSON.parse(JSON.stringify(option));
+          Myoption['series'][0]['data'] = graphPoint;
+          Myoption['series'][0]['links'] = graphLink;
           myChart= echarts.init(document.getElementById('graph'));
           // 绘制图表
-          myChart.setOption(option, true);
+          myChart.setOption(Myoption, true);
           this.loadingResGraph=false;
         }).catch((res) => {
           //请求失败
           alert("出错了")
+          console.log(res)
           this.loadingResGraph=false
         })
       },
