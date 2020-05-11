@@ -21,7 +21,7 @@
         </el-row>
       </el-header>
       <el-container style="height:calc(100% - 60px);">
-        <el-aside style="width:200px;">
+        <el-aside style="width:200px;overflow-x:hidden;">
           <el-menu
             background-color="#343643"
             text-color="#fff"
@@ -119,6 +119,23 @@ export default {
   },
   computed: {
     ...mapGetters(["activeIndex"])
+  },
+  mounted(){
+    let past = window.location.href.split('/')
+    past = '/' + past[past.length - 1];
+    if(past === '/relationalData') 
+      this.$store.dispatch('changeIndex','/relationalData');
+    else if(past === '/definelabel' || past === '/corpustagging' || past === '/')
+      this.$store.dispatch('changeIndex','/');
+    else if(past === '/showOntology' || past === '/extractStruct' || past === '/entityMatch'
+            || past === '/showDict' || past === '/extract' || past === '/extractPic'
+            || past === '/extractVedio')
+      this.$store.dispatch('changeIndex','/showOntology');
+    else if(past === '/correct')
+      this.$store.dispatch('changeIndex','/correct');
+    else if(past === '/entitysearch' || past === '/relationsearch')
+      this.$store.dispatch('changeIndex','/entitySearch');
+    else this.$store.dispatch('changeIndex','/');
   }
 };
 </script>

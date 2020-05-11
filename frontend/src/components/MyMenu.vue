@@ -27,6 +27,7 @@
     },
     methods:{
       selectMenu(index){
+        this.activeIndex = index;
         this.$store.dispatch('changeIndex',index);
       }
     }

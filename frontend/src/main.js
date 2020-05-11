@@ -12,6 +12,7 @@ import "echarts/lib/chart/line";
 Vue.component("v-echart", ECharts);
 Vue.use(ElementUI);
 Vue.config.productionTip = false
+
 /* eslint-disable no-new */
 new Vue({
   el: '#app',
@@ -22,3 +23,4 @@ new Vue({
 })
 
 Vue.prototype.$http = axios
+
