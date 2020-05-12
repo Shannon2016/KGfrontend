@@ -282,8 +282,8 @@
               });
             }
             else{
-              this.$alert('<p><strong>实体抽取准确率： <i>' + res.data[1] + '</i> </strong></p>' +
-                '<p><strong>实体抽取召回率： <i>' + res.data[2] + '</i> </strong></p>', this.algorithm + '模型测试结果', {
+              this.$alert('<p><strong>实体抽取准确率： <i>' + res.data[1] + '</i> %</strong></p>' +
+                '<p><strong>实体抽取召回率： <i>' + res.data[2] + '</i> %</strong></p>', this.algorithm + '模型测试结果', {
                 dangerouslyUseHTMLString: true
               });
             }
