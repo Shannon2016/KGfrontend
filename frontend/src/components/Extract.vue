@@ -275,10 +275,18 @@
           }).then((res) => {
             console.log(res)
             this.fullscreenLoading = false;
-            this.$alert('<p><strong>实体抽取效率： <i>' + res.data[1] + '</i> 条/秒</strong></p>' +
-              '<p><strong>关系抽取效率： <i>' + res.data[2] + '</i> 条/秒</strong></p>', this.algorithm + '模型测试结果', {
-              dangerouslyUseHTMLString: true
-            });
+            if(res.data[0]===0){
+              this.$alert('<p><strong>实体抽取效率： <i>' + res.data[1] + '</i> 条/秒</strong></p>' +
+                '<p><strong>关系抽取效率： <i>' + res.data[2] + '</i> 条/秒</strong></p>', this.algorithm + '模型测试结果', {
+                dangerouslyUseHTMLString: true
+              });
+            }
+            else{
+              this.$alert('<p><strong>实体抽取准确率： <i>' + res.data[1] + '</i> </strong></p>' +
+                '<p><strong>实体抽取召回率： <i>' + res.data[2] + '</i> </strong></p>', this.algorithm + '模型测试结果', {
+                dangerouslyUseHTMLString: true
+              });
+            }
           }).catch((res) => {
 
           })
