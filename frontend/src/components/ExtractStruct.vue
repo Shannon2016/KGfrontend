@@ -9,16 +9,11 @@
         <!--表格查看-->
         <div class="top-tip">
           <span>请选择表格：</span>
-          <el-select v-model="tableIndex" placeholder size="small" style="margin-left:20px;">
+          <el-select v-model="tableIndex" placeholder size="small" style="margin-left:52px;">
             <el-option v-for="(item, index) in properties" :key="index" :label="item" :value="item"></el-option>
           </el-select>
 
           <el-button style="margin-left:20px;" class="blueBtn" size="small" @click="chooseTable">确定</el-button>
-
-          <span style="margin-left:10px;">请选择本体类型：</span>
-          <el-select v-model="typeSelect" placeholder size="small" style="margin-left:20px;">
-            <el-option v-for="(item, index) in typeList" :key="index" :label="item" :value="item"></el-option>
-          </el-select>
 
           <el-button
             class="darkBtn"
@@ -47,6 +42,27 @@
             style="float:right; margin-right:20px;"
             @click="loadData"
           >加载数据</el-button>
+        </div>
+
+        <div>
+          <span style="margin-left:20px;">请选择本体类型：</span>
+          <el-select v-model="typeSelect" placeholder size="small" style="margin-left:20px;">
+            <el-option v-for="(item, index) in typeList" :key="index" :label="item" :value="item"></el-option>
+          </el-select>
+        <el-button
+          type="primary"
+          class="darkBtn"
+          size="small"
+          style="margin-left:20px;margin-bottom: 10px;"
+          @click="onReflect"
+        >建立实体关系映射</el-button>
+        <el-button
+          type="primary"
+          class="darkBtn"
+          size="small"
+          style="margin-right:20px;margin-bottom: 10px;"
+          @click="onReflect"
+        >建立实体属性映射</el-button>
         </div>
         <!--表格部分-->
         <el-table
@@ -266,16 +282,24 @@ export default {
               tmp.entity2 = res.data[j][i][2];
               if (!pointName.has(tmp.entity1)) {
                 pointName.add(tmp.entity1);
-                graphPoint.push({
-                  name: tmp.entity1,
-                  category: j*2
-                });
+                if (j !== 2) {
+                  graphPoint.push({
+                    name: tmp.entity1,
+                    category: j
+                  });
+                }
+                else{
+                  graphPoint.push({
+                    name: tmp.entity1,
+                    category: 1
+                  });
+                }
               }
               if (!pointName.has(tmp.entity2)) {
                 pointName.add(tmp.entity2);
                 graphPoint.push({
                   name: tmp.entity2,
-                  category: j*2+1
+                  category: j
                 });
               }
               graphLink.push({

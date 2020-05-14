@@ -142,6 +142,8 @@
               message: '未查询相关信息！',
               type: 'warning'
             });
+            this.loadingRes=false;
+            return;
           }
           this.tableData = [];
           // let graphPoint=[{name:this.inputEntity,category:0}];
@@ -180,6 +182,7 @@
           let graphLink = [];
           let pointName = new Set();
           this.tableData = [];
+          let targetType=0;
           for (let j = 0; j < 3; j++) {
             for (let i = 0; i < res.data[0][j].length; i++) {
               let tmp = {};
@@ -188,17 +191,41 @@
               tmp.entity2 = res.data[0][j][i][2];
               if (!pointName.has(tmp.entity1)) {
                 pointName.add(tmp.entity1);
-                graphPoint.push({
-                  name: tmp.entity1,
-                  category: j*2
-                });
+                if(tmp.entity1===this.inputEntity){
+                  targetType=2*j;
+                  graphPoint.push({
+                    name: tmp.entity1,
+                    category: 3
+                  });
+                }
+                else if(j !== 2) {
+                  graphPoint.push({
+                    name: tmp.entity1,
+                    category: j
+                  });
+                }
+                else{
+                  graphPoint.push({
+                    name: tmp.entity1,
+                    category: 1
+                  });
+                }
               }
               if (!pointName.has(tmp.entity2)) {
                 pointName.add(tmp.entity2);
-                graphPoint.push({
-                  name: tmp.entity2,
-                  category: j*2+1
-                });
+                if(tmp.entity2===this.inputEntity){
+                  targetType=2*j+1;
+                  graphPoint.push({
+                    name: tmp.entity2,
+                    category: 3
+                  });
+                }
+                else {
+                  graphPoint.push({
+                    name: tmp.entity2,
+                    category: j
+                  });
+                }
               }
               graphLink.push({
                 source: tmp.entity1,
@@ -220,6 +247,31 @@
               })
             }
           }
+
+          if(targetType===0||targetType===1)
+            Myoption["series"][0]["categories"].push({
+              name: "检索目标",
+              symbol: "rect",
+              symbolSize:60
+            });
+          else if(targetType<5)
+            Myoption["series"][0]["categories"].push({
+              name: "检索目标",
+              symbol: "circle",
+              symbolSize:60
+            });
+          else
+            Myoption["series"][0]["categories"].push({
+              name: "检索目标",
+              symbol: "roundRect",
+              symbolSize:60
+            });
+          Myoption["legend"] = [];
+          Myoption["legend"].push({
+            data: Myoption["series"][0]["categories"].map(function (a) {
+              return {name:a.name,icon:a.symbol}
+            })
+          });
           Myoption["series"][0]["data"] = graphPoint;
           Myoption["series"][0]["links"] = graphLink;
           Myoption["series"][0]["edgeLabel"]["normal"]["formatter"] = function (x) {

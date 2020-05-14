@@ -273,6 +273,13 @@
         myChart.setOption(option);
       },
       modelTest(){
+        if(this.algorithm!=="正则表达式"&&this.algorithm!=="深度学习算法"){
+          this.$message({
+            message: '请先选择查询算法！',
+            type: 'warning'
+          });
+          return;
+        }
         this.fullscreenLoading = true;
         let fd = new FormData();
         fd.append('algorithm', this.algorithm);
