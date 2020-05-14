@@ -74,11 +74,11 @@
               </el-pagination>
         <!--</el-pagination> -->
           </el-col>
-          <el-col :span="12" style="background-color:#FFF;min-height:626px; box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1)">
-            <div class="tableHeader">文件浏览</div>
+          <el-col :span="12" style="background-color:#FFF;min-height:625px; box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1)">
+            <div class="tableHeader">文件浏览              
+              <span v-if="textData===''">(选择文件以浏览内容)</span>
+            </div>
             <div style="padding:0 15px;">
-              <div v-if="textData===''"
-              style="width:100%; text-align:center; line-height:571px;color:#909399;">选择文件以浏览内容</div>
               <pre style="word-break: break-word;word-wrap: break-word;white-space: break-spaces;">
                 {{textData}}
               </pre>
@@ -324,7 +324,8 @@
               'Content-Type': 'multipart/form-data'
             }
           }).then((res) => {
-             console.log(res)
+            //  console.log(res)
+            this.textData = ''
             this.trainData = res.data[0].map((cur) => {
               return {title:cur};
             });

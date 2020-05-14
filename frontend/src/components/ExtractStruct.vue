@@ -26,20 +26,6 @@
             class="darkBtn"
             size="small"
             style="float:right; margin-right:20px;"
-            @click="entityRelationReflect"
-          >实体关系映射</el-button>
-          <el-button
-            type="primary"
-            class="darkBtn"
-            size="small"
-            style="float:right; margin-right:20px;"
-            @click="entityPropertyReflect"
-          >实体属性映射</el-button>
-          <el-button
-            type="primary"
-            class="darkBtn"
-            size="small"
-            style="float:right; margin-right:20px;"
             @click="loadData"
           >加载数据</el-button>
         </div>
@@ -53,15 +39,15 @@
           type="primary"
           class="darkBtn"
           size="small"
-          style="margin-left:20px;margin-bottom: 10px;"
-          @click="onReflect"
+          style="float:right; margin-right:20px;"
+          @click="entityRelationReflect"
         >建立实体关系映射</el-button>
         <el-button
           type="primary"
           class="darkBtn"
           size="small"
-          style="margin-right:20px;margin-bottom: 10px;"
-          @click="onReflect"
+          style="float:right; margin-right:20px;margin-bottom:10px;"
+          @click="entityPropertyReflect"
         >建立实体属性映射</el-button>
         </div>
         <!--表格部分-->
