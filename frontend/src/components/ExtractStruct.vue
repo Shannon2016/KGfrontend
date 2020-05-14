@@ -31,8 +31,15 @@
             class="darkBtn"
             size="small"
             style="float:right; margin-right:20px;"
-            @click="onReflect"
-          >建立映射</el-button>
+            @click="entityRelationReflect"
+          >实体关系映射</el-button>
+          <el-button
+            type="primary"
+            class="darkBtn"
+            size="small"
+            style="float:right; margin-right:20px;"
+            @click="entityPropertyReflect"
+          >实体属性映射</el-button>
           <el-button
             type="primary"
             class="darkBtn"
@@ -105,13 +112,14 @@ export default {
       loadingResGraph: false,
       graphFlag: false,
       reflectTable: false,
-      highlight: [],
+      entityRelationIndex: [],
+      entityPropertyIndex: [],
       typeSelect: "",
       typeList: ["本体库1", "本体库2", "本体库3", "本体库4"]
     };
   },
   methods: {
-    onReflect() {
+    entityPropertyReflect() {
       if(this.typeSelect===""){
         this.$message({
           message: '请先选择本体类型！',
@@ -132,13 +140,54 @@ export default {
           let columnNames = this.columnNames.map(cur => {
             return cur.prop;
           });
-          this.highlight = [];
+          this.entityPropertyIndex = [];
           for (let i of res.data) {
             let index = columnNames.indexOf(i);
             if (index !== -1) {
-              this.highlight.push(index);
+              this.entityPropertyIndex.push(index);
             }
           }
+          console.log(this.entityPropertyIndex)
+          this.$message({
+            message: "映射建立完成！",
+            type: "success"
+          });
+        })
+        .catch(res => {
+          //请求失败
+          alert("出错了！");
+          console.log(res);
+        });
+    },
+    entityRelationReflect() {
+      if(this.typeSelect===""){
+        this.$message({
+          message: '请先选择本体类型！',
+          type: 'warning'
+        });
+        return;
+      }
+      let fd = new FormData();
+      fd.append("table", this.tableIndex);
+      fd.append("ontology", this.typeSelect);
+      this.$http
+        .post("http://49.232.95.141:8000/pic/establish_map", fd, {
+          headers: {
+            "Content-Type": "multipart/form-data"
+          }
+        })
+        .then(res => {
+          let columnNames = this.columnNames.map(cur => {
+            return cur.prop;
+          });
+          this.entityRelationIndex = [];
+          for (let i of res.data) {
+            let index = columnNames.indexOf(i);
+            if (index !== -1) {
+              this.entityRelationIndex.push(index);
+            }
+          }
+          console.log(this.entityRelationIndex)
           this.$message({
             message: "映射建立完成！",
             type: "success"
@@ -151,8 +200,10 @@ export default {
         });
     },
     cellStyle({ row, column, rowIndex, columnIndex }) {
-      if (this.highlight.indexOf(columnIndex) !== -1) {
+      if (this.entityRelationIndex.indexOf(columnIndex) !== -1) {
         return `background-color:#FDF6EC ;`;
+      } else if (this.entityPropertyIndex.indexOf(columnIndex) !== -1) {
+        return `background-color:#F0F9EB ;`;
       } else {
         return "";
       }

@@ -36,6 +36,9 @@
             @click="modelTest"
           >模型测试</el-button>
         </div>
+        <div id="matchInfo" v-if="trainData.length!==0">
+            已有测试数据数量 : {{trainData.length}}
+        </div>
         <!--文书列表-->
         <el-row
           v-loading="loadingRes"
@@ -71,8 +74,16 @@
               </el-pagination>
         <!--</el-pagination> -->
           </el-col>
-          <el-col :span="12">
-            <el-table
+          <el-col :span="12" style="background-color:#FFF;min-height:626px; box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1)">
+            <div class="tableHeader">文件浏览</div>
+            <div style="padding:0 15px;">
+              <div v-if="textData===''"
+              style="width:100%; text-align:center; line-height:571px;color:#909399;">选择文件以浏览内容</div>
+              <pre style="word-break: break-word;word-wrap: break-word;white-space: break-spaces;">
+                {{textData}}
+              </pre>
+            </div>
+            <!-- <el-table
               :data="testData.slice((curPageTest - 1) * 10, curPageTest * 10)"
               :header-cell-style="{background:'#EBEEF7',color:'#606266'}"
               height="626"
@@ -97,17 +108,17 @@
               :total="fileCountTest"
               :current-page.sync="curPageTest"
               @current-change="handleCurrentChangeTest">
-              </el-pagination>
+              </el-pagination> -->
           </el-col>
         </el-row>
       </div>
 
       <!--文书内容-->
-      <el-dialog :title="selectTitle" :visible.sync="diaVisible">
+      <!-- <el-dialog :title="selectTitle" :visible.sync="diaVisible">
           <pre style="word-break: break-word;word-wrap: break-word;white-space: break-spaces;">
             {{textData}}
           </pre>
-      </el-dialog>
+      </el-dialog> -->
     </el-main>
 
     <!--分析页-->
@@ -275,10 +286,21 @@
           }).then((res) => {
             console.log(res)
             this.fullscreenLoading = false;
-            this.$alert('<p><strong>实体抽取效率： <i>' + res.data[1] + '</i> 条/秒</strong></p>' +
-              '<p><strong>关系抽取效率： <i>' + res.data[2] + '</i> 条/秒</strong></p>', this.algorithm + '模型测试结果', {
-              dangerouslyUseHTMLString: true
-            });
+            if(this.algorithm ==='正则表达式'){
+              this.$alert('<p><strong>实体抽取个数： <i>' + res.data[1] + '</i> 个</strong></p>' +
+                '<p><strong>实体抽取时间： <i>' + res.data[2] + '</i> 秒</strong></p>' +
+                '<p><strong>关系抽取个数： <i>' + res.data[2] + '</i> 个</strong></p>' +
+                '<p><strong>关系抽取时间： <i>' + res.data[2] + '</i> 秒</strong></p>' +
+                '<p><strong>实体抽取效率： <i>' + res.data[2] + '</i> 条/秒</strong></p>' +
+                '<p><strong>关系抽取效率： <i>' + res.data[2] + '</i> 条/秒</strong></p>', this.algorithm + '模型测试结果', {
+                dangerouslyUseHTMLString: true
+              });
+            } else {
+              this.$alert('<p><strong>实体抽取准确率： <i>' + res.data[1] + '</i> %</strong></p>' +
+                '<p><strong>实体抽取召回率： <i>' + res.data[2] + '</i> %</strong></p>', this.algorithm + '模型测试结果', {
+                dangerouslyUseHTMLString: true
+              });
+            }
           }).catch((res) => {
 
           })
@@ -499,4 +521,25 @@
     background-color: #708BF7;
   }
 
+  .tableHeader{
+    height:55px;
+    width:100%;
+    background-color:#EBEEF7;
+    color:#606266;
+    line-height:55px;
+    padding: 0 10px;
+    font-weight:bold;
+    font-size: 14px;
+  }
+
+   #matchInfo{
+    background-color: #F0F9EB;
+    color: #67C23A;
+    padding: 8px 16px;
+    width: 95%;
+    padding:8px 16px;
+    border-radius: 10px;
+    margin: 0 0 15px 10px;
+    font-size: 13px;
+  }
 </style>
