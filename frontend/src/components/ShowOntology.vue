@@ -93,7 +93,7 @@ export default {
           let categories = [{
             name: "本体-中心",
             symbol: "diamond",
-            itemStyle:{color:"#749f83"}
+            itemStyle:{color:"#7fb90e"}
           }, {
             name: "本体-非中心",
             symbol: "diamond",

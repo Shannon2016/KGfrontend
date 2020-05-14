@@ -1106,16 +1106,24 @@
             tmp.entity2 = res.data[j][i][2];
             if (!pointName.has(tmp.entity1)) {
               pointName.add(tmp.entity1);
-              graphPoint.push({
-                name: tmp.entity1,
-                category: j*2
-              });
+              if (j !== 2) {
+                graphPoint.push({
+                  name: tmp.entity1,
+                  category: j
+                });
+              }
+              else{
+                graphPoint.push({
+                  name: tmp.entity1,
+                  category: 1
+                });
+              }
             }
             if (!pointName.has(tmp.entity2)) {
               pointName.add(tmp.entity2);
               graphPoint.push({
                 name: tmp.entity2,
-                category: j*2+1
+                category: j
               });
             }
             graphLink.push({

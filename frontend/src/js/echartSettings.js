@@ -1,21 +1,14 @@
 let categories = [{
-        name: "概念与实体-中心",
-        symbol: "circle"
+        name: "概念",
+        symbol: "rect",
+        symbolSize:50
     },{
-        name: "概念与实体-非中心",
-        symbol: "circle"
-    }, {
-        name: "关系-中心",
-        symbol: "triangle"
-    }, {
-        name: "关系-非中心",
-        symbol: "triangle"
-    }, {
-        name: "实体与属性-中心",
-        symbol: "rect"
+        name: "实体",
+        symbol: "circle",
+        symbolSize:60
     },{
-        name: "实体与属性-非中心",
-        symbol: "rect"
+        name: "属性",
+        symbol: "roundRect"
     }];
 
 let option = {
@@ -43,7 +36,7 @@ let option = {
             }
         }
     },
-    color: ["#ca8622", "#F7C172", "#749f83", "#91c7ae", '#2f4554', "#61a0a8"],
+    color: [/*"#ca8622", "#F7C172"*/'#2f4554',"#f47920", "#749f83","#f05b72", "#426ab3"/*"#91c7ae", "#61a0a8"*/],
     legend: [
         {
             // selectedMode: 'single',
@@ -74,8 +67,10 @@ let option = {
               }
             },
             force: {
-                repulsion: 2500,
-                edgeLength: [10, 50]
+                edgeLength: [80, 100],
+                repulsion : 300,//节点之间的斥力因子。支持数组表达斥力范围，值越大斥力越大。
+                gravity : 0.05,//节点受到的向中心的引力因子。该值越大节点越往中心点靠拢。
+                layoutAnimation : true
             },
             draggable: true,
             lineStyle: {
@@ -87,7 +82,8 @@ let option = {
             label: {
                 normal: {
                     show: true,
-                    textStyle: {}
+                    textStyle : { //标签的字体样式
+                    }
                 }
             },
             // 数据
