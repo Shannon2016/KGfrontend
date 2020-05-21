@@ -36,8 +36,8 @@
             @click="modelTest"
           >模型测试</el-button>
         </div>
-        <div id="matchInfo" v-if="trainData.length!==0">
-            已有测试数据数量 : {{trainData.length}}
+        <div id="matchInfo" v-if="testData.length!==0">
+            已有测试数据数量 : {{testData.length}}
         </div>
         <!--文书列表-->
         <el-row
@@ -46,14 +46,14 @@
           element-loading-spinner="el-icon-loading">
           <el-col :span="12">
             <el-table
-              :data="trainData.slice((curPageTrain - 1) * 10, curPageTrain * 10)"
+              :data="testData.slice((curPageTrain - 1) * 10, curPageTrain * 10)"
               :header-cell-style="{background:'#EBEEF7',color:'#606266'}"
               height="626"
               style="width:97%"
               border>
               <el-table-column
                 prop="title"
-                label="训练数据">
+                label="测试数据">
               </el-table-column>
               <el-table-column
                 label="操作"
@@ -151,9 +151,9 @@
         curPage:1,
         //上传的文件列表
         fileList: [],
-        //表格数据 训练集与测试集
+        //表格数据 测试集
         testData: [],
-        trainData: [],
+        // trainData: [],
         //选中行
         choosenRow:{},
         //三元组数据
@@ -296,10 +296,10 @@
             if(this.algorithm ==='正则表达式'){
               this.$alert('<p><strong>实体抽取个数： <i>' + res.data[1] + '</i> 个</strong></p>' +
                 '<p><strong>实体抽取时间： <i>' + res.data[2] + '</i> 秒</strong></p>' +
-                '<p><strong>关系抽取个数： <i>' + res.data[2] + '</i> 个</strong></p>' +
-                '<p><strong>关系抽取时间： <i>' + res.data[2] + '</i> 秒</strong></p>' +
-                '<p><strong>实体抽取效率： <i>' + res.data[2] + '</i> 条/秒</strong></p>' +
-                '<p><strong>关系抽取效率： <i>' + res.data[2] + '</i> 条/秒</strong></p>', this.algorithm + '模型测试结果', {
+                '<p><strong>关系抽取个数： <i>' + res.data[3] + '</i> 个</strong></p>' +
+                '<p><strong>关系抽取时间： <i>' + res.data[4] + '</i> 秒</strong></p>' +
+                '<p><strong>实体抽取效率： <i>' + res.data[5] + '</i> 条/秒</strong></p>' +
+                '<p><strong>关系抽取效率： <i>' + res.data[6] + '</i> 条/秒</strong></p>', this.algorithm + '模型测试结果', {
                 dangerouslyUseHTMLString: true
               });
             } else {
@@ -326,14 +326,12 @@
           }).then((res) => {
             //  console.log(res)
             this.textData = ''
-            this.trainData = res.data[0].map((cur) => {
-              return {title:cur};
-            });
+            // this.trainData = res.data[0].map((cur) => { return {title:cur};});
             this.testData = res.data[1].map((cur) => {
               return {title:cur};
             });
             this.fileCountTest = this.testData.length;
-            this.fileCountTrain = this.trainData.length;
+            // this.fileCountTrain = this.trainData.length;
 
             this.loadingRes = false;
           }).catch((res) => {
