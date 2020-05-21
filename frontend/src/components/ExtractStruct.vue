@@ -216,7 +216,8 @@ export default {
 
       this.columnNames = [];
       this.tableData = [];
-
+      this.entityRelationIndex = [];
+      this.entityPropertyIndex = [];
       let fd = new FormData();
       fd.append("table", this.tableIndex);
       this.$http
@@ -332,6 +333,11 @@ export default {
     handleCurrentChange(cpage) {
       this.curPage = cpage;
     }
+  },
+  beforeDestroy(){
+    if(myChart){
+        echarts.dispose(myChart);
+      }
   }
 };
 </script>

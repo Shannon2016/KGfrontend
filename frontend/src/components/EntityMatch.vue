@@ -832,13 +832,13 @@
           return;
         }
         let num = parseInt(this.markSum)
-        if(num > (this.negativeCount + this.positiveCount - this.negativeOldCount - this.positiveOldCount)){
-          this.$message({
-            message: '输入的样例总数仍大于已标注的样例数！请标注更多样例或减小总数！',
-            type: 'warning'
-          });
-          return;
-        }
+        // if(num > (this.negativeCount + this.positiveCount - this.negativeOldCount - this.positiveOldCount)){
+        //   this.$message({
+        //     message: '输入的样例总数仍大于已标注的样例数！请标注更多样例或减小总数！',
+        //     type: 'warning'
+        //   });
+        //   return;
+        // }
         if(this.trainCount === 0) {
           if(this.negativeCount === 0){
             this.$message({
@@ -888,6 +888,7 @@
         console.log(this.portion)
         console.log(tableName)
         console.log(positiveMarkList, negativeMarkList)
+        this.loadingRes = true;
         this.$http.post(
           'http://49.232.95.141:8000/pic/struct_submit',fd,
           {
@@ -969,6 +970,8 @@
           //     res[this.columnNames[i+2].prop] = cur[i]
           //   return res
           // });
+          
+          this.loadingRes = false;
           this.entityMark();
         }).catch((res) => {
           //请求失败
@@ -1146,8 +1149,10 @@
         myChart.setOption(Myoption, true);
       }
     },
-    mounted() {
-
+    beforeDestroy(){
+      if(myChart){
+        echarts.dispose(myChart);
+      }
     }
   }
 </script>

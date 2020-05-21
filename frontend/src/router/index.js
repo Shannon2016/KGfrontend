@@ -27,13 +27,13 @@ export default new Router({
           path: 'definelabel',
           name: 'DefineLabel',
           component: DefineLabel
-        },
-        {
-          path: 'corpustagging',
-          name: 'CorpusTagging',
-          component: CorpusTagging
         }
       ]
+    },
+    {
+      path: '/corpustagging',
+      name: '/CorpusTagging',
+      component: CorpusTagging
     },
     {
       path: '/extract',
