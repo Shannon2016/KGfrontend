@@ -75,7 +75,7 @@
         <!--</el-pagination> -->
           </el-col>
           <el-col :span="12" style="background-color:#FFF;min-height:625px; box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1)">
-            <div class="tableHeader">文件浏览              
+            <div class="tableHeader">文件浏览
               <span v-if="textData===''">(选择文件以浏览内容)</span>
             </div>
             <div style="padding:0 15px;">
@@ -121,23 +121,43 @@
       </el-dialog> -->
     </el-main>
 
-    <!--分析页-->
+    <!--图谱页-->
     <el-main v-show="!isList">
       <!--顶部-->
       <div class="header">
         <i class="el-icon-back" @click="isList=true"></i>
-        <el-button type="primary" class="headbutton" size="small" @click="handleExport">导出</el-button>
+        <!--<el-button type="primary" class="headbutton" size="small" @click="handleExport">导出</el-button>-->
       </div>
       <el-divider></el-divider>
+      <el-input v-model="inputEntity1" placeholder="实体1" style="width:250px;"></el-input>
+      <el-input v-model="inputRelation" placeholder="关系" style="width:250px;" v-if="entityRelationFlag"></el-input>
+      <el-input v-model="inputEntity2" placeholder="实体2" style="width:250px;" v-if="entityRelationFlag"></el-input>
+      <el-select v-model="level" placeholder="请选择查询级数">
+        <el-option
+          v-for="item in levelList"
+          :key="item.value"
+          :label="item.label"
+          :value="item.value">
+        </el-option>
+      </el-select>
+      <el-button style="margin-left:20px;height: 40px" class="darkBtn" size="small" @click="searchGraph">搜索</el-button>
+      <el-button type="text" class="textBtn" style="margin-left:20px;" v-if="entityRelationFlag" @click="changeToEntitySearch"> &lt; &lt;切换为实体搜索</el-button>
+      <el-button type="text" class="textBtn" style="margin-left:20px;" v-if="!entityRelationFlag" @click="changeToRelationSearch"> &lt; &lt;切换为关系搜索</el-button>
+
       <!--中心-->
-      <div class="main" id="daddy">
-        <div id="graph" style="width: 1000px;height:800px;"></div>
+      <div class="main" id="daddy"
+           v-loading="loadingResGraph"
+           element-loading-text="正在加载中，请稍等……"
+           element-loading-spinner="el-icon-loading"
+           element-loading-background="rgba(0, 0, 0, 0.2)">
+        <div id="graph" style="width: 1200px;height:800px;"></div>
       </div>
     </el-main>
   </el-container>
 </template>
 
 <script>
+  import {option} from '../js/echartSettings'
   let echarts = require('echarts');
   let myChart;
 
@@ -172,105 +192,139 @@
         loadingRes:false,
         textData:'',
         fullscreenLoading:false,
+        loadingResGraph:false,
+        entityRelationFlag:true,
+        inputEntity1:'',
+        inputRelation:'',
+        inputEntity2:'',
+        level:1,
+        levelList:[{
+          label:"一级查询",
+          value:1
+        },{
+          label:"二级查询",
+          value:2
+        },{
+          label:"三级查询",
+          value:3
+        }],
       }
     },
 
     methods: {
+      changeToEntitySearch() {
+        this.inputEntity1 = "";
+        this.inputEntity2 = "";
+        this.inputRelation = "";
+        this.level = 1;
+        this.entityRelationFlag = false;
+      },
+      changeToRelationSearch() {
+        this.inputEntity1 = "";
+        this.inputEntity2 = "";
+        this.inputRelation = "";
+        this.level = 1;
+        this.entityRelationFlag = true;
+      },
       showGraph(){
         this.isList=false;
-        let categories=[
-          {name:'属性A'},
-          {name:'属性B'},
-        ];
-        let option ={
-          // 图的标题
-          title: {
-            text: "图谱"
-          },
-          // 提示框的配置
-          tooltip: {
-            formatter: function (x) {
-              return x.data.des;
+        this.loadingResGraph=true;
+        this.$http.post(
+          'http://49.232.95.141:8000/pic/show_textTuple',
+          {
+            headers: {
+              'Content-Type': 'multipart/form-data'
             }
-          },
-          // 工具箱
-          toolbox: {
-            // 显示工具箱
-            show: true,
-            feature: {
-              mark: {
-                show: true
-              },
-              // 还原
-              restore: {
-                show: true
-              },
-              // 保存为图片
-              saveAsImage: {
-                show: true
+          }).then((res) => {
+          console.log(res)
+          this.initGraph(res);
+          this.loadingResGraph=false;
+        }).catch((res) => {
+          //请求失败
+          console.log(res)
+          this.loadingResGraph=false
+        })
+      },
+      //在图谱中搜索
+      searchGraph(){
+        this.loadingResGraph=true;
+        let fd = new FormData();
+        fd.append('entity1', this.inputEntity1);
+        fd.append('relation', this.inputRelation);
+        fd.append('entity2', this.inputEntity2);
+        fd.append('number', this.level);
+        this.$http.post(
+          'http://49.232.95.141:8000/pic/searchTextData',fd,
+          {
+            headers: {
+              'Content-Type': 'multipart/form-data'
+            }
+          }).then((res) => {
+          console.log(res)
+          if(res.data[1].length===0&&res.data[2].length===0&&res.data[0].length===0){
+            this.$message({
+              message: '未查询到相关信息！',
+              type: 'warning'
+            });
+          }
+          this.initGraph(res);
+          this.loadingResGraph=false;
+        }).catch((res) => {
+          //请求失败
+          console.log(res)
+          this.loadingResGraph=false;
+        })
+      },
+      initGraph(res){
+        let graphPoint = [];
+        let graphLink = [];
+        let pointName = new Set();
+        for (let j = 0; j < 3; j++) {
+          for (let i = 0; i < res.data[j].length; i++) {
+            let tmp = {};
+            tmp.entity1 = res.data[j][i][0];
+            tmp.relation = res.data[j][i][1];
+            tmp.entity2 = res.data[j][i][2];
+            if (!pointName.has(tmp.entity1)) {
+              pointName.add(tmp.entity1);
+              if (j !== 2) {
+                graphPoint.push({
+                  name: tmp.entity1,
+                  category: j
+                });
+              }
+              else{
+                graphPoint.push({
+                  name: tmp.entity1,
+                  category: 1
+                });
               }
             }
-          },
-          legend: [{
-            // selectedMode: 'single',
-            data: categories.map(function (a) {
-              return a.name;
-            })
-          }],
-          series: [{
-            type: 'graph', // 类型:关系图
-            layout: 'force', //图的布局，类型为力导图
-            symbolSize: 40, // 调整节点的大小
-            roam: true, // 是否开启鼠标缩放和平移漫游。默认不开启。如果只想要开启缩放或者平移,可以设置成 'scale' 或者 'move'。设置成 true 为都开启
-            edgeSymbol: ['circle', 'arrow'],
-            edgeSymbolSize: [2, 10],
-            edgeLabel: {
-              normal: {
-                textStyle: {
-                  fontSize: 20
-                }
-              }
-            },
-            force: {
-              repulsion: 2500,
-              edgeLength: [10, 50]
-            },
-            draggable: true,
-            lineStyle: {
-              normal: {
-                width: 2,
-                color: '#4b565b',
-              }
-            },
-            edgeLabel: {
-              normal: {
-                show: true,
-                formatter: function (x) {
-                  return x.data.name;
-                }
-              }
-            },
-            label: {
-              normal: {
-                show: true,
-                textStyle: {}
-              }
-            },
-            // 数据
-            //data: graphPoint,
-            //links: graphLink,
-            categories: categories,
-          }],
-          grid:{
-            top:"10px",
-            bottom:"10px",
-            height:"10px",
-            width:"10px"
+            if (!pointName.has(tmp.entity2)) {
+              pointName.add(tmp.entity2);
+              graphPoint.push({
+                name: tmp.entity2,
+                category: j
+              });
+            }
+            graphLink.push({
+              source: tmp.entity1,
+              target: tmp.entity2,
+              name: tmp.relation,
+              des: tmp.relation,
+            });
           }
         }
-        myChart= echarts.init(document.getElementById('graph'));
+        let Myoption = JSON.parse(JSON.stringify(option));
+        Myoption["series"][0]["data"] = graphPoint;
+        Myoption["series"][0]["links"] = graphLink;
+        Myoption["series"][0]["edgeLabel"]["normal"]["formatter"] = function (x) {
+          return x.data.name;
+        };
+
+        myChart = echarts.init(document.getElementById("graph"));
         // 绘制图表
-        myChart.setOption(option);
+        myChart.setOption(Myoption, true);
       },
       modelTest(){
         if(this.algorithm!=="正则表达式"&&this.algorithm!=="深度学习算法"){
@@ -473,6 +527,13 @@
   }
 
   /*echarts*/
+  #daddy{
+    height: 800px;
+    width: 100%;
+    margin-top: 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, .12), 0 0 6px rgba(0, 0, 0, .04);
+    background-color: #fff;
+  }
 
   .el-pagination.is-background .el-pager li:not(.disabled).active{
     background-color: #5775FB !important;
