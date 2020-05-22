@@ -20,7 +20,7 @@
             <el-option v-for="(item, index) in algorithmList" :key="index" :label="item" :value="item"></el-option>
           </el-select>
 
-          <el-button style="margin-left:20px;" class="blueBtn" size="small" @click="chooseTable">文本输入</el-button>
+          <el-button style="margin-left:20px;" class="blueBtn" size="small" @click="chooseTable">加载测试数据</el-button>
 
           <el-button
             class="darkBtn"

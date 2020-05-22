@@ -21,13 +21,6 @@
             style="float:right; margin-right:20px;"
             @click="showGraph"
           >图谱展示</el-button>
-          <el-button
-            type="primary"
-            class="darkBtn"
-            size="small"
-            style="float:right; margin-right:20px;"
-            @click="loadData"
-          >加载数据</el-button>
         </div>
 
         <div>
@@ -35,20 +28,28 @@
           <el-select v-model="typeSelect" placeholder size="small" style="margin-left:20px;">
             <el-option v-for="(item, index) in typeList" :key="index" :label="item" :value="item"></el-option>
           </el-select>
-        <el-button
-          type="primary"
-          class="darkBtn"
-          size="small"
-          style="float:right; margin-right:20px;"
-          @click="entityRelationReflect"
-        >建立实体关系映射</el-button>
-        <el-button
-          type="primary"
-          class="darkBtn"
-          size="small"
-          style="float:right; margin-right:20px;margin-bottom:10px;"
-          @click="entityPropertyReflect"
-        >建立实体属性映射</el-button>
+
+          <el-button
+            type="primary"
+            class="darkBtn"
+            size="small"
+            style="float:right; margin-right:20px;"
+            @click="entityRelationReflect"
+          >建立实体关系映射</el-button>
+          <el-button
+            type="primary"
+            class="darkBtn"
+            size="small"
+            style="float:right; margin-right:20px;margin-bottom:10px;"
+            @click="entityPropertyReflect"
+          >建立实体属性映射</el-button>
+          <el-button
+            type="primary"
+            class="darkBtn"
+            size="small"
+            style="float:right; margin-right:20px;"
+            @click="loadData"
+          >加载数据</el-button>
         </div>
         <!--表格部分-->
         <el-table
@@ -99,7 +100,7 @@
 
 <script>
 import { option } from "../js/echartSettings";
-let echarts = require('echarts');
+let echarts = require("echarts");
 let myChart;
 export default {
   name: "ExtractStruct",
@@ -122,10 +123,10 @@ export default {
   },
   methods: {
     entityPropertyReflect() {
-      if(this.typeSelect===""){
+      if (this.typeSelect === "") {
         this.$message({
-          message: '请先选择本体类型！',
-          type: 'warning'
+          message: "请先选择本体类型！",
+          type: "warning"
         });
         return;
       }
@@ -149,7 +150,7 @@ export default {
               this.entityPropertyIndex.push(index);
             }
           }
-          console.log(this.entityPropertyIndex)
+          console.log(this.entityPropertyIndex);
           this.$message({
             message: "映射建立完成！",
             type: "success"
@@ -162,10 +163,10 @@ export default {
         });
     },
     entityRelationReflect() {
-      if(this.typeSelect===""){
+      if (this.typeSelect === "") {
         this.$message({
-          message: '请先选择本体类型！',
-          type: 'warning'
+          message: "请先选择本体类型！",
+          type: "warning"
         });
         return;
       }
@@ -189,7 +190,7 @@ export default {
               this.entityRelationIndex.push(index);
             }
           }
-          console.log(this.entityRelationIndex)
+          console.log(this.entityRelationIndex);
           this.$message({
             message: "映射建立完成！",
             type: "success"
@@ -274,8 +275,7 @@ export default {
                     name: tmp.entity1,
                     category: j
                   });
-                }
-                else{
+                } else {
                   graphPoint.push({
                     name: tmp.entity1,
                     category: 1
@@ -293,14 +293,16 @@ export default {
                 source: tmp.entity1,
                 target: tmp.entity2,
                 name: tmp.relation,
-                des: tmp.relation,
+                des: tmp.relation
               });
             }
           }
           let Myoption = JSON.parse(JSON.stringify(option));
-          Myoption['series'][0]['data'] = graphPoint;
-          Myoption['series'][0]['links'] = graphLink;
-          Myoption["series"][0]["edgeLabel"]["normal"]["formatter"] = function (x) {
+          Myoption["series"][0]["data"] = graphPoint;
+          Myoption["series"][0]["links"] = graphLink;
+          Myoption["series"][0]["edgeLabel"]["normal"]["formatter"] = function(
+            x
+          ) {
             return x.data.name;
           };
           myChart = echarts.init(document.getElementById("graph"));
@@ -311,7 +313,7 @@ export default {
         .catch(res => {
           //请求失败
           alert("出错了");
-          console.log(res)
+          console.log(res);
           this.loadingResGraph = false;
         });
     },
@@ -334,10 +336,10 @@ export default {
       this.curPage = cpage;
     }
   },
-  beforeDestroy(){
-    if(myChart){
-        echarts.dispose(myChart);
-      }
+  beforeDestroy() {
+    if (myChart) {
+      echarts.dispose(myChart);
+    }
   }
 };
 </script>
