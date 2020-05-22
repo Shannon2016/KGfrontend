@@ -91,7 +91,7 @@ let echarts = require("echarts");
 let myChart;
 
 export default {
-  name: "ExtractVedio",
+  name: "ExtractVideo",
   data() {
     return {
       isList: true,
@@ -110,22 +110,35 @@ export default {
       selectTitle: "文书名",
       loadingRes: false,
       fullscreenLoading: false,
-      src:""
+      src:""//https://vdept.bdstatic.com/766c61556a637862494d525073497967/7168786b72575243/2fdfac5ac676dae096ae25bc9c5174f9e3e80c313b38d89c35da8272a09144ca64f32cf743c8a7c74223a4e449954793.mp4?auth_key=1581744001-0-0-72974359bb3fe4e6c0416d25ee7e6b0a"
     };
   },
 
   methods: {
     modelTest() {
       this.fullscreenLoading = true;
-      this.$alert(
-        "<p><strong>实体抽取准确率： <i>" + 85 + "</i> %</strong></p>" +
-        "<p><strong>实体抽取召回率： <i>" + 90 + "</i> %</strong></p>",
-        "模型测试结果",
-        {
-          dangerouslyUseHTMLString: true
-        }
-      );
-      this.fullscreenLoading = false;
+      this.$http
+        .post("http://49.232.95.141:8000/pic/video_test", {
+          headers: {
+            "Content-Type": "multipart/form-data"
+          }
+        })
+        .then(res => {
+          this.$alert(
+            "<p><strong>实体抽取准确率： <i>" + res.data[0] + "</i> %</strong></p>" +
+            "<p><strong>实体抽取召回率： <i>" + res.data[1] + "</i> %</strong></p>",
+            "模型测试结果",
+            {
+              dangerouslyUseHTMLString: true
+            }
+          );
+          this.fullscreenLoading = false;
+        })
+        .catch(res => {
+          console.log(res);
+          alert("出错了！");
+          this.fullscreenLoading = false;
+        });
     },
     loadList() {
       this.loadingRes = true;
@@ -136,8 +149,7 @@ export default {
           }
         })
         .then(res => {
-           console.log(res)
-          this.vedioList = res.data[0].map(cur => {
+          this.vedioList = res.data.map(cur => {
             return { title: cur };
           });
 
@@ -152,7 +164,7 @@ export default {
     handleCurrentChange(cpage) {
       this.curPage = cpage;
     },
-    //查看文书内容
+    //查看视频内容
     handleAnalysis(row) {
       this.selectTitle = row.title;
       let fd = new FormData();
@@ -165,7 +177,7 @@ export default {
           }
         })
         .then(res => {
-          console.log(res.data);
+          this.src=res.data;
           this.loadingRes = false;
         })
         .catch(res => {

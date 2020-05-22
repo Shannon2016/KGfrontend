@@ -74,7 +74,7 @@
               <i class="el-icon-picture-outline"></i>
               <span slot="title">图片抽取</span>
             </el-menu-item>
-            <el-menu-item index="/extractVedio" v-if="activeIndex==='/showOntology'">
+            <el-menu-item index="/extractVideo" v-if="activeIndex==='/showOntology'">
               <i class="el-icon-video-camera"></i>
               <span slot="title">视频抽取</span>
             </el-menu-item>
@@ -123,7 +123,7 @@ export default {
   mounted(){
     let past = window.location.href.split('/')
     past = '/' + past[past.length - 1];
-    if(past === '/relationalData') 
+    if(past === '/relationalData')
       this.$store.dispatch('changeIndex','/relationalData');
     else if(past === '/definelabel' || past === '/corpustagging' || past === '/')
       this.$store.dispatch('changeIndex','/');

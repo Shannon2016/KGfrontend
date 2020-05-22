@@ -76,7 +76,7 @@
     {name:'实体'},
   ];
   export default {
-    name: 'ExtractVedio_oldVersion',
+    name: 'ExtractVideo_oldVersion',
     data () {
       return {
         vedioList: [],

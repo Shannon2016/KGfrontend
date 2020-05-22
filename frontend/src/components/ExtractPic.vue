@@ -65,7 +65,7 @@
               <span v-if="src===''">(选择图片以浏览内容)</span>
             </div>
             <div style="padding:0 15px; margin-top:100px;">
-              <el-image :src="src"  fit="contain">
+              <el-image :src="src"  fit="contain" v-if="src!==''">
                   <div slot="placeholder" class="image-slot">
                       加载中<span class="dot">...</span>
                   </div>
@@ -111,25 +111,38 @@ export default {
       //三元组数据
       tripleData: [],
       //弹出框可视
-      selectTitle: "文书名",
+      selectTitle: "图片名",
       loadingRes: false,
       fullscreenLoading: false,
-      src:""
+      src:""//https://fuss10.elemecdn.com/e/5d/4a731a90594a4af544c0c25941171jpeg.jpeg"
     };
   },
 
   methods: {
     modelTest() {
       this.fullscreenLoading = true;
-      this.$alert(
-        "<p><strong>实体抽取准确率： <i>" + 85 + "</i> %</strong></p>" +
-        "<p><strong>实体抽取召回率： <i>" + 90 + "</i> %</strong></p>",
-        "模型测试结果",
-        {
-          dangerouslyUseHTMLString: true
-        }
-      );
-      this.fullscreenLoading = false;
+      this.$http
+        .post("http://49.232.95.141:8000/pic/pic_test", {
+          headers: {
+            "Content-Type": "multipart/form-data"
+          }
+        })
+        .then(res => {
+          this.$alert(
+            "<p><strong>实体抽取准确率： <i>" + res.data[0] + "</i> %</strong></p>" +
+            "<p><strong>实体抽取召回率： <i>" + res.data[1] + "</i> %</strong></p>",
+            "模型测试结果",
+            {
+              dangerouslyUseHTMLString: true
+            }
+          );
+          this.fullscreenLoading = false;
+        })
+        .catch(res => {
+          console.log(res);
+          alert("出错了！");
+          this.fullscreenLoading = false;
+        });
     },
     loadList() {
       this.loadingRes = true;
@@ -140,8 +153,7 @@ export default {
           }
         })
         .then(res => {
-           console.log(res)
-          this.picList = res.data[0].map(cur => {
+          this.picList = res.data.map(cur => {
             return { title: cur };
           });
 
@@ -169,7 +181,7 @@ export default {
           }
         })
         .then(res => {
-          console.log(res.data);
+          this.src=res.data;
           this.loadingRes = false;
         })
         .catch(res => {
