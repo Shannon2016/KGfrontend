@@ -395,8 +395,8 @@ export default {
           console.log(res)
           this.loadingRes = false;
           this.$alert(
-            "<p><strong>实体抽取准确率： <i>" + res.data[0] + "</i> %</strong></p>" +
-            "<p><strong>实体抽取召回率： <i>" + res.data[1] + "</i> %</strong></p>",
+            "<p><strong>实体对齐准确率： <i>" + res.data[0] + "</i> %</strong></p>" +
+            "<p><strong>实体对齐召回率： <i>" + res.data[1] + "</i> %</strong></p>",
             "模型测试结果",
             {
               dangerouslyUseHTMLString: true
