@@ -40,19 +40,19 @@
 
           <el-button
             v-if="!isList"
-            class="darkBtn"
-            size="small"
-            style="float:right; margin-right:20px;"
-            @click="showGraph"
-          >图谱展示</el-button>
-          <el-button
-            v-if="!isList"
             type="primary"
             class="darkBtn"
             size="small"
             style="float:right; margin-right:20px;"
             @click="modelTest"
           >模型测试</el-button>
+          <el-button
+            v-if="!isList"
+            class="darkBtn"
+            size="small"
+            style="float:right; margin-right:20px;"
+            @click="showGraph"
+          >图谱展示</el-button>
           <!--v-if="graphBtn"-->
           <el-button
             v-if="!isList"

@@ -1,23 +1,10 @@
 <template>
   <el-container v-loading="fullscreenLoading" element-loading-text="模型测试中，离开将中断测试……">
     <!--内容块-->
-    <el-main>
+    <el-main v-if="isList">
       <!--顶部-->
       <div class="header">
-        <i
-          class="el-icon-back"
-          @click="resultFlag=false"
-          v-if="resultFlag"
-          style="margin-right:10px;"
-        ></i>
         图片抽取
-        <el-button
-          type="primary"
-          class="darkBtn headbutton"
-          size="small"
-          style="float:right; margin-right:20px;"
-          @click="showResults"
-        >查看测试结果</el-button>
         <el-button
           type="primary"
           class="darkBtn headbutton"
@@ -30,7 +17,7 @@
       <el-divider></el-divider>
       <!--中心-->
       <!--      列表页-->
-      <div class="main" v-if="!resultFlag">
+      <div class="main">
         <div id="matchInfo" v-if="picList.length!==0">已有测试数据数量 : {{picList.length}}</div>
         <!--文书列表-->
         <el-row
@@ -78,29 +65,14 @@
               <span v-if="src===''">(选择图片以浏览内容)</span>
             </div>
             <div style="padding:0 15px; margin-top:100px;">
-              <el-image :src="src" fit="contain" v-if="src!==''">
-                <div slot="placeholder" class="image-slot">
-                  加载中
-                  <span class="dot">...</span>
-                </div>
+              <el-image :src="src"  fit="contain" v-if="src!==''">
+                  <div slot="placeholder" class="image-slot">
+                      加载中<span class="dot">...</span>
+                  </div>
               </el-image>
             </div>
           </el-col>
         </el-row>
-      </div>
-      <div class="main" style="display:flex; flex-direction:column;" v-if="resultFlag">
-        <div style="text-align:center;font-size:large;">-----以下内容仅为随机展示的部分结果-----</div>
-        <div class="picStyle" v-for="(item, index) in resultList" :key="index">
-          <el-image :src="item" fit="contain">
-            <div slot="placeholder" class="image-slot">
-              加载中
-              <span class="dot">...</span>
-            </div>
-          </el-image>
-          <div style="text-align: center;font-weight: bold;width: 100%">
-            图{{index + 1}}
-          </div>
-        </div>
       </div>
     </el-main>
 
@@ -126,7 +98,9 @@ export default {
   name: "ExtractPic",
   data() {
     return {
-      resultFlag: false,
+      isList: true,
+      fileCount: 0,
+      isUpload: false,
       curPage: 1,
       //上传的文件列表
       fileList: [],
@@ -140,26 +114,11 @@ export default {
       selectTitle: "图片名",
       loadingRes: false,
       fullscreenLoading: false,
-      src: "",
-      resultList:[]
+      src:""//https://fuss10.elemecdn.com/e/5d/4a731a90594a4af544c0c25941171jpeg.jpeg"
     };
   },
 
   methods: {
-    showResults() {
-      this.resultFlag=true;
-      this.$http.post("http://49.232.95.141:8000/pic/pic_test_results", {
-          headers: {
-            "Content-Type": "multipart/form-data"
-          }
-        }).then(res => {
-          console.log(res)
-          this.resultList = res.data;
-        }).catch(res => {
-          console.log(res)
-          alert("出错了！")
-        })
-    },
     modelTest() {
       this.fullscreenLoading = true;
       this.$http
@@ -170,12 +129,8 @@ export default {
         })
         .then(res => {
           this.$alert(
-            "<p><strong>图像检测准确率： <i>" +
-              res.data[0] +
-              "</i> %</strong></p>" +
-              "<p><strong>图像检测召回率： <i>" +
-              res.data[1] +
-              "</i> %</strong></p>",
+            "<p><strong>图像检测准确率： <i>" + res.data[0] + "</i> %</strong></p>" +
+            "<p><strong>图像检测召回率： <i>" + res.data[1] + "</i> %</strong></p>",
             "模型测试结果",
             {
               dangerouslyUseHTMLString: true
@@ -226,7 +181,7 @@ export default {
           }
         })
         .then(res => {
-          this.src = res.data;
+          this.src=res.data;
           this.loadingRes = false;
         })
         .catch(res => {
@@ -292,7 +247,7 @@ body > .el-container {
 }
 .headbutton {
   float: right;
-  margin-right: 20px;
+  margin-right: 40px;
 }
 .top-tip {
   margin-top: -10px;
@@ -397,14 +352,5 @@ body > .el-container {
   border-radius: 10px;
   margin: 0 0 15px 10px;
   font-size: 13px;
-}
-.picStyle{
-  width:60%;
-  align-self: center;
-  margin-top:20px;
-}
-.picStyle:first{
-  width:60%;
-  align-self: center;
 }
 </style>
