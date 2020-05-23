@@ -129,7 +129,7 @@ export default {
       this.$store.dispatch('changeIndex','/');
     else if(past === '/showOntology' || past === '/extractStruct' || past === '/entityMatch'
             || past === '/showDict' || past === '/extract' || past === '/extractPic'
-            || past === '/extractVedio')
+            || past === '/extractVideo')
       this.$store.dispatch('changeIndex','/showOntology');
     else if(past === '/correct')
       this.$store.dispatch('changeIndex','/correct');

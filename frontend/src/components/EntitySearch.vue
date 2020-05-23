@@ -1,15 +1,19 @@
 <template>
   <el-container>
+    <div
+      v-loading.fullscreen.lock="loadingRes"
+      element-loading-text="正在查询中，请稍等……"
+      element-loading-spinner="el-icon-loading"
+      element-loading-background="rgba(0, 0, 0, 0.5)"
+    ></div>
     <!--内容块-->
     <el-main>
       <!--顶部-->
-      <div class="header">
-        实体检索
-      </div>
+      <div class="header">实体检索</div>
       <el-divider></el-divider>
       <!--中心-->
       <!--列表页-->
-      <div class="main" >
+      <div class="main">
         <!--搜索栏-->
         <el-input v-model="inputEntity" placeholder="请输入实体名称"></el-input>
         <el-select v-model="level" placeholder="请选择查询级数">
@@ -17,10 +21,21 @@
             v-for="item in levelList"
             :key="item.value"
             :label="item.label"
-            :value="item.value">
-          </el-option>
+            :value="item.value"
+          ></el-option>
         </el-select>
-        <el-button style="margin-left:20px; height: 40px" class="darkBtn" size="small" @click="onSearchClick">搜索</el-button>
+        <el-button
+          style="margin-left:20px; height: 40px"
+          class="darkBtn"
+          size="small"
+          @click="onSearchClick"
+        >搜索</el-button>
+        <el-button
+          type="text"
+          @click="showQuerySpeed"
+          style="float:right; margin-right:40px;"
+          class="textBtn"
+        >测试查询效率>></el-button>
         <div v-if="searchDone" style="margin-left:10px; margin-bottom:20px; margin-top:10px;">
           <!-- <span>现有正样例：{{positiveCount}}个</span> -->
           <div id="searchInfo">
@@ -30,10 +45,12 @@
         </div>
         <div class="result" v-if="searchDone">
           <!--关系图谱-->
-          <div id="kgPic"
-               v-loading="loadingRes"
-               element-loading-text="正在搜索中，请稍等……"
-               element-loading-spinner="el-icon-loading">
+          <div
+            id="kgPic"
+            v-loading="loadingRes"
+            element-loading-text="正在搜索中，请稍等……"
+            element-loading-spinner="el-icon-loading"
+          >
             <div class="title">关系图谱</div>
             <div id="graph" style="width: 1200px;height:800px;"></div>
           </div>
@@ -43,20 +60,11 @@
             :header-cell-style="{background:'#EBEEF7',color:'#606266'}"
             :height="60+50*tableData.length"
             border
-            v-loading="loadingRes">
-            <el-table-column
-              prop="entity1"
-              label="实体1"
-              fixed>
-            </el-table-column>
-            <el-table-column
-              prop="relation"
-              label="关系">
-            </el-table-column>
-            <el-table-column
-              prop="entity2"
-              label="实体2">
-            </el-table-column>
+            v-loading="loadingRes"
+          >
+            <el-table-column prop="entity1" label="实体1" fixed></el-table-column>
+            <el-table-column prop="relation" label="关系"></el-table-column>
+            <el-table-column prop="entity2" label="实体2"></el-table-column>
           </el-table>
           <!-- 分页符-->
           <!-- <el-pagination
@@ -64,85 +72,119 @@
             layout="prev, pager, next"
             :total="fileCount"
             @current-change="handleCurrentChange">
-          </el-pagination> -->
+          </el-pagination>-->
         </div>
       </div>
     </el-main>
   </el-container>
-
 </template>
 
 <script>
+let echarts = require("echarts");
+let myChart;
+import { option } from "../js/echartSettings";
 
-  let echarts = require('echarts');
-  let myChart;
-  import { option } from "../js/echartSettings";
+export default {
+  name: "KnowledgeSearch",
+  data() {
+    return {
+      loadingRes:false,
+      //表格数据
+      tableData: [],
+      searchDone: false,
+      inputEntity: "",
+      levelList: [
+        {
+          label: "一级查询",
+          value: 1
+        },
+        {
+          label: "二级查询",
+          value: 2
+        },
+        {
+          label: "三级查询",
+          value: 3
+        }
+      ],
+      level: 1,
+      loadingRes: false,
+      searchTime: "",
+      tupleNum: 0
+    };
+  },
 
-  export default {
-    name: "KnowledgeSearch",
-    data(){
-      return{
-        //表格数据
-        tableData: [],
-        searchDone:false,
-        inputEntity:'',
-        levelList:[{
-          label:"一级查询",
-          value:1
-        },{
-          label:"二级查询",
-          value:2
-        },{
-          label:"三级查询",
-          value:3
-        }],
-        level:1,
-        loadingRes:false,
-        searchTime:"",
-        tupleNum:0,
-      }
+  methods: {
+    showQuerySpeed() {
+      this.loadingRes = true;
+      this.$http
+        .post("http://49.232.95.141:8000/neo/entity_search_speed", {
+          headers: {
+            "Content-Type": "multipart/form-data"
+          }
+        })
+        .then(res => {
+          console.log(res)
+          this.loadingRes = false;
+          this.$alert(
+            "<p><strong>数据库中三元组个数： <i>" + res.data[0] + "</i> 个</strong></p>" +
+            "<p><strong>检索实体个数： <i>" + res.data[1] + "</i> 个</strong></p>" +
+            "<p><strong>检索一共耗时： <i>" + res.data[2] + "</i> 秒</strong></p>" +
+            "<p><strong>平均检索响应时间： <i>" + res.data[3] + "</i> 秒</strong></p>",
+            "模型测试结果",
+            {
+              dangerouslyUseHTMLString: true
+            }
+          );
+        }).catch(res => {
+          console.log(res)
+          this.loadingRes = false;
+          alert("出错了！")
+        })
     },
+    onSearchClick() {
+      if (this.inputEntity === "" && !this.searchDone) {
+        return;
+      }
 
-    methods:{
+      this.searchDone = true;
+      let Myoption = JSON.parse(JSON.stringify(option));
+      this.loadingRes = true;
 
-      // handleCurrentChange(cpage) {
-      //   this.curPage = cpage;
-      // },
-      onSearchClick()
-      {
-        if(this.inputEntity === '' && !this.searchDone){
-          return;
-        }
+      //空值检索
+      if (this.inputEntity === "") {
+        myChart = echarts.init(document.getElementById("graph"));
+        // 绘制图表
+        myChart.setOption(Myoption, true);
+        this.tableData = [];
+        this.loadingRes = false;
+        return;
+      }
 
-        this.searchDone=true;
-        let Myoption = JSON.parse(JSON.stringify(option));
-        this.loadingRes = true;
-
-        //空值检索
-        if(this.inputEntity === '')
-        {
-          myChart= echarts.init(document.getElementById('graph'));
-          // 绘制图表
-          myChart.setOption(Myoption, true);
-          this.tableData = [];
-          this.loadingRes= false;
-          return;
-        }
-
-        let fd = new FormData();
-        fd.append("entity1",this.inputEntity);
-        fd.append("entity2","");
-        fd.append("relation","");
-        fd.append("number",this.level);
-        this.$http.post('http://49.232.95.141:8000/neo/search_entity',fd).then((res) =>
-        {
-          console.log(res.data) ;
-          if(res.data[0][1].length === 0&&res.data[0][2].length === 0&&res.data[0][0].length === 0){
+      let fd = new FormData();
+      fd.append("entity1", this.inputEntity);
+      fd.append("entity2", "");
+      fd.append("relation", "");
+      fd.append("number", this.level);
+      this.$http
+        .post("http://49.232.95.141:8000/neo/search_entity", fd)
+        .then(res => {
+          console.log(res.data);
+          if (
+            res.data[0][1].length === 0 &&
+            res.data[0][2].length === 0 &&
+            res.data[0][0].length === 0
+          ) {
             this.$message({
+<<<<<<< HEAD
               message: '未查询到相关信息！',
               type: 'warning'
+=======
+              message: "未查询相关信息！",
+              type: "warning"
+>>>>>>> c14be2632c62b6b79d9704d104c260777a785cbb
             });
-            this.loadingRes=false;
+            this.loadingRes = false;
             return;
           }
           this.tableData = [];
@@ -182,9 +224,14 @@
           let graphLink = [];
           let pointName = new Set();
           this.tableData = [];
+<<<<<<< HEAD
           let targetType=0;
           let order=[1,0,2];
           for (let j of order){
+=======
+          let targetType = 0;
+          for (let j = 0; j < 3; j++) {
+>>>>>>> c14be2632c62b6b79d9704d104c260777a785cbb
             for (let i = 0; i < res.data[0][j].length; i++) {
               let tmp = {};
               tmp.entity1 = res.data[0][j][i][0];
@@ -192,20 +239,18 @@
               tmp.entity2 = res.data[0][j][i][2];
               if (!pointName.has(tmp.entity1)) {
                 pointName.add(tmp.entity1);
-                if(tmp.entity1===this.inputEntity){
-                  targetType=2*j;
+                if (tmp.entity1 === this.inputEntity) {
+                  targetType = 2 * j;
                   graphPoint.push({
                     name: tmp.entity1,
                     category: 3
                   });
-                }
-                else if(j !== 2) {
+                } else if (j !== 2) {
                   graphPoint.push({
                     name: tmp.entity1,
                     category: j
                   });
-                }
-                else{
+                } else {
                   graphPoint.push({
                     name: tmp.entity1,
                     category: 1
@@ -214,14 +259,13 @@
               }
               if (!pointName.has(tmp.entity2)) {
                 pointName.add(tmp.entity2);
-                if(tmp.entity2===this.inputEntity){
-                  targetType=2*j+1;
+                if (tmp.entity2 === this.inputEntity) {
+                  targetType = 2 * j + 1;
                   graphPoint.push({
                     name: tmp.entity2,
                     category: 3
                   });
-                }
-                else {
+                } else {
                   graphPoint.push({
                     name: tmp.entity2,
                     category: j
@@ -232,7 +276,7 @@
                 source: tmp.entity1,
                 target: tmp.entity2,
                 name: tmp.relation,
-                des: tmp.relation,
+                des: tmp.relation
                 // label:{
                 //   show:true,
                 //   formatter: function (x) {
@@ -241,40 +285,42 @@
                 // }
               });
               this.tableData.push({
-                entity1:tmp.entity1,
-                entity2:tmp.entity2,
-                relation:tmp.relation,
-              })
+                entity1: tmp.entity1,
+                entity2: tmp.entity2,
+                relation: tmp.relation
+              });
             }
           }
 
-          if(targetType===0||targetType===1)
+          if (targetType === 0 || targetType === 1)
             Myoption["series"][0]["categories"].push({
               name: "检索目标",
               symbol: "rect",
-              symbolSize:60
+              symbolSize: 60
             });
-          else if(targetType<5)
+          else if (targetType < 5)
             Myoption["series"][0]["categories"].push({
               name: "检索目标",
               symbol: "circle",
-              symbolSize:60
+              symbolSize: 60
             });
           else
             Myoption["series"][0]["categories"].push({
               name: "检索目标",
               symbol: "roundRect",
-              symbolSize:60
+              symbolSize: 60
             });
           Myoption["legend"] = [];
           Myoption["legend"].push({
-            data: Myoption["series"][0]["categories"].map(function (a) {
-              return {name:a.name,icon:a.symbol}
+            data: Myoption["series"][0]["categories"].map(function(a) {
+              return { name: a.name, icon: a.symbol };
             })
           });
           Myoption["series"][0]["data"] = graphPoint;
           Myoption["series"][0]["links"] = graphLink;
-          Myoption["series"][0]["edgeLabel"]["normal"]["formatter"] = function (x) {
+          Myoption["series"][0]["edgeLabel"]["normal"]["formatter"] = function(
+            x
+          ) {
             return x.data.name;
           };
 
@@ -282,174 +328,183 @@
           // 绘制图表
           myChart.setOption(Myoption, true);
 
-          this.searchTime=res.data[1];
+          this.searchTime = res.data[1];
           this.tupleNum = res.data[2];
 
-          myChart.on('click',function(params){
+          myChart.on("click", function(params) {
             let obj = params.data;
             console.log(obj);
-            if(obj.hasOwnProperty("source"))//links
-            {
+            if (obj.hasOwnProperty("source")) {
+              //links
               ////obj.source+obj.name+obj.target 头节点、关系、尾节点
               // this.$http.get('http://49.232.95.141:8000/search_entity?head='+obj.source+"&relation="+obj.name+"&tail="+obj.target).then(
               //   (res) => {
               //   })
               alert("1");
-            }
-            else //points
-            {
+            } //points
+            else {
               ////实体名为obj.name
               // this.$http.get('http://49.232.95.141:8000/search_entity?entity='+obj.name).then((res) => {
               // })
               alert("2");
             }
           });
-          this.loadingRes=false;
-        }).catch((res)=>{
-          this.loadingRes=false;
-          console.log("fail")
-          console.log(res);
-          let option ={};
-            myChart= echarts.init(document.getElementById('graph'));
-            // 绘制图表
-            myChart.setOption(option, true);
-            this.tableData = [];
-            return;
+          this.loadingRes = false;
         })
-      }
-    },
+        .catch(res => {
+          this.loadingRes = false;
+          console.log("fail");
+          console.log(res);
+          let option = {};
+          myChart = echarts.init(document.getElementById("graph"));
+          // 绘制图表
+          myChart.setOption(option, true);
+          this.tableData = [];
+          return;
+        });
+    }
   }
+};
 </script>
 
 <style scoped>
+html,
+body,
+.el-container {
+  width: 100%;
+  height: 100%;
+  margin: 0 auto;
+  padding: 0;
+  overflow: hidden;
+}
 
-  html,body,.el-container{
-    width: 100%;
-    height: 100%;
-    margin: 0 auto;
-    padding: 0;
-    overflow: hidden;
-  }
+/****************整体布局*******************/
 
-  /****************整体布局*******************/
+body > .el-container {
+  width: 100%;
+  height: 100%;
+}
+.el-aside {
+  background-color: #343643;
+  min-height: calc(100% - 60px);
+}
+.el-main {
+  background-color: #e9eef3;
+  color: #333;
+  text-align: left;
+  height: 100%;
+  background-color: #f1f2f6;
+}
 
-  body > .el-container {
-    width: 100%;
-    height: 100%;
-  }
-  .el-aside {
-    background-color: #343643;
-    min-height: calc(100% - 60px);
-  }
-  .el-main {
-    background-color: #E9EEF3;
-    color: #333;
-    text-align: left;
-    height: 100%;
-    background-color: #F1F2F6;
-  }
+/**************左侧导航栏***************/
+.is-active {
+  background-color: rgba(255, 255, 255, 0.2) !important;
+  border-right: 4px solid #5775fb !important;
+}
 
-  /**************左侧导航栏***************/
-  .is-active {
-    background-color: rgba(255,255,255,0.2) !important;
-    border-right: 4px solid #5775FB !important;
-  }
+.el-menu-item {
+  width: 200px;
+}
 
-  .el-menu-item{
-    width: 200px;
-  }
+/**************内容顶部***************/
+.header {
+  width: 100%;
+  height: 20px;
+  line-height: 20px;
+  text-align: left;
+  margin-left: 20px;
+  font-weight: bold;
+  font-size: large;
+}
+/*************内容中心*************/
+.main {
+  line-height: 30px;
+  height: 90%;
+  width: 100%;
+}
+#searchInfo {
+  background-color: #f0f9eb;
+  color: #67c23a;
+  padding: 8px 16px;
+  width: 95%;
+  padding: 8px 16px;
+  border-radius: 10px;
+  margin: 0 0 15px 10px;
+  font-size: 13px;
+}
 
-  /**************内容顶部***************/
-  .header{
-    width: 100%;
-    height: 20px;
-    line-height: 20px;
-    text-align: left;
-    margin-left: 20px;
-    font-weight: bold;
-    font-size: large;
-  }
-  /*************内容中心*************/
-  .main{
-    line-height: 30px;
-    height: 90%;
-    width: 100%;
-  }
-  #searchInfo{
-    background-color: #F0F9EB;
-    color: #67C23A;
-    padding: 8px 16px;
-    width: 95%;
-    padding:8px 16px;
-    border-radius: 10px;
-    margin: 0 0 15px 10px;
-    font-size: 13px;
-  }
+/*搜索栏*/
+.el-input {
+  width: 400px;
+}
 
-  /*搜索栏*/
-  .el-input{
-    width: 400px;
-  }
+/*关系图*/
+#kgPic {
+  height: 800px;
+  width: 100%;
+  margin-top: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12), 0 0 6px rgba(0, 0, 0, 0.04);
+  background-color: #fff;
+}
+.title {
+  line-height: 55px;
+  background-color: #e9eef3;
+  color: #606266;
+  font-family: "Avenir", Helvetica, Arial, sans-serif;
+  padding: 0 10px;
+  font-weight: bold;
+}
 
-  /*关系图*/
-  #kgPic{
-    height: 800px;
-    width: 100%;
-    margin-top: 20px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, .12), 0 0 6px rgba(0, 0, 0, .04);
-    background-color: #fff;
-  }
-  .title{
-    line-height: 55px;
-    background-color: #E9EEF3;
-    color: #606266;
-    font-family: 'Avenir', Helvetica, Arial, sans-serif;
-    padding: 0 10px;
-    font-weight: bold;
-  }
+/*表格*/
+.el-table {
+  height: 80%;
+  width: 100%;
+  margin-top: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12), 0 0 6px rgba(0, 0, 0, 0.04);
+}
+/*分页符*/
+.el-pagination {
+  right: 60px;
+  height: 10%;
+  text-align: right;
+  margin-top: 10px;
+  margin-bottom: 20px;
+}
 
-  /*表格*/
-  .el-table{
-    height: 80%;
-    width: 100%;
-    margin-top: 20px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, .12), 0 0 6px rgba(0, 0, 0, .04);
-  }
-  /*分页符*/
-  .el-pagination{
-    right: 60px;
-    height: 10%;
-    text-align: right;
-    margin-top: 10px;
-    margin-bottom: 20px;
-  }
+.el-pagination.is-background .el-pager li:not(.disabled).active {
+  background-color: #5775fb !important;
+}
+.el-pagination.is-background .el-pager li:hover {
+  color: #5775fb !important;
+}
 
-  .el-pagination.is-background .el-pager li:not(.disabled).active{
-    background-color: #5775FB !important;
-  }
-  .el-pagination.is-background .el-pager li:hover{
-    color: #5775FB !important;
-  }
+/***********按钮样式***********/
+.blueBtn {
+  background-color: #eff0ff;
+  border: 1px solid #5775fb;
+  color: #5775fb;
+}
 
-  /***********按钮样式***********/
-  .blueBtn{
-    background-color: #EFF0FF;
-    border: 1px solid #5775FB;
-    color: #5775FB;
-  }
+.blueBtn:hover,
+.blueBtn:active {
+  background-color: #5775fb;
+  color: #ffffff;
+}
 
-  .blueBtn:hover,.blueBtn:active{
-    background-color: #5775FB;
-    color: #FFFFFF;
-  }
+.darkBtn {
+  background-color: #5775fb;
+  border: 1px solid #5775fb;
+  color: #ffffff;
+}
+.darkBtn:hover {
+  background-color: #708bf7;
+}
+.textBtn {
+  color: #606266;
+  text-decoration: underline;
+}
 
-  .darkBtn{
-    background-color: #5775FB;
-    border: 1px solid #5775FB;
-    color: #FFFFFF;
-  }
-  .darkBtn:hover{
-    background-color: #708BF7;
-  }
-
+.textBtn:hover {
+  color: #7c7c7c;
+}
 </style>

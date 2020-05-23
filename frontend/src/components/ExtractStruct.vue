@@ -16,27 +16,6 @@
           <el-button style="margin-left:20px;" class="blueBtn" size="small" @click="chooseTable">确定</el-button>
 
           <el-button
-            class="darkBtn"
-            size="small"
-            style="float:right; margin-right:20px;"
-            @click="showGraph"
-          >图谱展示</el-button>
-        </div>
-
-        <div>
-          <span style="margin-left:20px;">请选择本体类型：</span>
-          <el-select v-model="typeSelect" placeholder size="small" style="margin-left:20px;">
-            <el-option v-for="(item, index) in typeList" :key="index" :label="item" :value="item"></el-option>
-          </el-select>
-
-          <el-button
-            type="primary"
-            class="darkBtn"
-            size="small"
-            style="float:right; margin-right:20px;"
-            @click="entityRelationReflect"
-          >建立实体关系映射</el-button>
-          <el-button
             type="primary"
             class="darkBtn"
             size="small"
@@ -47,9 +26,29 @@
             type="primary"
             class="darkBtn"
             size="small"
-            style="float:right; margin-right:20px;"
+            style="float:right; margin-right:10px;"
             @click="loadData"
           >加载数据</el-button>
+        </div>
+
+        <div style="margin-bottom:10px;">
+          <span style="margin-left:20px;">请选择本体类型：</span>
+          <el-select v-model="typeSelect" placeholder size="small" style="margin-left:20px;">
+            <el-option v-for="(item, index) in typeList" :key="index" :label="item" :value="item"></el-option>
+          </el-select>
+          <el-button
+            class="darkBtn"
+            size="small"
+            style="float:right; margin-right:20px;"
+            @click="showGraph"
+          >图谱展示</el-button>
+          <el-button
+            type="primary"
+            class="darkBtn"
+            size="small"
+            style="float:right; margin-right:20px;"
+            @click="entityRelationReflect"
+          >建立实体关系映射</el-button>
         </div>
         <!--表格部分-->
         <el-table

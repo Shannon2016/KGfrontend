@@ -1,10 +1,23 @@
 <template>
   <el-container v-loading="fullscreenLoading" element-loading-text="模型测试中，离开将中断测试……">
     <!--内容块-->
-    <el-main v-if="isList">
+    <el-main>
       <!--顶部-->
       <div class="header">
+        <i
+          class="el-icon-back"
+          @click="resultFlag=false"
+          v-if="resultFlag"
+          style="margin-right:10px;"
+        ></i>
         视频抽取
+        <el-button
+          type="primary"
+          class="darkBtn headbutton"
+          size="small"
+          style="float:right; margin-right:20px;"
+          @click="showResults"
+        >查看测试结果</el-button>
         <el-button
           type="primary"
           class="darkBtn headbutton"
@@ -17,7 +30,7 @@
       <el-divider></el-divider>
       <!--中心-->
       <!--      列表页-->
-      <div class="main">
+      <div class="main" v-if="!resultFlag">
         <div id="matchInfo" v-if="vedioList.length!==0">已有测试数据数量 : {{vedioList.length}}</div>
         <!--文书列表-->
         <el-row
@@ -70,6 +83,15 @@
           </el-col>
         </el-row>
       </div>
+      <div class="main" style="display:flex; flex-direction:column;" v-if="resultFlag">
+        <div style="text-align:center;font-size:large;">-----以下内容仅为随机展示的部分结果-----</div>
+        <div class="picStyle" v-for="(item, index) in resultList" :key="index">
+          <video :src="item" controls="controls" style="width:100%;"></video>
+          <div style="text-align: center;font-weight: bold;width: 100%">
+            视频{{index + 1}}
+          </div>
+        </div>
+      </div>
     </el-main>
 
     <!-- 分析页 -->
@@ -94,9 +116,7 @@ export default {
   name: "ExtractVideo",
   data() {
     return {
-      isList: true,
-      fileCount: 0,
-      isUpload: false,
+      resultFlag:false,
       curPage: 1,
       //上传的文件列表
       fileList: [],
@@ -110,11 +130,26 @@ export default {
       selectTitle: "文书名",
       loadingRes: false,
       fullscreenLoading: false,
-      src:""//https://vdept.bdstatic.com/766c61556a637862494d525073497967/7168786b72575243/2fdfac5ac676dae096ae25bc9c5174f9e3e80c313b38d89c35da8272a09144ca64f32cf743c8a7c74223a4e449954793.mp4?auth_key=1581744001-0-0-72974359bb3fe4e6c0416d25ee7e6b0a"
+      src:"",
+      resultList:[]
     };
   },
 
   methods: {
+    showResults() {
+      this.resultFlag=true;
+      this.$http.post("http://49.232.95.141:8000/pic/video_test_results", {
+          headers: {
+            "Content-Type": "multipart/form-data"
+          }
+        }).then(res => {
+          console.log(res)
+          this.resultList = res.data;
+        }).catch(res => {
+          console.log(res)
+          alert("出错了！")
+        })
+    },
     modelTest() {
       this.fullscreenLoading = true;
       this.$http
@@ -243,7 +278,7 @@ body > .el-container {
 }
 .headbutton {
   float: right;
-  margin-right: 40px;
+  margin-right: 20px;
 }
 .top-tip {
   margin-top: -10px;
@@ -348,5 +383,14 @@ body > .el-container {
   border-radius: 10px;
   margin: 0 0 15px 10px;
   font-size: 13px;
+}
+.picStyle{
+  width:60%;
+  align-self: center;
+  margin-top:20px;
+}
+.picStyle:first{
+  width:60%;
+  align-self: center;
 }
 </style>
