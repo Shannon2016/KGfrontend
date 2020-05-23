@@ -139,7 +139,7 @@
           console.log(res.data) ;
           if(res.data[0][1].length === 0&&res.data[0][2].length === 0&&res.data[0][0].length === 0){
             this.$message({
-              message: '未查询相关信息！',
+              message: '未查询到相关信息！',
               type: 'warning'
             });
             this.loadingRes=false;
@@ -183,7 +183,8 @@
           let pointName = new Set();
           this.tableData = [];
           let targetType=0;
-          for (let j = 0; j < 3; j++) {
+          let order=[1,0,2];
+          for (let j of order){
             for (let i = 0; i < res.data[0][j].length; i++) {
               let tmp = {};
               tmp.entity1 = res.data[0][j][i][0];
@@ -239,7 +240,6 @@
                 //   },
                 // }
               });
-              console.log(tmp);
               this.tableData.push({
                 entity1:tmp.entity1,
                 entity2:tmp.entity2,

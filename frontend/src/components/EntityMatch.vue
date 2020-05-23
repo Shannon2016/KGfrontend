@@ -1318,7 +1318,8 @@ export default {
       let graphPoint = [];
       let graphLink = [];
       let pointName = new Set();
-      for (let j = 0; j < 3; j++) {
+      let order=[1,0,2];
+      for (let j of order){
         for (let i = 0; i < res.data[j].length; i++) {
           let tmp = {};
           tmp.entity1 = res.data[j][i][0];
