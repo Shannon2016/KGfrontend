@@ -176,14 +176,8 @@ export default {
             res.data[0][0].length === 0
           ) {
             this.$message({
-<<<<<<< HEAD
               message: '未查询到相关信息！',
-              type: 'warning'
-=======
-              message: "未查询相关信息！",
-              type: "warning"
->>>>>>> c14be2632c62b6b79d9704d104c260777a785cbb
-            });
+              type: 'warning'});
             this.loadingRes = false;
             return;
           }
@@ -224,14 +218,9 @@ export default {
           let graphLink = [];
           let pointName = new Set();
           this.tableData = [];
-<<<<<<< HEAD
           let targetType=0;
           let order=[1,0,2];
           for (let j of order){
-=======
-          let targetType = 0;
-          for (let j = 0; j < 3; j++) {
->>>>>>> c14be2632c62b6b79d9704d104c260777a785cbb
             for (let i = 0; i < res.data[0][j].length; i++) {
               let tmp = {};
               tmp.entity1 = res.data[0][j][i][0];
