@@ -24,41 +24,14 @@
           class="darkBtn"
           size="small"
           style="float:right; margin-right:20px;"
-          @click="loadJS"
-        >加载JS文书</el-button>
-        <el-button
-          class="darkBtn"
-          size="small"
-          style="float:right; margin-right:20px;"
           @click="loadTagDirectory"
         >加载标注目录</el-button>
         <el-button
-          type="primary"
           class="darkBtn"
           size="small"
           style="float:right; margin-right:20px;"
-          @click=""
-        >文本纠错</el-button>
-        <el-button
-          type="primary"
-          class="darkBtn"
-          size="small"
-          style="float:right; margin-right:20px;"
-          @click=""
-        >OCR识别</el-button>
-        <el-button
-          type="primary"
-          class="darkBtn"
-          size="small"
-          style="float:right; margin-right:20px;"
-          @click=""
-        >标注</el-button>
-        <el-button
-          class="darkBtn"
-          size="small"
-          style="float:right; margin-right:20px;"
-          @click=""
-        >分词</el-button>
+          @click="loadJS"
+        >加载JS文书</el-button>
       </div>
 
       <div class="result" style="margin-bottom:50px;height:100%" v-show="!isList"

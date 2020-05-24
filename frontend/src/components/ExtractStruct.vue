@@ -65,7 +65,7 @@
               style="margin-left:20px;width:200px;"
               @change="typeChange"
             >
-            <el-option
+              <el-option
                 v-for="(item, index) in typeList"
                 :key="index"
                 :label="item"
@@ -79,14 +79,16 @@
               :key="entitykey"
               :options="entityList"
               v-model="entitySelect"
-              @change="entityChange"></el-cascader>
-            
+              @change="entityChange"
+            ></el-cascader>
+
             <span style="margin-left:30px;">请选择属性：</span>
             <el-cascader
               :key="propertyKey"
               :options="propertyList"
               v-model="propertySelect"
-              @change="propertyChange"></el-cascader>
+              @change="propertyChange"
+            ></el-cascader>
 
             <el-button
               style="float:right;margin-right:20px;"
@@ -101,9 +103,9 @@
               :key="index"
               :type="tag.type"
               closable
-              @close="removeTag(tag)">
-              {{tag.entity}}-{{tag.column}}
-            </el-tag>
+              @close="removeTag(tag)"
+              style="margin-right:20px;"
+            >{{tag.entity}}-{{tag.column}}</el-tag>
           </div>
         </div>
 
@@ -162,17 +164,17 @@ export default {
   name: "ExtractStruct",
   data() {
     return {
-      tags:[],
-      entityList:[],
+      tags: [],
+      entityList: [],
       entityIndex: [],
-      entitySelect:"",
-      entitykey:0,//不加cascader报错
-      propertyList:[],
+      entitySelect: "",
+      entitykey: 0, //不加cascader报错
+      propertyList: [],
       propertyIndex: [],
-      propertySelect:"",
-      propertyKey:-1,
+      propertySelect: "",
+      propertyKey: -1,
       sourceIndex: "",
-      sourceList: ["数据源1", "数据源2"],
+      sourceList: ["structData", "数据源2"],
       tableIndex: "",
       properties: [],
       tableData: [],
@@ -187,15 +189,15 @@ export default {
     };
   },
   methods: {
-    removeTag(tag){
-      if(tag.type === "warning") {
+    removeTag(tag) {
+      if (tag.type === "warning") {
         //实体
-        let index = this.columnNames.indexOf(tag.column)
-        this.entityIndex.splice(this.entityIndex.indexOf(index), 1)
-      } else if(tag.type === "success") {
+        let index = this.columnNames.indexOf(tag.column);
+        this.entityIndex.splice(this.entityIndex.indexOf(index), 1);
+      } else if (tag.type === "success") {
         //属性
-        let index = this.columnNames.indexOf(tag.column)
-        this.propertyIndex.splice(this.propertyIndex.indexOf(index), 1)
+        let index = this.columnNames.indexOf(tag.column);
+        this.propertyIndex.splice(this.propertyIndex.indexOf(index), 1);
       }
       this.tags.splice(this.tags.indexOf(tag), 1);
     },
@@ -203,65 +205,194 @@ export default {
       this.tags.push({
         entity: this.propertySelect[0],
         column: this.propertySelect[1],
-        type:"success"
-      })
-      this.propertyIndex.push(this.columnNames.indexOf(this.propertySelect[1]))
+        type: "success"
+      });
+      this.propertyIndex.push(this.columnNames.indexOf(this.propertySelect[1]));
     },
     entityChange() {
-      console.log(this.entitySelect)
+      //先获取属性列表
+      this.propertyKey -= 1;
+      this.propertyList = [];
+      this.tags = [];
+      this.propertyIndex = [];
+      this.entityIndex = [];
+      let fd = new FormData();
+      fd.append("ontology", this.typeSelect);
+      fd.append("ontology_center", this.entitySelect[0]);
+      this.$http
+        .post("http://49.232.95.141:8000/pic/show_ontology1", fd, {
+          headers: {
+            "Content-Type": "multipart/form-data"
+          }
+        })
+        .then(res => {
+          let str = "";
+          for (let i of res.data) {
+            if (str.indexOf(i) === -1) {
+              str += i;
+              this.propertyList.push({
+                label: i,
+                value: i,
+                children: this.columnNames.map(cur => {
+                  return { label: cur, value: cur };
+                })
+              });
+            }
+          }
+        });
+      //再将对应列高亮+添加tag
       this.tags.push({
         entity: this.entitySelect[0],
         column: this.entitySelect[1],
-        type:"warning"
-      })
-      this.entityIndex.push(this.columnNames.indexOf(this.entitySelect[1]))
+        type: "warning"
+      });
 
-      this.propertyKey -=1
-      this.propertyList=[]
-      if(this.entitySelect[0] === "实体2")
-        this.propertyList.push({
-          label:"属性1",
-          value:"属性1",
-          children:this.columnNames.map((i) => {
-            return {label: i, value: i}
-          })
-        })
+      this.entityIndex.push(this.columnNames.indexOf(this.entitySelect[1]));
     },
     typeChange() {
-      this.entitykey+=1;
-      this.entityList = []
-      if(this.typeSelect==="本体库1") {
-        this.entityList.push({
-          label:"实体1",
-          value:"实体1",
-          children:this.columnNames.map((i) => {
-            return {label: i, value: i}
-          })
+      this.entitykey += 1;
+      this.entityList = [];
+
+      let fd = new FormData();
+      fd.append("ontology", this.typeSelect);
+      this.$http
+        .post("http://49.232.95.141:8000/pic/show_ontology1", fd, {
+          headers: {
+            "Content-Type": "multipart/form-data"
+          }
         })
-      } else if(this.typeSelect==="本体库2") {
-        this.entityList.push({
-          label:"实体2",
-          value:"实体2",
-          children:this.columnNames.map((i) => {
-            return {label: i, value: i}
-          })
+        .then(res => {
+          console.log(res);
+          let str = "";
+          for (let i of res.data) {
+            if (str.indexOf(i) === -1) {
+              str += i;
+              this.entityList.push({
+                label: i,
+                value: i,
+                children: this.columnNames.map(cur => {
+                  return { label: cur, value: cur };
+                })
+              });
+            }
+          }
         })
-      }
+        .catch(res => {
+          console.log(res);
+        });
     },
-    createDependence(){
-      this.$alert('<p><strong>实体抽取准确率： <i>' + 1 + '</i> %</strong></p>' +
-        '<p><strong>实体抽取召回率： <i>' + 2 + '</i> %</strong></p>', '函数依赖结果', {
-        dangerouslyUseHTMLString: true
-      });
+    createDependence() {
+      let fd = new FormData();
+      fd.append("ontology_data",JSON.stringify([this.entitySelect[0]]))
+      this.$http.post("http://49.232.95.141:8000/pic/functional_dependency",fd, {
+          headers: {
+            "Content-Type": "multipart/form-data"
+          }
+        }).then(res => {
+          console.log(res)
+        }).catch(res => {
+
+        })
+      // this.$alert(
+      //   "<p><strong>实体抽取准确率： <i>" +
+      //     1 +
+      //     "</i> %</strong></p>" +
+      //     "<p><strong>实体抽取召回率： <i>" +
+      //     2 +
+      //     "</i> %</strong></p>",
+      //   "函数依赖结果",
+      //   {
+      //     dangerouslyUseHTMLString: true
+      //   }
+      // );
     },
     extractEntity() {
-      console.log(this.typeSelect);
+      let fd = new FormData();
+      fd.append("source", this.sourceIndex);
+      fd.append("table", this.tableIndex);
+      let columns = [];
+      let ontology_data = [];
+      for (let i of this.tags) {
+        if (i.type === "warning") columns.push(i.column);
+        ontology_data.push(i.entity);
+      }
+      fd.append("columns", JSON.stringify(columns));
+      fd.append("ontology_data", JSON.stringify(ontology_data));
+      this.$http
+        .post("http://49.232.95.141:8000/pic/struct_entity_extract", fd, {
+          headers: {
+            "Content-Type": "multipart/form-data"
+          }
+        })
+        .then(res => {
+          if (res.data[0] === 1) {
+            this.$message({
+              message: "抽取实体成功!",
+              type: "success"
+            });
+          } else this.$message.error("抽取失败！");
+        })
+        .catch(res => {
+          console.log(res);
+        });
     },
     extractRelation() {
-      console.log(this.typeSelect);
+      let fd = new FormData();
+      fd.append("source", this.sourceIndex);
+      fd.append("table", this.tableIndex);
+      this.$http
+        .post("http://49.232.95.141:8000/pic/struct_relation_extract", fd, {
+          headers: {
+            "Content-Type": "multipart/form-data"
+          }
+        })
+        .then(res => {
+          if (res.data[0] === 1) {
+            this.$message({
+              message: "抽取实体关系成功!",
+              type: "success"
+            });
+          } else this.$message.error("抽取失败！");
+        })
+        .catch(res => {
+          console.log(res);
+        });
     },
     extractProperty() {
-      console.log(this.typeSelect);
+      let fd = new FormData();
+      fd.append("source", this.sourceIndex);
+      fd.append("table", this.tableIndex);
+
+      let columns = [];
+      let ontology_data = [];
+      columns.push(this.entitySelect[1]);
+      ontology_data.push(this.entitySelect[0]);
+      for (let i of this.tags) {
+        if (i.type === "success") {
+          columns.push(i.column);
+        ontology_data.push(i.entity);
+        }
+      }
+      console.log(columns, ontology_data);
+      fd.append("columns", JSON.stringify(columns));
+      fd.append("ontology_data", JSON.stringify(ontology_data));
+      this.$http
+        .post("http://49.232.95.141:8000/pic/struct_attribute_extract", fd, {
+          headers: {
+            "Content-Type": "multipart/form-data"
+          }
+        })
+        .then(res => {
+          if (res.data[0] === 1) {
+            this.$message({
+              message: "抽取实体属性成功!",
+              type: "success"
+            });
+          } else this.$message.error("抽取失败！");
+        })
+        .catch(res => {
+          console.log(res);
+        });
     },
     chooseSource() {
       if (this.sourceIndex === "") {
@@ -271,15 +402,28 @@ export default {
         });
         return;
       }
-      this.loadData();
-      this.sourceFlag = false;
+      let fd = new FormData();
+      fd.append("source", this.sourceIndex);
+      this.$http
+        .post("http://49.232.95.141:8000/pic/struct_data_source", fd, {
+          headers: {
+            "Content-Type": "multipart/form-data"
+          }
+        })
+        .then(res => {
+          this.properties = res.data;
+          this.sourceFlag = false;
+        })
+        .catch(res => {
+          console.log(res);
+        });
     },
     cellStyle({ row, column, rowIndex, columnIndex }) {
       if (this.entityIndex.indexOf(columnIndex) !== -1) {
         return `background-color:#FDF6EC ;`;
-      } else if(this.propertyIndex.indexOf(columnIndex) !== -1){
-        return `background-color:#F0F9EB ;`
-      }else {
+      } else if (this.propertyIndex.indexOf(columnIndex) !== -1) {
+        return `background-color:#F0F9EB ;`;
+      } else {
         return "";
       }
     },
@@ -293,6 +437,7 @@ export default {
       this.propertyIndex = [];
       let fd = new FormData();
       fd.append("table", this.tableIndex);
+      fd.append("source", this.sourceIndex);
       this.$http
         .post("http://49.232.95.141:8000/pic/view_structData", fd, {
           headers: {
