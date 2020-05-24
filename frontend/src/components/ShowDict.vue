@@ -13,7 +13,12 @@
         </el-select>
         <el-button style="margin-left:20px;" class="blueBtn" size="small" @click="showDict">确定</el-button>
 
-
+        <!--<el-button-->
+          <!--class="darkBtn"-->
+          <!--size="small"-->
+          <!--style="float:right; margin-right:20px;"-->
+          <!--@click="isSearch=true"-->
+        <!--&gt;图谱搜索</el-button>-->
         <el-button
           class="darkBtn"
           size="small"
@@ -24,41 +29,14 @@
           class="darkBtn"
           size="small"
           style="float:right; margin-right:20px;"
-          @click="loadJS"
-        >加载JS文书</el-button>
-        <el-button
-          class="darkBtn"
-          size="small"
-          style="float:right; margin-right:20px;"
           @click="loadTagDirectory"
         >加载标注目录</el-button>
         <el-button
-          type="primary"
           class="darkBtn"
           size="small"
           style="float:right; margin-right:20px;"
-          @click=""
-        >文本纠错</el-button>
-        <el-button
-          type="primary"
-          class="darkBtn"
-          size="small"
-          style="float:right; margin-right:20px;"
-          @click=""
-        >OCR识别</el-button>
-        <el-button
-          type="primary"
-          class="darkBtn"
-          size="small"
-          style="float:right; margin-right:20px;"
-          @click=""
-        >标注</el-button>
-        <el-button
-          class="darkBtn"
-          size="small"
-          style="float:right; margin-right:20px;"
-          @click=""
-        >分词</el-button>
+          @click="loadJS"
+        >加载JS文书</el-button>
       </div>
 
       <div class="result" style="margin-bottom:50px;height:100%" v-show="!isList"
@@ -106,7 +84,7 @@
               <el-table-column
                 label="操作"
                 width="100"
-                align="center">
+                align="center" v-if="listType">
                 <template slot-scope="scope">
                   <el-button class="blueBtn" @click="handleAnalysis(scope.row)" type="primary" plain size="small">浏览</el-button>
                 </template>
@@ -140,6 +118,7 @@
       <!--顶部-->
       <div class="header">
         <i class="el-icon-back" @click="isSearch=false"></i>
+        图谱搜素
         </div>
       <el-divider></el-divider>
       <el-input v-model="inputEntity" placeholder="实体名" style="width:450px;"></el-input>
@@ -180,6 +159,7 @@ export default {
       selectTitle:"",
       textData:"",
       isList:false,
+      listType:true,
       //图谱搜索相关
       isSearch:false,
       inputEntity:"",
@@ -188,11 +168,19 @@ export default {
     };
   },
   methods: {
+    highLight(sta,end,color){
+      document.getElementById("123").innerHTML = this.test.slice(0,sta)+
+        "<strong style='background: yellow'>"+this.test.slice(sta,end+1)+"</strong>"+this.test.slice(end+1)
+    },
     searchGraph(){
       let fd = new FormData();
       fd.append("entity", this.inputEntity);
       this.$http
-        .post("http://49.232.95.141:8000/neo/", fd)
+        .post("http://49.232.95.141:8000/pic/search_entity", fd,{
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          }
+        })
         .then(res => {
           console.log(res.data);
           if(res.data.length===0){
@@ -200,7 +188,8 @@ export default {
                 message: "未搜索到该实体！",
                 type: "warning"
               });
-              return;
+            this.isGraph=false;
+            return;
           }
           this.isGraph=true;
           let graphPoint=[{
@@ -218,6 +207,15 @@ export default {
       });
     },
     joinGraph(){
+      this.$http.post("http://49.232.95.141:8000/pic/JSTextJoinKG",{
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      }).then(res => {
+          console.log(res.data);
+        }).catch((res)=>{
+        console.log(res);
+      });
       this.isSearch=true;
       this.isGraph=false;
       this.inputEntity="";
@@ -225,12 +223,11 @@ export default {
     handleAnalysis(row){
       this.selectTitle = row.title;
       let fd = new FormData();
-      fd.append('algorithm', "正则表达式");
       fd.append('filename', row.title);
-      console.log(this.algorithm)
+      console.log(row.title);
       this.loadingRes = true;
       this.$http.post(
-        'http://49.232.95.141:8000/pic/view_textData',fd,
+        'http://49.232.95.141:8000/pic/viewJSText',fd,
         {
           headers: {
             'Content-Type': 'multipart/form-data'
@@ -247,24 +244,22 @@ export default {
     },
     loadJS(){
       this.isList=true;
+      this.listType=true;
       this.loadingRes = true;
-      let fd = new FormData();
-      fd.append('algorithm', '正则表达式');
       this.$http.post(
-        'http://49.232.95.141:8000/pic/load_textData',fd,
+        'http://49.232.95.141:8000/pic/loadJSText',
         {
           headers: {
             'Content-Type': 'multipart/form-data'
           }
         }).then((res) => {
+          console.log(res)
         this.textData = '';
-        this.tableData = res.data[1].map((cur) => {
-          return {title:cur};
-        });
+        // this.tableData = res.data[1].map((cur) => {
+        //   return {title:cur};
+        // });
         this.fileCount = this.tableData.length;
         this.loadingRes = false;
-        console.log(this.tableData)
-        console.log(this.fileCount)
 
       }).catch((res) => {
         console.log(res)
@@ -274,24 +269,22 @@ export default {
     },
     loadTagDirectory(){
       this.isList=true;
+      this.listType=false;
       this.loadingRes = true;
-      let fd = new FormData();
-      fd.append('algorithm', '正则表达式');
       this.$http.post(
-        'http://49.232.95.141:8000/pic/load_textData',fd,
+        'http://49.232.95.141:8000/pic/loadJS_mark_text',
         {
           headers: {
             'Content-Type': 'multipart/form-data'
           }
         }).then((res) => {
+          console.log(res)
         this.textData = '';
-        this.tableData = res.data[1].map((cur) => {
-          return {title:cur};
-        });
+        // this.tableData = res.data[1].map((cur) => {
+        //   return {title:cur};
+        // });
         this.fileCount = this.tableData.length;
         this.loadingRes = false;
-        console.log(this.tableData)
-        console.log(this.fileCount)
 
       }).catch((res) => {
         console.log(res)

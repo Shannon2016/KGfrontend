@@ -164,7 +164,7 @@
       </div>
       <!--图谱搜索页-->
       <div class="main" v-if="graphFlag">
-        <el-input v-model="inputEntity" style="width:250px;" placeholder="请输入实体名称"></el-input>
+        <el-input v-model="inputEntity" style="width:450px;" placeholder="请输入实体名称"></el-input>
         <el-button
           style="margin-left:20px; height: 40px"
           class="darkBtn"
@@ -237,12 +237,51 @@ export default {
 
   methods: {
     onSearchClick() {
-      let Myoption = JSON.parse(JSON.stringify(option));
-      myChart = echarts.init(document.getElementById("graph"));
-      myChart.setOption(Myoption, true);
+      let fd = new FormData();
+      fd.append("entity", this.inputEntity);
+      this.$http
+        .post("http://49.232.95.141:8000/pic/search_entity", fd,{
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          }
+        })
+        .then(res => {
+          console.log(res.data);
+          if(res.data.length===0){
+            this.$message({
+              message: "未搜索到该实体！",
+              type: "warning"
+            });
+            this.isGraph=false;
+            return;
+          }
+          this.isGraph=true;
+          let graphPoint=[{
+            name: res.data,
+            category: 1,
+          }];
+          let Myoption = JSON.parse(JSON.stringify(option));
+          Myoption["series"][0]["data"] = graphPoint;
+
+          myChart = echarts.init(document.getElementById("graph"));
+          // 绘制图表
+          myChart.setOption(Myoption, true);
+        }).catch((res)=>{
+        console.log(res);
+      });
     },
     showGraph() {
       this.graphFlag = true;
+      this.$http.post("http://49.232.95.141:8000/pic/JSTextJoinKG",{
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      }).then(res => {
+        console.log(res.data);
+      }).catch((res)=>{
+        console.log(res);
+      });
+      this.inputEntity="";
     },
     submitUpload() {
       //上传的请求
@@ -556,11 +595,11 @@ body > .el-container {
   align-self: center;
 }
 
-#kgPic {
-  height: 800px;
-  width: 100%;
-  margin-top: 20px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12), 0 0 6px rgba(0, 0, 0, 0.04);
-  background-color: #fff;
-}
+/*#kgPic {*/
+  /*height: 800px;*/
+  /*width: 100%;*/
+  /*margin-top: 20px;*/
+  /*box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12), 0 0 6px rgba(0, 0, 0, 0.04);*/
+  /*background-color: #fff;*/
+/*}*/
 </style>
