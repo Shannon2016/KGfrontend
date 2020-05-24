@@ -49,6 +49,9 @@
                 <span>结构化数据抽取</span>
               </template>
               <el-menu-item-group>
+                <el-menu-item index="/relationalData">数据浏览</el-menu-item>
+              </el-menu-item-group>
+              <el-menu-item-group>
                 <el-menu-item index="/showOntology">本体展示</el-menu-item>
               </el-menu-item-group>
               <el-menu-item-group>

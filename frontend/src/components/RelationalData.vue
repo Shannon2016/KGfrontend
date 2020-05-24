@@ -4,7 +4,7 @@
     <el-main v-if="isList">
       <!--顶部-->
       <div class="header">
-        结构化数据浏览
+        数据浏览
         <!-- <el-button type="primary" class="darkBtn headbutton" size="small" @click="isUpload=true">上传与分析</el-button>
         <el-button type="primary" class="darkBtn headbutton" size="small" >训练</el-button> -->
       </div>
@@ -12,7 +12,14 @@
       <!--中心-->
       <!--      列表页-->
       <div class="main" >
-        <div class="top-tip">
+        <div class="top-tip" v-if="sourceFlag">
+          <span>请选择数据源：</span>
+          <el-select v-model="sourceIndex" placeholder size="small" style="margin-left:52px;">
+            <el-option v-for="(item, index) in sourceList" :key="index" :label="item" :value="item"></el-option>
+          </el-select>
+          <el-button style="margin-left:20px;" class="blueBtn" size="small" @click="chooseSource">确定</el-button>
+        </div>
+        <div class="top-tip" v-if="!sourceFlag">
           请选择表格：
           <el-select v-model="tableIndex" placeholder="" size="small" style="margin-left:20px;">
             <el-option
@@ -112,6 +119,9 @@
     name: "RelationalData",
     data () {
       return {
+        sourceIndex:"",
+        sourceList:["数据源1", "数据源2"],
+        sourceFlag:true,
         isList:true,
         fileCount:0,
         isUpload:false,
@@ -131,6 +141,9 @@
     },
 
     methods: {
+      chooseSource() {
+        this.sourceFlag = false;
+      },
       chooseTable() {
         // console.log(this.tableIndex)
         if(this.tableIndex === '') return;

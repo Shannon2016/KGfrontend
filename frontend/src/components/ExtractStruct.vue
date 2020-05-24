@@ -9,15 +9,15 @@
         <!--表格查看-->
         <div class="top-tip" v-if="sourceFlag">
           <span>请选择数据源：</span>
-          <el-select v-model="tableIndex" placeholder size="small" style="margin-left:52px;">
-            <el-option v-for="(item, index) in properties" :key="index" :label="item" :value="item"></el-option>
+          <el-select v-model="sourceIndex" placeholder size="small" style="margin-left:52px;">
+            <el-option v-for="(item, index) in sourceList" :key="index" :label="item" :value="item"></el-option>
           </el-select>
           <el-button style="margin-left:20px;" class="blueBtn" size="small" @click="chooseSource">确定</el-button>
         </div>
         <div class="top-tip" v-if="!sourceFlag">
           <div style="width:100%">
             <span>请选择表格：</span>
-            <el-select v-model="tableIndex" placeholder size="small" style="margin-left:52px;">
+            <el-select v-model="tableIndex" placeholder size="small" style="margin-left:20px;">
               <el-option
                 v-for="(item, index) in properties"
                 :key="index"
@@ -31,7 +31,24 @@
               size="small"
               @click="chooseTable"
             >确定</el-button>
-
+            <el-button
+              class="darkBtn"
+              size="small"
+              style="float:right; margin-right:20px;"
+              @click="extractRelation"
+            >抽取实体关系</el-button>
+            <el-button
+              class="darkBtn"
+              size="small"
+              style="float:right; margin-right:20px;"
+              @click="extractProperty"
+            >抽取实体属性</el-button>
+            <el-button
+              class="darkBtn"
+              size="small"
+              style="float:right; margin-right:20px;"
+              @click="extractEntity"
+            >抽取实体</el-button>
             <el-button
               class="darkBtn"
               size="small"
@@ -45,22 +62,48 @@
               :options="typeList"
               v-model="typeSelect"
               size="small"
-              style="margin-left:20px;width:300px;"
-              :props="{ checkStrictly: true }"
+              style="margin-left:20px;width:200px;"
+              :props="cascaderProp"
             ></el-cascader>
 
-            <el-button
-              class="darkBtn"
+            <span style="margin-left:30px;">请选择实体：</span>
+            <el-select
+              placeholder
               size="small"
-              style="float:right; margin-right:20px;"
-              @click="extractRelation"
-            >抽取关系</el-button>
-            <el-button
-              class="darkBtn"
+              style="margin-left:20px;"
+              :multiple="true"
+              v-model="entityIndex"
+            >
+              <el-option
+                v-for="(item, index) in columnNames"
+                :key="index"
+                :label="item"
+                :value="index"
+                :multiple="true"
+              ></el-option>
+            </el-select>
+            <span style="margin-left:30px;">请选择属性：</span>
+            <el-select
+              placeholder
               size="small"
-              style="float:right; margin-right:20px;"
-              @click="extractEntity"
-            >抽取实体</el-button>
+              style="margin-left:20px;"
+              :multiple="true"
+              v-model="propertyIndex"
+            >
+              <el-option
+                v-for="(item, index) in columnNames"
+                :key="index"
+                :label="item"
+                :value="index"
+              ></el-option>
+            </el-select>
+
+            <el-button
+              style="float:right;margin-right:20px;"
+              class="blueBtn"
+              size="small"
+              @click="createDependence"
+            >生成函数依赖</el-button>
           </div>
         </div>
 
@@ -69,15 +112,14 @@
           :data="tableData.slice((curPage - 1) * 20, curPage * 20)"
           :header-cell-style="{background:'#EBEEF7',color:'#606266'}"
           :cell-style="cellStyle"
-          @header-click="clickHeader"
           border
           height="626"
         >
           <el-table-column
             v-for="(item, index) in columnNames"
             :key="index"
-            :prop="item.prop"
-            :label="item.label"
+            :prop="item"
+            :label="item"
           ></el-table-column>
         </el-table>
         <!-- 分页符-->
@@ -120,6 +162,42 @@ export default {
   name: "ExtractStruct",
   data() {
     return {
+      cascaderProp:{
+        lazy: true,
+        lazyLoad (node, resolve) {
+          const { level } = node;
+          setTimeout(() => {
+            if(node.label==='本体库1'){
+              const subnode1= [{
+                value:"本体1",
+                label:"本体1",
+                leaf: (level+1) >= 2
+              }, {
+                value:"本体2",
+                label:"本体2",
+                leaf: (level+1) >= 2
+              }]
+            resolve(subnode1);
+            }
+            else if(node.label==='本体库2'){
+              const subnode2= [{
+                value:"本体3",
+                label:"本体3",
+                leaf: (level+1) >= 2
+              }, {
+                value:"本体4",
+                label:"本体4",
+                leaf: (level+1) >= 2
+              }]
+            resolve(subnode2);
+            }
+          }, 1000);
+        }
+      },
+      entityIndex: [],
+      propertyIndex: [],
+      sourceIndex: "",
+      sourceList: ["数据源1", "数据源2"],
       tableIndex: "",
       properties: [],
       tableData: [],
@@ -129,48 +207,42 @@ export default {
       loadingResGraph: false,
       graphFlag: false,
       typeSelect: "",
-      typeList: [
-        {
+      typeList: [{
           value: "本体库1",
-          label: "本体库1",
-          children: [
-            {
-              value: "中心本体1",
-              label: "中心本体1",
-              children: [
-                {
-                  label: "非中心本体1",
-                  value: "非中心本体1"
-                }
-              ]
-            }
-          ]
-        }
-      ],
-      sourceFlag: true,
-      highlightCol: []
+          label: "本体库1"
+        },{
+          value: "本体库2",
+          label: "本体库2"
+        }],
+      sourceFlag: true
     };
   },
   methods: {
+    createDependence(){
+      this.$alert('<p><strong>实体抽取准确率： <i>' + 1 + '</i> %</strong></p>' +
+        '<p><strong>实体抽取召回率： <i>' + 2 + '</i> %</strong></p>', '函数依赖结果', {
+        dangerouslyUseHTMLString: true
+      });
+    },
     extractEntity() {
-      console.log(this.typeSelect)
+      console.log(this.typeSelect);
     },
     extractRelation() {
-      console.log(this.typeSelect)
+      console.log(this.typeSelect);
     },
-    clickHeader(column, e) {
-      for (let i = 0; i < this.columnNames.length; i++)
-        if (column.property === this.columnNames[i].prop)
-          this.highlightCol.push(i);
+    extractProperty() {
+      console.log(this.typeSelect);
     },
     chooseSource() {
       this.sourceFlag = false;
       this.loadData();
     },
     cellStyle({ row, column, rowIndex, columnIndex }) {
-      if (this.highlightCol.indexOf(columnIndex) !== -1) {
+      if (this.entityIndex.indexOf(columnIndex) !== -1) {
         return `background-color:#FDF6EC ;`;
-      } else {
+      } else if(this.propertyIndex.indexOf(columnIndex) !== -1){
+        return `background-color:#F0F9EB ;`
+      }else {
         return "";
       }
     },
@@ -190,9 +262,7 @@ export default {
           }
         })
         .then(res => {
-          this.columnNames = res.data[0].map(cur => {
-            return { prop: cur, label: cur };
-          });
+          this.columnNames = res.data[0];
 
           let column = res.data[0];
           this.tableData = res.data[1].map(cur => {
