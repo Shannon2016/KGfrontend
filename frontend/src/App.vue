@@ -49,7 +49,7 @@
                 <span>结构化数据抽取</span>
               </template>
               <el-menu-item-group>
-                <el-menu-item index="/relationalData">数据浏览</el-menu-item>
+                <el-menu-item index="/viewData">数据浏览</el-menu-item>
               </el-menu-item-group>
               <el-menu-item-group>
                 <el-menu-item index="/showOntology">本体展示</el-menu-item>
@@ -73,7 +73,7 @@
                 <el-menu-item index="/showDict">预处理</el-menu-item>
               </el-menu-item-group>
               <el-menu-item-group>
-                <el-menu-item index="/extract">知识抽取</el-menu-item>
+                <el-menu-item index="/extract">选择算法</el-menu-item>
               </el-menu-item-group>
             </el-submenu>
             <el-menu-item index="/extractPic" v-if="activeIndex==='/showOntology'">
@@ -135,7 +135,7 @@ export default {
       this.$store.dispatch('changeIndex','/');
     else if(past === '/showOntology' || past === '/extractStruct' || past === '/entityMatch'
             || past === '/showDict' || past === '/extract' || past === '/extractPic'
-            || past === '/extractVideo' || past === '/deNoise')
+            || past === '/extractVideo' || past === '/deNoise' || past === '/viewData')
       this.$store.dispatch('changeIndex','/showOntology');
     else if(past === '/correct')
       this.$store.dispatch('changeIndex','/correct');

@@ -13,7 +13,6 @@
     "axios": "^0.19.2",
     "echarts": "^4.6.0",
     "element-ui": "^2.13.0",
-    "vue": "^2.5.2",
     "vue-echarts": "^5.0.0-beta.0",
     "vue-router": "^3.0.1",
     "vuex": "^3.4.0"
@@ -47,6 +46,7 @@
     "shelljs": "^0.7.6",
     "uglifyjs-webpack-plugin": "^1.1.1",
     "url-loader": "^0.5.8",
+    "vue": "^2.6.11",
     "vue-loader": "^13.3.0",
     "vue-style-loader": "^3.0.1",
     "vue-template-compiler": "^2.5.2",

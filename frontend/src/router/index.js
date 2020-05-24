@@ -14,6 +14,7 @@ import ShowDict from "../components/ShowDict"
 import ShowOntology from "../components/ShowOntology"
 import EntityMatch from "../components/EntityMatch"
 import DeNoise from "../components/DeNoise"
+import ViewData from "../components/ViewData"
 
 Vue.use(Router)
 
@@ -95,6 +96,11 @@ export default new Router({
       path: '/deNoise',
       name: '/deNoise',
       component: DeNoise
+    },
+    {
+      path: '/viewData',
+      name: '/viewData',
+      component: ViewData
     }
   ]
 })

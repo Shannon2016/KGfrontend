@@ -31,6 +31,13 @@
               size="small"
               @click="chooseTable"
             >确定</el-button>
+
+            <el-button
+              class="darkBtn"
+              size="small"
+              style="float:right; margin-right:20px;"
+              @click="showGraph"
+            >图谱展示</el-button>
             <el-button
               class="darkBtn"
               size="small"
@@ -49,54 +56,37 @@
               style="float:right; margin-right:20px;"
               @click="extractEntity"
             >抽取实体</el-button>
-            <el-button
-              class="darkBtn"
-              size="small"
-              style="float:right; margin-right:20px;"
-              @click="showGraph"
-            >图谱展示</el-button>
           </div>
           <div style="width:100%;margin-top:10px;">
             <span>请选择本体类型：</span>
-            <el-cascader
-              :options="typeList"
+            <el-select
               v-model="typeSelect"
               size="small"
               style="margin-left:20px;width:200px;"
-              :props="cascaderProp"
-            ></el-cascader>
-
-            <span style="margin-left:30px;">请选择实体：</span>
-            <el-select
-              placeholder
-              size="small"
-              style="margin-left:20px;"
-              :multiple="true"
-              v-model="entityIndex"
+              @change="typeChange"
             >
-              <el-option
-                v-for="(item, index) in columnNames"
+            <el-option
+                v-for="(item, index) in typeList"
                 :key="index"
                 :label="item"
-                :value="index"
+                :value="item"
                 :multiple="true"
               ></el-option>
             </el-select>
+
+            <span style="margin-left:30px;">请选择实体：</span>
+            <el-cascader
+              :key="entitykey"
+              :options="entityList"
+              v-model="entitySelect"
+              @change="entityChange"></el-cascader>
+            
             <span style="margin-left:30px;">请选择属性：</span>
-            <el-select
-              placeholder
-              size="small"
-              style="margin-left:20px;"
-              :multiple="true"
-              v-model="propertyIndex"
-            >
-              <el-option
-                v-for="(item, index) in columnNames"
-                :key="index"
-                :label="item"
-                :value="index"
-              ></el-option>
-            </el-select>
+            <el-cascader
+              :key="propertyKey"
+              :options="propertyList"
+              v-model="propertySelect"
+              @change="propertyChange"></el-cascader>
 
             <el-button
               style="float:right;margin-right:20px;"
@@ -104,6 +94,16 @@
               size="small"
               @click="createDependence"
             >生成函数依赖</el-button>
+          </div>
+          <div style="width:100%; margin-top:10px;">
+            <el-tag
+              v-for="(tag,index) in tags"
+              :key="index"
+              :type="tag.type"
+              closable
+              @close="removeTag(tag)">
+              {{tag.entity}}-{{tag.column}}
+            </el-tag>
           </div>
         </div>
 
@@ -162,40 +162,15 @@ export default {
   name: "ExtractStruct",
   data() {
     return {
-      cascaderProp:{
-        lazy: true,
-        lazyLoad (node, resolve) {
-          const { level } = node;
-          setTimeout(() => {
-            if(node.label==='本体库1'){
-              const subnode1= [{
-                value:"本体1",
-                label:"本体1",
-                leaf: (level+1) >= 2
-              }, {
-                value:"本体2",
-                label:"本体2",
-                leaf: (level+1) >= 2
-              }]
-            resolve(subnode1);
-            }
-            else if(node.label==='本体库2'){
-              const subnode2= [{
-                value:"本体3",
-                label:"本体3",
-                leaf: (level+1) >= 2
-              }, {
-                value:"本体4",
-                label:"本体4",
-                leaf: (level+1) >= 2
-              }]
-            resolve(subnode2);
-            }
-          }, 1000);
-        }
-      },
+      tags:[],
+      entityList:[],
       entityIndex: [],
+      entitySelect:"",
+      entitykey:0,//不加cascader报错
+      propertyList:[],
       propertyIndex: [],
+      propertySelect:"",
+      propertyKey:-1,
       sourceIndex: "",
       sourceList: ["数据源1", "数据源2"],
       tableIndex: "",
@@ -207,17 +182,72 @@ export default {
       loadingResGraph: false,
       graphFlag: false,
       typeSelect: "",
-      typeList: [{
-          value: "本体库1",
-          label: "本体库1"
-        },{
-          value: "本体库2",
-          label: "本体库2"
-        }],
+      typeList: ["本体库1", "本体库2", "本体库3", "本体库4"],
       sourceFlag: true
     };
   },
   methods: {
+    removeTag(tag){
+      if(tag.type === "warning") {
+        //实体
+        let index = this.columnNames.indexOf(tag.column)
+        this.entityIndex.splice(this.entityIndex.indexOf(index), 1)
+      } else if(tag.type === "success") {
+        //属性
+        let index = this.columnNames.indexOf(tag.column)
+        this.propertyIndex.splice(this.propertyIndex.indexOf(index), 1)
+      }
+      this.tags.splice(this.tags.indexOf(tag), 1);
+    },
+    propertyChange() {
+      this.tags.push({
+        entity: this.propertySelect[0],
+        column: this.propertySelect[1],
+        type:"success"
+      })
+      this.propertyIndex.push(this.columnNames.indexOf(this.propertySelect[1]))
+    },
+    entityChange() {
+      console.log(this.entitySelect)
+      this.tags.push({
+        entity: this.entitySelect[0],
+        column: this.entitySelect[1],
+        type:"warning"
+      })
+      this.entityIndex.push(this.columnNames.indexOf(this.entitySelect[1]))
+
+      this.propertyKey -=1
+      this.propertyList=[]
+      if(this.entitySelect[0] === "实体2")
+        this.propertyList.push({
+          label:"属性1",
+          value:"属性1",
+          children:this.columnNames.map((i) => {
+            return {label: i, value: i}
+          })
+        })
+    },
+    typeChange() {
+      this.entitykey+=1;
+      this.entityList = []
+      if(this.typeSelect==="本体库1") {
+        this.entityList.push({
+          label:"实体1",
+          value:"实体1",
+          children:this.columnNames.map((i) => {
+            return {label: i, value: i}
+          })
+        })
+      } else if(this.typeSelect==="本体库2") {
+        this.entityList.push({
+          label:"实体2",
+          value:"实体2",
+          children:this.columnNames.map((i) => {
+            return {label: i, value: i}
+          })
+        })
+      }
+    },
     createDependence(){
       this.$alert('<p><strong>实体抽取准确率： <i>' + 1 + '</i> %</strong></p>' +
         '<p><strong>实体抽取召回率： <i>' + 2 + '</i> %</strong></p>', '函数依赖结果', {

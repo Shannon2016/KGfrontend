@@ -6,7 +6,7 @@
     <el-main v-if="isList">
       <!--顶部-->
       <div class="header">
-        文本抽取
+        选择算法
         <!--<el-button type="primary" class="darkBtn headbutton" size="small" @click="isUpload=true">上传与分析</el-button>-->
         <!--<el-button type="primary" class="darkBtn headbutton" size="small" >训练</el-button>-->
       </div>
@@ -28,6 +28,12 @@
             style="float:right; margin-right:20px;"
             @click="showGraph"
           >图谱展示</el-button>
+          <el-button
+            class="darkBtn"
+            size="small"
+            style="float:right; margin-right:20px;"
+            @click="mergeFile"
+          >合并</el-button>
           <el-button
             type="primary"
             class="darkBtn"
@@ -212,6 +218,9 @@
     },
 
     methods: {
+      mergeFile() {
+        alert(1)
+      },
       changeToEntitySearch() {
         this.inputEntity1 = "";
         this.inputEntity2 = "";
