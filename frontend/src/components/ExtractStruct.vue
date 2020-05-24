@@ -234,8 +234,15 @@ export default {
       console.log(this.typeSelect);
     },
     chooseSource() {
-      this.sourceFlag = false;
+      if (this.sourceIndex === "") {
+        this.$message({
+          message: "请先选择数据源",
+          type: "warning"
+        });
+        return;
+      }
       this.loadData();
+      this.sourceFlag = false;
     },
     cellStyle({ row, column, rowIndex, columnIndex }) {
       if (this.entityIndex.indexOf(columnIndex) !== -1) {
@@ -252,7 +259,8 @@ export default {
 
       this.columnNames = [];
       this.tableData = [];
-      this.highlightCol = [];
+      this.entityIndex = [];
+      this.propertyIndex = [];
       let fd = new FormData();
       fd.append("table", this.tableIndex);
       this.$http
