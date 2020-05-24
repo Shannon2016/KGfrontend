@@ -72,7 +72,7 @@
             class="darkBtn"
             size="small"
             style="float:right; margin-right:20px;"
-            @click="extractEntityproperty"
+            @click="extractEntityProperty"
           >抽取实体属性</el-button>
           <el-button
             class="darkBtn"
@@ -305,26 +305,47 @@ export default {
 
   methods: {
     extractEntityRelation() {
-      this.$alert(
-        "<p><strong>总耗时： <i>" + 1 + "</i> 秒</strong></p>" +
-        "<p><strong>抽取实体关系总量： <i>" + 1 + "</i> 个</strong></p>" +
-        "<p><strong>平均每秒抽取的关系属性数量： <i>" + 1 + "</i>秒/个</strong></p>",
-        "实体关系抽取结果",
-        {
-          dangerouslyUseHTMLString: true
-        }
-      );
+      this.$http
+        .post("http://49.232.95.141:8000/pic/text_relation_speed", {
+          headers: {
+            "Content-Type": "multipart/form-data"
+          }
+        }).then(res =>{
+          console.log(res)
+          this.$alert(
+          "<p><strong>总耗时： <i>" + res.data[0] + "</i> 秒</strong></p>" +
+          "<p><strong>实体关系抽取数量： <i>" + res.data[1] + "</i> 个</strong></p>" +
+          "<p><strong>实体关系抽取效率： <i>" + res.data[2] + "</i>秒/个</strong></p>",
+          "实体属性抽取结果",
+          {
+            dangerouslyUseHTMLString: true
+          }
+        );
+        }).catch(res => {
+          console.log(res)
+        })
     },
     extractEntityProperty() {
-      this.$alert(
-        "<p><strong>总耗时： <i>" + 1 + "</i> 秒</strong></p>" +
-        "<p><strong>抽取实体属性总量： <i>" + 1 + "</i> 个</strong></p>" +
-        "<p><strong>平均每秒抽取的实体属性数量： <i>" + 1 + "</i>秒/个</strong></p>",
-        "实体属性抽取结果",
-        {
-          dangerouslyUseHTMLString: true
-        }
-      );
+      this.$http
+        .post("http://49.232.95.141:8000/pic/text_attribute_speed", {
+          headers: {
+            "Content-Type": "multipart/form-data"
+          }
+        }).then(res =>{
+          console.log(res)
+          this.$alert(
+          "<p><strong>总耗时： <i>" + res.data[0] + "</i> 秒</strong></p>" +
+          "<p><strong>实体属性抽取数量： <i>" + res.data[1] + "</i> 个</strong></p>" +
+          "<p><strong>实体属性抽取效率： <i>" + res.data[2] + "</i>秒/个</strong></p>",
+          "实体属性抽取结果",
+          {
+            dangerouslyUseHTMLString: true
+          }
+        );
+        }).catch(res => {
+          console.log(res)
+        })
+      
     },
     mergeFile() {
       alert(1);

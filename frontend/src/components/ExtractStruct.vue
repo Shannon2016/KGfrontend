@@ -289,22 +289,21 @@ export default {
             "Content-Type": "multipart/form-data"
           }
         }).then(res => {
-          console.log(res)
+          let str = ''
+          for(let i of res.data){
+            str +="<p><strong>"+i[0]+" <i>" + i[1] + "</i>  "+i[2]+"</strong></p>"
+          }
+          this.$alert(
+            str,
+            "函数依赖结果",
+            {
+              dangerouslyUseHTMLString: true
+            }
+          );
         }).catch(res => {
 
         })
-      // this.$alert(
-      //   "<p><strong>实体抽取准确率： <i>" +
-      //     1 +
-      //     "</i> %</strong></p>" +
-      //     "<p><strong>实体抽取召回率： <i>" +
-      //     2 +
-      //     "</i> %</strong></p>",
-      //   "函数依赖结果",
-      //   {
-      //     dangerouslyUseHTMLString: true
-      //   }
-      // );
+
     },
     extractEntity() {
       let fd = new FormData();
