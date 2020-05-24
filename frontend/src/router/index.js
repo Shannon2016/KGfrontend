@@ -13,6 +13,7 @@ import ExtractStruct from "../components/ExtractStruct"
 import ShowDict from "../components/ShowDict"
 import ShowOntology from "../components/ShowOntology"
 import EntityMatch from "../components/EntityMatch"
+import DeNoise from "../components/DeNoise"
 
 Vue.use(Router)
 
@@ -90,5 +91,10 @@ export default new Router({
       name: '/showDict',
       component: ShowDict,
     },
+    {
+      path: '/deNoise',
+      name: '/deNoise',
+      component: DeNoise
+    }
   ]
 })

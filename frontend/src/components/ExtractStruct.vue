@@ -7,35 +7,25 @@
       <!--中心-->
       <div class="main" v-if="!graphFlag">
         <!--表格查看-->
-        <div class="top-tip">
+        <div class="top-tip" v-if="sourceFlag">
+          <span>请选择数据源：</span>
+          <el-select v-model="tableIndex" placeholder size="small" style="margin-left:52px;">
+            <el-option v-for="(item, index) in properties" :key="index" :label="item" :value="item"></el-option>
+          </el-select>
+          <el-button style="margin-left:20px;" class="blueBtn" size="small" @click="chooseSource">确定</el-button>
+        </div>
+        <div class="top-tip" v-if="!sourceFlag">
           <span>请选择表格：</span>
           <el-select v-model="tableIndex" placeholder size="small" style="margin-left:52px;">
             <el-option v-for="(item, index) in properties" :key="index" :label="item" :value="item"></el-option>
           </el-select>
 
-          <el-button style="margin-left:20px;" class="blueBtn" size="small" @click="chooseTable">确定</el-button>
-
-          <el-button
-            type="primary"
-            class="darkBtn"
-            size="small"
-            style="float:right; margin-right:20px;margin-bottom:10px;"
-            @click="entityPropertyReflect"
-          >建立实体属性映射</el-button>
-          <el-button
-            type="primary"
-            class="darkBtn"
-            size="small"
-            style="float:right; margin-right:10px;"
-            @click="loadData"
-          >加载数据</el-button>
-        </div>
-
-        <div style="margin-bottom:10px;">
           <span style="margin-left:20px;">请选择本体类型：</span>
           <el-select v-model="typeSelect" placeholder size="small" style="margin-left:20px;">
             <el-option v-for="(item, index) in typeList" :key="index" :label="item" :value="item"></el-option>
           </el-select>
+
+          <el-button style="margin-left:20px;" class="blueBtn" size="small" @click="chooseTable">确定</el-button>
           <el-button
             class="darkBtn"
             size="small"
@@ -46,10 +36,11 @@
             type="primary"
             class="darkBtn"
             size="small"
-            style="float:right; margin-right:20px;"
-            @click="entityRelationReflect"
-          >建立实体关系映射</el-button>
+            style="float:right; margin-right:10px;"
+            @click="loadData"
+          >加载数据</el-button>
         </div>
+
         <!--表格部分-->
         <el-table
           :data="tableData.slice((curPage - 1) * 20, curPage * 20)"
@@ -113,93 +104,15 @@ export default {
       fileCount: 0,
       loadingResGraph: false,
       graphFlag: false,
-      reflectTable: false,
-      entityRelationIndex: [],
-      entityPropertyIndex: [],
       typeSelect: "",
-      typeList: ["本体库1", "本体库2", "本体库3", "本体库4"]
+      typeList: ["本体库1", "本体库2", "本体库3", "本体库4"],
+      sourceFlag:true
     };
   },
   methods: {
-    entityPropertyReflect() {
-      if (this.typeSelect === "") {
-        this.$message({
-          message: "请先选择本体类型！",
-          type: "warning"
-        });
-        return;
-      }
-      let fd = new FormData();
-      fd.append("table", this.tableIndex);
-      fd.append("ontology", this.typeSelect);
-      this.$http
-        .post("http://49.232.95.141:8000/pic/establish_map", fd, {
-          headers: {
-            "Content-Type": "multipart/form-data"
-          }
-        })
-        .then(res => {
-          let columnNames = this.columnNames.map(cur => {
-            return cur.prop;
-          });
-          this.entityPropertyIndex = [];
-          for (let i of res.data) {
-            let index = columnNames.indexOf(i);
-            if (index !== -1) {
-              this.entityPropertyIndex.push(index);
-            }
-          }
-          console.log(this.entityPropertyIndex);
-          this.$message({
-            message: "映射建立完成！",
-            type: "success"
-          });
-        })
-        .catch(res => {
-          //请求失败
-          alert("出错了！");
-          console.log(res);
-        });
-    },
-    entityRelationReflect() {
-      if (this.typeSelect === "") {
-        this.$message({
-          message: "请先选择本体类型！",
-          type: "warning"
-        });
-        return;
-      }
-      let fd = new FormData();
-      fd.append("table", this.tableIndex);
-      fd.append("ontology", this.typeSelect);
-      this.$http
-        .post("http://49.232.95.141:8000/pic/establish_map", fd, {
-          headers: {
-            "Content-Type": "multipart/form-data"
-          }
-        })
-        .then(res => {
-          let columnNames = this.columnNames.map(cur => {
-            return cur.prop;
-          });
-          this.entityRelationIndex = [];
-          for (let i of res.data) {
-            let index = columnNames.indexOf(i);
-            if (index !== -1) {
-              this.entityRelationIndex.push(index);
-            }
-          }
-          console.log(this.entityRelationIndex);
-          this.$message({
-            message: "映射建立完成！",
-            type: "success"
-          });
-        })
-        .catch(res => {
-          //请求失败
-          alert("出错了！");
-          console.log(res);
-        });
+    chooseSource() {
+      this.sourceFlag = false;
+      this.loadData();
     },
     cellStyle({ row, column, rowIndex, columnIndex }) {
       if (this.entityRelationIndex.indexOf(columnIndex) !== -1) {
@@ -261,9 +174,9 @@ export default {
           let graphPoint = [];
           let graphLink = [];
           let pointName = new Set();
-          let order=[1,0,2];
-          for (let j of order){
-            console.log(j)
+          let order = [1, 0, 2];
+          for (let j of order) {
+            console.log(j);
             for (let i = 0; i < res.data[j].length; i++) {
               let tmp = {};
               tmp.entity1 = res.data[j][i][0];
@@ -336,6 +249,86 @@ export default {
     handleCurrentChange(cpage) {
       this.curPage = cpage;
     }
+    // entityPropertyReflect() {
+    //   if (this.typeSelect === "") {
+    //     this.$message({
+    //       message: "请先选择本体类型！",
+    //       type: "warning"
+    //     });
+    //     return;
+    //   }
+    //   let fd = new FormData();
+    //   fd.append("table", this.tableIndex);
+    //   fd.append("ontology", this.typeSelect);
+    //   this.$http
+    //     .post("http://49.232.95.141:8000/pic/establish_map", fd, {
+    //       headers: {
+    //         "Content-Type": "multipart/form-data"
+    //       }
+    //     })
+    //     .then(res => {
+    //       let columnNames = this.columnNames.map(cur => {
+    //         return cur.prop;
+    //       });
+    //       this.entityPropertyIndex = [];
+    //       for (let i of res.data) {
+    //         let index = columnNames.indexOf(i);
+    //         if (index !== -1) {
+    //           this.entityPropertyIndex.push(index);
+    //         }
+    //       }
+    //       console.log(this.entityPropertyIndex);
+    //       this.$message({
+    //         message: "映射建立完成！",
+    //         type: "success"
+    //       });
+    //     })
+    //     .catch(res => {
+    //       //请求失败
+    //       alert("出错了！");
+    //       console.log(res);
+    //     });
+    // },
+    // entityRelationReflect() {
+    //   if (this.typeSelect === "") {
+    //     this.$message({
+    //       message: "请先选择本体类型！",
+    //       type: "warning"
+    //     });
+    //     return;
+    //   }
+    //   let fd = new FormData();
+    //   fd.append("table", this.tableIndex);
+    //   fd.append("ontology", this.typeSelect);
+    //   this.$http
+    //     .post("http://49.232.95.141:8000/pic/establish_map", fd, {
+    //       headers: {
+    //         "Content-Type": "multipart/form-data"
+    //       }
+    //     })
+    //     .then(res => {
+    //       let columnNames = this.columnNames.map(cur => {
+    //         return cur.prop;
+    //       });
+    //       this.entityRelationIndex = [];
+    //       for (let i of res.data) {
+    //         let index = columnNames.indexOf(i);
+    //         if (index !== -1) {
+    //           this.entityRelationIndex.push(index);
+    //         }
+    //       }
+    //       console.log(this.entityRelationIndex);
+    //       this.$message({
+    //         message: "映射建立完成！",
+    //         type: "success"
+    //       });
+    //     })
+    //     .catch(res => {
+    //       //请求失败
+    //       alert("出错了！");
+    //       console.log(res);
+    //     });
+    // },
   },
   beforeDestroy() {
     if (myChart) {

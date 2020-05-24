@@ -55,6 +55,9 @@
                 <el-menu-item index="/extractStruct">知识抽取</el-menu-item>
               </el-menu-item-group>
               <el-menu-item-group>
+                <el-menu-item index="/deNoise">属性去噪</el-menu-item>
+              </el-menu-item-group>
+              <el-menu-item-group>
                 <el-menu-item index="/entityMatch">实体对齐</el-menu-item>
               </el-menu-item-group>
             </el-submenu>
@@ -129,7 +132,7 @@ export default {
       this.$store.dispatch('changeIndex','/');
     else if(past === '/showOntology' || past === '/extractStruct' || past === '/entityMatch'
             || past === '/showDict' || past === '/extract' || past === '/extractPic'
-            || past === '/extractVideo')
+            || past === '/extractVideo' || past === '/deNoise')
       this.$store.dispatch('changeIndex','/showOntology');
     else if(past === '/correct')
       this.$store.dispatch('changeIndex','/correct');
