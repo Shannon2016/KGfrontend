@@ -15,7 +15,28 @@
       <!--列表页-->
       <div class="main">
         <!--表格查看-->
-        <div class="top-tip">
+
+        <!--合并表格选项-->
+        <div class="top-tip" v-show="!isUnion">
+          <span >请选择数据表：</span>
+
+          <el-cascader
+            v-model="unionList"
+            :options="allTable"
+            :props="{ multiple: true }"
+            collapse-tags
+            clearable>
+          </el-cascader>
+
+          <el-button
+            style="margin-left:20px;"
+            class="blueBtn"
+            size="small"
+            @click="unionTable"
+          >合并数据</el-button>
+        </div>
+
+        <div class="top-tip" v-if="isUnion">
           <span v-if="!isList">请选择数据：</span>
           <el-select
             v-model="tableIndex"
@@ -32,7 +53,7 @@
             class="blueBtn"
             size="small"
             @click="chooseTable"
-          >确定</el-button>
+          >加载合并数据</el-button>
           <div
             v-if="markSum==='' && isList"
             style="margin-bottom:10px;"
@@ -134,7 +155,7 @@
             @click="resDetailFlag=true"
             style="float:right; margin-right:20px;"
             class="textBtn"
-          >查看上次标注结果>></el-button>
+          >查看上轮训练效果>></el-button>
         </div>
         <div v-if="isList" style="margin-left:10px; margin-bottom:20px; margin-top:10px;">
           <!-- <span>现有正样例：{{positiveCount}}个</span> -->
@@ -378,11 +399,87 @@ export default {
       loadingRes: false,
       loadingResGraph: false,
       algorithm: "",
-      algorithmList: ["SVM", "K近邻算法"]
+      algorithmList: ["SVM", "K近邻算法"],
+      //合并数据信息
+      isUnion:false,
+      unionList:[],
+      allTable:[
+        {
+          value: '东南',
+          label: '东南',
+          children: [
+            {
+              value: '上海',
+              label: '上海',
+              children: [
+                {value: '普陀', label: '普陀'},
+                {value: '黄埔', label: '黄埔'},
+                {value: '徐汇', label: '徐汇'}
+              ]
+            },
+            {
+              value: 7,
+              label: '江苏',
+              children: [
+                {value: 8, label: '南京'},
+                {value: 9, label: '苏州'},
+                {value: 10, label: '无锡'}
+              ]
+            },
+            {
+              value: 12,
+              label: '浙江',
+              children: [
+                {value: 13, label: '杭州'},
+                {value: 14, label: '宁波'},
+                {value: 15, label: '嘉兴'}
+              ]
+            }]
+        },
+        {
+          value: '西北',
+          label: '西北',
+          children: [
+            {
+              value: '陕西',
+              label: '陕西',
+              children: [
+                {value: '西安', label: '西安'},
+                {value: '延安', label: '延安'}
+              ]
+            },
+            {
+              value: '新疆维吾尔族自治区',
+              label: '新疆维吾尔族自治区',
+              children: [
+                {value: '乌鲁木齐', label: '乌鲁木齐'},
+                {value: '克拉玛依', label: '克拉玛依'}
+              ]
+            }
+          ]
+        }
+      ],
     };
   },
 
   methods: {
+    unionTable(){
+      console.log(this.unionList);
+      // this.$http
+      //   .post("http://49.232.95.141:8000/pic/", {
+      //     headers: {
+      //       "Content-Type": "multipart/form-data"
+      //     }
+      //   })
+      //   .then(res => {
+      //     console.log(res)
+      //   })
+      //   .catch(res => {
+      //     console.log(res);
+      //     alert("出错了！");
+      //   });
+      this.isUnion=true;
+    },
     modelTest() {
       this.loadingRes = true;
       this.$http

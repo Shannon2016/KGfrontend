@@ -1,7 +1,7 @@
 <template>
   <el-container>
-    <!--内容块实体对齐-->
-    <el-main>
+    <!--内容块预处理-->
+    <el-main v-if="!isSearch">
       <!--顶部-->
       <div class="header">文本预处理</div>
       <el-divider></el-divider>
@@ -13,6 +13,25 @@
         </el-select>
         <el-button style="margin-left:20px;" class="blueBtn" size="small" @click="showDict">确定</el-button>
 
+
+        <el-button
+          class="darkBtn"
+          size="small"
+          style="float:right; margin-right:20px;"
+          @click="joinGraph"
+        >加入图谱</el-button>
+        <el-button
+          class="darkBtn"
+          size="small"
+          style="float:right; margin-right:20px;"
+          @click="loadJS"
+        >加载JS文书</el-button>
+        <el-button
+          class="darkBtn"
+          size="small"
+          style="float:right; margin-right:20px;"
+          @click="loadTagDirectory"
+        >加载标注目录</el-button>
         <el-button
           type="primary"
           class="darkBtn"
@@ -41,7 +60,8 @@
           @click=""
         >分词</el-button>
       </div>
-      <div class="result" style="margin-bottom:50px;height:100%"
+
+      <div class="result" style="margin-bottom:50px;height:100%" v-show="!isList"
         v-loading="loadingRes"
         element-loading-text="正在加载中，请稍等……"
         element-loading-spinner="el-icon-loading"
@@ -66,26 +86,81 @@
           @current-change="handleCurrentChange">
         </el-pagination>
       </div>
-        <!-- 表格部分
-        <el-table
-          :data="tableData"
-          :header-cell-style="{background:'#EBEEF7',color:'#606266'}"
-          border
-        >
-          <el-table-column
-            v-for="(item, index) in columnNames"
-            :key="index"
-            :prop="item.prop"
-            :label="item.label"
-          ></el-table-column>
-        </el-table>
-      </div> -->
+
+      <div v-if="isList">
+        <el-row
+          v-loading="loadingRes"
+          element-loading-text="正在加载中，请稍等……"
+          element-loading-spinner="el-icon-loading">
+          <el-col :span="12">
+            <el-table
+              :data="tableData.slice((curPageFile - 1) * 10, curPageFile * 10)"
+              :header-cell-style="{background:'#EBEEF7',color:'#606266'}"
+              height="626"
+              style="width:97%"
+              border>
+              <el-table-column
+                prop="title"
+                label="文书名">
+              </el-table-column>
+              <el-table-column
+                label="操作"
+                width="100"
+                align="center">
+                <template slot-scope="scope">
+                  <el-button class="blueBtn" @click="handleAnalysis(scope.row)" type="primary" plain size="small">浏览</el-button>
+                </template>
+              </el-table-column>
+            </el-table>
+            <!-- 分页符-->
+            <el-pagination
+              background
+              layout="prev, pager, next, jumper"
+              :total="fileCount"
+              :current-page.sync="curPageFile"
+              @current-change="handleCurrentChangeFile">
+            </el-pagination>
+            <!--</el-pagination> -->
+          </el-col>
+          <el-col :span="12" style="background-color:#FFF;min-height:625px; box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1)">
+            <div class="tableHeader">文件浏览
+              <span v-if="textData===''">(选择文件以浏览内容)</span>
+            </div>
+            <div style="padding:0 15px;">
+                <pre style="word-break: break-word;word-wrap: break-word;white-space: break-spaces;">
+                  {{textData}}
+                </pre>
+            </div>
+          </el-col>
+        </el-row>
+      </div>
+
+    </el-main>
+    <el-main v-show="isSearch">
+      <!--顶部-->
+      <div class="header">
+        <i class="el-icon-back" @click="isSearch=false"></i>
+        </div>
+      <el-divider></el-divider>
+      <el-input v-model="inputEntity" placeholder="实体名" style="width:450px;"></el-input>
+      <el-button style="margin-left:20px;height: 40px" class="darkBtn" size="small" @click="searchGraph">搜索</el-button>
+
+      <!--中心-->
+      <div class="main" id="daddy" v-show="isGraph"
+           v-loading="loadingResGraph"
+           element-loading-text="正在加载中，请稍等……"
+           element-loading-spinner="el-icon-loading"
+           element-loading-background="rgba(0, 0, 0, 0.2)">
+        <div id="graph" style="width: 1200px;height:800px;"></div>
+      </div>
     </el-main>
   </el-container>
 </template>
 
 <script>
-import { option } from "../js/echartSettings";
+  import {option} from '../js/echartSettings'
+  let echarts = require('echarts');
+  let myChart;
 export default {
   name: "ShowDict",
   data() {
@@ -94,15 +169,138 @@ export default {
       loadingRes: false,
       typeList: ["通用词典", "军语词典", "地名词典"],
       columnNames:[],
+      fileCount:0,
       tableData:[],
+      curPageFile:1,
       dictCount:0,
       curPage:1,
       tags:[],
-      tagType:''
+      tagType:'',
+      //列表浏览相关
+      selectTitle:"",
+      textData:"",
+      isList:false,
+      //图谱搜索相关
+      isSearch:false,
+      inputEntity:"",
+      loadingResGraph:false,
+      isGraph:false,
     };
   },
   methods: {
+    searchGraph(){
+      let fd = new FormData();
+      fd.append("entity", this.inputEntity);
+      this.$http
+        .post("http://49.232.95.141:8000/neo/", fd)
+        .then(res => {
+          console.log(res.data);
+          if(res.data.length===0){
+            this.$message({
+                message: "未搜索到该实体！",
+                type: "warning"
+              });
+              return;
+          }
+          this.isGraph=true;
+          let graphPoint=[{
+            name: res.data,
+            category: 1,
+          }];
+          let Myoption = JSON.parse(JSON.stringify(option));
+          Myoption["series"][0]["data"] = graphPoint;
+
+          myChart = echarts.init(document.getElementById("graph"));
+          // 绘制图表
+          myChart.setOption(Myoption, true);
+        }).catch((res)=>{
+        console.log(res);
+      });
+    },
+    joinGraph(){
+      this.isSearch=true;
+      this.isGraph=false;
+      this.inputEntity="";
+    },
+    handleAnalysis(row){
+      this.selectTitle = row.title;
+      let fd = new FormData();
+      fd.append('algorithm', "正则表达式");
+      fd.append('filename', row.title);
+      console.log(this.algorithm)
+      this.loadingRes = true;
+      this.$http.post(
+        'http://49.232.95.141:8000/pic/view_textData',fd,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          }
+        }).then((res) => {
+        console.log(res.data)
+        this.textData = res.data;
+        this.loadingRes = false;
+      }).catch((res) =>{
+        console.log(res)
+        this.loadingRes = false;
+      })
+
+    },
+    loadJS(){
+      this.isList=true;
+      this.loadingRes = true;
+      let fd = new FormData();
+      fd.append('algorithm', '正则表达式');
+      this.$http.post(
+        'http://49.232.95.141:8000/pic/load_textData',fd,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          }
+        }).then((res) => {
+        this.textData = '';
+        this.tableData = res.data[1].map((cur) => {
+          return {title:cur};
+        });
+        this.fileCount = this.tableData.length;
+        this.loadingRes = false;
+        console.log(this.tableData)
+        console.log(this.fileCount)
+
+      }).catch((res) => {
+        console.log(res)
+        alert('出错了！')
+        this.loadingRes = false;
+      })
+    },
+    loadTagDirectory(){
+      this.isList=true;
+      this.loadingRes = true;
+      let fd = new FormData();
+      fd.append('algorithm', '正则表达式');
+      this.$http.post(
+        'http://49.232.95.141:8000/pic/load_textData',fd,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          }
+        }).then((res) => {
+        this.textData = '';
+        this.tableData = res.data[1].map((cur) => {
+          return {title:cur};
+        });
+        this.fileCount = this.tableData.length;
+        this.loadingRes = false;
+        console.log(this.tableData)
+        console.log(this.fileCount)
+
+      }).catch((res) => {
+        console.log(res)
+        alert('出错了！')
+        this.loadingRes = false;
+      })
+    },
     showDict() {
+      this.isList=false;
       this.loadingRes = true;
       this.curPage = 1;
       let fd = new FormData();
@@ -132,6 +330,9 @@ export default {
     },
     handleCurrentChange(cpage) {
       this.curPage = cpage;
+    },
+    handleCurrentChangeFile(cpageFile) {
+      this.curPageFile = cpageFile;
     }
   },
   computed: {
@@ -261,5 +462,16 @@ body > .el-container {
   text-align: center;
   margin-top:20px;
   margin-left:20px;
+}
+
+.tableHeader{
+  height:55px;
+  width:100%;
+  background-color:#EBEEF7;
+  color:#606266;
+  line-height:55px;
+  padding: 0 10px;
+  font-weight:bold;
+  font-size: 14px;
 }
 </style>

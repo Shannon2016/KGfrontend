@@ -17,7 +17,7 @@
         <div class="top-tip" v-if="!sourceFlag">
           <div style="width:100%">
             <span>请选择表格：</span>
-            <el-select v-model="tableIndex" placeholder size="small" style="margin-left:20px;">
+            <el-select v-model="tableIndex" placeholder size="small" style="margin-left:32px;">
               <el-option
                 v-for="(item, index) in properties"
                 :key="index"
@@ -62,7 +62,7 @@
               :options="typeList"
               v-model="typeSelect"
               size="small"
-              style="margin-left:20px;width:200px;"
+              style="width:200px;"
               :props="cascaderProp"
             ></el-cascader>
 

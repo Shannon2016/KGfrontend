@@ -65,7 +65,7 @@
         <el-table
           :data="tableData.slice((curPage - 1) * 10, curPage * 10)"
           :header-cell-style="{background:'#EBEEF7',color:'#606266'}"
-          height="626"
+          height="650"
           border>
           <el-table-column
             v-for="(item, index) in columnNames"
@@ -452,7 +452,8 @@
   }
   /*表格*/
   .el-table{
-    height: 80%;
+    overflow: inherit;
+    height: 100%;
     width: 100%;
     box-shadow: 0 2px 4px rgba(0, 0, 0, .12), 0 0 6px rgba(0, 0, 0, .04);
   }

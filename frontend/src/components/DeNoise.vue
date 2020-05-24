@@ -14,14 +14,14 @@
       <!--列表页-->
       <div class="main">
         <!--表格查看-->
-        <div class="top-tip" v-if="sourceFlag">
-          <span>请选择数据源：</span>
-          <el-select v-model="sourceIndex" placeholder size="small" style="margin-left:52px;">
-            <el-option v-for="(item, index) in sourceList" :key="index" :label="item" :value="item"></el-option>
-          </el-select>
-          <el-button style="margin-left:20px;" class="blueBtn" size="small" @click="chooseSource">确定</el-button>
-        </div>
-        <div class="top-tip" v-if="!sourceFlag">
+        <!--<div class="top-tip" v-if="sourceFlag">-->
+          <!--<span>请选择数据源：</span>-->
+          <!--<el-select v-model="sourceIndex" placeholder size="small" style="margin-left:52px;">-->
+            <!--<el-option v-for="(item, index) in sourceList" :key="index" :label="item" :value="item"></el-option>-->
+          <!--</el-select>-->
+          <!--<el-button style="margin-left:20px;" class="blueBtn" size="small" @click="chooseSource">确定</el-button>-->
+        <!--</div>-->
+        <div class="top-tip">
           <span >请选择表格：</span>
           <el-select
             v-model="tableIndex"
@@ -248,6 +248,26 @@ export default {
           console.log(res);
         });
     },
+    init(){
+      this.$http.post("http://49.232.95.141:8000/pic/show_table",{
+          headers: {
+            "Content-Type": "multipart/form-data"
+          }
+        })
+        .then(res => {
+          console.log(res);
+          this.tableIndex="";
+          this.tableList=res.data;
+        })
+        .catch(res => {
+          //请求失败
+          console.log(res);
+        });
+    }
+  },
+
+  mounted(){
+    this.init();
   }
 };
 </script>
