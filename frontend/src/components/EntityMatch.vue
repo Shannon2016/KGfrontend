@@ -62,14 +62,14 @@
             style="float:right; margin-right:20px;"
             @click="entityMark"
           >交互训练</el-button>
-          <el-button
-            v-if="!isList"
-            type="primary"
-            class="darkBtn"
-            size="small"
-            style="float:right; margin-right:20px;"
-            @click="deNoise"
-          >属性去噪</el-button>
+          <!--<el-button-->
+            <!--v-if="!isList"-->
+            <!--type="primary"-->
+            <!--class="darkBtn"-->
+            <!--size="small"-->
+            <!--style="float:right; margin-right:20px;"-->
+            <!--@click="deNoise"-->
+          <!--&gt;属性去噪</el-button>-->
           <!-- <el-button v-if="!isList" type="primary" class="darkBtn" size="small" style="float:right; margin-right:20px;" @click="loadData">数据加载</el-button> -->
           <el-button
             v-if="isList"
@@ -539,7 +539,7 @@ export default {
         .then(res => {
           if (res.data === 1) {
             this.$message({
-              message: "请点击属性去噪后再进行实体对齐！",
+              message: "请属性去噪后再进行实体对齐！",
               type: "warning"
             });
             return;
@@ -650,41 +650,41 @@ export default {
         });
       this.setSumCount();
     },
-    deNoise() {
-      this.isList = false;
-      let fd = new FormData();
-      fd.append("table", this.tableIndex);
-      this.$http
-        .post("http://49.232.95.141:8000/pic/data_filter", fd, {
-          headers: {
-            "Content-Type": "multipart/form-data"
-          }
-        })
-        .then(res => {
-          this.rawData = [].concat(res.data[1]);
-
-          this.columnNames = [].concat(
-            res.data[0].map(cur => {
-              return { prop: cur, label: cur };
-            })
-          );
-
-          //加载去噪后数据替换在tableData中
-          this.tableData = [].concat(
-            res.data[1].map(cur => {
-              let res = {};
-              for (let i = 0; i < this.columnNames.length; i++)
-                res[this.columnNames[i].prop] = cur[i];
-              return res;
-            })
-          );
-          this.fileCount = res.data[1].length;
-        })
-        .catch(res => {
-          //请求失败
-          console.log(res);
-        });
-    },
+    // deNoise() {
+    //   this.isList = false;
+    //   let fd = new FormData();
+    //   fd.append("table", this.tableIndex);
+    //   this.$http
+    //     .post("http://49.232.95.141:8000/pic/data_filter", fd, {
+    //       headers: {
+    //         "Content-Type": "multipart/form-data"
+    //       }
+    //     })
+    //     .then(res => {
+    //       this.rawData = [].concat(res.data[1]);
+    //
+    //       this.columnNames = [].concat(
+    //         res.data[0].map(cur => {
+    //           return { prop: cur, label: cur };
+    //         })
+    //       );
+    //
+    //       //加载去噪后数据替换在tableData中
+    //       this.tableData = [].concat(
+    //         res.data[1].map(cur => {
+    //           let res = {};
+    //           for (let i = 0; i < this.columnNames.length; i++)
+    //             res[this.columnNames[i].prop] = cur[i];
+    //           return res;
+    //         })
+    //       );
+    //       this.fileCount = res.data[1].length;
+    //     })
+    //     .catch(res => {
+    //       //请求失败
+    //       console.log(res);
+    //     });
+    // },
     chooseTable() {
       // console.log(this.tableIndex)
       if (this.tableIndex === "") return;
