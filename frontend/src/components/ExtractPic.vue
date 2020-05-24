@@ -2,12 +2,54 @@
   <el-container v-loading="fullscreenLoading" element-loading-text="模型测试中，离开将中断测试……">
     <!--内容块-->
     <el-main>
+      <!--上传窗口-->
+      <div id="upload" v-if="isUpload">
+        <el-card class="box-card">
+          <div slot="header" class="clearfix">
+            <span>数据上传</span>
+            <i class="el-icon-close" style="float: right; padding: 3px 0" @click="cancelUpload"></i>
+          </div>
+          <el-upload
+            class="upload-demo"
+            drag
+            ref="upload"
+            :auto-upload="false"
+            accept=".jpg, .jpeg"
+            action="https://jsonplaceholder.typicode.com/posts/"
+            :on-remove="handleRemove"
+            :on-change="handleAddFile"
+            :file-list="uploadList"
+            :limit="3"
+            :on-exceed="handleExceed"
+            multiple
+          >
+            <i class="el-icon-upload"></i>
+            <div class="el-upload__text">
+              将文件拖到此处，或
+              <em>点击上传</em>
+            </div>
+            <div class="el-upload__tip" slot="tip">
+              支持上传jpg文件及jpeg文件
+              <br />限制上传最多3张图片
+              <br />
+            </div>
+          </el-upload>
+          <el-button size="small" @click="cancelUpload">取消</el-button>
+          <el-button
+            style="margin-left: 10px;"
+            class="darkBtn"
+            size="small"
+            type="primary"
+            @click="submitUpload"
+          >上传并分析</el-button>
+        </el-card>
+      </div>
       <!--顶部-->
       <div class="header">
         <i
           class="el-icon-back"
-          @click="resultFlag=false"
-          v-if="resultFlag"
+          @click="resultFlag=false;graphFlag=false;"
+          v-if="resultFlag||graphFlag"
           style="margin-right:10px;"
         ></i>
         图片抽取
@@ -16,7 +58,24 @@
           class="darkBtn headbutton"
           size="small"
           style="float:right; margin-right:20px;"
+          @click="showGraph"
+          v-if="!resultFlag&&!graphFlag"
+        >进入图谱</el-button>
+        <el-button
+          type="primary"
+          class="darkBtn headbutton"
+          size="small"
+          style="float:right; margin-right:20px;"
+          @click="isUpload=true"
+          v-if="!resultFlag&&!graphFlag"
+        >文件上传</el-button>
+        <el-button
+          type="primary"
+          class="darkBtn headbutton"
+          size="small"
+          style="float:right; margin-right:20px;"
           @click="showResults"
+          v-if="!resultFlag&&!graphFlag"
         >查看测试结果</el-button>
         <el-button
           type="primary"
@@ -24,13 +83,15 @@
           size="small"
           style="float:right; margin-right:20px;"
           @click="modelTest"
+          v-if="!resultFlag&&!graphFlag"
         >模型测试</el-button>
-        <el-button class="blueBtn headbutton" size="small" @click="loadList">加载测试数据</el-button>
+        <el-button class="blueBtn headbutton" size="small" @click="loadList"
+          v-if="!resultFlag&&!graphFlag">加载测试数据</el-button>
       </div>
       <el-divider></el-divider>
       <!--中心-->
       <!--      列表页-->
-      <div class="main" v-if="!resultFlag">
+      <div class="main" v-if="!resultFlag&&!graphFlag">
         <div id="matchInfo" v-if="picList.length!==0">已有测试数据数量 : {{picList.length}}</div>
         <!--文书列表-->
         <el-row
@@ -88,6 +149,7 @@
           </el-col>
         </el-row>
       </div>
+      <!--结果页-->
       <div class="main" style="display:flex; flex-direction:column;" v-if="resultFlag">
         <div style="text-align:center;font-size:large;">-----以下内容仅为随机展示的部分结果-----</div>
         <div class="picStyle" v-for="(item, index) in resultList" :key="index">
@@ -97,9 +159,28 @@
               <span class="dot">...</span>
             </div>
           </el-image>
-          <div style="text-align: center;font-weight: bold;width: 100%">
-            图{{index + 1}}
-          </div>
+          <div style="text-align: center;font-weight: bold;width: 100%">图{{index + 1}}</div>
+        </div>
+      </div>
+      <!--图谱搜索页-->
+      <div class="main" v-if="graphFlag">
+        <el-input v-model="inputEntity" style="width:250px;" placeholder="请输入实体名称"></el-input>
+        <el-select v-model="level" placeholder="请选择查询级数">
+          <el-option
+            v-for="item in levelList"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value"
+          ></el-option>
+        </el-select>
+        <el-button
+          style="margin-left:20px; height: 40px"
+          class="darkBtn"
+          size="small"
+          @click="onSearchClick"
+        >搜索</el-button>
+        <div id="kgPic">
+          <div id="graph" style="width: 1200px;height:800px;"></div>
         </div>
       </div>
     </el-main>
@@ -121,15 +202,32 @@
 <script>
 let echarts = require("echarts");
 let myChart;
-
+import { option } from "../js/echartSettings";
 export default {
   name: "ExtractPic",
   data() {
     return {
+      inputEntity: "",
+      levelList: [
+        {
+          label: "一级查询",
+          value: 1
+        },
+        {
+          label: "二级查询",
+          value: 2
+        },
+        {
+          label: "三级查询",
+          value: 3
+        }
+      ],
+      level: 1,
+      graphFlag: false,
+      uploadList: [],
+      isUpload: false,
       resultFlag: false,
       curPage: 1,
-      //上传的文件列表
-      fileList: [],
       //表格数据 测试集
       picList: [],
       //选中行
@@ -141,24 +239,82 @@ export default {
       loadingRes: false,
       fullscreenLoading: false,
       src: "",
-      resultList:[]
+      resultList: []
     };
   },
 
   methods: {
+    onSearchClick() {
+      let Myoption = JSON.parse(JSON.stringify(option));
+      myChart = echarts.init(document.getElementById("graph"));
+      myChart.setOption(Myoption, true);
+    },
+    showGraph() {
+      this.graphFlag = true;
+    },
+    submitUpload() {
+      //上传的请求
+      this.fullscreenLoading = true;
+      let fd = new FormData();
+      for (let i = 0; i < this.uploadList.length; i++)
+        fd.append("pic", this.uploadList[i].raw);
+      // this.$http
+      //   .post("http://49.232.95.141:8000/pic/pic_extract", fd, {
+      //     headers: { "Content-Type": "multipart/form-data" }
+      //   })
+      //   .then(res => {
+      //     //清空上传列表
+      //     this.uploadList = [];
+      //     //成功 设置echarts
+      //     console.log(res);
+
+      //     this.isUpload = false;
+      //     this.fullscreenLoading = false;
+      //   })
+      //   .catch(e => {
+      //     this.fullscreenLoading = false;
+      //     console.log(e);
+      //     this.isUpload = false;
+      //   });
+      this.isUpload = false;
+      this.fullscreenLoading = false;
+      console.log(this.uploadList);
+    },
+    handleExceed(files, fileList) {
+      this.$message.warning(
+        `当前限制选择 3 个文件，本次选择了 ${
+          files.length
+        } 个文件,共选择了 ${files.length + fileList.length} 个文件`
+      );
+    },
+    handleRemove(file, fileList) {
+      this.uploadList = fileList;
+    },
+    handleAddFile(file, fileList) {
+      console.log(file);
+      console.log(fileList);
+      this.uploadList = fileList;
+    },
+    cancelUpload() {
+      this.isUpload = false;
+      this.uploadList = [];
+    },
     showResults() {
-      this.resultFlag=true;
-      this.$http.post("http://49.232.95.141:8000/pic/pic_test_results", {
+      this.resultFlag = true;
+      this.$http
+        .post("http://49.232.95.141:8000/pic/pic_test_results", {
           headers: {
             "Content-Type": "multipart/form-data"
           }
-        }).then(res => {
-          console.log(res)
-          this.resultList = res.data;
-        }).catch(res => {
-          console.log(res)
-          alert("出错了！")
         })
+        .then(res => {
+          console.log(res);
+          this.resultList = res.data;
+        })
+        .catch(res => {
+          console.log(res);
+          alert("出错了！");
+        });
     },
     modelTest() {
       this.fullscreenLoading = true;
@@ -398,13 +554,21 @@ body > .el-container {
   margin: 0 0 15px 10px;
   font-size: 13px;
 }
-.picStyle{
-  width:60%;
+.picStyle {
+  width: 60%;
   align-self: center;
-  margin-top:20px;
+  margin-top: 20px;
 }
-.picStyle:first{
-  width:60%;
+.picStyle:first {
+  width: 60%;
   align-self: center;
+}
+
+#kgPic {
+  height: 800px;
+  width: 100%;
+  margin-top: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12), 0 0 6px rgba(0, 0, 0, 0.04);
+  background-color: #fff;
 }
 </style>
