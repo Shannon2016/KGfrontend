@@ -6,8 +6,8 @@
       <div class="header">
         <i
           class="el-icon-back"
-          @click="resultFlag=false"
-          v-if="resultFlag"
+          @click="resultFlag=false;graphFlag=false;"
+          v-if="resultFlag||graphFlag"
           style="margin-right:10px;"
         ></i>
         视频抽取
@@ -16,7 +16,16 @@
           class="darkBtn headbutton"
           size="small"
           style="float:right; margin-right:20px;"
+          @click="showGraph"
+          v-if="!resultFlag&&!graphFlag"
+        >加入图谱</el-button>
+        <el-button
+          type="primary"
+          class="darkBtn headbutton"
+          size="small"
+          style="float:right; margin-right:20px;"
           @click="showResults"
+          v-if="!resultFlag&&!graphFlag"
         >查看测试结果</el-button>
         <el-button
           type="primary"
@@ -24,13 +33,14 @@
           size="small"
           style="float:right; margin-right:20px;"
           @click="modelTest"
+          v-if="!resultFlag&&!graphFlag"
         >模型测试</el-button>
-        <el-button class="blueBtn headbutton" size="small" @click="loadList">加载测试数据</el-button>
+        <el-button class="blueBtn headbutton" size="small" @click="loadList" v-if="!resultFlag&&!graphFlag">加载测试数据</el-button>
       </div>
       <el-divider></el-divider>
       <!--中心-->
       <!--      列表页-->
-      <div class="main" v-if="!resultFlag">
+      <div class="main" v-if="!resultFlag&&!graphFlag">
         <div id="matchInfo" v-if="vedioList.length!==0">已有测试数据数量 : {{vedioList.length}}</div>
         <!--文书列表-->
         <el-row
@@ -92,6 +102,19 @@
           </div>
         </div>
       </div>
+      <!--图谱搜索页-->
+      <div class="main" v-if="graphFlag">
+        <el-input v-model="inputEntity" style="width:250px;" placeholder="请输入实体名称"></el-input>
+        <el-button
+          style="margin-left:20px; height: 40px"
+          class="darkBtn"
+          size="small"
+          @click="onSearchClick"
+        >搜索</el-button>
+        <div id="kgPic">
+          <div id="graph" style="width: 1200px;height:800px;"></div>
+        </div>
+      </div>
     </el-main>
 
     <!-- 分析页 -->
@@ -112,10 +135,13 @@
 let echarts = require("echarts");
 let myChart;
 
+import { option } from "../js/echartSettings";
 export default {
   name: "ExtractVideo",
   data() {
     return {
+      graphFlag:false,
+      inputEntity: "",
       resultFlag:false,
       curPage: 1,
       //上传的文件列表
@@ -136,6 +162,14 @@ export default {
   },
 
   methods: {
+    onSearchClick() {
+      let Myoption = JSON.parse(JSON.stringify(option));
+      myChart = echarts.init(document.getElementById("graph"));
+      myChart.setOption(Myoption, true);
+    },
+    showGraph() {
+      this.graphFlag = true;
+    },
     showResults() {
       this.resultFlag=true;
       this.$http.post("http://49.232.95.141:8000/pic/video_test_results", {

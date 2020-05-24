@@ -60,7 +60,7 @@
           style="float:right; margin-right:20px;"
           @click="showGraph"
           v-if="!resultFlag&&!graphFlag"
-        >进入图谱</el-button>
+        >加入图谱</el-button>
         <el-button
           type="primary"
           class="darkBtn headbutton"
@@ -165,14 +165,6 @@
       <!--图谱搜索页-->
       <div class="main" v-if="graphFlag">
         <el-input v-model="inputEntity" style="width:250px;" placeholder="请输入实体名称"></el-input>
-        <el-select v-model="level" placeholder="请选择查询级数">
-          <el-option
-            v-for="item in levelList"
-            :key="item.value"
-            :label="item.label"
-            :value="item.value"
-          ></el-option>
-        </el-select>
         <el-button
           style="margin-left:20px; height: 40px"
           class="darkBtn"
