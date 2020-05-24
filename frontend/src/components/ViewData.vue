@@ -120,7 +120,7 @@
     data () {
       return {
         sourceIndex:"",
-        sourceList:["数据源1", "数据源2"],
+        sourceList:["structData", "数据源2"],
         sourceFlag:true,
         isList:true,
         fileCount:0,
@@ -142,7 +142,20 @@
 
     methods: {
       chooseSource() {
-        this.sourceFlag = false;
+        let fd = new FormData()
+        fd.append("source", this.sourceIndex)
+        this.$http.post("http://49.232.95.141:8000/pic/struct_data_source",fd,
+          {
+            headers: {
+              'Content-Type': 'multipart/form-data'
+            }
+          }).then(res => {
+            console.log(res)
+            this.properties = res.data
+            this.sourceFlag = false;
+          }).catch(res => {
+            console.log(res)
+          })
       },
       chooseTable() {
         // console.log(this.tableIndex)
@@ -153,6 +166,7 @@
 
         let fd = new FormData()
         fd.append('table',this.tableIndex)
+        fd.append("source", this.sourceIndex);
         this.$http.post(
           'http://49.232.95.141:8000/pic/view_structData',fd,
           {
@@ -371,21 +385,6 @@
       },
     },
 
-
-    mounted() {
-      this.$http.post(
-        'http://49.232.95.141:8000/pic/show_table',
-        {
-          headers: {
-            'Content-Type': 'multipart/form-data'
-          }
-        }).then((res) => {
-        this.properties = res.data
-      }).catch((res) => {
-        //请求失败
-        console.log(res)
-      })
-    }
   }
 </script>
 

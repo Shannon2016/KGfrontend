@@ -171,7 +171,7 @@ export default {
       let fd = new FormData();
       fd.append("table", this.tableIndex);
       this.$http
-        .post("http://49.232.95.141:8000/pic/view_structData", fd, {
+        .post("http://49.232.95.141:8000/pic/view_noise_data", fd, {
           headers: {
             "Content-Type": "multipart/form-data"
           }
@@ -249,7 +249,7 @@ export default {
         });
     },
     init(){
-      this.$http.post("http://49.232.95.141:8000/pic/show_table",{
+      this.$http.post("http://49.232.95.141:8000/pic/load_noise_data",{
           headers: {
             "Content-Type": "multipart/form-data"
           }
