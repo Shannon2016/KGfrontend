@@ -262,7 +262,7 @@ export default {
           }
         })
         .then(res => {
-          console.log(res);
+          // console.log(res);
           let str = "";
           for (let i of res.data) {
             if (str.indexOf(i) === -1) {
@@ -283,12 +283,13 @@ export default {
     },
     createDependence() {
       let fd = new FormData();
-      fd.append("ontology_data",JSON.stringify([this.entitySelect[0]]))
+      fd.append("ontology", this.typeSelect)
       this.$http.post("http://49.232.95.141:8000/pic/functional_dependency",fd, {
           headers: {
             "Content-Type": "multipart/form-data"
           }
         }).then(res => {
+          console.log(res)
           let str = ''
           for(let i of res.data){
             str +="<p><strong>"+i[0]+" <i>" + i[1] + "</i>  "+i[2]+"</strong></p>"
@@ -301,7 +302,7 @@ export default {
             }
           );
         }).catch(res => {
-
+          console.log(res)
         })
 
     },
