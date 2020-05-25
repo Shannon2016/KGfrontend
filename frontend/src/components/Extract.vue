@@ -134,7 +134,7 @@
             <el-pagination
               background
               layout="prev, pager, next, jumper"
-              :total="fileCountTrain"
+              :total="fileCountTest"
               :current-page.sync="curPageTrain"
               @current-change="handleCurrentChangeTrain"
             ></el-pagination>
@@ -275,7 +275,7 @@ export default {
       isUpload: false,
       curPage: 1,
       fileIndex:"",
-      fileList: ["目录1","目录2","目录3","目录4","目录5"],
+      fileList: ["contents1","contents2","contents3","contents4","contents5"],
       //表格数据 测试集
       testData: [],
       // trainData: [],
@@ -584,35 +584,58 @@ export default {
         this.showFlag = 2;
         else this.showFlag = 1;
       // alert(this.fileIndex)
-      // let fd = new FormData();
-      // fd.append("algorithm", this.algorithm);
-      // this.loadingRes = true;
-      // this.$http
-      //   .post("http://49.232.95.141:8000/pic/load_textData", fd, {
-      //     headers: {
-      //       "Content-Type": "multipart/form-data"
-      //     }
-      //   })
-      //   .then(res => {
-      //      console.log(res)
-      //     this.textData = "";
-      //     // this.trainData = res.data[0].map((cur) => { return {title:cur};});
-      //     this.testData = res.data[1].map(cur => {
-      //       return { title: cur };
-      //     });
-      //     this.fileCountTest = this.testData.length;
-      //     // this.fileCountTrain = this.trainData.length;
-
-      //     this.loadingRes = false;
-      //   })
-      //   .catch(res => {
-      //     console.log(res);
-      //     alert("出错了！");
-      //     this.loadingRes = false;
-      //   });
+      if(this.algorithm ==="深度学习算法"){
+        this.textData = "";
+          this.testData=[]
+          this.fileCountTest=0
+        return;
+      }
+      this.loadingRes = true;
+      this.$http
+        .post("http://49.232.95.141:8000/pic/loadTextDataRE", {
+          headers: {
+            "Content-Type": "multipart/form-data"
+          }
+        })
+        .then(res => {
+           console.log(res)
+          this.textData = "";
+          this.testData = res.data.map(cur => {
+            return { title: cur };
+          });
+          this.fileCountTest = this.testData.length;
+          this.loadingRes = false;
+        })
+        .catch(res => {
+          console.log(res);
+          alert("出错了！");
+          this.loadingRes = false;
+        });
     },
     loadModel() {
-
+      this.loadingRes = true;
+      let fd = new FormData();
+      fd.append("contents", this.fileIndex)
+      this.$http
+        .post("http://49.232.95.141:8000/pic/loadTextDataDL", fd,{
+          headers: {
+            "Content-Type": "multipart/form-data"
+          }
+        })
+        .then(res => {
+           console.log(res)
+          this.textData = "";
+          this.testData = res.data.map(cur => {
+            return { title: cur };
+          });
+          this.fileCountTest = this.testData.length;
+          this.loadingRes = false;
+        })
+        .catch(res => {
+          console.log(res);
+          alert("出错了！");
+          this.loadingRes = false;
+        });
     },
     handleCurrentChangeTest(cpage) {
       this.curPageTest = cpage;
@@ -624,18 +647,22 @@ export default {
     handleAnalysis(row) {
       this.selectTitle = row.title;
       let fd = new FormData();
-      fd.append("algorithm", this.algorithm);
+      let url=""
+      if(this.algorithm==="深度学习算法") {
+        url="viewTextDL"
+        fd.append("contents", this.fileIndex)
+      } else url="viewTextDataRE"
       fd.append("filename", row.title);
-      console.log(this.algorithm);
+
       this.loadingRes = true;
       this.$http
-        .post("http://49.232.95.141:8000/pic/view_textData", fd, {
+        .post("http://49.232.95.141:8000/pic/"+url, fd, {
           headers: {
             "Content-Type": "multipart/form-data"
           }
         })
         .then(res => {
-          console.log(res.data);
+          // console.log(res.data);
           this.textData = res.data;
           this.loadingRes = false;
         })

@@ -288,14 +288,23 @@ export default {
           }
         })
         .then(res => {
-          console.log(res.data);
+          console.log(res);
+          if(res.data[0] === 1){
+            this.isSearch = true;
+            this.isGraph = false;
+            this.inputEntity = "";
+            this.$message({
+              message: '加入成功！',
+              type: 'success'
+            });
+          }
+          else {
+            this.$message.error('出错了！');
+          }
         })
         .catch(res => {
           console.log(res);
         });
-      this.isSearch = true;
-      this.isGraph = false;
-      this.inputEntity = "";
     },
     handleAnalysis(row) {
       this.selectTitle = row.title;
@@ -330,11 +339,11 @@ export default {
           }
         })
         .then(res => {
-          console.log(res);
+          // console.log(res);
           this.textData = "";
-          // this.tableData = res.data[1].map((cur) => {
-          //   return {title:cur};
-          // });
+          this.tableData = res.data.map((cur) => {
+            return {title:cur};
+          });
           this.fileCount = this.tableData.length;
           this.loadingRes = false;
         })
@@ -348,30 +357,31 @@ export default {
       this.isList = false;
       this.listType = false;
       this.isCatalog = true;
-      this.tableDataEntity.push({ title: "1" });
-      for (let i = 0; i < 23; i++) this.tableDataRelation.push({ title: "2" });
-      this.tableDataRelation.push({ title: "3" });
-      // this.loadingRes = true;
-      // this.$http.post(
-      //   'http://49.232.95.141:8000/pic/loadJS_mark_text',
-      //   {
-      //     headers: {
-      //       'Content-Type': 'multipart/form-data'
-      //     }
-      //   }).then((res) => {
-      //     console.log(res)
-      //   this.textData = '';
-      //   // this.tableData = res.data[1].map((cur) => {
-      //   //   return {title:cur};
-      //   // });
-      //   this.fileCount = this.tableData.length;
-      //   this.loadingRes = false;
 
-      // }).catch((res) => {
-      //   console.log(res)
-      //   alert('出错了！')
-      //   this.loadingRes = false;
-      // })
+      this.loadingRes = true;
+      this.$http.post(
+        'http://49.232.95.141:8000/pic/loadJS_mark_text',
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          }
+        }).then((res) => {
+          // console.log(res)
+        this.textData = '';
+        this.tableDataEntity = res.data[0].map((cur) => {
+          return {title:cur};
+        })
+        this.tableDataRelation = res.data[1].map((cur) => {
+          return {title:cur};
+        })
+        // this.fileCount = this.tableData.length;
+        this.loadingRes = false;
+
+      }).catch((res) => {
+        console.log(res)
+        alert('出错了！')
+        this.loadingRes = false;
+      })
     },
     showDict() {
       this.isList = false;
