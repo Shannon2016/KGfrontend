@@ -40,7 +40,7 @@
       <div class="main">
         <div class="top-tip">
           <span>请选择算法：</span>
-          <el-select v-model="algorithm" placeholder size="small" style="margin-left:20px;">
+          <el-select v-model="algorithm" placeholder size="small" style="margin-left:10px;">
             <el-option
               v-for="(item, index) in algorithmList"
               :key="index"
@@ -48,7 +48,15 @@
               :value="item"
             ></el-option>
           </el-select>
-
+          <span style="margin-left:20px;">请选择文书目录：</span>
+          <el-select v-model="fileIndex" :disabled="algorithm!=='深度学习算法'" placeholder size="small" style="margin-left:10px;">
+            <el-option
+              v-for="(item, index) in fileList"
+              :key="index"
+              :label="item"
+              :value="item"
+            ></el-option>
+          </el-select>
           <el-button
             style="margin-left:20px;"
             class="blueBtn"
@@ -259,8 +267,8 @@ export default {
       fileCount: 0,
       isUpload: false,
       curPage: 1,
-      //上传的文件列表
-      fileList: [],
+      fileIndex:"",
+      fileList: ["目录1","目录2","目录3","目录4","目录5"],
       //表格数据 测试集
       testData: [],
       // trainData: [],
@@ -541,6 +549,7 @@ export default {
     },
     //选择算法，显示对应测试集和训练集
     chooseTable() {
+      alert(this.fileIndex)
       let fd = new FormData();
       fd.append("algorithm", this.algorithm);
       this.loadingRes = true;

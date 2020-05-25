@@ -64,6 +64,7 @@
               size="small"
               style="width:200px;"
               @change="typeChange"
+              :disabled="canFlag"
             >
               <el-option
                 v-for="(item, index) in typeList"
@@ -80,6 +81,8 @@
               :options="entityList"
               v-model="entitySelect"
               @change="entityChange"
+              :disabled="canFlag"
+              size="small"
             ></el-cascader>
 
             <span style="margin-left:20px;">请选择属性：</span>
@@ -88,6 +91,8 @@
               :options="propertyList"
               v-model="propertySelect"
               @change="propertyChange"
+              :disabled="canFlag"
+              size="small"
             ></el-cascader>
 
             <el-button
@@ -116,6 +121,10 @@
           :cell-style="cellStyle"
           border
           height="626"
+          v-loading="loadingRes"
+          element-loading-text="正在加载中，请稍等……"
+          element-loading-spinner="el-icon-loading"
+          element-loading-background="rgba(0, 0, 0, 0.1)"
         >
           <el-table-column
             v-for="(item, index) in columnNames"
@@ -181,11 +190,13 @@ export default {
       curPage: 1,
       columnNames: [],
       fileCount: 0,
+      loadingRes:false,
       loadingResGraph: false,
       graphFlag: false,
       typeSelect: "",
       typeList: ["本体库1", "本体库2", "本体库3", "本体库4"],
-      sourceFlag: true
+      sourceFlag: true,
+      canFlag:true
     };
   },
   methods: {
@@ -316,6 +327,13 @@ export default {
         if (i.type === "warning") columns.push(i.column);
         ontology_data.push(i.entity);
       }
+      if(columns.length < 1) {
+        this.$message({
+          message: '请选择实体！',
+          type: 'warning'
+        });
+        return;
+      }
       fd.append("columns", JSON.stringify(columns));
       fd.append("ontology_data", JSON.stringify(ontology_data));
       this.$http
@@ -330,6 +348,15 @@ export default {
               message: "抽取实体成功!",
               type: "success"
             });
+            this.entityIndex = []
+            let index=-1;
+            for(let i = 0; i < this.tags.length; i ++){
+              if (this.tags[i].type === "warning") {
+                index = i; break;
+              }
+            }
+            this.tags.splice(index, 1);
+            this.entitySelect=""
           } else this.$message.error("抽取失败！");
         })
         .catch(res => {
@@ -373,6 +400,13 @@ export default {
         ontology_data.push(i.entity);
         }
       }
+      if(columns.length <= 1) {
+        this.$message({
+          message: '请至少选择一个属性！',
+          type: 'warning'
+        });
+        return;
+      }
       console.log(columns, ontology_data);
       fd.append("columns", JSON.stringify(columns));
       fd.append("ontology_data", JSON.stringify(ontology_data));
@@ -388,6 +422,14 @@ export default {
               message: "抽取实体属性成功!",
               type: "success"
             });
+            this.propertyIndex=[]
+            this.tags=[];
+            this.tags.push({
+              entity: this.entitySelect[0],
+              column: this.entitySelect[1],
+              type: "warning"
+            })
+            this.propertySelect=""
           } else this.$message.error("抽取失败！");
         })
         .catch(res => {
@@ -430,7 +472,7 @@ export default {
     chooseTable() {
       // console.log(this.tableIndex)
       if (this.tableIndex === "") return;
-
+      this.loadingRes = true;
       //清空表格记录
       this.columnNames = [];
       this.tableData = [];
@@ -439,9 +481,9 @@ export default {
       this.entityIndex = [];
       this.propertyIndex = [];
       this.entityList=[];
-      this.entitykey="";
+      this.entitykey=0;
       this.tags=[];
-      this.propertyKey="";
+      this.propertyKey=-1;
       this.propertyList=[];
 
       let fd = new FormData();
@@ -465,10 +507,14 @@ export default {
           // this.rawData = res.data[1];
 
           this.fileCount = res.data[1].length;
+          this.canFlag=false;
+          this.loadingRes = false;
         })
         .catch(res => {
           //请求失败
           console.log(res);
+          alert("请求失败")
+          this.loadingRes = false;
         });
     },
     //展示图谱
