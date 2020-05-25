@@ -15,6 +15,7 @@ import ShowOntology from "../components/ShowOntology"
 import EntityMatch from "../components/EntityMatch"
 import DeNoise from "../components/DeNoise"
 import ViewData from "../components/ViewData"
+import ExtractTest from "../components/ExtractTest"
 
 Vue.use(Router)
 
@@ -101,6 +102,11 @@ export default new Router({
       path: '/viewData',
       name: '/viewData',
       component: ViewData
+    },
+    {
+      path: '/extractTest',
+      name: '/ExtractTest',
+      component: ExtractTest
     }
   ]
 })

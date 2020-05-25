@@ -63,6 +63,9 @@
               <el-menu-item-group>
                 <el-menu-item index="/entityMatch">实体对齐</el-menu-item>
               </el-menu-item-group>
+              <el-menu-item-group>
+                <el-menu-item index="/extractTest">抽取测试</el-menu-item>
+              </el-menu-item-group>
             </el-submenu>
             <el-submenu index="2" v-if="activeIndex==='/showOntology'">
               <template slot="title">
@@ -135,7 +138,8 @@ export default {
       this.$store.dispatch('changeIndex','/');
     else if(past === '/showOntology' || past === '/extractStruct' || past === '/entityMatch'
             || past === '/showDict' || past === '/extract' || past === '/extractPic'
-            || past === '/extractVideo' || past === '/deNoise' || past === '/viewData')
+            || past === '/extractVideo' || past === '/deNoise' || past === '/viewData'
+            || past === '/extractTest')
       this.$store.dispatch('changeIndex','/showOntology');
     else if(past === '/correct')
       this.$store.dispatch('changeIndex','/correct');
