@@ -106,16 +106,13 @@
         <el-row>
           <el-col :span="12">
             <el-table
-              :data="resultList.slice((curPage - 1) * 10, curPage * 10)"
+              :data="resultList.slice((curPageResult - 1) * 10, curPageResult * 10)"
               :header-cell-style="{background:'#EBEEF7',color:'#606266'}"
               height="626"
               style="width:97%"
               border
             >
-              <el-table-column label="结果列表">
-                <template slot-scope="scope">
-                  视频{{scope.row.index}}
-                </template>
+              <el-table-column prop="title" label="结果列表">
               </el-table-column>
               <el-table-column label="操作" width="100" align="center">
                 <template slot-scope="scope">
@@ -268,8 +265,13 @@ export default {
         }).then(res => {
           console.log(res)
           this.resultList = res.data.map((url,index)=>{
+            let list;
+            if(url.indexOf("\\")===-1)
+              list=url.split("/");
+            else
+              list=url.split("\\");
             return {
-              url:url,index:index+1,
+              url:url,title:list[list.length-1],
             }
           });
         }).catch(res => {

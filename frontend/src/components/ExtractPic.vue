@@ -166,16 +166,13 @@
           <el-row>
             <el-col :span="12">
               <el-table
-                :data="resultList.slice((curPage - 1) * 10, curPage * 10)"
+                :data="resultList.slice((curPageResult - 1) * 10, curPageResult * 10)"
                 :header-cell-style="{background:'#EBEEF7',color:'#606266'}"
                 height="626"
                 style="width:97%"
                 border
               >
-                <el-table-column label="结果列表">
-                  <template slot-scope="scope">
-                    图片{{scope.row.index}}
-                  </template>
+                <el-table-column prop="title" label="结果列表">
                 </el-table-column>
                 <el-table-column label="操作" width="100" align="center">
                   <template slot-scope="scope">
@@ -193,9 +190,9 @@
               <el-pagination
                 background
                 layout="prev, pager, next, jumper"
-                :total="picList.length"
-                :current-page.sync="curPage"
-                @current-change="handleCurrentChange"
+                :total="resultList.length"
+                :current-page.sync="curPageResult"
+                @current-change="handleCurrentChangeResult"
               ></el-pagination>
               <!--</el-pagination> -->
             </el-col>
@@ -276,6 +273,7 @@ export default {
       isUpload: false,
       resultFlag: false,
       curPage: 1,
+      curPageResult:1,
       //表格数据 测试集
       picList: [],
       //选中行
@@ -398,11 +396,16 @@ export default {
         })
         .then(res => {
           console.log(res);
-          this.resultList = res.data.map((url,index)=>{
-            return{
-              url:url,index:index+1,
+          this.resultList = res.data.map((url,index)=> {
+            let list;
+            if (url.indexOf("\\") === -1)
+              list = url.split("/");
+            else
+              list = url.split("\\");
+            return {
+              url: url, title: list[list.length - 1],
             }
-          });
+          })
         })
         .catch(res => {
           console.log(res);
@@ -461,6 +464,9 @@ export default {
     },
     handleCurrentChange(cpage) {
       this.curPage = cpage;
+    },
+    handleCurrentChangeResult(cpage) {
+      this.curPageResult = cpage;
     },
     //查看图片内容
     handleAnalysis(row) {
