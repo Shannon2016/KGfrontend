@@ -11,14 +11,14 @@
           style="margin-right:10px;"
         ></i>
         视频抽取
-        <el-button
-          type="primary"
-          class="darkBtn headbutton"
-          size="small"
-          style="float:right; margin-right:20px;"
-          @click="showGraph"
-          v-if="!resultFlag&&!graphFlag"
-        >加入图谱</el-button>
+        <!--<el-button-->
+          <!--type="primary"-->
+          <!--class="darkBtn headbutton"-->
+          <!--size="small"-->
+          <!--style="float:right; margin-right:20px;"-->
+          <!--@click="showGraph"-->
+          <!--v-if="!resultFlag&&!graphFlag"-->
+        <!--&gt;加入图谱</el-button>-->
         <el-button
           type="primary"
           class="darkBtn headbutton"
@@ -94,13 +94,63 @@
         </el-row>
       </div>
       <div class="main" style="display:flex; flex-direction:column;" v-if="resultFlag">
-        <div style="text-align:center;font-size:large;">-----以下内容仅为随机展示的部分结果-----</div>
-        <div class="picStyle" v-for="(item, index) in resultList" :key="index">
-          <video :src="item" controls="controls" style="width:100%;"></video>
-          <div style="text-align: center;font-weight: bold;width: 100%">
-            视频{{index + 1}}
-          </div>
-        </div>
+        <!--<div style="text-align:center;font-size:large;">-&#45;&#45;&#45;&#45;以下内容仅为随机展示的部分结果-&#45;&#45;&#45;&#45;</div>-->
+        <!--<div class="picStyle" v-for="(item, index) in resultList" :key="index">-->
+          <!--<video :src="item" controls="controls" style="width:100%;"></video>-->
+          <!--<div style="text-align: center;font-weight: bold;width: 100%">-->
+            <!--视频{{index + 1}}-->
+          <!--</div>-->
+        <!--</div>-->
+
+        <!--结果列表-->
+        <el-row>
+          <el-col :span="12">
+            <el-table
+              :data="resultList.slice((curPage - 1) * 10, curPage * 10)"
+              :header-cell-style="{background:'#EBEEF7',color:'#606266'}"
+              height="626"
+              style="width:97%"
+              border
+            >
+              <el-table-column label="结果列表">
+                <template slot-scope="scope">
+                  视频{{scope.row.index}}
+                </template>
+              </el-table-column>
+              <el-table-column label="操作" width="100" align="center">
+                <template slot-scope="scope">
+                  <el-button
+                    class="blueBtn"
+                    @click="handleAnalysisResult(scope.row.url)"
+                    type="primary"
+                    plain
+                    size="small"
+                  >浏览</el-button>
+                </template>
+              </el-table-column>
+            </el-table>
+            <!-- 分页符-->
+            <el-pagination
+              background
+              layout="prev, pager, next, jumper"
+              :total="resultList.length"
+              :current-page.sync="curPageResult"
+              @current-change="handleCurrentChangeResult"
+            ></el-pagination>
+            <!--</el-pagination> -->
+          </el-col>
+          <el-col
+            :span="12"
+            style="background-color:#FFF;min-height:625px; box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1)"
+          >
+            <div class="tableHeader">
+              视频浏览
+            </div>
+            <div style="padding:0 15px; margin-top:100px;">
+              <video v-if="resultSrc!==''" :src="resultSrc" controls="controls" style="width:100%;"></video>
+            </div>
+          </el-col>
+        </el-row>
       </div>
       <!--图谱搜索页-->
       <div class="main" v-if="graphFlag">
@@ -144,6 +194,7 @@ export default {
       inputEntity: "",
       resultFlag:false,
       curPage: 1,
+      curPageResult:1,
       //上传的文件列表
       fileList: [],
       //表格数据 测试集
@@ -157,7 +208,8 @@ export default {
       loadingRes: false,
       fullscreenLoading: false,
       src:"",
-      resultList:[]
+      resultList:[],
+      resultSrc:"",
     };
   },
 
@@ -178,10 +230,8 @@ export default {
               message: "未搜索到该实体！",
               type: "warning"
             });
-            this.isGraph=false;
             return;
           }
-          this.isGraph=true;
           let graphPoint=[{
             name: res.data,
             category: 1,
@@ -217,7 +267,11 @@ export default {
           }
         }).then(res => {
           console.log(res)
-          this.resultList = res.data;
+          this.resultList = res.data.map((url,index)=>{
+            return {
+              url:url,index:index+1,
+            }
+          });
         }).catch(res => {
           console.log(res)
           alert("出错了！")
@@ -272,6 +326,9 @@ export default {
     handleCurrentChange(cpage) {
       this.curPage = cpage;
     },
+    handleCurrentChangeResult(cpage) {
+      this.curPageResult = cpage;
+    },
     //查看视频内容
     handleAnalysis(row) {
       this.selectTitle = row.title;
@@ -292,6 +349,9 @@ export default {
           console.log(res);
           this.loadingRes = false;
         });
+    },
+    handleAnalysisResult(row) {
+      this.resultSrc = row;
     }
   }
 };

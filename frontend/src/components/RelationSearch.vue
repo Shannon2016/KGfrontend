@@ -26,7 +26,7 @@
         <div v-if="searchDone" style="margin-left:10px; margin-bottom:20px; margin-top:10px;">
           <!-- <span>现有正样例：{{positiveCount}}个</span> -->
           <div id="searchInfo">
-            数据库三元组个数 : {{tupleNum}}
+            实体数据容量 : {{tupleNum}}
             <span style="float:right; margin-right:20px;">查询时间：{{searchTime}}</span>
           </div>
         </div>

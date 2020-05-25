@@ -36,10 +36,10 @@
           style="float:right; margin-right:40px;"
           class="textBtn"
         >测试查询效率>></el-button>
-        <div v-if="searchDone" style="margin-left:10px; margin-bottom:20px; margin-top:10px;">
+        <div style="margin-left:10px; margin-bottom:20px; margin-top:10px;">
           <!-- <span>现有正样例：{{positiveCount}}个</span> -->
           <div id="searchInfo">
-            数据库三元组个数 : {{tupleNum}}
+            实体数据容量 : {{tupleNum}}
             <span style="float:right; margin-right:20px;">查询时间：{{searchTime}}</span>
           </div>
         </div>
@@ -352,6 +352,15 @@ export default {
           return;
         });
     }
+  },
+  mounted(){
+    this.$http.post("http://49.232.95.141:8000/neo/start_KGSearch")
+      .then(res => {
+        this.tupleNum = res.data[0];
+        this.searchTime = res.data[1];
+      }).catch((res)=>{
+        console.log(res)
+    })
   }
 };
 </script>
@@ -418,7 +427,7 @@ body > .el-container {
   width: 95%;
   padding: 8px 16px;
   border-radius: 10px;
-  margin: 0 0 15px 10px;
+  margin: 0 0 15px -10px;
   font-size: 13px;
 }
 

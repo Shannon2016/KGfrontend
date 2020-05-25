@@ -3,47 +3,47 @@
     <!--内容块-->
     <el-main>
       <!--上传窗口-->
-      <div id="upload" v-if="isUpload">
-        <el-card class="box-card">
-          <div slot="header" class="clearfix">
-            <span>数据上传</span>
-            <i class="el-icon-close" style="float: right; padding: 3px 0" @click="cancelUpload"></i>
-          </div>
-          <el-upload
-            class="upload-demo"
-            drag
-            ref="upload"
-            :auto-upload="false"
-            accept=".jpg, .jpeg"
-            action="https://jsonplaceholder.typicode.com/posts/"
-            :on-remove="handleRemove"
-            :on-change="handleAddFile"
-            :file-list="uploadList"
-            :limit="3"
-            :on-exceed="handleExceed"
-            multiple
-          >
-            <i class="el-icon-upload"></i>
-            <div class="el-upload__text">
-              将文件拖到此处，或
-              <em>点击上传</em>
-            </div>
-            <div class="el-upload__tip" slot="tip">
-              支持上传jpg文件及jpeg文件
-              <br />限制上传最多3张图片
-              <br />
-            </div>
-          </el-upload>
-          <el-button size="small" @click="cancelUpload">取消</el-button>
-          <el-button
-            style="margin-left: 10px;"
-            class="darkBtn"
-            size="small"
-            type="primary"
-            @click="submitUpload"
-          >上传并分析</el-button>
-        </el-card>
-      </div>
+      <!--<div id="upload" v-if="isUpload">-->
+        <!--<el-card class="box-card">-->
+          <!--<div slot="header" class="clearfix">-->
+            <!--<span>数据上传</span>-->
+            <!--<i class="el-icon-close" style="float: right; padding: 3px 0" @click="cancelUpload"></i>-->
+          <!--</div>-->
+          <!--<el-upload-->
+            <!--class="upload-demo"-->
+            <!--drag-->
+            <!--ref="upload"-->
+            <!--:auto-upload="false"-->
+            <!--accept=".jpg, .jpeg"-->
+            <!--action="https://jsonplaceholder.typicode.com/posts/"-->
+            <!--:on-remove="handleRemove"-->
+            <!--:on-change="handleAddFile"-->
+            <!--:file-list="uploadList"-->
+            <!--:limit="3"-->
+            <!--:on-exceed="handleExceed"-->
+            <!--multiple-->
+          <!--&gt;-->
+            <!--<i class="el-icon-upload"></i>-->
+            <!--<div class="el-upload__text">-->
+              <!--将文件拖到此处，或-->
+              <!--<em>点击上传</em>-->
+            <!--</div>-->
+            <!--<div class="el-upload__tip" slot="tip">-->
+              <!--支持上传jpg文件及jpeg文件-->
+              <!--<br />限制上传最多3张图片-->
+              <!--<br />-->
+            <!--</div>-->
+          <!--</el-upload>-->
+          <!--<el-button size="small" @click="cancelUpload">取消</el-button>-->
+          <!--<el-button-->
+            <!--style="margin-left: 10px;"-->
+            <!--class="darkBtn"-->
+            <!--size="small"-->
+            <!--type="primary"-->
+            <!--@click="submitUpload"-->
+          <!--&gt;上传并分析</el-button>-->
+        <!--</el-card>-->
+      <!--</div>-->
       <!--顶部-->
       <div class="header">
         <i
@@ -53,22 +53,22 @@
           style="margin-right:10px;"
         ></i>
         图片抽取
-        <el-button
-          type="primary"
-          class="darkBtn headbutton"
-          size="small"
-          style="float:right; margin-right:20px;"
-          @click="showGraph"
-          v-if="!resultFlag&&!graphFlag"
-        >加入图谱</el-button>
-        <el-button
-          type="primary"
-          class="darkBtn headbutton"
-          size="small"
-          style="float:right; margin-right:20px;"
-          @click="isUpload=true"
-          v-if="!resultFlag&&!graphFlag"
-        >文件上传</el-button>
+        <!--<el-button-->
+          <!--type="primary"-->
+          <!--class="darkBtn headbutton"-->
+          <!--size="small"-->
+          <!--style="float:right; margin-right:20px;"-->
+          <!--@click="showGraph"-->
+          <!--v-if="!resultFlag&&!graphFlag"-->
+        <!--&gt;加入图谱</el-button>-->
+        <!--<el-button-->
+          <!--type="primary"-->
+          <!--class="darkBtn headbutton"-->
+          <!--size="small"-->
+          <!--style="float:right; margin-right:20px;"-->
+          <!--@click="isUpload=true"-->
+          <!--v-if="!resultFlag&&!graphFlag"-->
+        <!--&gt;文件上传</el-button>-->
         <el-button
           type="primary"
           class="darkBtn headbutton"
@@ -151,17 +151,73 @@
       </div>
       <!--结果页-->
       <div class="main" style="display:flex; flex-direction:column;" v-if="resultFlag">
-        <div style="text-align:center;font-size:large;">-----以下内容仅为随机展示的部分结果-----</div>
-        <div class="picStyle" v-for="(item, index) in resultList" :key="index">
-          <el-image :src="item" fit="contain">
-            <div slot="placeholder" class="image-slot">
-              加载中
-              <span class="dot">...</span>
-            </div>
-          </el-image>
-          <div style="text-align: center;font-weight: bold;width: 100%">图{{index + 1}}</div>
-        </div>
+        <!--<div style="text-align:center;font-size:large;">-&#45;&#45;&#45;&#45;以下内容仅为随机展示的部分结果-&#45;&#45;&#45;&#45;</div>-->
+        <!--<div class="picStyle" v-for="(item, index) in resultList" :key="index">-->
+          <!--<el-image :src="item" fit="contain">-->
+            <!--<div slot="placeholder" class="image-slot">-->
+              <!--加载中-->
+              <!--<span class="dot">...</span>-->
+            <!--</div>-->
+          <!--</el-image>-->
+          <!--<div style="text-align: center;font-weight: bold;width: 100%">图{{index + 1}}</div>-->
+        <!--</div>-->
+
+          <!--结果列表-->
+          <el-row>
+            <el-col :span="12">
+              <el-table
+                :data="resultList.slice((curPage - 1) * 10, curPage * 10)"
+                :header-cell-style="{background:'#EBEEF7',color:'#606266'}"
+                height="626"
+                style="width:97%"
+                border
+              >
+                <el-table-column label="结果列表">
+                  <template slot-scope="scope">
+                    图片{{scope.row.index}}
+                  </template>
+                </el-table-column>
+                <el-table-column label="操作" width="100" align="center">
+                  <template slot-scope="scope">
+                    <el-button
+                      class="blueBtn"
+                      @click="handleAnalysisResult(scope.row.url)"
+                      type="primary"
+                      plain
+                      size="small"
+                    >浏览</el-button>
+                  </template>
+                </el-table-column>
+              </el-table>
+              <!-- 分页符-->
+              <el-pagination
+                background
+                layout="prev, pager, next, jumper"
+                :total="picList.length"
+                :current-page.sync="curPage"
+                @current-change="handleCurrentChange"
+              ></el-pagination>
+              <!--</el-pagination> -->
+            </el-col>
+            <el-col
+              :span="12"
+              style="background-color:#FFF;min-height:625px; box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1)"
+            >
+              <div class="tableHeader">
+                图片浏览
+              </div>
+              <div style="padding:0 15px; margin-top:100px;">
+                <el-image :src="resultSrc" fit="contain" v-if="resultSrc!==''">
+                  <div slot="placeholder" class="image-slot">
+                    加载中
+                    <span class="dot">...</span>
+                  </div>
+                </el-image>
+              </div>
+            </el-col>
+          </el-row>
       </div>
+
       <!--图谱搜索页-->
       <div class="main" v-if="graphFlag">
         <el-input v-model="inputEntity" style="width:450px;" placeholder="请输入实体名称"></el-input>
@@ -231,7 +287,9 @@ export default {
       loadingRes: false,
       fullscreenLoading: false,
       src: "",
-      resultList: []
+      resultList: [],
+      //结果
+      resultSrc:"",
     };
   },
 
@@ -340,7 +398,11 @@ export default {
         })
         .then(res => {
           console.log(res);
-          this.resultList = res.data;
+          this.resultList = res.data.map((url,index)=>{
+            return{
+              url:url,index:index+1,
+            }
+          });
         })
         .catch(res => {
           console.log(res);
@@ -420,6 +482,9 @@ export default {
           console.log(res);
           this.loadingRes = false;
         });
+    },
+    handleAnalysisResult(row) {
+      this.resultSrc=row;
     }
   }
 };
