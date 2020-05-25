@@ -12,9 +12,22 @@
           <el-select v-model="testIndex" size="small">
             <el-option v-for="(item,index) in TestList" :key="index" :label="item" :value="item"></el-option>
           </el-select>
-          <el-button class="blueBtn" @click="chooseTestData" type="primary" plain size="small">加载测试数据</el-button>
+          <el-button
+            class="blueBtn"
+            @click="chooseTestData"
+            type="primary"
+            plain
+            size="small"
+          >加载测试数据</el-button>
           <span style="margin-left:10px;">或</span>
-          <el-button class="blueBtn" style="margin-left:10px;" @click="SettingFile" type="primary" plain size="small">加载配置文件</el-button>
+          <el-button
+            class="blueBtn"
+            style="margin-left:10px;"
+            @click="SettingFile"
+            type="primary"
+            plain
+            size="small"
+          >加载配置文件</el-button>
 
           <el-button
             class="darkBtn"
@@ -29,21 +42,21 @@
             @click="calculateAverage"
           >计算平均结果</el-button>
         </div>
-
+        <!--测试数据-->
         <el-table
           :data="tableData.slice((curPage - 1) * 10, curPage * 10)"
           :header-cell-style="{background:'#EBEEF7',color:'#606266'}"
           height="626"
-          style="width:97%"
           border
         >
-          <el-table-column v-if="!fileType"
+          <el-table-column
             v-for="(item, index) in columnNames"
             :key="index"
             :prop="item"
             :label="item"
+            v-if="!fileType"
           ></el-table-column>
-          <el-table-column prop="title" label="映射文件" v-if="fileType"></el-table-column>
+          <el-table-column prop="title" :label="'映射文件(共'+tableData.length+'个)'" v-if="fileType"></el-table-column>
           <el-table-column label="操作" width="100" align="center" v-if="fileType">
             <template slot-scope="scope">
               <el-button
@@ -56,7 +69,6 @@
             </template>
           </el-table-column>
         </el-table>
-        <!-- 分页符-->
         <el-pagination
           background
           layout="prev, pager, next, jumper"
@@ -78,7 +90,7 @@ export default {
   data() {
     return {
       loadingRes: false,
-      testIndex:"",
+      testIndex: "",
       TestList: [
         "测试目录1",
         "测试目录2",
@@ -87,60 +99,63 @@ export default {
         "测试目录5"
       ],
       curPage: 1,
-      fileType:false, //true的时候显示映射文件，否则显示测试文件
-      tableData:[],
-      columnNames:[
-        "表头1", "表头2", "表头3", "表头4", "表头5", "表头6", "表头7", "表头8",
-      ],
+      fileType: false, //true的时候显示映射文件，否则显示测试文件
+      tableData: [],
+      columnNames: [
+        "表头1",
+        "表头2",
+        "表头3",
+        "表头4",
+        "表头5",
+        "表头6",
+        "表头7",
+        "表头8"
+      ]
     };
   },
 
   methods: {
     SettingFile() {
-        this.fileType = true;
+      this.fileType = true;
     },
     chooseTestData() {
-        this.fileType = false;
+      this.fileType = false;
     },
     handleCurrentChange(cpage) {
       this.curPage = cpage;
     },
-    extractStruct(){
+    extractStruct() {
       this.$alert(
-              "<p><strong>实体抽取准确率： <i>" +
-                93.5 +
-                "</i> %</strong></p>" +
-                "<p><strong>实体抽取召回率： <i>" +
-                92 +
-                "</i> %</strong></p>",
-              "结构化知识抽取结果",
-              {
-                dangerouslyUseHTMLString: true
-              }
-            );
+        "<p><strong>实体抽取准确率： <i>" +
+          93.5 +
+          "</i> %</strong></p>" +
+          "<p><strong>实体抽取召回率： <i>" +
+          92 +
+          "</i> %</strong></p>",
+        "结构化知识抽取结果",
+        {
+          dangerouslyUseHTMLString: true
+        }
+      );
     },
-    calculateAverage(){
+    calculateAverage() {
       this.$alert(
-              "<p><strong>平均准确率： <i>" +
-                92.3 +
-                "</i> %</strong></p>" +
-                "<p><strong>平均召回率： <i>" +
-                90.1 +
-                "</i> %</strong></p>",
-              "平均结果",
-              {
-                dangerouslyUseHTMLString: true
-              }
-            );
+        "<p><strong>平均准确率： <i>" +
+          92.3 +
+          "</i> %</strong></p>" +
+          "<p><strong>平均召回率： <i>" +
+          90.1 +
+          "</i> %</strong></p>",
+        "平均结果",
+        {
+          dangerouslyUseHTMLString: true
+        }
+      );
     },
-    handleAnalysis(row){
-      this.$alert(
-          "本体映射文件内容"+row,
-          "本体映射文件",
-          {
-            dangerouslyUseHTMLString: true
-          }
-        );
+    handleAnalysis(row) {
+      this.$alert("本体映射文件内容" + row, "本体映射文件", {
+        dangerouslyUseHTMLString: true
+      });
 
       // let fd = new FormData();
       // fd.append("ontology", row)
@@ -164,7 +179,7 @@ export default {
       // }).catch(res => {
       //   console.log(res)
       // })
-    },
+    }
   }
 };
 </script>

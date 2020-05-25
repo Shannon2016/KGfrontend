@@ -48,8 +48,15 @@
               :value="item"
             ></el-option>
           </el-select>
-          <span style="margin-left:20px;">请选择文书目录：</span>
-          <el-select v-model="fileIndex" :disabled="algorithm!=='深度学习算法'" placeholder size="small" style="margin-left:10px;">
+          <el-button
+            style="margin-left:20px;"
+            class="blueBtn"
+            size="small"
+            @click="chooseTable"
+          >加载测试数据</el-button>
+
+          <span style="margin-left:20px;" v-if="showFlag===1">请选择文书目录：</span>
+          <el-select v-model="fileIndex" v-if="showFlag===1" placeholder size="small" style="margin-left:10px;">
             <el-option
               v-for="(item, index) in fileList"
               :key="index"
@@ -61,8 +68,9 @@
             style="margin-left:20px;"
             class="blueBtn"
             size="small"
-            @click="chooseTable"
-          >加载测试数据</el-button>
+            @click="loadModel"
+            v-if="showFlag===1"
+          >加载训练模型</el-button>
 
           <!-- <el-button
             class="darkBtn"
@@ -75,18 +83,21 @@
             size="small"
             style="float:right; margin-right:20px;"
             @click="extractEntityRelation"
+            v-if="showFlag===2"
           >抽取实体关系</el-button>
           <el-button
             class="darkBtn"
             size="small"
             style="float:right; margin-right:20px;"
             @click="extractEntityProperty"
+            v-if="showFlag===2"
           >抽取实体属性</el-button>
           <el-button
             class="darkBtn"
             size="small"
             style="float:right; margin-right:20px;"
             @click="mergeFile"
+            v-if="showFlag===1"
           >合并</el-button>
           <el-button
             type="primary"
@@ -94,6 +105,7 @@
             size="small"
             style="float:right; margin-right:20px;"
             @click="modelTest"
+            v-if="showFlag===1"
           >模型测试</el-button>
         </div>
         <div id="matchInfo" v-if="testData.length!==0">已有测试数据数量 : {{testData.length}}</div>
@@ -259,6 +271,7 @@ export default {
   name: "Extract",
   data() {
     return {
+      showFlag:0,//1时显示深度学习对应操作，2时显示正则表达式对应操作
       realEntityCount:0,
       extractEntityCount:1,
       wrongEntityCount:2,
@@ -549,33 +562,39 @@ export default {
     },
     //选择算法，显示对应测试集和训练集
     chooseTable() {
-      alert(this.fileIndex)
-      let fd = new FormData();
-      fd.append("algorithm", this.algorithm);
-      this.loadingRes = true;
-      this.$http
-        .post("http://49.232.95.141:8000/pic/load_textData", fd, {
-          headers: {
-            "Content-Type": "multipart/form-data"
-          }
-        })
-        .then(res => {
-          //  console.log(res)
-          this.textData = "";
-          // this.trainData = res.data[0].map((cur) => { return {title:cur};});
-          this.testData = res.data[1].map(cur => {
-            return { title: cur };
-          });
-          this.fileCountTest = this.testData.length;
-          // this.fileCountTrain = this.trainData.length;
+      if(this.algorithm === "正则表达式")
+        this.showFlag = 2;
+        else this.showFlag = 1;
+      // alert(this.fileIndex)
+      // let fd = new FormData();
+      // fd.append("algorithm", this.algorithm);
+      // this.loadingRes = true;
+      // this.$http
+      //   .post("http://49.232.95.141:8000/pic/load_textData", fd, {
+      //     headers: {
+      //       "Content-Type": "multipart/form-data"
+      //     }
+      //   })
+      //   .then(res => {
+      //      console.log(res)
+      //     this.textData = "";
+      //     // this.trainData = res.data[0].map((cur) => { return {title:cur};});
+      //     this.testData = res.data[1].map(cur => {
+      //       return { title: cur };
+      //     });
+      //     this.fileCountTest = this.testData.length;
+      //     // this.fileCountTrain = this.trainData.length;
 
-          this.loadingRes = false;
-        })
-        .catch(res => {
-          console.log(res);
-          alert("出错了！");
-          this.loadingRes = false;
-        });
+      //     this.loadingRes = false;
+      //   })
+      //   .catch(res => {
+      //     console.log(res);
+      //     alert("出错了！");
+      //     this.loadingRes = false;
+      //   });
+    },
+    loadModel() {
+      
     },
     handleCurrentChangeTest(cpage) {
       this.curPageTest = cpage;
