@@ -17,7 +17,7 @@
         <div class="top-tip" v-if="!sourceFlag">
           <div style="width:100%">
             <span>请选择表格：</span>
-            <el-select v-model="tableIndex" placeholder size="small" style="margin-left:32px;">
+            <el-select v-model="tableIndex" placeholder size="small" style="margin-left:32px;width: 200px;">
               <el-option
                 v-for="(item, index) in properties"
                 :key="index"
@@ -62,7 +62,7 @@
             <el-select
               v-model="typeSelect"
               size="small"
-              style="margin-left:20px;width:200px;"
+              style="width:200px;"
               @change="typeChange"
             >
               <el-option
@@ -74,7 +74,7 @@
               ></el-option>
             </el-select>
 
-            <span style="margin-left:30px;">请选择实体：</span>
+            <span style="margin-left:20px;">请选择实体：</span>
             <el-cascader
               :key="entitykey"
               :options="entityList"
@@ -82,7 +82,7 @@
               @change="entityChange"
             ></el-cascader>
 
-            <span style="margin-left:30px;">请选择属性：</span>
+            <span style="margin-left:20px;">请选择属性：</span>
             <el-cascader
               :key="propertyKey"
               :options="propertyList"
@@ -430,10 +430,19 @@ export default {
       // console.log(this.tableIndex)
       if (this.tableIndex === "") return;
 
+      //清空表格记录
       this.columnNames = [];
       this.tableData = [];
+      //清空本体关系
+      this.typeSelect="";
       this.entityIndex = [];
       this.propertyIndex = [];
+      this.entityList=[];
+      this.entitykey="";
+      this.tags=[];
+      this.propertyKey="";
+      this.propertyList=[];
+
       let fd = new FormData();
       fd.append("table", this.tableIndex);
       fd.append("source", this.sourceIndex);
