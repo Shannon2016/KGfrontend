@@ -1,7 +1,7 @@
 <template>
   <el-container v-loading="fullscreenLoading" element-loading-text="模型测试中，离开将中断测试……">
     <!--内容块-->
-    <div id="upload" v-if="showResult">
+    <div id="upload" v-show="showResult">
       <el-card class="box-card">
         <div slot="header" class="clearfix">
           <span>测试结果</span>
@@ -16,14 +16,8 @@
         <div style="margin-top:10px;">
           <span style="font-weight:bold;">错误识别实体数量：</span>{{wrongEntityCount}}个
         </div>
-        <div style="margin-top:10px;">
+        <div style="margin-top:10px;" id="autoPara">
           <span style="font-weight:bold;">被标记文本：</span>
-          <p>这是结果</p>
-          <p>这是结果</p>
-          <p>这是结果</p>
-          <p>这是结果</p>
-          <p>这是结果</p>
-          <p>这是结果</p>
         </div>
       </el-card>
     </div>
@@ -320,11 +314,24 @@ export default {
           label: "三级查询",
           value: 3
         }
-      ]
+      ],
+      //计算平均召回率和准确率
+      recallSet:[],
+      accurateSet:[]
     };
   },
 
   methods: {
+
+    highLight(sta, end, color,id) {
+      let str = document.getElementById(id).innerText.toString();
+      document.getElementById(id).innerHTML =
+        str.slice(0, sta) +
+        "<strong style='background: "+color+"'>" +
+        str.slice(sta, end + 1) +
+        "</strong>" +
+        str.slice(end + 1);
+    },
     extractEntityRelation() {
       this.$http
         .post("http://49.232.95.141:8000/pic/text_relation_speed", {
@@ -366,7 +373,7 @@ export default {
         }).catch(res => {
           console.log(res)
         })
-      
+
     },
     mergeFile() {
       alert(1);
@@ -505,7 +512,18 @@ export default {
       this.fullscreenLoading = true;
       this.showResult = true;
       this.fullscreenLoading = false;
+      // 高亮例子
 
+      for(let i=0;i<4;i++){
+        var div = document.createElement("p");
+        div.id = "para" + i;
+        div.innerHTML = "自动生成段落"+i;
+        document.getElementById("autoPara").appendChild(div);
+      }
+      this.highLight(1,3,"yellow","para1");
+      //每次得到召回率和准确率都往this.recallSet,this.accurateSet里push
+
+      /////////////////////////////////////////////////////
       // let fd = new FormData();
       // fd.append("algorithm", this.algorithm);
       // console.log(this.algorithm);
@@ -594,7 +612,7 @@ export default {
       //   });
     },
     loadModel() {
-      
+
     },
     handleCurrentChangeTest(cpage) {
       this.curPageTest = cpage;
