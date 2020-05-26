@@ -3,7 +3,7 @@
     <!--内容块-->
     <div id="upload" v-show="showResult">
       <el-card class="box-card">
-        <div slot="header" class="clearfix">
+        <div slot="header" class="clearfix" style="text-align: center">
           <span>测试结果</span>
           <i class="el-icon-close" style="float: right; padding: 3px 0;" @click="showResult=false"></i>
         </div>
@@ -90,8 +90,15 @@
             class="darkBtn"
             size="small"
             style="float:right; margin-right:20px;"
+            @click="calculateAverage"
+            v-if="showFlag===1&&isMerge"
+          >计算平均结果</el-button>
+          <el-button
+            class="darkBtn"
+            size="small"
+            style="float:right; margin-right:20px;"
             @click="mergeFile"
-            v-if="showFlag===1"
+            v-if="showFlag===1&&!isMerge"
           >合并</el-button>
           <el-button
             type="primary"
@@ -142,11 +149,13 @@
           </el-col>
           <el-col
             :span="12"
-            style="background-color:#FFF;min-height:625px; box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1)"
+            style="background-color:#FFF;height:625px;overflow-y: scroll; box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1)"
           >
             <div class="tableHeader">
+              <span v-if="isMerge">合并</span>
               文件浏览
-              <span v-if="textData===''">(选择文件以浏览内容)</span>
+              <span v-if="textData===''&&!isMerge">(选择文件以浏览内容)</span>
+              <span v-if="textData===''&&isMerge">(正在加载合并文件)</span>
             </div>
             <div style="padding:0 15px;">
               <pre style="word-break: break-word;word-wrap: break-word;white-space: break-spaces;">
@@ -287,7 +296,7 @@ export default {
       algorithmList: ["正则表达式", "深度学习算法"],
       //弹出框可视
       diaVisible: false,
-      selectTitle: "文书名",
+      selectTitle: "",
       fileCountTest: 0,
       curPageTest: 1,
       curPageTrain: 1,
@@ -317,17 +326,45 @@ export default {
       ],
       //计算平均召回率和准确率
       recallSet:[],
-      accurateSet:[]
+      accurateSet:[],
+      //判断是否合并
+      isMerge:false,
     };
+
   },
 
   methods: {
-
-    highLight(sta, end, color,id) {
-      let str = document.getElementById(id).innerText.toString();
-      document.getElementById(id).innerHTML =
-        str.slice(0, sta) +
-        "<strong style='background: "+color+"'>" +
+    calculateAverage(){
+      if(this.recallSet.length===0&&this.recallSet.length===0){
+        this.$message({
+          message: "请先对合并文件进行测试！",
+          type: "warning"
+        });
+      }
+      let recall=0,accurate=0;
+      for(let i=0;i<this.recallSet.length;i++){
+        recall+=this.recallSet[i][num];
+        accurate+=this.accurate[i][num];
+      }
+      recall/=this.recallSet.length;
+      accurate/=this.accurateSet.length;
+      this.$alert(
+        "<p><strong>实体抽取准确率： <i>" +
+        res.data[0] +
+        "</i> %</strong></p>" +
+        "<p><strong>实体抽取召回率： <i>" +
+        res.data[1] +
+        "</i> %</strong></p>",
+        this.algorithm + "当前平均测试结果",
+        {
+          dangerouslyUseHTMLString: true
+        }
+      );
+    },
+    highLight(sta, end, color,content) {
+      let str = content;
+      return content=str.slice(0, sta) +
+        "<strong style='background:"+color+"'>" +
         str.slice(sta, end + 1) +
         "</strong>" +
         str.slice(end + 1);
@@ -376,7 +413,20 @@ export default {
 
     },
     mergeFile() {
-      alert(1);
+      this.isMerge=true;
+      let fd = new FormData();
+      fd.append("contents", this.fileIndex);
+      this.$http
+        .post("http://49.232.95.141:8000/pic/textMergeData", fd, {
+          headers: {
+            "Content-Type": "multipart/form-data"
+          }
+        })
+        .then(res => {
+          this.textData = res.data;
+        }).catch((res)=>{
+        console.log(res)
+      });
     },
     changeToEntitySearch() {
       this.inputEntity1 = "";
@@ -499,84 +549,101 @@ export default {
       myChart.setOption(Myoption, true);
     },
     modelTest() {
-      if (
-        this.algorithm !== "正则表达式" &&
-        this.algorithm !== "深度学习算法"
-      ) {
-        this.$message({
-          message: "请先选择查询算法！",
-          type: "warning"
-        });
-        return;
-      }
       this.fullscreenLoading = true;
-      this.showResult = true;
-      this.fullscreenLoading = false;
-      // 高亮例子
-
-      for(let i=0;i<4;i++){
-        var div = document.createElement("p");
-        div.id = "para" + i;
-        div.innerHTML = "自动生成段落"+i;
-        document.getElementById("autoPara").appendChild(div);
+      let fd = new FormData();
+      fd.append("contents", this.fileIndex);
+      if(this.isMerge){
+        this.$http
+          .post("http://49.232.95.141:8000/pic/textTestALL", fd, {
+            headers: {
+              "Content-Type": "multipart/form-data"
+            }
+          })
+          .then(res => {
+            console.log(res);
+            for(let i=0;i<this.recallSet.length;i++){
+              if(this.recallSet[i].index===this.fileIndex)break;
+              else if(i===this.recallSet.length-1&&this.recallSet[i].index!==this.fileIndex){
+                this.recallSet.push({
+                  index:this.fileIndex,
+                  num:res.data[1]
+                })
+              }
+            }
+            for(let i=0;i<this.accurateSet.length;i++){
+              if(this.accurateSet[i].index===this.fileIndex)break;
+              else if(i===this.accurateSet.length-1&&this.accurateSet[i].index!==this.fileIndex){
+                this.accurateSet.push({
+                  index:this.fileIndex,
+                  num:res.data[0]
+                })
+              }
+            }
+            this.$alert(
+              "<p><strong>实体抽取准确率： <i>" +
+              res.data[0] +
+              "</i> %</strong></p>" +
+              "<p><strong>实体抽取召回率： <i>" +
+              res.data[1] +
+              "</i> %</strong></p>",
+              this.algorithm + "合并测试结果",
+              {
+                dangerouslyUseHTMLString: true
+              }
+            );
+          }).catch((res)=>{
+          console.log(res)
+        });
       }
-      this.highLight(1,3,"yellow","para1");
-      //每次得到召回率和准确率都往this.recallSet,this.accurateSet里push
+      else {
+        if(this.selectTitle===""){
+          this.$message({
+            message: "请先查看文书！",
+            type: "warning"
+          });
+          this.fullscreenLoading=false;
+          return;
+        }
 
-      /////////////////////////////////////////////////////
-      // let fd = new FormData();
-      // fd.append("algorithm", this.algorithm);
-      // console.log(this.algorithm);
-      // this.$http
-      //   .post("http://49.232.95.141:8000/pic/text_test", fd, {
-      //     headers: {
-      //       "Content-Type": "multipart/form-data"
-      //     }
-      //   })
-      //   .then(res => {
-      //     console.log(res);
-      //     this.fullscreenLoading = false;
-      //     if (this.algorithm === "正则表达式") {
-      //       this.$alert(
-      //         "<p><strong>实体抽取个数： <i>" +
-      //           res.data[1] +
-      //           "</i> 个</strong></p>" +
-      //           "<p><strong>实体抽取时间： <i>" +
-      //           res.data[2] +
-      //           "</i> 秒</strong></p>" +
-      //           "<p><strong>关系抽取个数： <i>" +
-      //           res.data[3] +
-      //           "</i> 个</strong></p>" +
-      //           "<p><strong>关系抽取时间： <i>" +
-      //           res.data[4] +
-      //           "</i> 秒</strong></p>" +
-      //           "<p><strong>实体抽取效率： <i>" +
-      //           res.data[5] +
-      //           "</i> 条/秒</strong></p>" +
-      //           "<p><strong>关系抽取效率： <i>" +
-      //           res.data[6] +
-      //           "</i> 条/秒</strong></p>",
-      //         this.algorithm + "模型测试结果",
-      //         {
-      //           dangerouslyUseHTMLString: true
-      //         }
-      //       );
-      //     } else {
-      //       this.$alert(
-      //         "<p><strong>实体抽取准确率： <i>" +
-      //           res.data[1] +
-      //           "</i> %</strong></p>" +
-      //           "<p><strong>实体抽取召回率： <i>" +
-      //           res.data[2] +
-      //           "</i> %</strong></p>",
-      //         this.algorithm + "模型测试结果",
-      //         {
-      //           dangerouslyUseHTMLString: true
-      //         }
-      //       );
-      //     }
-      //   })
-      //   .catch(res => {});
+        fd.append("filename", this.selectTitle);
+        this.$http
+          .post("http://49.232.95.141:8000/pic/textTestDemo", fd, {
+            headers: {
+              "Content-Type": "multipart/form-data"
+            }
+          })
+          .then(res => {
+            console.log(res);
+            this.fullscreenLoading = false;
+            let content= res.data[0];
+            let div = document.createElement("p");
+            div.id = "para";
+            //37+color位移
+            for(let i=0;i<res.data[1].length;i++){
+              content=this.highLight(res.data[1][i][1]+42*i,res.data[1][i][2]+42*i,"green",content);
+            }
+            let offset1=42*res.data[1].length;
+            for(let j=0;j<res.data[2].length;j++){
+              content=this.highLight(res.data[2][j][1]+offset1+40*j,res.data[2][j][2]+offset1+40*j,"red",content);
+            }
+            let offset2 = offset1+40*res.data[2].length;
+            for(let k=0;k<res.data[3].length;k++){
+              content=this.highLight(res.data[3][k][1]+offset2+43*k,res.data[3][k][2]+offset2+43*k,"yellow",content);
+            }
+            div.innerHTML = content.replace(/\n/g,"<br>");
+            div.style = "text-align:left";
+            document.getElementById("autoPara").appendChild(div);
+            this.realEntityCount=res.data[4];
+            this.extractEntityCount=res.data[5];
+            this.wrongEntityCount=res.data[6];
+
+            this.showResult = true;
+          })
+          .catch(res => {
+            console.log(res);
+            this.fullscreenLoading = false;
+          });
+      }
     },
     //选择算法，显示对应测试集和训练集
     chooseTable() {
@@ -614,6 +681,7 @@ export default {
     },
     loadModel() {
       this.loadingRes = true;
+      this.isMerge=false;
       let fd = new FormData();
       fd.append("contents", this.fileIndex)
       this.$http
@@ -795,12 +863,13 @@ body > .el-container {
 
 /***************上传弹窗***********/
 #upload {
-  text-align: center;
   z-index: 99;
   position: fixed;
   top: 20%;
   left: 30%;
   right: 30%;
+  bottom: 5%;
+  overflow-y: scroll;
 }
 .upload-demo {
   margin-bottom: 20px;
@@ -861,6 +930,9 @@ body > .el-container {
   border-radius: 10px;
   margin: 0 0 15px 10px;
   font-size: 13px;
+}
+.el-card{
+  text-align: left;
 }
 .el-card__body{
   text-align:left;
