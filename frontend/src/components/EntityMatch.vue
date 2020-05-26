@@ -131,6 +131,12 @@
             @click="setNegative"
             style="margin-left:15px;"
           >设为负样例</el-button>
+          <el-button
+            class="darkBtn"
+            size="small"
+            @click="loadPastFlag"
+            style="margin-left:15px;"
+          >加载已有标注信息</el-button>
 
           <el-button
             class="darkBtn"
@@ -458,7 +464,112 @@ export default {
   },
 
   methods: {
-    unionTable() {
+    loadPastFlag(){
+
+      //清空标记
+      this.$http.post("http://49.232.95.141:8000/pic/loadMarkData")
+        .then(res => {
+        console.log(res)
+          //清空上次
+          this.pastSumMap={};
+          this.positiveFatherIndex={};
+          this.negativeMap={};
+          this.fatherIndex = {};
+          this.positiveMap = {};
+          this.negativeMap = {};
+          this.positiveCount = 0;
+          this.negativeCount = 0;
+          this.positiveOldCount = 0;
+          this.negativeOldCount = 0;
+          this.markSum = "";
+          //更新已有训练集数量
+          this.trainCount = res.data[0];
+
+
+          this.rawData = [].concat(res.data[2]);
+          //加载去噪后数据替换在tableData中
+          this.tableData = [].concat(
+            res.data[2].map(cur => {
+              let res = {};
+              res["index"] = cur[0];
+              res["positiveMark"] = "";
+              res["negativeMark"] = cur[2];
+
+              //维护上次标记结果
+              if (!this.pastSumMap[cur[0]]) {
+                this.pastSumMap[cur[0]] = new Set();
+              }
+              let str = cur[1] + "," + cur[2];
+              let sep = str.split(",");
+              //默认上次标记时同时记录了a->b和b->a；否则需添加b->a的映射
+              for (let i = 0; i < sep.length; i++) {
+                if (!sep[i] || sep[i] === " " || sep[i] === "") continue;
+                if (this.pastSumMap[cur[0]].has(sep[i])) continue;
+                else this.pastSumMap[cur[0]].add(parseInt(sep[i]));
+              }
+              let oldCount, newCount;
+              //维护上次标记结果-positiveMap
+              let tmp = cur[1].split(",");
+              if (tmp[0] && tmp[0] !== " " && tmp[0] !== "") {
+                tmp = tmp.map(Number);
+                tmp.push(cur[0]);
+                tmp.sort(function(a, b) {
+                  return a > b ? 1 : -1;
+                });
+                if (!this.positiveMap[tmp[0]])
+                  this.positiveMap[tmp[0]] = new Set();
+                oldCount = this.getCombinationNum(
+                  this.positiveMap[tmp[0]].size + 1
+                );
+                for (let i = 1; i < tmp.length; i++) {
+                  this.positiveMap[tmp[0]].add(tmp[i]);
+                  if (
+                    !this.positiveFatherIndex[tmp[i]] ||
+                    (this.positiveFatherIndex[tmp[0]] &&
+                      this.positiveFatherIndex[tmp[i]] > tmp[0])
+                  )
+                    this.positiveFatherIndex[tmp[i]] = tmp[0];
+                }
+                newCount = this.getCombinationNum(
+                  this.positiveMap[tmp[0]].size + 1
+                );
+                this.positiveOldCount += newCount - oldCount;
+                this.positiveCount += newCount - oldCount;
+              }
+              //维护上次标记结果-negativeMap
+              tmp = cur[2].split(",");
+              if (tmp[0] && tmp[0] !== " " && tmp[0] !== "") {
+                tmp = tmp.map(Number);
+                tmp.push(cur[0]);
+                tmp.sort(function(a, b) {
+                  return a > b ? 1 : -1;
+                });
+                if (!this.negativeMap[tmp[0]])
+                  this.negativeMap[tmp[0]] = new Set();
+                oldCount = this.negativeMap[tmp[0]].size;
+                for (let i = 1; i < tmp.length; i++) {
+                  this.negativeMap[tmp[0]].add(tmp[i]);
+                }
+                newCount = this.negativeMap[tmp[0]].size;
+                this.negativeOldCount += newCount - oldCount;
+                this.negativeCount += newCount - oldCount;
+              }
+
+              for (let i = 0; i < this.columnNames.length; i++)
+                res[this.columnNames[i].prop] = cur[i];
+
+              //上次标记的结果
+              res["pastMark"] = cur[1];
+              return res;
+            })
+          );
+          this.fileCount = this.rawData.length;
+          this.setSumCount();
+        }).catch((res)=>{
+        console.log(res)
+      });
+    },
+    unionTable(){
       console.log(this.unionList);
       let fd = new FormData();
       let source = [];
