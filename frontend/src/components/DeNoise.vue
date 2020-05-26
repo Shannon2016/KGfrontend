@@ -15,28 +15,18 @@
       <div class="main">
         <!--表格查看-->
         <!--<div class="top-tip" v-if="sourceFlag">-->
-          <!--<span>请选择数据源：</span>-->
-          <!--<el-select v-model="sourceIndex" placeholder size="small" style="margin-left:52px;">-->
-            <!--<el-option v-for="(item, index) in sourceList" :key="index" :label="item" :value="item"></el-option>-->
-          <!--</el-select>-->
-          <!--<el-button style="margin-left:20px;" class="blueBtn" size="small" @click="chooseSource">确定</el-button>-->
+        <!--<span>请选择数据源：</span>-->
+        <!--<el-select v-model="sourceIndex" placeholder size="small" style="margin-left:52px;">-->
+        <!--<el-option v-for="(item, index) in sourceList" :key="index" :label="item" :value="item"></el-option>-->
+        <!--</el-select>-->
+        <!--<el-button style="margin-left:20px;" class="blueBtn" size="small" @click="chooseSource">确定</el-button>-->
         <!--</div>-->
         <div class="top-tip">
-          <span >请选择表格：</span>
-          <el-select
-            v-model="tableIndex"
-            placeholder
-            size="small"
-            style="margin-left:20px;"
-          >
+          <span>请选择表格：</span>
+          <el-select v-model="tableIndex" placeholder size="small" style="margin-left:20px;">
             <el-option v-for="(item, index) in tableList" :key="index" :label="item" :value="item"></el-option>
           </el-select>
-          <el-button
-            style="margin-left:20px;"
-            class="blueBtn"
-            size="small"
-            @click="chooseTable"
-          >确定</el-button>
+          <el-button style="margin-left:20px;" class="blueBtn" size="small" @click="chooseTable">确定</el-button>
 
           <!--v-if="graphBtn"-->
           <el-button
@@ -48,17 +38,22 @@
           >属性去噪</el-button>
           <div style="float:right; margin-right:20px;">
             <span style="margin-left:20px;">请选择属性去躁方法：</span>
-            <el-select v-model="algorithm" style="width:150px;margin-left: 5px;" placeholder="请选择算法" size="small">
+            <el-select
+              v-model="algorithm"
+              style="width:150px;margin-left: 5px;"
+              placeholder="请选择算法"
+              size="small"
+            >
               <el-option v-for="item in algorithmList" :key="item" :label="item" :value="item"></el-option>
             </el-select>
           </div>
         </div>
         <!--用户操作-->
         <!--<div style="margin-left:20px;margin-bottom: 10px;" v-if="!sourceFlag">-->
-          <!--<span>属性去躁方法：</span>-->
-          <!--<el-select v-model="algorithm" style="margin-left: 5px;" placeholder="请选择方法" size="small">-->
-            <!--<el-option v-for="item in algorithmList" :key="item" :label="item" :value="item"></el-option>-->
-          <!--</el-select>-->
+        <!--<span>属性去躁方法：</span>-->
+        <!--<el-select v-model="algorithm" style="margin-left: 5px;" placeholder="请选择方法" size="small">-->
+        <!--<el-option v-for="item in algorithmList" :key="item" :label="item" :value="item"></el-option>-->
+        <!--</el-select>-->
         <!--</div>-->
 
         <!--表格部分-->
@@ -85,7 +80,6 @@
           :current-page="curPage"
         ></el-pagination>
       </div>
-
     </el-main>
   </el-container>
 </template>
@@ -95,14 +89,10 @@ export default {
   name: "DeNoise",
   data() {
     return {
-      sourceFlag:true,
-      sourceIndex:"",
-      sourceList:[
-        "数据源1","数据源2"
-      ],
-      tableList:[
-        "演示数据","表格2"
-      ],
+      sourceFlag: true,
+      sourceIndex: "",
+      sourceList: ["数据源1", "数据源2"],
+      tableList: ["演示数据", "表格2"],
       isList: false,
       fileCount: 0,
       curPage: 1,
@@ -121,7 +111,7 @@ export default {
       loadingRes: false,
       loadingResGraph: false,
       algorithm: "",
-      algorithmList: ["函数依赖"],
+      algorithmList: ["函数依赖"]
     };
   },
   methods: {
@@ -134,7 +124,7 @@ export default {
         return;
       }
 
-      this.sourceFlag=false;
+      this.sourceFlag = false;
       // this.tableList = [];
       // this.tableIndex="";
       //
@@ -167,7 +157,7 @@ export default {
 
       this.columnNames = [];
       this.tableData = [];
-
+      this.loadingRes = true;
       let fd = new FormData();
       fd.append("table", this.tableIndex);
       this.$http
@@ -177,7 +167,7 @@ export default {
           }
         })
         .then(res => {
-          console.log(res)
+          console.log(res);
           this.columnNames = res.data[0].map(cur => {
             return { prop: cur, label: cur };
           });
@@ -191,10 +181,12 @@ export default {
           this.rawData = res.data[1];
 
           this.fileCount = res.data[1].length;
+          this.loadingRes = false;
         })
         .catch(res => {
           //请求失败
           console.log(res);
+          this.loadingRes = false;
         });
     },
     handleCurrentChange(cpage) {
@@ -216,6 +208,8 @@ export default {
         });
         return;
       }
+
+      this.loadingRes = true;
       let fd = new FormData();
       fd.append("table", this.tableIndex);
       this.$http
@@ -243,22 +237,25 @@ export default {
             })
           );
           this.fileCount = res.data[1].length;
+          this.loadingRes = false;
         })
         .catch(res => {
           //请求失败
           console.log(res);
+          this.loadingRes = false;
         });
     },
-    init(){
-      this.$http.post("http://49.232.95.141:8000/pic/load_noise_data",{
+    init() {
+      this.$http
+        .post("http://49.232.95.141:8000/pic/load_noise_data", {
           headers: {
             "Content-Type": "multipart/form-data"
           }
         })
         .then(res => {
           console.log(res);
-          this.tableIndex="";
-          this.tableList=res.data;
+          this.tableIndex = "";
+          this.tableList = res.data;
         })
         .catch(res => {
           //请求失败
@@ -267,7 +264,7 @@ export default {
     }
   },
 
-  mounted(){
+  mounted() {
     this.init();
   }
 };

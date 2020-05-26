@@ -1,5 +1,11 @@
 <template>
   <el-container>
+    <div
+      v-loading.fullscreen.lock="fullscreenLoading"
+      element-loading-text="正在处理中，请稍等……"
+      element-loading-spinner="el-icon-loading"
+      element-loading-background="rgba(0, 0, 0, 0.5)"
+    ></div>
     <el-main>
       <!--顶部-->
       <div class="header" v-if="!graphFlag">结构化数据抽取</div>
@@ -17,7 +23,12 @@
         <div class="top-tip" v-if="!sourceFlag">
           <div style="width:100%">
             <span>请选择表格：</span>
-            <el-select v-model="tableIndex" placeholder size="small" style="margin-left:32px;width: 200px;">
+            <el-select
+              v-model="tableIndex"
+              placeholder
+              size="small"
+              style="margin-left:32px;width: 200px;"
+            >
               <el-option
                 v-for="(item, index) in properties"
                 :key="index"
@@ -37,7 +48,7 @@
               size="small"
               style="float:right; margin-right:20px;"
               @click="showGraph"
-            >图谱展示</el-button> -->
+            >图谱展示</el-button>-->
             <el-button
               class="darkBtn"
               size="small"
@@ -157,7 +168,7 @@
             element-loading-spinner="el-icon-loading"
             element-loading-background="rgba(0, 0, 0, 0.1)"
           >
-            <div id="graph" style="height:800px; width:1200px;"></div>
+            <v-echart id="graph1" style="width:100%;height:100%;" :options="echartsOptions"></v-echart>
           </div>
         </div>
       </div>
@@ -173,6 +184,7 @@ export default {
   name: "ExtractStruct",
   data() {
     return {
+      echartsOptions: {},
       tags: [],
       entityList: [],
       entityIndex: [],
@@ -183,20 +195,21 @@ export default {
       propertySelect: "",
       propertyKey: -1,
       sourceIndex: "",
-      sourceList: ["structData", "structData2","structData3"],
+      sourceList: ["structData", "structData2", "structData3"],
       tableIndex: "",
       properties: [],
       tableData: [],
       curPage: 1,
       columnNames: [],
       fileCount: 0,
-      loadingRes:false,
+      loadingRes: false,
       loadingResGraph: false,
       graphFlag: false,
       typeSelect: "",
       typeList: ["本体库1", "本体库2", "本体库3", "本体库4"],
       sourceFlag: true,
-      canFlag:true
+      canFlag: true,
+      fullscreenLoading: false
     };
   },
   methods: {
@@ -237,7 +250,7 @@ export default {
           }
         })
         .then(res => {
-          console.log(res)
+          console.log(res);
           let str = "";
           for (let i of res.data) {
             if (str.indexOf(i) === -1) {
@@ -295,43 +308,56 @@ export default {
     },
     createDependence() {
       let fd = new FormData();
-      fd.append("ontology", this.typeSelect)
-      this.$http.post("http://49.232.95.141:8000/pic/functional_dependency",fd, {
+      fd.append("ontology", this.typeSelect);
+      this.$http
+        .post("http://49.232.95.141:8000/pic/functional_dependency", fd, {
           headers: {
             "Content-Type": "multipart/form-data"
           }
-        }).then(res => {
-          console.log(res)
-          let str = ''
-          for(let i of res.data){
-            str +="<p><strong>"+i[0]+" <i>" + i[1] + "</i>  "+i[2]+"</strong></p>"
-          }
-          this.$alert(
-            str,
-            "函数依赖结果",
-            {
-              dangerouslyUseHTMLString: true
-            }
-          );
-        }).catch(res => {
-          console.log(res)
         })
-
+        .then(res => {
+          console.log(res);
+          let str = "";
+          for (let i of res.data) {
+            str +=
+              "<p><strong>" +
+              i[0] +
+              " <i>" +
+              i[1] +
+              "</i>  " +
+              i[2] +
+              "</strong></p>";
+          }
+          this.$alert(str, "函数依赖结果", {
+            dangerouslyUseHTMLString: true
+          });
+        })
+        .catch(res => {
+          console.log(res);
+        });
     },
     extractEntity() {
       let fd = new FormData();
       fd.append("source", this.sourceIndex);
       fd.append("table", this.tableIndex);
+      if (this.typeSelect === "") {
+        this.$message({
+          message: "请选择本体！",
+          type: "warning"
+        });
+        return;
+      }
+      fd.append("ontology", this.typeSelect);
       let columns = [];
       let ontology_data = [];
       for (let i of this.tags) {
         if (i.type === "warning") columns.push(i.column);
         ontology_data.push(i.entity);
       }
-      if(columns.length < 1) {
+      if (columns.length < 1) {
         this.$message({
-          message: '请选择实体！',
-          type: 'warning'
+          message: "请选择实体！",
+          type: "warning"
         });
         return;
       }
@@ -344,31 +370,31 @@ export default {
           }
         })
         .then(res => {
-          // this.showGraph(res)
-          if (res.data[0] === 1) {
-            this.$message({
-              message: "抽取实体成功!",
-              type: "success"
-            });
-            this.entityIndex = []
-            let index=-1;
-            for(let i = 0; i < this.tags.length; i ++){
-              if (this.tags[i].type === "warning") {
-                index = i; break;
-              }
-            }
-            this.tags.splice(index, 1);
-            this.entitySelect=""
-          } else this.$message.error("抽取失败！");
+          console.log(res);
+          this.showGraph(res);
+          this.propertyIndex = [];
+          this.entityIndex = [];
+          this.tags = [];
+          this.propertySelect = "";
+          this.entitySelect = "";
         })
         .catch(res => {
           console.log(res);
+          this.fullscreenLoading = false;
         });
     },
     extractRelation() {
       let fd = new FormData();
       fd.append("source", this.sourceIndex);
       fd.append("table", this.tableIndex);
+      if (this.typeSelect === "") {
+        this.$message({
+          message: "请选择本体！",
+          type: "warning"
+        });
+        return;
+      }
+      fd.append("ontology", this.typeSelect);
       this.$http
         .post("http://49.232.95.141:8000/pic/struct_relation_extract", fd, {
           headers: {
@@ -376,22 +402,32 @@ export default {
           }
         })
         .then(res => {
-          // this.showGraph(res)
-          if (res.data[0] === 1) {
-            this.$message({
-              message: "抽取实体关系成功!",
-              type: "success"
-            });
-          } else this.$message.error("抽取失败！");
+          console.log(res);
+          this.showGraph(res);
+          // if (res.data[0] === 1) {
+          //   this.$message({
+          //     message: "抽取实体关系成功!",
+          //     type: "success"
+          //   });
+          // } else this.$message.error("抽取失败！");
         })
         .catch(res => {
           console.log(res);
+          this.fullscreenLoading = false;
         });
     },
     extractProperty() {
       let fd = new FormData();
       fd.append("source", this.sourceIndex);
       fd.append("table", this.tableIndex);
+      if (this.typeSelect === "") {
+        this.$message({
+          message: "请选择本体！",
+          type: "warning"
+        });
+        return;
+      }
+      fd.append("ontology", this.typeSelect);
 
       let columns = [];
       let ontology_data = [];
@@ -400,13 +436,13 @@ export default {
       for (let i of this.tags) {
         if (i.type === "success") {
           columns.push(i.column);
-        ontology_data.push(i.entity);
+          ontology_data.push(i.entity);
         }
       }
-      if(columns.length <= 1) {
+      if (columns.length <= 1) {
         this.$message({
-          message: '请至少选择一个属性！',
-          type: 'warning'
+          message: "请至少选择一个属性！",
+          type: "warning"
         });
         return;
       }
@@ -420,21 +456,23 @@ export default {
           }
         })
         .then(res => {
-          // this.showGraph(res)
-          if (res.data[0] === 1) {
-            this.$message({
-              message: "抽取实体属性成功!",
-              type: "success"
-            });
-            this.propertyIndex=[]
-            this.entityIndex = []
-            this.tags=[];
-            this.propertySelect=""
-            this.entitySelect = ""
-          } else this.$message.error("抽取失败！");
+          console.log(res);
+          this.showGraph(res);
+          // if (res.data[0] === 1) {
+          //   this.$message({
+          //     message: "抽取实体属性成功!",
+          //     type: "success"
+          //   });
+          this.propertyIndex = [];
+          this.entityIndex = [];
+          this.tags = [];
+          this.propertySelect = "";
+          this.entitySelect = "";
+          // } else this.$message.error("抽取失败！");
         })
         .catch(res => {
           console.log(res);
+          this.fullscreenLoading = false;
         });
     },
     chooseSource() {
@@ -478,14 +516,14 @@ export default {
       this.columnNames = [];
       this.tableData = [];
       //清空本体关系
-      this.typeSelect="";
+      this.typeSelect = "";
       this.entityIndex = [];
       this.propertyIndex = [];
-      this.entityList=[];
-      this.entitykey=0;
-      this.tags=[];
-      this.propertyKey=-1;
-      this.propertyList=[];
+      this.entityList = [];
+      this.entitykey = 0;
+      this.tags = [];
+      this.propertyKey = -1;
+      this.propertyList = [];
 
       let fd = new FormData();
       fd.append("table", this.tableIndex);
@@ -508,20 +546,27 @@ export default {
           // this.rawData = res.data[1];
 
           this.fileCount = res.data[1].length;
-          this.canFlag=false;
+          this.canFlag = false;
           this.loadingRes = false;
         })
         .catch(res => {
           //请求失败
           console.log(res);
-          alert("请求失败")
+          alert("请求失败");
           this.loadingRes = false;
         });
     },
     //展示图谱
     showGraph(res) {
       this.graphFlag = true;
-      this.loadingResGraph = true;
+      this.fullscreenLoading = true;
+      if(res.data.length===0) {
+        this.fullscreenLoading = false;
+        this.$message.error('该表格不可抽取！');
+        this.graphFlag = false;
+        return;
+      }
+      // this.loadingResGraph = true;
       // // this.$http
       // //   .post("http://49.232.95.141:8000/pic/show_structDirtyTuple", {
       // //     headers: {
@@ -530,65 +575,62 @@ export default {
       // //   })
       // //   .then(res => {
       //     console.log(res);
-          let graphPoint = [];
-          let graphLink = [];
-          let pointName = new Set();
-          let order = [0, 1, 2];
-          for (let j of order) {
-            console.log(j);
-            for (let i = 0; i < res.data[j].length; i++) {
-              let tmp = {};
-              tmp.entity1 = res.data[j][i][0]+"";
-              tmp.relation = res.data[j][i][1]+"";
-              tmp.entity2 = res.data[j][i][2]+"";
-              if (!pointName.has(tmp.entity1)) {
-                pointName.add(tmp.entity1);
-                if (j !== 2) {
-                  graphPoint.push({
-                    name: tmp.entity1,
-                    category: j
-                  });
-                } else {
-                  graphPoint.push({
-                    name: tmp.entity1,
-                    category: 1
-                  });
-                }
-              }
-              if (!pointName.has(tmp.entity2)) {
-                pointName.add(tmp.entity2);
-                graphPoint.push({
-                  name: tmp.entity2,
-                  category: j
-                });
-              }
-              graphLink.push({
-                source: tmp.entity1,
-                target: tmp.entity2,
-                name: tmp.relation,
-                des: tmp.relation
+      let graphPoint = [];
+      let graphLink = [];
+      let pointName = new Set();
+      let order = [0, 1, 2];
+      for (let j of order) {
+        console.log(j);
+        for (let i = 0; i < res.data[j].length; i++) {
+          let tmp = {};
+          tmp.entity1 = res.data[j][i][0] + "";
+          tmp.relation = res.data[j][i][1] + "";
+          tmp.entity2 = res.data[j][i][2] + "";
+          if (!pointName.has(tmp.entity1)) {
+            pointName.add(tmp.entity1);
+            if (j !== 2) {
+              graphPoint.push({
+                name: tmp.entity1,
+                category: j
+              });
+            } else {
+              graphPoint.push({
+                name: tmp.entity1,
+                category: 1
               });
             }
           }
-          let Myoption = JSON.parse(JSON.stringify(option));
-          Myoption["series"][0]["data"] = graphPoint;
-          Myoption["series"][0]["links"] = graphLink;
-          Myoption["series"][0]["edgeLabel"]["normal"]["formatter"] = function(
-            x
-          ) {
-            return x.data.name;
-          };
-          myChart = echarts.init(document.getElementById("graph"));
-          // 绘制图表
-          myChart.setOption(Myoption, true);
-          this.loadingResGraph = false;
-        // })
-        // .catch(res => {
-        //   //请求失败
-        //   alert("出错了");
-        //   console.log(res);
-        //   this.loadingResGraph = false;
-        // });
+          if (!pointName.has(tmp.entity2)) {
+            pointName.add(tmp.entity2);
+            graphPoint.push({
+              name: tmp.entity2,
+              category: j
+            });
+          }
+          graphLink.push({
+            source: tmp.entity1,
+            target: tmp.entity2,
+            name: tmp.relation,
+            des: tmp.relation
+          });
+        }
+      }
+      let Myoption = JSON.parse(JSON.stringify(option));
+      Myoption["series"][0]["data"] = graphPoint;
+      Myoption["series"][0]["links"] = graphLink;
+      Myoption["series"][0]["edgeLabel"]["normal"]["formatter"] = function(x) {
+        return x.data.name;
+      };
+      this.echartsOptions = Myoption;
+      // this.loadingResGraph = false;
+      this.fullscreenLoading = false;
+      // })
+      // .catch(res => {
+      //   //请求失败
+      //   alert("出错了");
+      //   console.log(res);
+      //   this.loadingResGraph = false;
+      // });
     },
     loadData() {
       this.$http
