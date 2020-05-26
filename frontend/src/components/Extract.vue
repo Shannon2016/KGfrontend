@@ -350,10 +350,10 @@ export default {
       accurate/=this.accurateSet.length;
       this.$alert(
         "<p><strong>实体抽取准确率： <i>" +
-        res.data[0] +
+        accurate +
         "</i> %</strong></p>" +
         "<p><strong>实体抽取召回率： <i>" +
-        res.data[1] +
+        recall +
         "</i> %</strong></p>",
         this.algorithm + "当前平均测试结果",
         {
