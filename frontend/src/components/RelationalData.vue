@@ -230,9 +230,9 @@
           let pointSet = new Set();
           for(let i = 0; i < res.data.length; i ++){
             let tmp = {};
-            tmp.entity1 = res.data[i][0];
-            tmp.entity2 = res.data[i][2];
-            tmp.relation = res.data[i][1];
+            tmp.entity1 = res.data[i][0]+"";
+            tmp.entity2 = res.data[i][2]+"";
+            tmp.relation = res.data[i][1]+"";
 
             if(!pointSet.has(tmp.entity1)) {
               pointSet.add(tmp.entity1);

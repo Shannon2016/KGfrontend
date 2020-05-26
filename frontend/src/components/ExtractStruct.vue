@@ -567,8 +567,6 @@ export default {
                 name: tmp.relation,
                 des: tmp.relation
               });
-              // console.log(graphPoint.indexOf({name: tmp.entity1,
-              //       category: j}))
             }
           }
           let Myoption = JSON.parse(JSON.stringify(option));

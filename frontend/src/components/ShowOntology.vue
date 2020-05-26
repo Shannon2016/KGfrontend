@@ -59,9 +59,9 @@ export default {
           let pointName = new Set();
           for (let i = 0; i < res.data.length; i++) {
             let tmp = {};
-            tmp.entity1 = res.data[i][0];
-            tmp.relation = res.data[i][1];
-            tmp.entity2 = res.data[i][2];
+            tmp.entity1 = res.data[i][0]+"";
+            tmp.relation = res.data[i][1]+"";
+            tmp.entity2 = res.data[i][2]+"";
             if (!pointName.has(tmp.entity1)) {
               pointName.add(tmp.entity1);
               graphPoint.push({
