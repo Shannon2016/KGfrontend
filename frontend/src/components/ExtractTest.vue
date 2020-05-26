@@ -144,18 +144,27 @@ export default {
       this.curPage = cpage;
     },
     extractStruct() {
-      this.$alert(
-        "<p><strong>实体抽取准确率： <i>" +
-          93.5 +
+      this.$http.post("http://49.232.95.141:8000/pic/struct_test",{
+        headers: {
+          "Content-Type": "multipart/form-data"
+        }
+      }).then(res => {
+        console.log(res);
+        this.$alert(
+          "<p><strong>实体抽取准确率： <i>" +
+          res.data[0] +
           "</i> %</strong></p>" +
           "<p><strong>实体抽取召回率： <i>" +
-          92 +
+          res.data[1] +
           "</i> %</strong></p>",
-        "结构化知识抽取结果",
-        {
-          dangerouslyUseHTMLString: true
-        }
-      );
+          "结构化知识抽取结果",
+          {
+            dangerouslyUseHTMLString: true
+          }
+        );
+      }).catch((res)=>{
+          console.log(res)
+      })
     },
     calculateAverage() {
       this.$alert(
