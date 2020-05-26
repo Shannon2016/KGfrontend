@@ -371,6 +371,7 @@ export default {
         str.slice(end + 1);
     },
     extractEntityRelation() {
+      this.fullscreenLoading = true;
       this.$http
         .post("http://49.232.95.141:8000/pic/text_relation_speed", {
           headers: {
@@ -378,6 +379,7 @@ export default {
           }
         }).then(res =>{
           console.log(res)
+          this.fullscreenLoading = false;
           this.$alert(
           "<p><strong>总耗时： <i>" + res.data[0] + "</i> 秒</strong></p>" +
           "<p><strong>实体关系抽取数量： <i>" + res.data[1] + "</i> 个</strong></p>" +
@@ -392,6 +394,7 @@ export default {
         })
     },
     extractEntityProperty() {
+      this.fullscreenLoading = true;
       this.$http
         .post("http://49.232.95.141:8000/pic/text_attribute_speed", {
           headers: {
@@ -399,6 +402,7 @@ export default {
           }
         }).then(res =>{
           console.log(res)
+          this.fullscreenLoading = false;
           this.$alert(
           "<p><strong>总耗时： <i>" + res.data[0] + "</i> 秒</strong></p>" +
           "<p><strong>实体属性抽取数量： <i>" + res.data[1] + "</i> 个</strong></p>" +
