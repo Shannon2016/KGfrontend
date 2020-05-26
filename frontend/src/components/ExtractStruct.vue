@@ -537,9 +537,9 @@ export default {
             console.log(j);
             for (let i = 0; i < res.data[j].length; i++) {
               let tmp = {};
-              tmp.entity1 = res.data[j][i][0];
-              tmp.relation = res.data[j][i][1];
-              tmp.entity2 = res.data[j][i][2];
+              tmp.entity1 = res.data[j][i][0]+"";
+              tmp.relation = res.data[j][i][1]+"";
+              tmp.entity2 = res.data[j][i][2]+"";
               if (!pointName.has(tmp.entity1)) {
                 pointName.add(tmp.entity1);
                 if (j !== 2) {
@@ -567,6 +567,8 @@ export default {
                 name: tmp.relation,
                 des: tmp.relation
               });
+              // console.log(graphPoint.indexOf({name: tmp.entity1,
+              //       category: j}))
             }
           }
           let Myoption = JSON.parse(JSON.stringify(option));
