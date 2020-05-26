@@ -23,7 +23,7 @@
           <el-cascader
             v-model="unionList"
             :options="allTable"
-            :props="{ multiple: true }"
+            :props="props"
             collapse-tags
             clearable>
           </el-cascader>
@@ -322,11 +322,44 @@
 import { option } from "../js/echartSettings";
 let echarts = require("echarts");
 let myChart;
-
+let that;
 export default {
   name: "EntityMatch",
   data() {
     return {
+      props: {
+        multiple: true,
+        lazy: true,
+        lazyLoad(node, resolve) {
+          if(node.data.leaf) {
+            resolve(node);
+            return;
+          }
+          
+          const { level } = node;
+          let fd = new FormData()
+          fd.append("source", node.label)
+          that.$http.post("http://49.232.95.141:8000/pic/struct_data_source",fd,{
+          headers: {
+            "Content-Type": "multipart/form-data"
+          }
+        }).then(res => {
+          let children = res.data.map((cur) => {
+            return {value:cur, label:cur, leaf:level==1};
+          })
+          console.log(children)
+          resolve(children);
+        }).catch(res => {
+          alert("出错了")
+          resolve(node)
+        })
+          
+              // value: ++id,
+              // label: `选项${id}`,
+              // leaf: level >= 2
+            // 通过调用resolve将子节点数据返回，通知组件数据加载完成
+        }
+      },
       markSum: "",
       isList: false,
       fileCount: 0,
@@ -405,58 +438,19 @@ export default {
       unionList:[],
       allTable:[
         {
-          value: '东南',
-          label: '东南',
-          children: [
-            {
-              value: '上海',
-              label: '上海',
-              children: [
-                {value: '普陀', label: '普陀'},
-                {value: '黄埔', label: '黄埔'},
-                {value: '徐汇', label: '徐汇'}
-              ]
-            },
-            {
-              value: 7,
-              label: '江苏',
-              children: [
-                {value: 8, label: '南京'},
-                {value: 9, label: '苏州'},
-                {value: 10, label: '无锡'}
-              ]
-            },
-            {
-              value: 12,
-              label: '浙江',
-              children: [
-                {value: 13, label: '杭州'},
-                {value: 14, label: '宁波'},
-                {value: 15, label: '嘉兴'}
-              ]
-            }]
+          value: 'structData',
+          label: 'structData',
+          level:1
         },
         {
-          value: '西北',
-          label: '西北',
-          children: [
-            {
-              value: '陕西',
-              label: '陕西',
-              children: [
-                {value: '西安', label: '西安'},
-                {value: '延安', label: '延安'}
-              ]
-            },
-            {
-              value: '新疆维吾尔族自治区',
-              label: '新疆维吾尔族自治区',
-              children: [
-                {value: '乌鲁木齐', label: '乌鲁木齐'},
-                {value: '克拉玛依', label: '克拉玛依'}
-              ]
-            }
-          ]
+          value: 'structData2',
+          label: 'structData2',
+          level:1
+        },
+        {
+          value: 'structData3',
+          label: 'structData3',
+          level:1
         }
       ],
     };
@@ -465,20 +459,33 @@ export default {
   methods: {
     unionTable(){
       console.log(this.unionList);
-      // this.$http
-      //   .post("http://49.232.95.141:8000/pic/", {
-      //     headers: {
-      //       "Content-Type": "multipart/form-data"
-      //     }
-      //   })
-      //   .then(res => {
-      //     console.log(res)
-      //   })
-      //   .catch(res => {
-      //     console.log(res);
-      //     alert("出错了！");
-      //   });
-      this.isUnion=true;
+      let fd = new FormData();
+      let source=[];
+      let table=[];
+      for(let i of this.unionList){
+        source.push(i[0])
+        table.push(i[1])
+      }
+      fd.append("source", JSON.stringify(source))
+      fd.append("table", JSON.stringify(table))
+      this.loadingRes = true;
+      this.$http.post("http://49.232.95.141:8000/pic/struct_merge_data", fd, {
+          headers: {
+            "Content-Type": "multipart/form-data"
+          }
+        })
+        .then(res => {
+          console.log(res)
+          this.properties = res.data
+          this.isUnion=true;
+          this.loadingRes = false;
+        })
+        .catch(res => {
+          console.log(res);
+          alert("出错了！");
+          this.isUnion=false;
+          this.loadingRes = false;
+        });
     },
     modelTest() {
       this.loadingRes = true;
@@ -791,13 +798,15 @@ export default {
 
       let fd = new FormData();
       fd.append("table", this.tableIndex);
+          this.loadingRes = true;
       this.$http
-        .post("http://49.232.95.141:8000/pic/view_structData", fd, {
+        .post("http://49.232.95.141:8000/pic/view_merge_data", fd, {
           headers: {
             "Content-Type": "multipart/form-data"
           }
         })
         .then(res => {
+          console.log(res)
           this.columnNames = res.data[0].map(cur => {
             return { prop: cur, label: cur };
           });
@@ -811,10 +820,12 @@ export default {
           this.rawData = res.data[1];
 
           this.fileCount = res.data[1].length;
+          this.loadingRes = false;
         })
         .catch(res => {
           //请求失败
           console.log(res);
+          this.loadingRes = false;
         });
     },
     handleCurrentChange(cpage) {
@@ -1469,7 +1480,8 @@ export default {
     }
   },
   mounted() {
-    this.loadData();
+    // this.loadData();
+    that = this;
   }
 };
 </script>

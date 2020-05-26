@@ -120,7 +120,7 @@
     data () {
       return {
         sourceIndex:"",
-        sourceList:["structData", "数据源2"],
+        sourceList:["structData", "structData2","structData3"],
         sourceFlag:true,
         isList:true,
         fileCount:0,
