@@ -161,9 +161,7 @@
               <span v-if="textData===''&&isMerge">(正在加载合并文件)</span>
             </div>
             <div style="padding:0 15px;">
-              <pre style="word-break: break-word;word-wrap: break-word;white-space: break-spaces;">
-                {{textData}}
-              </pre>
+              <pre style="word-break: break-word;word-wrap: break-word;white-space: break-spaces;">{{textData}}</pre>
             </div>
             <!-- <el-table
               :data="testData.slice((curPageTest - 1) * 10, curPageTest * 10)"
@@ -517,7 +515,7 @@ export default {
       let graphPoint = [];
       let graphLink = [];
       let pointName = new Set();
-      let order = [1, 0, 2];
+          let order = [0, 1, 2];
       for (let j of order) {
         for (let i = 0; i < res.data[j].length; i++) {
           let tmp = {};
@@ -577,7 +575,7 @@ export default {
           })
           .then(res => {
             console.log(res);
-
+            this.fullscreenLoading = false;
             if(this.recallSet.length===0)
               this.recallSet.push({
                 index:this.fileIndex,
@@ -758,7 +756,7 @@ export default {
           }
         })
         .then(res => {
-          // console.log(res.data);
+          // console.log(JSON.stringify(res.data));
           this.textData = res.data;
           this.loadingRes = false;
         })

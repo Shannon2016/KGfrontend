@@ -177,6 +177,7 @@ export default {
           }
         })
         .then(res => {
+          console.log(res)
           this.columnNames = res.data[0].map(cur => {
             return { prop: cur, label: cur };
           });

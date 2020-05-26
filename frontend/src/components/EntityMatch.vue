@@ -66,14 +66,14 @@
             style="float:right; margin-right:20px;"
             @click="showGraph"
           >图谱展示</el-button>
-          <el-button
+          <!-- <el-button
             v-if="!isList"
             type="primary"
             class="darkBtn"
             size="small"
             style="float:right; margin-right:20px;"
             @click="modelTest"
-          >模型测试</el-button>
+          >模型测试</el-button> -->
           <!--v-if="graphBtn"-->
           <el-button
             v-if="!isList"
@@ -1308,6 +1308,20 @@ export default {
         .then(res => {
           console.log(res);
           this.loadingRes = false;
+
+          this.columnNames = [];
+          this.tableData = [];
+          // this.columnNames = res.data[0].map(cur => {
+          //   return { prop: cur, label: cur };
+          // });
+
+          // let column = res.data[0];
+          // this.tableData = res.data[1].map(cur => {
+          //   let res = {};
+          //   for (let i = 0; i < column.length; i++) res[column[i]] = cur[i];
+          //   return res;
+          // });
+          this.fileCount = 0;
           if (res.data === 1) {
             this.$message({
               message: "剩余数据标注完成！",
@@ -1426,7 +1440,7 @@ export default {
       let graphPoint = [];
       let graphLink = [];
       let pointName = new Set();
-      let order=[1,0,2];
+          let order = [0, 1, 2];
       for (let j of order){
         for (let i = 0; i < res.data[j].length; i++) {
           let tmp = {};
