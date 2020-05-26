@@ -34,7 +34,7 @@
       <div class="main">
         <div class="top-tip">
           <span>请选择算法：</span>
-          <el-select v-model="algorithm" placeholder size="small" style="margin-left:10px;">
+          <el-select v-model="algorithm" :onchange="changeAlgorithm()" placeholder size="small" style="margin-left:10px;">
             <el-option
               v-for="(item, index) in algorithmList"
               :key="index"
@@ -42,12 +42,6 @@
               :value="item"
             ></el-option>
           </el-select>
-          <el-button
-            style="margin-left:20px;"
-            class="blueBtn"
-            size="small"
-            @click="chooseTable"
-          >加载测试数据</el-button>
 
           <span style="margin-left:20px;" v-if="showFlag===1">请选择文书目录：</span>
           <el-select v-model="fileIndex" v-if="showFlag===1" placeholder size="small" style="margin-left:10px;">
@@ -58,6 +52,15 @@
               :value="item"
             ></el-option>
           </el-select>
+
+          <el-button
+            style="margin-left:20px;"
+            class="blueBtn"
+            size="small"
+            @click="chooseTable"
+            v-if="showFlag===2"
+          >加载测试数据</el-button>
+
           <el-button
             style="margin-left:20px;"
             class="blueBtn"
@@ -334,6 +337,14 @@ export default {
   },
 
   methods: {
+    changeAlgorithm(){
+      if(this.algorithm==="正则表达式"){
+        this.showFlag=2;
+      }
+      else if(this.algorithm==="深度学习算法"){
+        this.showFlag=1;
+      }
+    },
     calculateAverage(){
       if(this.recallSet.length===0&&this.recallSet.length===0){
         this.$message({
