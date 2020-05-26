@@ -231,12 +231,13 @@ export default {
       fd.append("ontology", this.typeSelect);
       fd.append("ontology_center", this.entitySelect[0]);
       this.$http
-        .post("http://49.232.95.141:8000/pic/show_ontology1", fd, {
+        .post("http://49.232.95.141:8000/pic/show_ontology2", fd, {
           headers: {
             "Content-Type": "multipart/form-data"
           }
         })
         .then(res => {
+          console.log(res)
           let str = "";
           for (let i of res.data) {
             if (str.indexOf(i) === -1) {
