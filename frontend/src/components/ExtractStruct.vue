@@ -183,7 +183,7 @@ export default {
       propertySelect: "",
       propertyKey: -1,
       sourceIndex: "",
-      sourceList: ["structData", "数据源2"],
+      sourceList: ["structData", "structData2","structData3"],
       tableIndex: "",
       properties: [],
       tableData: [],

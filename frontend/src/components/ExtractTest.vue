@@ -19,16 +19,14 @@
             plain
             size="small"
           >加载测试数据</el-button>
-          <span style="margin-left:10px;">或</span>
-          <el-button
-            class="blueBtn"
-            style="margin-left:10px;"
-            @click="SettingFile"
-            type="primary"
-            plain
-            size="small"
-          >加载配置文件</el-button>
+          <!-- <span style="margin-left:10px;">或</span> -->
 
+          <el-button
+            class="darkBtn"
+            size="small"
+            style="float:right; margin-right:20px;"
+            @click="calculateAverage"
+          >计算平均结果</el-button>
           <el-button
             class="darkBtn"
             size="small"
@@ -37,10 +35,12 @@
           >结构化知识抽取</el-button>
           <el-button
             class="darkBtn"
-            size="small"
             style="float:right; margin-right:20px;"
-            @click="calculateAverage"
-          >计算平均结果</el-button>
+            @click="SettingFile"
+            type="primary"
+            plain
+            size="small"
+          >加载配置文件</el-button>
         </div>
         <!--测试数据-->
         <el-table
@@ -52,8 +52,8 @@
           <el-table-column
             v-for="(item, index) in columnNames"
             :key="index"
-            :prop="item"
-            :label="item"
+            :prop="item.prop"
+            :label="item.label"
             v-if="!fileType"
           ></el-table-column>
           <el-table-column prop="title" :label="'映射文件(共'+tableData.length+'个)'" v-if="fileType"></el-table-column>
@@ -92,25 +92,16 @@ export default {
       loadingRes: false,
       testIndex: "",
       TestList: [
-        "测试目录1",
-        "测试目录2",
-        "测试目录3",
-        "测试目录4",
-        "测试目录5"
+        "contents1",
+        "contents2",
+        "contents3",
+        "contents4",
+        "contents5"
       ],
       curPage: 1,
       fileType: false, //true的时候显示映射文件，否则显示测试文件
       tableData: [],
-      columnNames: [
-        "表头1",
-        "表头2",
-        "表头3",
-        "表头4",
-        "表头5",
-        "表头6",
-        "表头7",
-        "表头8"
-      ]
+      columnNames: []
     };
   },
 
@@ -120,6 +111,34 @@ export default {
     },
     chooseTestData() {
       this.fileType = false;
+      let fd = new FormData();
+      fd.append("contents", this.testIndex);
+      this.$http
+        .post("http://49.232.95.141:8000/pic/viewStructTest", fd, {
+          headers: {
+            "Content-Type": "multipart/form-data"
+          }
+        })
+        .then(res => {
+          console.log(res);
+          this.columnNames=[]
+          this.columnNames = res.data[0].map(cur => {
+            return { prop: cur, label: cur };
+          });
+
+          let column = res.data[0];
+          this.tableData = res.data[1].map(cur => {
+            let res = {};
+            for (let i = 0; i < column.length; i++) res[column[i]] = cur[i];
+            return res;
+          });
+
+          console.log(this.columnNames)
+          console.log(this.tableData)
+        })
+        .catch(res => {
+          console.log(res);
+        });
     },
     handleCurrentChange(cpage) {
       this.curPage = cpage;
