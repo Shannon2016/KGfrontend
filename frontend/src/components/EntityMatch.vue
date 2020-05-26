@@ -1429,7 +1429,7 @@ export default {
         .then(res => {
           console.log(res);
           if (res.data === 0) {
-            this.$message.error("剩余实体标注出错！");
+            this.$message.error("标注实体过少！无法进行实体对齐！");
           } else {
           }
           this.loadingRes = false;
