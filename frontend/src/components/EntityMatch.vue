@@ -18,22 +18,17 @@
 
         <!--合并表格选项-->
         <div class="top-tip" v-show="!isUnion">
-          <span >请选择数据表：</span>
+          <span>请选择数据表：</span>
 
           <el-cascader
             v-model="unionList"
             :options="allTable"
             :props="props"
             collapse-tags
-            clearable>
-          </el-cascader>
+            clearable
+          ></el-cascader>
 
-          <el-button
-            style="margin-left:20px;"
-            class="blueBtn"
-            size="small"
-            @click="unionTable"
-          >合并数据</el-button>
+          <el-button style="margin-left:20px;" class="blueBtn" size="small" @click="unionTable">合并数据</el-button>
         </div>
 
         <div class="top-tip" v-if="isUnion">
@@ -73,7 +68,7 @@
             size="small"
             style="float:right; margin-right:20px;"
             @click="modelTest"
-          >模型测试</el-button> -->
+          >模型测试</el-button>-->
           <!--v-if="graphBtn"-->
           <el-button
             v-if="!isList"
@@ -84,12 +79,12 @@
             @click="entityMark"
           >交互训练</el-button>
           <!--<el-button-->
-            <!--v-if="!isList"-->
-            <!--type="primary"-->
-            <!--class="darkBtn"-->
-            <!--size="small"-->
-            <!--style="float:right; margin-right:20px;"-->
-            <!--@click="deNoise"-->
+          <!--v-if="!isList"-->
+          <!--type="primary"-->
+          <!--class="darkBtn"-->
+          <!--size="small"-->
+          <!--style="float:right; margin-right:20px;"-->
+          <!--@click="deNoise"-->
           <!--&gt;属性去噪</el-button>-->
           <!-- <el-button v-if="!isList" type="primary" class="darkBtn" size="small" style="float:right; margin-right:20px;" @click="loadData">数据加载</el-button> -->
           <el-button
@@ -142,12 +137,14 @@
             size="small"
             style="float:right; margin-right:20px;"
             @click="returnUnmarks"
+            :disabled="!threeColumns"
           >实体对齐</el-button>
           <el-button
             class="darkBtn"
             size="small"
             @click="submitMarks"
             style="float:right; margin-right:30px;"
+            :disabled="!threeColumns"
           >提交</el-button>
           <el-button
             type="text"
@@ -176,7 +173,7 @@
             border
             height="626"
           >
-            <el-table-column width="40" v-if="isList">
+            <el-table-column width="40" v-if="isList&&threeColumns">
               <template slot-scope="scope">
                 <el-checkbox :label="scope.row.index">{{""}}</el-checkbox>
               </template>
@@ -327,37 +324,41 @@ export default {
   name: "EntityMatch",
   data() {
     return {
+      threeColumns: true,
       props: {
         multiple: true,
         lazy: true,
         lazyLoad(node, resolve) {
-          if(node.data.leaf) {
+          if (node.data.leaf) {
             resolve(node);
             return;
           }
-          
+
           const { level } = node;
-          let fd = new FormData()
-          fd.append("source", node.label)
-          that.$http.post("http://49.232.95.141:8000/pic/struct_data_source",fd,{
-          headers: {
-            "Content-Type": "multipart/form-data"
-          }
-        }).then(res => {
-          let children = res.data.map((cur) => {
-            return {value:cur, label:cur, leaf:level==1};
-          })
-          console.log(children)
-          resolve(children);
-        }).catch(res => {
-          alert("出错了")
-          resolve(node)
-        })
-          
-              // value: ++id,
-              // label: `选项${id}`,
-              // leaf: level >= 2
-            // 通过调用resolve将子节点数据返回，通知组件数据加载完成
+          let fd = new FormData();
+          fd.append("source", node.label);
+          that.$http
+            .post("http://49.232.95.141:8000/pic/struct_data_source", fd, {
+              headers: {
+                "Content-Type": "multipart/form-data"
+              }
+            })
+            .then(res => {
+              let children = res.data.map(cur => {
+                return { value: cur, label: cur, leaf: level == 1 };
+              });
+              console.log(children);
+              resolve(children);
+            })
+            .catch(res => {
+              alert("出错了");
+              resolve(node);
+            });
+
+          // value: ++id,
+          // label: `选项${id}`,
+          // leaf: level >= 2
+          // 通过调用resolve将子节点数据返回，通知组件数据加载完成
         }
       },
       markSum: "",
@@ -434,56 +435,61 @@ export default {
       algorithm: "",
       algorithmList: ["SVM", "K近邻算法"],
       //合并数据信息
-      isUnion:false,
-      unionList:[],
-      allTable:[
+      isUnion: false,
+      unionList: [],
+      allTable: [
         {
-          value: 'structData',
-          label: 'structData',
-          level:1
+          value: "structData",
+          label: "structData",
+          level: 1
         },
         {
-          value: 'structData2',
-          label: 'structData2',
-          level:1
+          value: "structData2",
+          label: "structData2",
+          level: 1
         },
         {
-          value: 'structData3',
-          label: 'structData3',
-          level:1
+          value: "structData3",
+          label: "structData3",
+          level: 1
         }
-      ],
+      ]
     };
   },
 
   methods: {
-    unionTable(){
+    unionTable() {
       console.log(this.unionList);
       let fd = new FormData();
-      let source=[];
-      let table=[];
-      for(let i of this.unionList){
-        source.push(i[0])
-        table.push(i[1])
+      let source = [];
+      let table = [];
+      for (let i of this.unionList) {
+        source.push(i[0]);
+        table.push(i[1]);
       }
-      fd.append("source", JSON.stringify(source))
-      fd.append("table", JSON.stringify(table))
+      fd.append("source", JSON.stringify(source));
+      fd.append("table", JSON.stringify(table));
       this.loadingRes = true;
-      this.$http.post("http://49.232.95.141:8000/pic/struct_merge_data", fd, {
+      this.$http
+        .post("http://49.232.95.141:8000/pic/struct_merge_data", fd, {
           headers: {
             "Content-Type": "multipart/form-data"
           }
         })
         .then(res => {
-          console.log(res)
-          this.properties = res.data
-          this.isUnion=true;
-          this.loadingRes = false;
+          console.log(res);
+          if (res.data === "无法对该数据表格进行合并，请重新选择数据表格(Aircraft_1 or Aircraft_2 or Aircraft_3)") {
+            this.$message.error(res.data);
+          } else {
+            this.properties = res.data;
+            this.isUnion = true;
+          }
+            this.loadingRes = false;
         })
         .catch(res => {
           console.log(res);
           alert("出错了！");
-          this.isUnion=false;
+          this.isUnion = false;
           this.loadingRes = false;
         });
     },
@@ -496,11 +502,15 @@ export default {
           }
         })
         .then(res => {
-          console.log(res)
+          console.log(res);
           this.loadingRes = false;
           this.$alert(
-            "<p><strong>实体对齐准确率： <i>" + res.data[0] + "</i> %</strong></p>" +
-            "<p><strong>实体对齐召回率： <i>" + res.data[1] + "</i> %</strong></p>",
+            "<p><strong>实体对齐准确率： <i>" +
+              res.data[0] +
+              "</i> %</strong></p>" +
+              "<p><strong>实体对齐召回率： <i>" +
+              res.data[1] +
+              "</i> %</strong></p>",
             "模型测试结果",
             {
               dangerouslyUseHTMLString: true
@@ -798,7 +808,7 @@ export default {
 
       let fd = new FormData();
       fd.append("table", this.tableIndex);
-          this.loadingRes = true;
+      this.loadingRes = true;
       this.$http
         .post("http://49.232.95.141:8000/pic/view_merge_data", fd, {
           headers: {
@@ -806,7 +816,7 @@ export default {
           }
         })
         .then(res => {
-          console.log(res)
+          console.log(res);
           this.columnNames = res.data[0].map(cur => {
             return { prop: cur, label: cur };
           });
@@ -1307,29 +1317,27 @@ export default {
         })
         .then(res => {
           console.log(res);
+          if (res.data === 0) {
+            this.$message.error("剩余实体标注出错！");
+          } else {
+          }
           this.loadingRes = false;
 
           this.columnNames = [];
           this.tableData = [];
-          // this.columnNames = res.data[0].map(cur => {
-          //   return { prop: cur, label: cur };
-          // });
+          this.columnNames = res.data[1].map(cur => {
+            return { prop: cur, label: cur };
+          });
 
-          // let column = res.data[0];
-          // this.tableData = res.data[1].map(cur => {
-          //   let res = {};
-          //   for (let i = 0; i < column.length; i++) res[column[i]] = cur[i];
-          //   return res;
-          // });
-          this.fileCount = 0;
-          if (res.data === 1) {
-            this.$message({
-              message: "剩余数据标注完成！",
-              type: "success"
-            });
-          } else {
-            this.$message.error("剩余实体标注出错！");
-          }
+          let column = res.data[1];
+          this.tableData = res.data[0].map(cur => {
+            let res = {};
+            for (let i = 0; i < column.length; i++) res[column[i]] = cur[i];
+            return res;
+          });
+          this.fileCount = this.tableData.length;
+          this.threeColumns = false;
+          console.log(this.columnNames);
         })
         .catch(res => {
           //请求失败
@@ -1440,13 +1448,13 @@ export default {
       let graphPoint = [];
       let graphLink = [];
       let pointName = new Set();
-          let order = [0, 1, 2];
-      for (let j of order){
+      let order = [0, 1, 2];
+      for (let j of order) {
         for (let i = 0; i < res.data[j].length; i++) {
           let tmp = {};
-          tmp.entity1 = res.data[j][i][0]+"";
-          tmp.relation = res.data[j][i][1]+"";
-          tmp.entity2 = res.data[j][i][2]+"";
+          tmp.entity1 = res.data[j][i][0] + "";
+          tmp.relation = res.data[j][i][1] + "";
+          tmp.entity2 = res.data[j][i][2] + "";
           if (!pointName.has(tmp.entity1)) {
             pointName.add(tmp.entity1);
             if (j !== 2) {
