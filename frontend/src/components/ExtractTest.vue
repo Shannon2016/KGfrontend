@@ -42,6 +42,30 @@
             @click="calculateAverage"
           >计算平均结果</el-button>
         </div>
+        <!--查看配置文件-->
+        <div id="upload" v-if="settingShow">
+          <el-card class="box-card">
+            <div slot="header" class="clearfix" style="text-align: center">
+              <span>配置文件信息</span>
+              <i class="el-icon-close" style="float: right; padding: 3px 0;" @click="settingShow=false"></i>
+            </div>
+
+            <el-table
+              :show-header="false"
+              :data="settingData"
+              style="width: 100%">
+              <el-table-column
+                prop="entity1">
+              </el-table-column>
+              <el-table-column
+                prop="rel">
+              </el-table-column>
+              <el-table-column
+                prop="entity2">
+              </el-table-column>
+            </el-table>
+          </el-card>
+        </div>
         <!--测试数据-->
         <el-table
           :data="tableData.slice((curPage - 1) * 10, curPage * 10)"
@@ -110,13 +134,31 @@ export default {
         "表头6",
         "表头7",
         "表头8"
-      ]
+      ],
+      //计算平均召回率和准确率
+      recallSet:[],
+      accurateSet:[],
+      //查看配置信息
+      settingShow:false,
+      settingData:[],
     };
   },
 
   methods: {
     SettingFile() {
-      this.fileType = true;
+      // this.fileType = true;
+      this.settingShow = true;
+      this.$http.post("http://49.232.95.141:8000/pic/viewStructMap",{
+        headers: {
+          "Content-Type": "multipart/form-data"
+        }
+      }).then(res => {
+        this.settingData = res.data.map(cur => {
+          return {entity1: cur[0],rel:cur[1],entity2:cur[2]};
+        })
+      }).catch((res)=>{
+        console.log(res)
+      })
     },
     chooseTestData() {
       this.fileType = false;
@@ -125,12 +167,45 @@ export default {
       this.curPage = cpage;
     },
     extractStruct() {
-      this.$http.post("http://49.232.95.141:8000/pic/struct_test",{
+      let fd = new FormData();
+      fd.append("contents",this.testIndex);
+      this.$http.post("http://49.232.95.141:8000/pic/structTest",fd,{
         headers: {
           "Content-Type": "multipart/form-data"
         }
       }).then(res => {
         console.log(res);
+        if(this.recallSet.length===0)
+          this.recallSet.push({
+            index:this.testIndex,
+            num:res.data[1]
+          });
+        for(let i=0;i<this.recallSet.length;i++){
+          if(this.recallSet[i].index===this.testIndex)break;
+          else if(i===this.recallSet.length-1&&this.recallSet[i].index!==this.fileIndex){
+            this.recallSet.push({
+              index:this.testIndex,
+              num:res.data[1]
+            })
+          }
+        }
+        if(this.accurateSet.length===0)
+          this.accurateSet.push({
+            index:this.testIndex,
+            num:res.data[0]
+          });
+        for(let i=0;i<this.accurateSet.length;i++){
+          if(this.accurateSet[i].index===this.testIndex)break;
+          else if(i===this.accurateSet.length-1&&this.accurateSet[i].index!==this.testIndex){
+            this.accurateSet.push({
+              index:this.testIndex,
+              num:res.data[0]
+            })
+          }
+        }
+        console.log(this.accurateSet)
+        console.log(this.recallSet)
+
         this.$alert(
           "<p><strong>实体抽取准确率： <i>" +
           res.data[0] +
@@ -148,14 +223,28 @@ export default {
       })
     },
     calculateAverage() {
+      if(this.recallSet.length===0&&this.recallSet.length===0){
+        this.$message({
+          message: "请先进行测试！",
+          type: "warning"
+        });
+        return;
+      }
+      let recall=0,accurate=0;
+      for(let i=0;i<this.recallSet.length;i++){
+        recall+=this.recallSet[i].num;
+        accurate+=this.accurateSet[i].num;
+      }
+      recall/=this.recallSet.length;
+      accurate/=this.accurateSet.length;
       this.$alert(
-        "<p><strong>平均准确率： <i>" +
-          92.3 +
-          "</i> %</strong></p>" +
-          "<p><strong>平均召回率： <i>" +
-          90.1 +
-          "</i> %</strong></p>",
-        "平均结果",
+        "<p><strong>实体抽取准确率： <i>" +
+        accurate +
+        "</i> %</strong></p>" +
+        "<p><strong>实体抽取召回率： <i>" +
+        recall +
+        "</i> %</strong></p>",
+        "当前平均测试结果",
         {
           dangerouslyUseHTMLString: true
         }
@@ -285,6 +374,8 @@ body > .el-container {
   top: 20%;
   left: 30%;
   right: 30%;
+  bottom: 5%;
+  overflow-y: scroll;
 }
 .upload-demo {
   margin-bottom: 20px;

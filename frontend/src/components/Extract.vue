@@ -340,11 +340,12 @@ export default {
           message: "请先对合并文件进行测试！",
           type: "warning"
         });
+        return;
       }
       let recall=0,accurate=0;
       for(let i=0;i<this.recallSet.length;i++){
-        recall+=this.recallSet[i][num];
-        accurate+=this.accurate[i][num];
+        recall+=this.recallSet[i].num;
+        accurate+=this.accurateSet[i].num;
       }
       recall/=this.recallSet.length;
       accurate/=this.accurateSet.length;
@@ -355,7 +356,7 @@ export default {
         "<p><strong>实体抽取召回率： <i>" +
         recall +
         "</i> %</strong></p>",
-        this.algorithm + "当前平均测试结果",
+        "当前平均测试结果",
         {
           dangerouslyUseHTMLString: true
         }
@@ -561,6 +562,12 @@ export default {
           })
           .then(res => {
             console.log(res);
+
+            if(this.recallSet.length===0)
+              this.recallSet.push({
+                index:this.fileIndex,
+                num:res.data[1]
+              });
             for(let i=0;i<this.recallSet.length;i++){
               if(this.recallSet[i].index===this.fileIndex)break;
               else if(i===this.recallSet.length-1&&this.recallSet[i].index!==this.fileIndex){
@@ -570,6 +577,11 @@ export default {
                 })
               }
             }
+            if(this.accurateSet.length===0)
+              this.accurateSet.push({
+                index:this.fileIndex,
+                num:res.data[0]
+              });
             for(let i=0;i<this.accurateSet.length;i++){
               if(this.accurateSet[i].index===this.fileIndex)break;
               else if(i===this.accurateSet.length-1&&this.accurateSet[i].index!==this.fileIndex){
@@ -579,6 +591,7 @@ export default {
                 })
               }
             }
+
             this.$alert(
               "<p><strong>实体抽取准确率： <i>" +
               res.data[0] +
