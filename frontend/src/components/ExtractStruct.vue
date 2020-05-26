@@ -32,12 +32,12 @@
               @click="chooseTable"
             >确定</el-button>
 
-            <el-button
+            <!-- <el-button
               class="darkBtn"
               size="small"
               style="float:right; margin-right:20px;"
               @click="showGraph"
-            >图谱展示</el-button>
+            >图谱展示</el-button> -->
             <el-button
               class="darkBtn"
               size="small"
@@ -344,6 +344,7 @@ export default {
           }
         })
         .then(res => {
+          // this.showGraph(res)
           if (res.data[0] === 1) {
             this.$message({
               message: "抽取实体成功!",
@@ -375,6 +376,7 @@ export default {
           }
         })
         .then(res => {
+          // this.showGraph(res)
           if (res.data[0] === 1) {
             this.$message({
               message: "抽取实体关系成功!",
@@ -418,19 +420,17 @@ export default {
           }
         })
         .then(res => {
+          // this.showGraph(res)
           if (res.data[0] === 1) {
             this.$message({
               message: "抽取实体属性成功!",
               type: "success"
             });
             this.propertyIndex=[]
+            this.entityIndex = []
             this.tags=[];
-            this.tags.push({
-              entity: this.entitySelect[0],
-              column: this.entitySelect[1],
-              type: "warning"
-            })
             this.propertySelect=""
+            this.entitySelect = ""
           } else this.$message.error("抽取失败！");
         })
         .catch(res => {
@@ -519,21 +519,21 @@ export default {
         });
     },
     //展示图谱
-    showGraph() {
+    showGraph(res) {
       this.graphFlag = true;
       this.loadingResGraph = true;
-      this.$http
-        .post("http://49.232.95.141:8000/pic/show_structDirtyTuple", {
-          headers: {
-            "Content-Type": "multipart/form-data"
-          }
-        })
-        .then(res => {
-          console.log(res);
+      // // this.$http
+      // //   .post("http://49.232.95.141:8000/pic/show_structDirtyTuple", {
+      // //     headers: {
+      // //       "Content-Type": "multipart/form-data"
+      // //     }
+      // //   })
+      // //   .then(res => {
+      //     console.log(res);
           let graphPoint = [];
           let graphLink = [];
           let pointName = new Set();
-          let order = [1, 0, 2];
+          let order = [0, 1, 2];
           for (let j of order) {
             console.log(j);
             for (let i = 0; i < res.data[j].length; i++) {
@@ -582,13 +582,13 @@ export default {
           // 绘制图表
           myChart.setOption(Myoption, true);
           this.loadingResGraph = false;
-        })
-        .catch(res => {
-          //请求失败
-          alert("出错了");
-          console.log(res);
-          this.loadingResGraph = false;
-        });
+        // })
+        // .catch(res => {
+        //   //请求失败
+        //   alert("出错了");
+        //   console.log(res);
+        //   this.loadingResGraph = false;
+        // });
     },
     loadData() {
       this.$http

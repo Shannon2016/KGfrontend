@@ -114,9 +114,7 @@
               <span v-if="textData===''">(选择文件以浏览内容)</span>
             </div>
             <div style="padding:0 15px;">
-              <pre style="word-break: break-word;word-wrap: break-word;white-space: break-spaces;">
-                  {{textData}}
-                </pre>
+              <pre style="word-break: break-word;word-wrap: break-word;white-space: break-spaces;">{{textData}}</pre>
             </div>
           </el-col>
         </el-row>

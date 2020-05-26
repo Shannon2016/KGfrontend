@@ -151,7 +151,7 @@
               let pointName = new Set();
               this.tableData = [];
               let targetType1,targetType2;
-              let order=[1,0,2];
+              let order = [0, 1, 2];
               for (let j of order){
                 for (let i = 0; i < res.data[0][j].length; i++) {
                   let tmp = {};
