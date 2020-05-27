@@ -245,7 +245,7 @@ export default {
       let fd = new FormData();
       fd.append("entity", this.inputEntity);
       this.$http
-        .post("http://49.232.95.141:8000/pic/search_entity", fd, {
+        .post("http://49.232.95.141:8000/pic/searchTextData", fd, {
           headers: {
             "Content-Type": "multipart/form-data"
           }
