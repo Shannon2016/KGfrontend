@@ -407,8 +407,8 @@ export default {
           this.$alert(
           "<p><strong>总耗时： <i>" + res.data[0] + "</i> 秒</strong></p>" +
           "<p><strong>实体关系抽取数量： <i>" + res.data[1] + "</i> 个</strong></p>" +
-          "<p><strong>实体关系抽取效率： <i>" + res.data[2] + "</i>秒/个</strong></p>",
-          "实体属性抽取结果",
+          "<p><strong>实体关系抽取效率： <i>" + res.data[2] + "</i>个/秒</strong></p>",
+          "实体关系抽取结果",
           {
             dangerouslyUseHTMLString: true
           }
@@ -430,7 +430,7 @@ export default {
           this.$alert(
           "<p><strong>总耗时： <i>" + res.data[0] + "</i> 秒</strong></p>" +
           "<p><strong>实体属性抽取数量： <i>" + res.data[1] + "</i> 个</strong></p>" +
-          "<p><strong>实体属性抽取效率： <i>" + res.data[2] + "</i>秒/个</strong></p>",
+          "<p><strong>实体属性抽取效率： <i>" + res.data[2] + "</i>个/秒</strong></p>",
           "实体属性抽取结果",
           {
             dangerouslyUseHTMLString: true
