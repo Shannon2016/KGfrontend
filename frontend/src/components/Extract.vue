@@ -18,6 +18,7 @@
         </div>
         <div style="margin-top:10px;" id="autoPara">
           <span style="font-weight:bold;">被标记文本：</span>
+          <p id="para" style="text-align: left"></p>
         </div>
       </el-card>
     </div>
@@ -58,17 +59,7 @@
             class="blueBtn"
             size="small"
             @click="chooseTable"
-            v-if="showFlag===2"
           >加载测试数据</el-button>
-
-          <el-button
-            style="margin-left:20px;"
-            class="blueBtn"
-            size="small"
-            @click="loadModel"
-            v-if="showFlag===1"
-          >加载训练模型</el-button>
-
           <!-- <el-button
             class="darkBtn"
             size="small"
@@ -89,6 +80,25 @@
             @click="extractEntityProperty"
             v-if="showFlag===2"
           >抽取实体属性</el-button>
+        </div>
+        <div class="top-tip">
+
+          <span style="margin-left:0px;" v-if="showFlag===1">请选择训练模型：</span>
+          <el-select v-model="modelIndex" v-if="showFlag===1" placeholder size="small" style="margin-left:10px;width: 170px">
+            <el-option
+              v-for="(item, index) in modelList"
+              :key="index"
+              :label="item"
+              :value="item"
+            ></el-option>
+          </el-select>
+          <el-button
+            style="margin-left:20px;"
+            class="blueBtn"
+            size="small"
+            @click="loadModel"
+            v-if="showFlag===1"
+          >加载训练模型</el-button>
           <el-button
             class="darkBtn"
             size="small"
@@ -330,6 +340,11 @@ export default {
       accurateSet:[],
       //判断是否合并
       isMerge:false,
+      //模型列表
+      modelIndex:"",
+      modelList:[
+        "ckpt_1","ckpt_2","ckpt_3","ckpt_4","ckpt_5"
+      ],
     };
 
   },
@@ -642,23 +657,57 @@ export default {
             console.log(res);
             this.fullscreenLoading = false;
             let content= res.data[0];
-            let div = document.createElement("p");
-            div.id = "para";
-            //37+color位移
-            for(let i=0;i<res.data[1].length;i++){
-              content=this.highLight(res.data[1][i][1]+42*i,res.data[1][i][2]+42*i,"green",content);
+            // let div = document.createElement("p");
+            // div.id = "para";
+            let tagSet=[];
+            for(let i=1;i<4;i++){//遍历所有标记
+              for(let j=0;j<res.data[i].length;j++){
+                tagSet.push({
+                  sta:res.data[i][j][1],
+                  end:res.data[i][j][2],
+                  type:i
+                })
+              }
+            };
+            //排序
+            tagSet=[].concat(tagSet.sort((obj1, obj2)=>{
+              if(obj1.sta>=obj2.sta)
+                return 1;
+              else
+                return -1;
+            }));
+            console.log(tagSet)
+            //高亮
+            let offset=0;
+            for(let i= 0;i<tagSet.length;i++){
+              if(tagSet[i].type===1){
+                content=this.highLight(tagSet[i].sta+offset,tagSet[i].end+offset,"green",content);
+                offset+=42;
+              }
+              else if(tagSet[i].type===2){
+                content=this.highLight(tagSet[i].sta+offset,tagSet[i].end+offset,"red",content);
+                offset+=40;
+              }else if(tagSet[i].type===3){
+                content=this.highLight(tagSet[i].sta+offset,tagSet[i].end+offset,"yellow",content);
+                offset+=43;
+              }
             }
-            let offset1=42*res.data[1].length;
-            for(let j=0;j<res.data[2].length;j++){
-              content=this.highLight(res.data[2][j][1]+offset1+40*j,res.data[2][j][2]+offset1+40*j,"red",content);
-            }
-            let offset2 = offset1+40*res.data[2].length;
-            for(let k=0;k<res.data[3].length;k++){
-              content=this.highLight(res.data[3][k][1]+offset2+43*k,res.data[3][k][2]+offset2+43*k,"yellow",content);
-            }
+            // //37+color位移
+            // for(let i=0;i<res.data[1].length;i++){
+            //   content=this.highLight(res.data[1][i][1]+42*i,res.data[1][i][2]+42*i,"green",content);
+            // }
+            // let offset1=42*res.data[1].length;
+            // for(let j=0;j<res.data[2].length;j++){
+            //   content=this.highLight(res.data[2][j][1]+offset1+40*j,res.data[2][j][2]+offset1+40*j,"red",content);
+            // }
+            // let offset2 = offset1+40*res.data[2].length;
+            // for(let k=0;k<res.data[3].length;k++){
+            //   content=this.highLight(res.data[3][k][1]+offset2+43*k,res.data[3][k][2]+offset2+43*k,"yellow",content);
+            // }
+            let div = document.getElementById("para")
             div.innerHTML = content.replace(/\n/g,"<br>");
-            div.style = "text-align:left";
-            document.getElementById("autoPara").appendChild(div);
+            // div.style = "text-align:left";
+            // document.getElementById("autoPara").appendChild(div);
             this.realEntityCount=res.data[4];
             this.extractEntityCount=res.data[5];
             this.wrongEntityCount=res.data[6];
@@ -673,63 +722,62 @@ export default {
     },
     //选择算法，显示对应测试集和训练集
     chooseTable() {
-      if(this.algorithm === "正则表达式")
+      if(this.algorithm === "正则表达式") {
         this.showFlag = 2;
-        else this.showFlag = 1;
-      // alert(this.fileIndex)
-      if(this.algorithm ==="深度学习算法"){
-        this.textData = "";
-          this.testData=[]
-          this.fileCountTest=0
-        return;
-      }
-      this.loadingRes = true;
-      this.$http
-        .post("http://49.232.95.141:8000/pic/loadTextDataRE", {
-          headers: {
-            "Content-Type": "multipart/form-data"
-          }
-        })
-        .then(res => {
-           console.log(res)
-          this.textData = "";
-          this.testData = res.data.map(cur => {
-            return { title: cur };
+        this.loadingRes = true;
+        this.$http
+          .post("http://49.232.95.141:8000/pic/loadTextDataRE", {
+            headers: {
+              "Content-Type": "multipart/form-data"
+            }
+          })
+          .then(res => {
+            console.log(res)
+            this.textData = "";
+            this.testData = res.data.map(cur => {
+              return { title: cur };
+            });
+            this.fileCountTest = this.testData.length;
+            this.loadingRes = false;
+          })
+          .catch(res => {
+            console.log(res);
+            alert("出错了！");
+            this.loadingRes = false;
           });
-          this.fileCountTest = this.testData.length;
-          this.loadingRes = false;
-        })
-        .catch(res => {
-          console.log(res);
-          alert("出错了！");
-          this.loadingRes = false;
-        });
+      }
+      if(this.algorithm ==="深度学习算法"){
+        this.showFlag = 1;
+        this.textData = "";
+        this.fileCountTest=0;
+        this.loadingRes = true;
+        this.isMerge=false;
+        let fd = new FormData();
+        fd.append("contents", this.fileIndex)
+        this.$http
+          .post("http://49.232.95.141:8000/pic/loadTextDataDL", fd,{
+            headers: {
+              "Content-Type": "multipart/form-data"
+            }
+          })
+          .then(res => {
+            console.log(res)
+            this.textData = "";
+            this.testData = res.data.map(cur => {
+              return { title: cur };
+            });
+            this.fileCountTest = this.testData.length;
+            this.loadingRes = false;
+          })
+          .catch(res => {
+            console.log(res);
+            alert("出错了！");
+            this.loadingRes = false;
+          });
+      }
     },
     loadModel() {
-      this.loadingRes = true;
-      this.isMerge=false;
-      let fd = new FormData();
-      fd.append("contents", this.fileIndex)
-      this.$http
-        .post("http://49.232.95.141:8000/pic/loadTextDataDL", fd,{
-          headers: {
-            "Content-Type": "multipart/form-data"
-          }
-        })
-        .then(res => {
-           console.log(res)
-          this.textData = "";
-          this.testData = res.data.map(cur => {
-            return { title: cur };
-          });
-          this.fileCountTest = this.testData.length;
-          this.loadingRes = false;
-        })
-        .catch(res => {
-          console.log(res);
-          alert("出错了！");
-          this.loadingRes = false;
-        });
+
     },
     handleCurrentChangeTest(cpage) {
       this.curPageTest = cpage;
@@ -847,7 +895,7 @@ body > .el-container {
 }
 .top-tip {
   margin-top: -10px;
-  margin-bottom: 10px;
+  margin-bottom: 20px;
   padding-left: 20px;
 }
 /*************内容中心*************/
