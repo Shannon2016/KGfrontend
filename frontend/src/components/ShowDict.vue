@@ -243,9 +243,12 @@ export default {
     },
     searchGraph() {
       let fd = new FormData();
-      fd.append("entity", this.inputEntity);
+      fd.append("entity1", this.inputEntity);
+      fd.append("entity2", "");
+      fd.append("relation", "");
+      fd.append("number", 1);
       this.$http
-        .post("http://49.232.95.141:8000/pic/search_entity", fd, {
+        .post("http://49.232.95.141:8000/pic/searchTextData", fd, {
           headers: {
             "Content-Type": "multipart/form-data"
           }
@@ -261,14 +264,53 @@ export default {
             return;
           }
           this.isGraph = true;
-          let graphPoint = [
-            {
-              name: res.data,
-              category: 1
+          let graphPoint = [];
+          let graphLink = [];
+          let pointName = new Set();
+          let order = [0, 1, 2];
+          for (let j of order) {
+            for (let i = 0; i < res.data[j].length; i++) {
+              let tmp = {};
+              tmp.entity1 = res.data[j][i][0] + "";
+              tmp.relation = res.data[j][i][1] + "";
+              tmp.entity2 = res.data[j][i][2] + "";
+              if (!pointName.has(tmp.entity1)) {
+                pointName.add(tmp.entity1);
+                if (j !== 2) {
+                  graphPoint.push({
+                    name: tmp.entity1,
+                    category: j
+                  });
+                } else {
+                  graphPoint.push({
+                    name: tmp.entity1,
+                    category: 1
+                  });
+                }
+              }
+              if (!pointName.has(tmp.entity2)) {
+                pointName.add(tmp.entity2);
+                graphPoint.push({
+                  name: tmp.entity2,
+                  category: j
+                });
+              }
+              graphLink.push({
+                source: tmp.entity1,
+                target: tmp.entity2,
+                name: tmp.relation,
+                des: tmp.relation
+              });
             }
-          ];
+          }
           let Myoption = JSON.parse(JSON.stringify(option));
           Myoption["series"][0]["data"] = graphPoint;
+          Myoption["series"][0]["links"] = graphLink;
+          Myoption["series"][0]["edgeLabel"]["normal"]["formatter"] = function(
+            x
+          ) {
+            return x.data.name;
+          };
 
           myChart = echarts.init(document.getElementById("graph"));
           // 绘制图表
@@ -287,17 +329,16 @@ export default {
         })
         .then(res => {
           console.log(res);
-          if(res.data[0] === 1){
+          if (res.data[0] === 1) {
             this.isSearch = true;
             this.isGraph = false;
             this.inputEntity = "";
             this.$message({
-              message: '加入成功！',
-              type: 'success'
+              message: "加入成功！",
+              type: "success"
             });
-          }
-          else {
-            this.$message.error('出错了！');
+          } else {
+            this.$message.error("出错了！");
           }
         })
         .catch(res => {
@@ -339,8 +380,8 @@ export default {
         .then(res => {
           // console.log(res);
           this.textData = "";
-          this.tableData = res.data.map((cur) => {
-            return {title:cur};
+          this.tableData = res.data.map(cur => {
+            return { title: cur };
           });
           this.fileCount = this.tableData.length;
           this.loadingRes = false;
@@ -357,29 +398,29 @@ export default {
       this.isCatalog = true;
 
       this.loadingRes = true;
-      this.$http.post(
-        'http://49.232.95.141:8000/pic/loadJS_mark_text',
-        {
+      this.$http
+        .post("http://49.232.95.141:8000/pic/loadJS_mark_text", {
           headers: {
-            'Content-Type': 'multipart/form-data'
+            "Content-Type": "multipart/form-data"
           }
-        }).then((res) => {
+        })
+        .then(res => {
           // console.log(res)
-        this.textData = '';
-        this.tableDataEntity = res.data[0].map((cur) => {
-          return {title:cur};
+          this.textData = "";
+          this.tableDataEntity = res.data[0].map(cur => {
+            return { title: cur };
+          });
+          this.tableDataRelation = res.data[1].map(cur => {
+            return { title: cur };
+          });
+          // this.fileCount = this.tableData.length;
+          this.loadingRes = false;
         })
-        this.tableDataRelation = res.data[1].map((cur) => {
-          return {title:cur};
-        })
-        // this.fileCount = this.tableData.length;
-        this.loadingRes = false;
-
-      }).catch((res) => {
-        console.log(res)
-        alert('出错了！')
-        this.loadingRes = false;
-      })
+        .catch(res => {
+          console.log(res);
+          alert("出错了！");
+          this.loadingRes = false;
+        });
     },
     showDict() {
       this.isList = false;
