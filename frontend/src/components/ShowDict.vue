@@ -168,7 +168,7 @@
       <!--顶部-->
       <div class="header">
         <i class="el-icon-back" @click="isSearch=false"></i>
-        图谱搜素
+        图谱搜索
       </div>
       <el-divider></el-divider>
       <el-input v-model="inputEntity" placeholder="实体名" style="width:450px;"></el-input>
