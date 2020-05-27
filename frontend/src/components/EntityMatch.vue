@@ -753,6 +753,7 @@ export default {
       this.portion = "";
       this.isList = true;
       this.markSum = "";
+      this.loadingRes = true;
       let fd = new FormData();
       fd.append("table", this.tableIndex);
       this.$http
@@ -868,10 +869,12 @@ export default {
           console.log("----");
           console.log(this.positiveMap, this.negativeMap);
           console.log(this.positiveFatherIndex);
+          this.loadingRes = false;
         })
         .catch(res => {
           //请求失败
           console.log(res);
+          this.loadingRes = false;
         });
       this.setSumCount();
     },
@@ -1407,8 +1410,8 @@ export default {
           //   return res
           // });
 
-          this.loadingRes = false;
           this.entityMark();
+          this.loadingRes = false;
         })
         .catch(res => {
           //请求失败
@@ -1432,7 +1435,6 @@ export default {
             this.$message.error("标注实体过少！无法进行实体对齐！");
           } else {
           }
-          this.loadingRes = false;
 
           this.columnNames = [];
           this.tableData = [];
@@ -1449,6 +1451,7 @@ export default {
           this.fileCount = this.tableData.length;
           this.threeColumns = false;
           console.log(this.columnNames);
+          this.loadingRes = false;
         })
         .catch(res => {
           //请求失败

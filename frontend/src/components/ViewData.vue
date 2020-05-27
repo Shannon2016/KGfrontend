@@ -66,7 +66,11 @@
           :data="tableData.slice((curPage - 1) * 10, curPage * 10)"
           :header-cell-style="{background:'#EBEEF7',color:'#606266'}"
           height="626"
-          border>
+          border
+          v-loading="loadingRes"
+          element-loading-text="正在加载中，请稍等……"
+          element-loading-spinner="el-icon-loading"
+          element-loading-background="rgba(0, 0, 0, 0.2)">
           <el-table-column
             v-for="(item, index) in columnNames"
             :key="index"
@@ -119,6 +123,7 @@
     name: "ViewData",
     data () {
       return {
+        loadingRes:false,
         sourceIndex:"",
         sourceList:["structData", "structData2","structData3"],
         sourceFlag:true,
@@ -163,7 +168,7 @@
 
         this.columnNames = []
         this.tableData = []
-
+        this.loadingRes = true;
         let fd = new FormData()
         fd.append('table',this.tableIndex)
         fd.append("source", this.sourceIndex);
@@ -187,9 +192,11 @@
           })
 
           this.fileCount = res.data[1].length
+          this.loadingRes = false;
         }).catch((res) => {
           //请求失败
           console.log(res)
+          this.loadingRes = false;
         })
       },
       cancelUpload(){

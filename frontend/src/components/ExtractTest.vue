@@ -1,5 +1,11 @@
 <template>
   <el-container>
+    <div
+      v-loading.fullscreen.lock="loadingRes"
+      element-loading-text="正在处理中，请稍等……"
+      element-loading-spinner="el-icon-loading"
+      element-loading-background="rgba(0, 0, 0, 0.5)"
+    ></div>
     <el-main>
       <!--顶部-->
       <div class="header">抽取测试</div>
@@ -186,6 +192,7 @@ export default {
       this.curPage = cpage;
     },
     extractStruct() {
+      this.loadingRes = true
       let fd = new FormData();
       fd.append("contents",this.testIndex);
       this.$http.post("http://49.232.95.141:8000/pic/structTest",fd,{
@@ -224,6 +231,7 @@ export default {
         }
         console.log(this.accurateSet)
         console.log(this.recallSet)
+        this.loadingRes = false;
 
         this.$alert(
           "<p><strong>实体抽取准确率： <i>" +
@@ -239,6 +247,7 @@ export default {
         );
       }).catch((res)=>{
           console.log(res)
+        this.loadingRes = false;
       })
     },
     calculateAverage() {

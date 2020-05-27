@@ -361,6 +361,7 @@ export default {
         });
         return;
       }
+      this.fullscreenLoading = true;
       fd.append("columns", JSON.stringify(columns));
       fd.append("ontology_data", JSON.stringify(ontology_data));
       this.$http
@@ -394,6 +395,7 @@ export default {
         });
         return;
       }
+      this.fullscreenLoading = true;
       fd.append("ontology", this.typeSelect);
       this.$http
         .post("http://49.232.95.141:8000/pic/struct_relation_extract", fd, {
@@ -446,6 +448,7 @@ export default {
         });
         return;
       }
+      this.fullscreenLoading = true;
       console.log(columns, ontology_data);
       fd.append("columns", JSON.stringify(columns));
       fd.append("ontology_data", JSON.stringify(ontology_data));
@@ -559,7 +562,6 @@ export default {
     //展示图谱
     showGraph(res) {
       this.graphFlag = true;
-      this.fullscreenLoading = true;
       if(res.data.length===0) {
         this.fullscreenLoading = false;
         this.$message.error('该表格不可抽取！');
