@@ -208,7 +208,7 @@
       <!--顶部-->
       <div class="header">
         <i class="el-icon-back" @click="resDetailFlag=false"></i>
-        <span style="margin-left:10px;font-size:large;font-weight:bold;">查看上次标注结果</span>
+        <span style="margin-left:10px;font-size:large;font-weight:bold;">查看上轮训练效果</span>
         <!-- <el-button class="headbutton darkBtn" size="small" @click="handleExport">导出</el-button> -->
       </div>
       <el-divider></el-divider>
