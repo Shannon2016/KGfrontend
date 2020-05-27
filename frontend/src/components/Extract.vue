@@ -285,17 +285,17 @@ export default {
   name: "Extract",
   data() {
     return {
-      showFlag:0,//1时显示深度学习对应操作，2时显示正则表达式对应操作
-      realEntityCount:0,
-      extractEntityCount:1,
-      wrongEntityCount:2,
-      showResult:false,
+      showFlag: 0,//1时显示深度学习对应操作，2时显示正则表达式对应操作
+      realEntityCount: 0,
+      extractEntityCount: 1,
+      wrongEntityCount: 2,
+      showResult: false,
       isList: true,
       fileCount: 0,
       isUpload: false,
       curPage: 1,
-      fileIndex:"",
-      fileList: ["contents1","contents2","contents3","contents4","contents5"],
+      fileIndex: "",
+      fileList: ["contents1", "contents2", "contents3", "contents4", "contents5"],
       //表格数据 测试集
       testData: [],
       // trainData: [],
@@ -336,43 +336,43 @@ export default {
         }
       ],
       //计算平均召回率和准确率
-      recallSet:[],
-      accurateSet:[],
+      recallSet: [],
+      accurateSet: [],
       //判断是否合并
-      isMerge:false,
+      isMerge: false,
       //模型列表
-      modelIndex:"",
-      modelList:[
-        "ckpt_1","ckpt_2","ckpt_3","ckpt_4","ckpt_5"
+      modelIndex: "",
+      modelList: [
+        "ckpt_1", "ckpt_2", "ckpt_3", "ckpt_4", "ckpt_5"
       ],
     };
 
   },
 
   methods: {
-    changeAlgorithm(){
-      if(this.algorithm==="正则表达式"){
-        this.showFlag=2;
+    changeAlgorithm() {
+      if (this.algorithm === "正则表达式") {
+        this.showFlag = 2;
       }
-      else if(this.algorithm==="深度学习算法"){
-        this.showFlag=1;
+      else if (this.algorithm === "深度学习算法") {
+        this.showFlag = 1;
       }
     },
-    calculateAverage(){
-      if(this.recallSet.length===0&&this.recallSet.length===0){
+    calculateAverage() {
+      if (this.recallSet.length === 0 && this.recallSet.length === 0) {
         this.$message({
           message: "请先对合并文件进行测试！",
           type: "warning"
         });
         return;
       }
-      let recall=0,accurate=0;
-      for(let i=0;i<this.recallSet.length;i++){
-        recall+=this.recallSet[i].num;
-        accurate+=this.accurateSet[i].num;
+      let recall = 0, accurate = 0;
+      for (let i = 0; i < this.recallSet.length; i++) {
+        recall += this.recallSet[i].num;
+        accurate += this.accurateSet[i].num;
       }
-      recall/=this.recallSet.length;
-      accurate/=this.accurateSet.length;
+      recall /= this.recallSet.length;
+      accurate /= this.accurateSet.length;
       this.$alert(
         "<p><strong>实体抽取准确率： <i>" +
         accurate +
@@ -386,10 +386,10 @@ export default {
         }
       );
     },
-    highLight(sta, end, color,content) {
+    highLight(sta, end, color, content) {
       let str = content;
-      return content=str.slice(0, sta) +
-        "<strong style='background:"+color+"'>" +
+      return content = str.slice(0, sta) +
+        "<strong style='background:" + color + "'>" +
         str.slice(sta, end + 1) +
         "</strong>" +
         str.slice(end + 1);
@@ -401,10 +401,10 @@ export default {
           headers: {
             "Content-Type": "multipart/form-data"
           }
-        }).then(res =>{
-          console.log(res)
-          this.fullscreenLoading = false;
-          this.$alert(
+        }).then(res => {
+        console.log(res)
+        this.fullscreenLoading = false;
+        this.$alert(
           "<p><strong>总耗时： <i>" + res.data[0] + "</i> 秒</strong></p>" +
           "<p><strong>实体关系抽取数量： <i>" + res.data[1] + "</i> 个</strong></p>" +
           "<p><strong>实体关系抽取效率： <i>" + res.data[2] + "</i>秒/个</strong></p>",
@@ -413,9 +413,9 @@ export default {
             dangerouslyUseHTMLString: true
           }
         );
-        }).catch(res => {
-          console.log(res)
-        })
+      }).catch(res => {
+        console.log(res)
+      })
     },
     extractEntityProperty() {
       this.fullscreenLoading = true;
@@ -424,10 +424,10 @@ export default {
           headers: {
             "Content-Type": "multipart/form-data"
           }
-        }).then(res =>{
-          console.log(res)
-          this.fullscreenLoading = false;
-          this.$alert(
+        }).then(res => {
+        console.log(res)
+        this.fullscreenLoading = false;
+        this.$alert(
           "<p><strong>总耗时： <i>" + res.data[0] + "</i> 秒</strong></p>" +
           "<p><strong>实体属性抽取数量： <i>" + res.data[1] + "</i> 个</strong></p>" +
           "<p><strong>实体属性抽取效率： <i>" + res.data[2] + "</i>秒/个</strong></p>",
@@ -436,13 +436,13 @@ export default {
             dangerouslyUseHTMLString: true
           }
         );
-        }).catch(res => {
-          console.log(res)
-        })
+      }).catch(res => {
+        console.log(res)
+      })
 
     },
     mergeFile() {
-      this.isMerge=true;
+      this.isMerge = true;
       this.fullscreenLoading = true;
       let fd = new FormData();
       fd.append("contents", this.fileIndex);
@@ -455,7 +455,7 @@ export default {
         .then(res => {
           this.textData = res.data;
           this.fullscreenLoading = false;
-        }).catch((res)=>{
+        }).catch((res) => {
         console.log(res)
         this.fullscreenLoading = false;
       });
@@ -533,13 +533,13 @@ export default {
       let graphPoint = [];
       let graphLink = [];
       let pointName = new Set();
-          let order = [0, 1, 2];
+      let order = [0, 1, 2];
       for (let j of order) {
         for (let i = 0; i < res.data[j].length; i++) {
           let tmp = {};
-          tmp.entity1 = res.data[j][i][0]+"";
-          tmp.relation = res.data[j][i][1]+"";
-          tmp.entity2 = res.data[j][i][2]+"";
+          tmp.entity1 = res.data[j][i][0] + "";
+          tmp.relation = res.data[j][i][1] + "";
+          tmp.entity2 = res.data[j][i][2] + "";
           if (!pointName.has(tmp.entity1)) {
             pointName.add(tmp.entity1);
             if (j !== 2) {
@@ -572,7 +572,7 @@ export default {
       let Myoption = JSON.parse(JSON.stringify(option));
       Myoption["series"][0]["data"] = graphPoint;
       Myoption["series"][0]["links"] = graphLink;
-      Myoption["series"][0]["edgeLabel"]["normal"]["formatter"] = function(x) {
+      Myoption["series"][0]["edgeLabel"]["normal"]["formatter"] = function (x) {
         return x.data.name;
       };
 
@@ -584,7 +584,7 @@ export default {
       this.fullscreenLoading = true;
       let fd = new FormData();
       fd.append("contents", this.fileIndex);
-      if(this.isMerge){
+      if (this.isMerge) {
         this.$http
           .post("http://49.232.95.141:8000/pic/textTestALL", fd, {
             headers: {
@@ -594,31 +594,31 @@ export default {
           .then(res => {
             console.log(res);
             this.fullscreenLoading = false;
-            if(this.recallSet.length===0)
+            if (this.recallSet.length === 0)
               this.recallSet.push({
-                index:this.fileIndex,
-                num:res.data[1]
+                index: this.fileIndex,
+                num: res.data[1]
               });
-            for(let i=0;i<this.recallSet.length;i++){
-              if(this.recallSet[i].index===this.fileIndex)break;
-              else if(i===this.recallSet.length-1&&this.recallSet[i].index!==this.fileIndex){
+            for (let i = 0; i < this.recallSet.length; i++) {
+              if (this.recallSet[i].index === this.fileIndex) break;
+              else if (i === this.recallSet.length - 1 && this.recallSet[i].index !== this.fileIndex) {
                 this.recallSet.push({
-                  index:this.fileIndex,
-                  num:res.data[1]
+                  index: this.fileIndex,
+                  num: res.data[1]
                 })
               }
             }
-            if(this.accurateSet.length===0)
+            if (this.accurateSet.length === 0)
               this.accurateSet.push({
-                index:this.fileIndex,
-                num:res.data[0]
+                index: this.fileIndex,
+                num: res.data[0]
               });
-            for(let i=0;i<this.accurateSet.length;i++){
-              if(this.accurateSet[i].index===this.fileIndex)break;
-              else if(i===this.accurateSet.length-1&&this.accurateSet[i].index!==this.fileIndex){
+            for (let i = 0; i < this.accurateSet.length; i++) {
+              if (this.accurateSet[i].index === this.fileIndex) break;
+              else if (i === this.accurateSet.length - 1 && this.accurateSet[i].index !== this.fileIndex) {
                 this.accurateSet.push({
-                  index:this.fileIndex,
-                  num:res.data[0]
+                  index: this.fileIndex,
+                  num: res.data[0]
                 })
               }
             }
@@ -635,17 +635,17 @@ export default {
                 dangerouslyUseHTMLString: true
               }
             );
-          }).catch((res)=>{
+          }).catch((res) => {
           console.log(res)
         });
       }
       else {
-        if(this.selectTitle===""){
+        if (this.selectTitle === "") {
           this.$message({
             message: "请先查看文书！",
             type: "warning"
           });
-          this.fullscreenLoading=false;
+          this.fullscreenLoading = false;
           return;
         }
 
@@ -659,40 +659,41 @@ export default {
           .then(res => {
             console.log(res);
             this.fullscreenLoading = false;
-            let content= res.data[0];
+            let content = res.data[0];
             // let div = document.createElement("p");
             // div.id = "para";
-            let tagSet=[];
-            for(let i=1;i<4;i++){//遍历所有标记
-              for(let j=0;j<res.data[i].length;j++){
+            let tagSet = [];
+            for (let i = 1; i < 4; i++) {//遍历所有标记
+              for (let j = 0; j < res.data[i].length; j++) {
                 tagSet.push({
-                  sta:res.data[i][j][1],
-                  end:res.data[i][j][2],
-                  type:i
+                  sta: res.data[i][j][1],
+                  end: res.data[i][j][2],
+                  type: i
                 })
               }
-            };
+            }
+            ;
             //排序
-            tagSet=[].concat(tagSet.sort((obj1, obj2)=>{
-              if(obj1.sta>=obj2.sta)
+            tagSet = [].concat(tagSet.sort((obj1, obj2) => {
+              if (obj1.sta >= obj2.sta)
                 return 1;
               else
                 return -1;
             }));
             console.log(tagSet)
             //高亮
-            let offset=0;
-            for(let i= 0;i<tagSet.length;i++){
-              if(tagSet[i].type===1){
-                content=this.highLight(tagSet[i].sta+offset,tagSet[i].end+offset,"green",content);
-                offset+=42;
+            let offset = 0;
+            for (let i = 0; i < tagSet.length; i++) {
+              if (tagSet[i].type === 1) {
+                content = this.highLight(tagSet[i].sta + offset, tagSet[i].end + offset, "green", content);
+                offset += 42;
               }
-              else if(tagSet[i].type===2){
-                content=this.highLight(tagSet[i].sta+offset,tagSet[i].end+offset,"red",content);
-                offset+=40;
-              }else if(tagSet[i].type===3){
-                content=this.highLight(tagSet[i].sta+offset,tagSet[i].end+offset,"yellow",content);
-                offset+=43;
+              else if (tagSet[i].type === 2) {
+                content = this.highLight(tagSet[i].sta + offset, tagSet[i].end + offset, "red", content);
+                offset += 40;
+              } else if (tagSet[i].type === 3) {
+                content = this.highLight(tagSet[i].sta + offset, tagSet[i].end + offset, "yellow", content);
+                offset += 43;
               }
             }
             // //37+color位移
@@ -708,12 +709,12 @@ export default {
             //   content=this.highLight(res.data[3][k][1]+offset2+43*k,res.data[3][k][2]+offset2+43*k,"yellow",content);
             // }
             let div = document.getElementById("para")
-            div.innerHTML = content.replace(/\n/g,"<br>");
+            div.innerHTML = content.replace(/\n/g, "<br>");
             // div.style = "text-align:left";
             // document.getElementById("autoPara").appendChild(div);
-            this.realEntityCount=res.data[4];
-            this.extractEntityCount=res.data[5];
-            this.wrongEntityCount=res.data[6];
+            this.realEntityCount = res.data[4];
+            this.extractEntityCount = res.data[5];
+            this.wrongEntityCount = res.data[6];
 
             this.showResult = true;
           })
@@ -725,7 +726,7 @@ export default {
     },
     //选择算法，显示对应测试集和训练集
     chooseTable() {
-      if(this.algorithm === "正则表达式") {
+      if (this.algorithm === "正则表达式") {
         this.showFlag = 2;
         this.loadingRes = true;
         this.$http
@@ -738,7 +739,7 @@ export default {
             console.log(res)
             this.textData = "";
             this.testData = res.data.map(cur => {
-              return { title: cur };
+              return {title: cur};
             });
             this.fileCountTest = this.testData.length;
             this.loadingRes = false;
@@ -749,16 +750,16 @@ export default {
             this.loadingRes = false;
           });
       }
-      if(this.algorithm ==="深度学习算法"){
+      if (this.algorithm === "深度学习算法") {
         this.showFlag = 1;
         this.textData = "";
-        this.fileCountTest=0;
+        this.fileCountTest = 0;
         this.loadingRes = true;
-        this.isMerge=false;
+        this.isMerge = false;
         let fd = new FormData();
         fd.append("contents", this.fileIndex)
         this.$http
-          .post("http://49.232.95.141:8000/pic/loadTextDataDL", fd,{
+          .post("http://49.232.95.141:8000/pic/loadTextDataDL", fd, {
             headers: {
               "Content-Type": "multipart/form-data"
             }
@@ -767,7 +768,7 @@ export default {
             console.log(res)
             this.textData = "";
             this.testData = res.data.map(cur => {
-              return { title: cur };
+              return {title: cur};
             });
             this.fileCountTest = this.testData.length;
             this.loadingRes = false;
@@ -780,8 +781,27 @@ export default {
       }
     },
     loadModel() {
-
+      let fd = new FormData();
+      fd.append("model", this.modelIndex)
+      this.$http
+        .post("http://49.232.95.141:8000/pic/loadModel", fd, {
+          headers: {
+            "Content-Type": "multipart/form-data"
+          }
+        })
+        .then(res => {
+          console.log(res)
+          this.$message({
+            message: "加载模型" + this.modelIndex + "成功！",
+            type: "success"
+          });
+        })
+        .catch(res => {
+          console.log(res);
+          alert("出错了！");
+        });
     },
+
     handleCurrentChangeTest(cpage) {
       this.curPageTest = cpage;
     },
@@ -792,16 +812,16 @@ export default {
     handleAnalysis(row) {
       this.selectTitle = row.title;
       let fd = new FormData();
-      let url=""
-      if(this.algorithm==="深度学习算法") {
-        url="viewTextDL"
+      let url = ""
+      if (this.algorithm === "深度学习算法") {
+        url = "viewTextDL"
         fd.append("contents", this.fileIndex)
-      } else url="viewTextDataRE"
+      } else url = "viewTextDataRE"
       fd.append("filename", row.title);
 
       this.loadingRes = true;
       this.$http
-        .post("http://49.232.95.141:8000/pic/"+url, fd, {
+        .post("http://49.232.95.141:8000/pic/" + url, fd, {
           headers: {
             "Content-Type": "multipart/form-data"
           }
@@ -821,7 +841,7 @@ export default {
     handleExport() {
       //处理数据
       let data = "";
-      this.tripleData.forEach(function(item, index) {
+      this.tripleData.forEach(function (item, index) {
         data += item.source + "," + item.name + "," + item.target + "\n";
       });
       let filename = this.choosenRow.title.split(".")[0];
@@ -836,8 +856,8 @@ export default {
       save_link.download = filename + ".csv";
       save_link.click();
     }
-  }
-};
+  },
+}
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
