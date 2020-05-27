@@ -1,5 +1,5 @@
 <template>
-  <el-container v-loading="fullscreenLoading" element-loading-text="模型测试中，离开将中断测试……">
+  <el-container v-loading="fullscreenLoading" element-loading-text="正在处理中，请稍候……">
     <!--内容块-->
     <div id="upload" v-show="showResult">
       <el-card class="box-card">

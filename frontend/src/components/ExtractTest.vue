@@ -204,28 +204,28 @@ export default {
         if(this.recallSet.length===0)
           this.recallSet.push({
             index:this.testIndex,
-            num:res.data[1]
+            num:res.data[4]
           });
         for(let i=0;i<this.recallSet.length;i++){
           if(this.recallSet[i].index===this.testIndex)break;
           else if(i===this.recallSet.length-1&&this.recallSet[i].index!==this.fileIndex){
             this.recallSet.push({
               index:this.testIndex,
-              num:res.data[1]
+              num:res.data[4]
             })
           }
         }
         if(this.accurateSet.length===0)
           this.accurateSet.push({
             index:this.testIndex,
-            num:res.data[0]
+            num:res.data[3]
           });
         for(let i=0;i<this.accurateSet.length;i++){
           if(this.accurateSet[i].index===this.testIndex)break;
           else if(i===this.accurateSet.length-1&&this.accurateSet[i].index!==this.testIndex){
             this.accurateSet.push({
               index:this.testIndex,
-              num:res.data[0]
+              num:res.data[3]
             })
           }
         }
@@ -234,11 +234,20 @@ export default {
         this.loadingRes = false;
 
         this.$alert(
-          "<p><strong>实体抽取准确率： <i>" +
+          "<p><strong>应有实体的数量： <i>" +
           res.data[0] +
-          "</i> %</strong></p>" +
-          "<p><strong>实体抽取召回率： <i>" +
+          "</i> 个</strong></p>" +
+          "<p><strong>抽取的实体属性数量： <i>" +
           res.data[1] +
+          "</i> 个</strong></p>" +
+          "<p><strong>正确识别的实体属性数量： <i>" +
+          res.data[2] +
+          "</i> 个</strong></p>" +
+          "<p><strong>实体抽取准确率<i> = "+res.data[2]+"/"+res.data[1] +" = "+
+          res.data[3] +
+          "</i> %</strong></p>" +
+          "<p><strong>实体抽取召回率<i> = "+res.data[2]+"/"+res.data[0]+" = " +
+          res.data[4] +
           "</i> %</strong></p>",
           "结构化知识抽取结果",
           {

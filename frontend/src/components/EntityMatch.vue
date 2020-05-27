@@ -164,11 +164,11 @@
           <!-- <span>现有正样例：{{positiveCount}}个</span> -->
           <div id="matchInfo">
             已有训练数据数量 : {{trainCount}}
-            <span
+            <!-- <span
               v-if="showRes"
               style="float:right; margin-right:20px;"
             >召回率：{{recall}}%</span>
-            <span v-if="showRes" style="float:right; margin-right:20px;">准确率：{{accuracy}}%</span>
+            <span v-if="showRes" style="float:right; margin-right:20px;">准确率：{{accuracy}}%</span> -->
           </div>
         </div>
         <!--表格部分-->
