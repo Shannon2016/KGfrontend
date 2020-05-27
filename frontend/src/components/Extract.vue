@@ -443,6 +443,7 @@ export default {
     },
     mergeFile() {
       this.isMerge=true;
+      this.fullscreenLoading = true;
       let fd = new FormData();
       fd.append("contents", this.fileIndex);
       this.$http
@@ -453,8 +454,10 @@ export default {
         })
         .then(res => {
           this.textData = res.data;
+          this.fullscreenLoading = false;
         }).catch((res)=>{
         console.log(res)
+        this.fullscreenLoading = false;
       });
     },
     changeToEntitySearch() {

@@ -38,7 +38,6 @@
           @click="loadJS"
         >加载JS文书</el-button>
       </div>
-      <!--这他妈是什么？？？-->
       <div
         class="result"
         style="margin-bottom:50px;height:100%"
@@ -370,6 +369,7 @@ export default {
     loadJS() {
       this.isList = true;
       this.listType = true;
+      this.isCatalog = false;
       this.loadingRes = true;
       this.$http
         .post("http://49.232.95.141:8000/pic/loadJSText", {
