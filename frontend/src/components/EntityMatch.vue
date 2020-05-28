@@ -50,7 +50,7 @@
             @click="chooseTable"
           >加载合并数据</el-button>
           <div
-            v-if="markSum==='' && isList"
+            v-if="totalSum==='' && isList"
             style="margin-bottom:10px;"
           >如要标记样例，请先填写标记样例数，默认正负样例比占总样例数2:1</div>
 
@@ -87,14 +87,7 @@
           <!--@click="deNoise"-->
           <!--&gt;属性去噪</el-button>-->
           <!-- <el-button v-if="!isList" type="primary" class="darkBtn" size="small" style="float:right; margin-right:20px;" @click="loadData">数据加载</el-button> -->
-          <el-button
-            v-if="isList"
-            type="primary"
-            class="darkBtn"
-            size="small"
-            style="float:right; margin-right:20px;"
-            @click="backToView"
-          >返回</el-button>
+
         </div>
         <!--用户操作-->
         <div style="margin-left:20px;margin-bottom: 10px;" v-if="isList">
@@ -103,12 +96,13 @@
 
           <span style="margin-left:20px;">标记样例总数：</span>
           <el-input
-            v-model="markSum"
+            v-model="totalSum"
             type="number"
             style="width:150px;"
             size="small"
             @change="setSumCount"
           ></el-input>
+          <span style="margin-left:20px;">本次标记总数：{{markSum}}</span>
 
           <span style="margin-left:20px;">选择所用算法：</span>
           <el-select v-model="algorithm" style="width:150px;" placeholder="请选择算法" size="small">
@@ -152,6 +146,14 @@
             style="float:right; margin-right:30px;"
             :disabled="!threeColumns"
           >提交</el-button>
+          <el-button
+            v-if="isList"
+            type="primary"
+            class="darkBtn"
+            size="small"
+            style="float:right; margin-right:20px;"
+            @click="backToView"
+          >返回</el-button>
           <el-button
             type="text"
             v-if="showRes"
@@ -367,7 +369,8 @@ export default {
           // 通过调用resolve将子节点数据返回，通知组件数据加载完成
         }
       },
-      markSum: "",
+      totalSum:"",
+      markSum: 0,
       isList: false,
       fileCount: 0,
       isUpload: false,
@@ -481,7 +484,7 @@ export default {
           this.negativeCount = 0;
           this.positiveOldCount = 0;
           this.negativeOldCount = 0;
-          this.markSum = "";
+          this.totalSum = "";
           //更新已有训练集数量
           this.trainCount = res.data[0];
 
@@ -709,7 +712,8 @@ export default {
       console.log(this.positiveFlag, this.negativeFlag);
     },
     setSumCount() {
-      if (this.markSum === "") {
+      if (this.totalSum === "") {
+        this.markSum=0
         this.positiveMax = 0;
         this.negativeMax = 0;
         this.negativeFlag = true;
@@ -717,7 +721,11 @@ export default {
         this.isList = true;
         return;
       }
-      let num = parseInt(this.markSum);
+      let num = parseInt(this.totalSum)-parseInt(this.trainCount);
+      if(num>=0)
+        this.markSum = num;
+      else
+        this.markSum = 0;
       this.positiveMax = Math.ceil((num * 2) / 3); //向上取整
       this.negativeMax = Math.ceil((num * 1) / 3);
       this.changeDisableFlag(3);
@@ -752,7 +760,7 @@ export default {
       this.negativeOldCount = 0;
       this.portion = "";
       this.isList = true;
-      this.markSum = "";
+      this.totalSum = "";
       this.loadingRes = true;
       let fd = new FormData();
       fd.append("table", this.tableIndex);
@@ -964,7 +972,7 @@ export default {
     //设为正样例
     setPositive() {
       //未填写时不可选
-      if (this.markSum === "") {
+      if (this.totalSum === "") {
         this.$message({
           message: "请先输入样例总数或将样例总数设置为更大值",
           type: "warning"
@@ -1151,7 +1159,7 @@ export default {
     //设为负样例
     setNegative() {
       //未填写时不可选
-      if (this.markSum === "") {
+      if (this.totalSum === "") {
         this.$message({
           message: "请先输入样例总数或将样例总数设置为更大值",
           type: "warning"

@@ -1,5 +1,16 @@
 <template>
   <el-container v-loading="fullscreenLoading" element-loading-text="模型测试中，离开将中断测试……">
+    <div id="upload" v-show="showSingleResult">
+      <el-card class="box-card">
+        <div slot="header" class="clearfix" style="text-align: center">
+          <span>预测结果</span>
+          <i class="el-icon-close" style="float: right; padding: 3px 0;" @click="showSingleResult=false"></i>
+        </div>
+        <div style="padding:0 15px; margin-top:10px;">
+          <video v-if="singleSrc!==''" :src="singleSrc" controls="controls" style="width:100%;"></video>
+        </div>
+      </el-card>
+    </div>
     <!--内容块-->
     <el-main>
       <!--顶部-->
@@ -19,6 +30,14 @@
           <!--@click="showGraph"-->
           <!--v-if="!resultFlag&&!graphFlag"-->
         <!--&gt;加入图谱</el-button>-->
+        <el-button
+          type="primary"
+          class="darkBtn headbutton"
+          size="small"
+          style="float:right; margin-right:20px;"
+          @click="showHistory"
+          v-if="!resultFlag&&!graphFlag"
+        >查看历史信息</el-button>
         <el-button
           type="primary"
           class="darkBtn headbutton"
@@ -57,7 +76,18 @@
               border
             >
               <el-table-column prop="title" label="测试数据"></el-table-column>
-              <el-table-column label="操作" width="100" align="center">
+              <el-table-column label="浏览" width="100" align="center">
+                <template slot-scope="scope">
+                  <el-button
+                    class="blueBtn"
+                    @click="handleShow(scope.row)"
+                    type="primary"
+                    plain
+                    size="small"
+                  >浏览</el-button>
+                </template>
+              </el-table-column>
+              <el-table-column label="预测" width="100" align="center">
                 <template slot-scope="scope">
                   <el-button
                     class="blueBtn"
@@ -65,7 +95,7 @@
                     type="primary"
                     plain
                     size="small"
-                  >浏览</el-button>
+                  >预测</el-button>
                 </template>
               </el-table-column>
             </el-table>
@@ -207,6 +237,9 @@ export default {
       src:"",
       resultList:[],
       resultSrc:"",
+      //单个结果
+      showSingleResult:false,
+      singleSrc:"",
     };
   },
 
@@ -332,7 +365,7 @@ export default {
       this.curPageResult = cpage;
     },
     //查看视频内容
-    handleAnalysis(row) {
+    handleShow(row) {
       this.selectTitle = row.title;
       let fd = new FormData();
       fd.append("filename", row.title);
@@ -350,6 +383,55 @@ export default {
         .catch(res => {
           console.log(res);
           this.loadingRes = false;
+        });
+    },
+    //预测单个
+    handleAnalysis(row) {
+      this.selectTitle = row.title;
+      let fd = new FormData();
+      fd.append("filename", row.title);
+      this.loadingRes = true;
+      this.$http
+        .post("http://49.232.95.141:8000/pic/videoTestDemo", fd, {
+          headers: {
+            "Content-Type": "multipart/form-data"
+          }
+        })
+        .then(res => {
+          console.log(res)
+          this.showSingleResult=true;
+          this.singleSrc=res.data;
+          this.loadingRes = false;
+        })
+        .catch(res => {
+          console.log(res);
+          this.loadingRes = false;
+        });
+    },
+    //查看历史信息
+    showHistory() {
+      this.$http
+        .post("http://49.232.95.141:8000/pic/videoTestHistory", {
+          headers: {
+            "Content-Type": "multipart/form-data"
+          }
+        })
+        .then(res => {
+          this.$alert(
+          "<p><strong>历史准确率： <i>" +
+            res.data[0] +
+          "</i> %</strong></p>" +
+          "<p><strong>历史召回率： <i>" +
+            res.data[1] +
+          "</i> %</strong></p>",
+          "历史测试结果",
+          {
+            dangerouslyUseHTMLString: true
+          }
+        );
+        })
+        .catch(res => {
+          console.log(res);
         });
     },
     handleAnalysisResult(row) {
@@ -458,6 +540,8 @@ body > .el-container {
   top: 20%;
   left: 30%;
   right: 30%;
+  bottom:5%;
+  overflow: inherit;
 }
 .upload-demo {
   margin-bottom: 20px;
