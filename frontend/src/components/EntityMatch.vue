@@ -465,14 +465,12 @@ export default {
           this.pastSumMap={};
           this.positiveFatherIndex={};
           this.negativeMap={};
-          this.fatherIndex = {};
           this.positiveMap = {};
           this.negativeMap = {};
           this.positiveCount = 0;
           this.negativeCount = 0;
           this.positiveOldCount = 0;
           this.negativeOldCount = 0;
-          this.totalSum = "";
           //更新已有训练集数量
           this.trainCount = res.data[0];
 
