@@ -375,10 +375,10 @@ export default {
       accurate /= this.accurateSet.length;
       this.$alert(
         "<p><strong>实体抽取准确率： <i>" +
-        accurate +
+        accurate.toFixed(2) +
         "</i> %</strong></p>" +
         "<p><strong>实体抽取召回率： <i>" +
-        recall +
+        recall.toFixed(2) +
         "</i> %</strong></p>",
         "当前平均测试结果",
         {
