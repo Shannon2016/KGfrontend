@@ -3,7 +3,7 @@ let categories = [{
         symbol: "rect",
         symbolSize:50
     },{
-        name: "实体",
+        name: "关系",
         symbol: "circle",
         symbolSize:60
     },{

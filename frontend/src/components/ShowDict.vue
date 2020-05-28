@@ -275,7 +275,13 @@ export default {
               tmp.entity2 = res.data[j][i][2] + "";
               if (!pointName.has(tmp.entity1)) {
                 pointName.add(tmp.entity1);
-                if (j !== 2) {
+                if(tmp.entity1.indexOf(this.inputEntity) !== -1){
+                  graphPoint.push({
+                    name: tmp.entity1,
+                    category: 3
+                  });
+                }
+                else if (j !== 2) {
                   graphPoint.push({
                     name: tmp.entity1,
                     category: j
@@ -289,10 +295,17 @@ export default {
               }
               if (!pointName.has(tmp.entity2)) {
                 pointName.add(tmp.entity2);
-                graphPoint.push({
-                  name: tmp.entity2,
-                  category: j
-                });
+                if(tmp.entity2.indexOf(this.inputEntity) !== -1){
+                  graphPoint.push({
+                    name: tmp.entity2,
+                    category: 3
+                  });
+                } else {
+                  graphPoint.push({
+                    name: tmp.entity2,
+                    category: j
+                  });
+                }
               }
               graphLink.push({
                 source: tmp.entity1,
@@ -310,6 +323,17 @@ export default {
           ) {
             return x.data.name;
           };
+          Myoption["series"][0]["categories"].push({
+              name: "检索目标",
+              symbol: "circle",
+              symbolSize: 60
+            });
+          Myoption["legend"] = [];
+          Myoption["legend"].push({
+            data: Myoption["series"][0]["categories"].map(function(a) {
+              return { name: a.name, icon: a.symbol };
+            })
+          });
 
           myChart = echarts.init(document.getElementById("graph"));
           // 绘制图表

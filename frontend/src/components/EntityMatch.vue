@@ -252,19 +252,7 @@
         <!-- <el-button class="headbutton darkBtn" size="small" @click="handleExport">导出</el-button> -->
       </div>
       <el-divider></el-divider>
-      <div v-if="!ontologyFlag">
-        <!--搜索栏-->
-        <!--请输入搜索关键词：-->
-        <!--<el-input  v-model="keyword" placeholder="关键词" style="width:250px;"></el-input>-->
-        <!--<el-select v-model="level" placeholder="请选择查询级数">-->
-        <!--<el-option-->
-        <!--v-for="item in levelList"-->
-        <!--:key="item.value"-->
-        <!--:label="item.label"-->
-        <!--:value="item.value">-->
-        <!--</el-option>-->
-        <!--</el-select>-->
-        <!--<el-button style="margin-left:20px;height: 40px" class="darkBtn" size="small" @click="searchGraph">搜索</el-button>-->
+      <!-- <div v-if="!ontologyFlag">
         <el-input v-model="inputEntity1" placeholder="实体1" style="width:250px;"></el-input>
         <el-input
           v-model="inputRelation"
@@ -306,7 +294,7 @@
           v-if="!entityRelationFlag"
           @click="changeToRelationSearch"
         >&lt; &lt;切换为关系搜索</el-button>
-      </div>
+      </div> -->
       <div class="result" style="margin-bottom:50px;">
         <!--关系图谱-->
         <div

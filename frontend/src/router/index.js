@@ -23,15 +23,15 @@ export default new Router({
   routes: [
     {
       path: '/',
-      name: 'DefineLabel',
-      component: DefineLabel,
+      name: 'viewData',
+      component: ViewData,
       children:[
-        {
-          path: 'definelabel',
-          name: 'DefineLabel',
-          component: DefineLabel
-        }
       ]
+    },
+    {
+      path: '/definelabel',
+      name: 'DefineLabel',
+      component: DefineLabel
     },
     {
       path: '/corpustagging',
