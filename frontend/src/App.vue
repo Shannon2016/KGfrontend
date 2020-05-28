@@ -34,16 +34,16 @@
               <span slot="title">结构化数据浏览</span>
             </el-menu-item>
             <!--数据标注菜单-->
-            <el-menu-item index="/definelabel" v-if="activeIndex==='/'">
+            <el-menu-item index="/definelabel" v-if="activeIndex==='/definelabel'">
               <i class="el-icon-menu"></i>
               <span slot="title">模式定义</span>
             </el-menu-item>
-            <el-menu-item index="/corpustagging" v-if="activeIndex==='/'">
+            <el-menu-item index="/corpustagging" v-if="activeIndex==='/definelabel'">
               <i class="el-icon-document"></i>
               <span slot="title">语料标注</span>
             </el-menu-item>
             <!--知识抽取菜单-->
-            <el-submenu index="1" v-if="activeIndex==='/showOntology'">
+            <el-submenu index="1" v-if="activeIndex==='/'">
               <template slot="title">
                 <i class="el-icon-s-grid"></i>
                 <span>结构化数据抽取</span>
@@ -67,7 +67,7 @@
                 <el-menu-item index="/extractTest">抽取测试</el-menu-item>
               </el-menu-item-group>
             </el-submenu>
-            <el-submenu index="2" v-if="activeIndex==='/showOntology'">
+            <el-submenu index="2" v-if="activeIndex==='/'">
               <template slot="title">
                 <i class="el-icon-document"></i>
                 <span>文本抽取</span>
@@ -79,11 +79,11 @@
                 <el-menu-item index="/extract">选择算法</el-menu-item>
               </el-menu-item-group>
             </el-submenu>
-            <el-menu-item index="/extractPic" v-if="activeIndex==='/showOntology'">
+            <el-menu-item index="/extractPic" v-if="activeIndex==='/'">
               <i class="el-icon-picture-outline"></i>
               <span slot="title">图片抽取</span>
             </el-menu-item>
-            <el-menu-item index="/extractVideo" v-if="activeIndex==='/showOntology'">
+            <el-menu-item index="/extractVideo" v-if="activeIndex==='/'">
               <i class="el-icon-video-camera"></i>
               <span slot="title">视频抽取</span>
             </el-menu-item>
@@ -134,13 +134,13 @@ export default {
     past = '/' + past[past.length - 1];
     if(past === '/relationalData')
       this.$store.dispatch('changeIndex','/relationalData');
-    else if(past === '/definelabel' || past === '/corpustagging' || past === '/')
-      this.$store.dispatch('changeIndex','/');
+    else if(past === '/definelabel' || past === '/corpustagging')
+      this.$store.dispatch('changeIndex','/definelabel');
     else if(past === '/showOntology' || past === '/extractStruct' || past === '/entityMatch'
             || past === '/showDict' || past === '/extract' || past === '/extractPic'
             || past === '/extractVideo' || past === '/deNoise' || past === '/viewData'
-            || past === '/extractTest')
-      this.$store.dispatch('changeIndex','/showOntology');
+            || past === '/extractTest' || past === '/')
+      this.$store.dispatch('changeIndex','/');
     else if(past === '/correct')
       this.$store.dispatch('changeIndex','/correct');
     else if(past === '/entitysearch' || past === '/relationsearch')

@@ -562,25 +562,43 @@ export default {
     //展示图谱
     showGraph(res) {
       this.graphFlag = true;
-      if(res.data.length===0) {
+      if (res.data.length === 0) {
         this.fullscreenLoading = false;
-        this.$message.error('该表格不可抽取！');
+        this.$message.error("该表格不可抽取！");
         this.graphFlag = false;
         return;
       }
-      // this.loadingResGraph = true;
-      // // this.$http
-      // //   .post("http://49.232.95.141:8000/pic/show_structDirtyTuple", {
-      // //     headers: {
-      // //       "Content-Type": "multipart/form-data"
-      // //     }
-      // //   })
-      // //   .then(res => {
-      //     console.log(res);
+      let categories = [
+        {
+          name: "概念",
+          symbol: "rect",
+          itemStyle: { color: "#2f4554" }
+        },
+        {
+          name: "关系",
+          symbol: "circle",
+          itemStyle: { color: "#f47920" }
+        },
+        {
+          name: "属性",
+          symbol: "roundRect",
+          itemStyle: { color: "#749f83" }
+        },
+        {
+          name: "本体-中心",
+          symbol: "diamond",
+          itemStyle: { color: "#7fb90e" }
+        },
+        {
+          name: "本体-非中心",
+          symbol: "diamond",
+          itemStyle: { color: "#91c7ae" }
+        }
+      ];
       let graphPoint = [];
       let graphLink = [];
       let pointName = new Set();
-      let order = [0, 1, 2];
+      let order = [3, 0, 1, 2];
       for (let j of order) {
         console.log(j);
         for (let i = 0; i < res.data[j].length; i++) {
@@ -604,10 +622,17 @@ export default {
           }
           if (!pointName.has(tmp.entity2)) {
             pointName.add(tmp.entity2);
-            graphPoint.push({
-              name: tmp.entity2,
-              category: j
-            });
+            if(j === 3){
+              graphPoint.push({
+                name: tmp.entity2,
+                category: 4
+              });
+            } else { 
+              graphPoint.push({
+                name: tmp.entity2,
+                category: j
+              });
+            }
           }
           graphLink.push({
             source: tmp.entity1,
@@ -620,19 +645,17 @@ export default {
       let Myoption = JSON.parse(JSON.stringify(option));
       Myoption["series"][0]["data"] = graphPoint;
       Myoption["series"][0]["links"] = graphLink;
+      Myoption["series"][0]["categories"] = categories;
+      Myoption["legend"] = [{
+          data: categories.map(function(a) {
+            return { name: a.name, icon: a.symbol };
+          })
+        }];
       Myoption["series"][0]["edgeLabel"]["normal"]["formatter"] = function(x) {
         return x.data.name;
       };
       this.echartsOptions = Myoption;
-      // this.loadingResGraph = false;
       this.fullscreenLoading = false;
-      // })
-      // .catch(res => {
-      //   //请求失败
-      //   alert("出错了");
-      //   console.log(res);
-      //   this.loadingResGraph = false;
-      // });
     },
     loadData() {
       this.$http

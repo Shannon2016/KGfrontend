@@ -35,7 +35,7 @@
       <div class="main">
         <div class="top-tip">
           <span>请选择算法：</span>
-          <el-select v-model="algorithm" :onchange="changeAlgorithm()" placeholder size="small" style="margin-left:10px;">
+          <el-select v-model="algorithm" @change="changeAlgorithm" placeholder size="small" style="margin-left:10px;">
             <el-option
               v-for="(item, index) in algorithmList"
               :key="index"
@@ -59,6 +59,7 @@
             class="blueBtn"
             size="small"
             @click="chooseTable"
+            v-if="showFlag!==2"
           >加载测试数据</el-button>
           <!-- <el-button
             class="darkBtn"
@@ -122,7 +123,9 @@
             v-if="showFlag===1"
           >模型测试</el-button>
         </div>
-        <div id="matchInfo" v-if="testData.length!==0">已有测试数据数量 : {{testData.length}}</div>
+        <div id="matchInfo" v-if="testData.length!==0">已有测试数据数量 : {{testData.length}}
+          <span v-if="showFlag!==2">&nbsp&nbsp&nbsp&nbsp&nbsp文书中实体总数：{{entitySum}}个</span>
+          </div>
         <!--文书列表-->
         <el-row
           v-loading="loadingRes"
@@ -285,6 +288,7 @@ export default {
   name: "Extract",
   data() {
     return {
+      entitySum:0,
       showFlag: 0,//1时显示深度学习对应操作，2时显示正则表达式对应操作
       realEntityCount: 0,
       extractEntityCount: 1,
@@ -353,6 +357,27 @@ export default {
     changeAlgorithm() {
       if (this.algorithm === "正则表达式") {
         this.showFlag = 2;
+        this.loadingRes = true;
+        this.$http
+          .post("http://49.232.95.141:8000/pic/loadTextDataRE", {
+            headers: {
+              "Content-Type": "multipart/form-data"
+            }
+          })
+          .then(res => {
+            console.log(res)
+            this.textData = "";
+            this.testData = res.data.map(cur => {
+              return {title: cur};
+            });
+            this.fileCountTest = this.testData.length;
+            this.loadingRes = false;
+          })
+          .catch(res => {
+            console.log(res);
+            alert("出错了！");
+            this.loadingRes = false;
+          });
       }
       else if (this.algorithm === "深度学习算法") {
         this.showFlag = 1;
@@ -727,28 +752,7 @@ export default {
     //选择算法，显示对应测试集和训练集
     chooseTable() {
       if (this.algorithm === "正则表达式") {
-        this.showFlag = 2;
-        this.loadingRes = true;
-        this.$http
-          .post("http://49.232.95.141:8000/pic/loadTextDataRE", {
-            headers: {
-              "Content-Type": "multipart/form-data"
-            }
-          })
-          .then(res => {
-            console.log(res)
-            this.textData = "";
-            this.testData = res.data.map(cur => {
-              return {title: cur};
-            });
-            this.fileCountTest = this.testData.length;
-            this.loadingRes = false;
-          })
-          .catch(res => {
-            console.log(res);
-            alert("出错了！");
-            this.loadingRes = false;
-          });
+        return;
       }
       if (this.algorithm === "深度学习算法") {
         this.showFlag = 1;
@@ -767,10 +771,11 @@ export default {
           .then(res => {
             console.log(res)
             this.textData = "";
-            this.testData = res.data.map(cur => {
+            this.testData = res.data[0].map(cur => {
               return {title: cur};
             });
             this.fileCountTest = this.testData.length;
+            this.entitySum = res.data[1]
             this.loadingRes = false;
           })
           .catch(res => {
