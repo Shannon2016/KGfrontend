@@ -30,17 +30,17 @@
           size="small"
           @click="onSearchClick"
         >搜索</el-button>
-        <el-button
+        <!-- <el-button
           type="text"
           @click="showQuerySpeed"
           style="float:right; margin-right:40px;"
           class="textBtn"
-        >测试查询效率>></el-button>
+        >测试查询效率>></el-button> -->
         <div style="margin-left:10px; margin-bottom:20px; margin-top:10px;">
           <!-- <span>现有正样例：{{positiveCount}}个</span> -->
           <div id="searchInfo">
-            实体数据容量 : {{tupleNum}}
-            <span style="float:right; margin-right:20px;">查询时间：{{searchTime}}</span>
+            实体数据容量 : {{tupleNum}}个
+            <span style="float:right; margin-right:20px;">查询时间：{{searchTime}}秒</span>
           </div>
         </div>
         <div class="result" v-if="searchDone">

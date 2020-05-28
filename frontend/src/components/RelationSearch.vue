@@ -26,8 +26,8 @@
         <div v-if="searchDone" style="margin-left:10px; margin-bottom:20px; margin-top:10px;">
           <!-- <span>现有正样例：{{positiveCount}}个</span> -->
           <div id="searchInfo">
-            实体数据容量 : {{tupleNum}}
-            <span style="float:right; margin-right:20px;">查询时间：{{searchTime}}</span>
+            实体数据容量 : {{tupleNum}}个
+            <span style="float:right; margin-right:20px;">查询时间：{{searchTime}}秒</span>
           </div>
         </div>
         <div class="result" v-if="searchDone" style="margin-bottom:50px;">
