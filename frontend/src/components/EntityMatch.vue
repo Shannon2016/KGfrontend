@@ -670,6 +670,9 @@ export default {
       }
     },
     changeDisableFlag(flag) {
+      //flag=3 正负都可以
+      //flag=2 正例标记
+      //flag=1 负例标记
       console.log("judge  max  count");
       console.log(this.positiveMax, this.negativeMax);
       console.log(this.positiveCount, this.negativeCount);
@@ -683,7 +686,9 @@ export default {
           message: "负样例总数已达到最大值，若仍需标记请填写更大的用例总数",
           type: "warning"
         });
-      } else if (flag == 1 || flag === 3) this.negativeFlag = false;
+      } else if (flag == 1 || flag === 3) {
+        this.negativeFlag = false;
+      }
 
       if (
         (flag == 2 || flag === 3) &&
@@ -694,7 +699,8 @@ export default {
           message: "正样例总数已达到最大值，若仍需标记请填写更大的用例总数",
           type: "warning"
         });
-      } else if (flag == 2 || flag === 3) this.positiveFlag = false;
+      } else if (flag == 2 || flag === 3)
+        this.positiveFlag = false;
       console.log(this.positiveFlag, this.negativeFlag);
     },
     setSumCount() {
@@ -713,7 +719,9 @@ export default {
       else
         this.markSum = 0;
       this.positiveMax = Math.ceil((num * 2) / 3); //向上取整
-      this.negativeMax = Math.ceil((num * 1) / 3);
+      //余值
+      this.negativeMax = this.markSum - this.positiveMax;
+      // this.negativeMax = Math.ceil((num * 1) / 3);
       this.changeDisableFlag(3);
       // console.log("set  max  count")
       // console.log(this.positiveMax, this.negativeMax)
@@ -987,6 +995,9 @@ export default {
         return;
       }
 
+      let recordPositiveFatherIndex=this.positiveFatherIndex;
+      let recordPositiveMap=this.positiveMap;
+
       //计算正例个数并维护对应的set
       //为解决已标记AB1再标记BC1的情况时，将C放入A的value中，而不是B的value中
       //positiveFatherIndex用于记录A的位置
@@ -1128,19 +1139,30 @@ export default {
         }
       }
       newCount = this.getCombinationNum(this.positiveMap[indexMin].size + 1);
-      this.positiveCount += newCount - oldCount;
-
-      console.log("---");
-      console.log(this.positiveMap);
-      console.log(this.positiveFatherIndex);
-      console.log(indexMin);
-
-      //修改字符串与x为正例
-      this.changeTableData(indexMin);
-
       //修改btn是否禁用
+      this.positiveCount += newCount - oldCount;
+      //如果正例button未被禁用
+      if(this.positiveMax >= this.positiveCount - this.positiveOldCount) {
+
+        console.log("---");
+        console.log(this.positiveMap);
+        console.log(this.positiveFatherIndex);
+        console.log(indexMin);
+
+        //修改字符串与x为正例
+        this.changeTableData(indexMin);
+        this.checkList = [];
+      }
+      else{
+        this.$message({
+        message: "正样例总数即将超过最大值，无法进行本次标记，若仍需标记请填写更大的用例总数",
+        type: "warning"
+        });
+        this.positiveCount -= newCount - oldCount;
+        this.positiveFatherIndex = recordPositiveFatherIndex;
+        this.positiveMap  = recordPositiveMap;
+      }
       this.changeDisableFlag(2);
-      this.checkList = [];
     },
     //设为负样例
     setNegative() {
