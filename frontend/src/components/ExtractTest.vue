@@ -269,8 +269,8 @@ export default {
       }
       let recall = this.recallSet[0].num;
       let accurate = this.accurateSet[0].num;
-      let strAccurate = "(" + this.recallSet[0].num;
-      let strRecall = "(" + this.accurateSet[0].num + ""
+      let strAccurate = "(" + this.accurateSet[0].num;
+      let strRecall = "(" + this.recallSet[0].num + ""
       for(let i=1;i<this.recallSet.length;i++){
         recall+=this.recallSet[i].num;
         accurate+=this.accurateSet[i].num;
