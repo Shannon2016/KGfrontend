@@ -90,15 +90,17 @@
             element-loading-spinner="el-icon-loading"
             element-loading-background="rgba(0, 0, 0, 0.1)"
           >
-            <div id="graph" style="height:800px; width:1200px;"></div>
+            <div id="graph" :style="{width: graphWidth,height:graphHeight}"></div>
           </div>
         </div>
       </div>
     </el-main>
   </el-container>
 </template>
+
 <script>
 import { option } from "../js/echartSettings";
+import Axios from 'axios';
 let echarts = require("echarts");
 let myChart;
 let that;
@@ -113,7 +115,10 @@ export default {
       columnNames: [],
       loadingResGraph: false,
       isGraph: false,
-      loadingRes: false
+      loadingRes: false,
+      //图谱
+      graphWidth:"100%",
+      graphHeight:"100%",
     };
   },
   methods: {
@@ -149,6 +154,118 @@ export default {
     },
     showGraph() {
       this.isGraph = true;
+      this.loadingResGraph = true;
+      let that = this;
+      let fd = new FormData();
+      fd.append("table", this.tableIndex)
+      this.$http
+        .post("http://49.232.95.141:8000/pic/show_structTuple",fd, {
+          headers: {
+            "Content-Type": "multipart/form-data"
+          }
+        })
+        .then(res => {
+          console.log(res);
+          this.initGraph(res);
+          this.loadingResGraph = false;
+        })
+        .catch(res => {
+          //请求失败
+          console.log(res);
+          this.loadingResGraph = false;
+        });
+    },
+    initGraph(res) {
+      let graphPoint = [];
+      let graphLink = [];
+      let pointName = new Set();
+      let order = [3, 0, 1, 2];
+      for (let j of order) {
+        console.log(j);
+        for (let i = 0; i < res.data[j].length; i++) {
+          let tmp = {};
+          tmp.entity1 = res.data[j][i][0] + "";
+          tmp.relation = res.data[j][i][1] + "";
+          tmp.entity2 = res.data[j][i][2] + "";
+          if (!pointName.has(tmp.entity1)) {
+            pointName.add(tmp.entity1);
+            if (j !== 2) {
+              graphPoint.push({
+                name: tmp.entity1,
+                category: j
+              });
+            } else {
+              graphPoint.push({
+                name: tmp.entity1,
+                category: 1
+              });
+            }
+          }
+          if (!pointName.has(tmp.entity2)) {
+            pointName.add(tmp.entity2);
+            if(j === 3){
+              graphPoint.push({
+                name: tmp.entity2,
+                category: 4
+              });
+            } else {
+              graphPoint.push({
+                name: tmp.entity2,
+                category: j
+              });
+            }
+          }
+          graphLink.push({
+            source: tmp.entity1,
+            target: tmp.entity2,
+            name: tmp.relation,
+            des: tmp.relation
+          });
+        }
+      }
+      let categories = [
+        {
+          name: "概念",
+          symbol: "rect",
+          itemStyle: { color: "#2f4554" }
+        },
+        {
+          name: "关系",
+          symbol: "circle",
+          itemStyle: { color: "#f47920" }
+        },
+        {
+          name: "属性",
+          symbol: "roundRect",
+          itemStyle: { color: "#749f83" }
+        },
+        {
+          name: "本体-中心",
+          symbol: "diamond",
+          itemStyle: { color: "#7fb90e" }
+        },
+        {
+          name: "本体-非中心",
+          symbol: "diamond",
+          itemStyle: { color: "#91c7ae" }
+        }
+      ];
+      let Myoption = JSON.parse(JSON.stringify(option));
+      Myoption["series"][0]["data"] = graphPoint;
+      Myoption["series"][0]["links"] = graphLink;
+      Myoption["series"][0]["categories"] = categories;
+      Myoption["legend"] = [{
+          data: categories.map(function(a) {
+            return { name: a.name, icon: a.symbol };
+          })
+        }];
+      Myoption["series"][0]["edgeLabel"]["normal"]["formatter"] = function(x) {
+        return x.data.name;
+      };
+
+      myChart = echarts.init(document.getElementById("graph"));
+      // 绘制图表
+      myChart.setOption(Myoption, true);
     },
     handleCurrentChange(cpage) {
       this.curPage = cpage;
@@ -204,6 +321,7 @@ export default {
         });
     },
     entityMatch() {
+          this.loadingRes = true;
       let fd = new FormData();
       fd.append("table", this.tableIndex);
       fd.append("dict", "dict_1.csv")
@@ -213,13 +331,26 @@ export default {
         }
       }).then(res => {
           console.log(res)
+          this.columnNames = res.data[1].map(cur => {
+            return { prop: cur, label: cur };
+          });
+
+          let column = res.data[1];
+          this.tableData = res.data[0].map(cur => {
+            let res = {};
+            for (let i = 0; i < column.length; i++) res[column[i]] = cur[i];
+            return res;
+          });
+          this.loadingRes = false;
       }).catch(res => {
           console.log(res);
           alert("出错了！")
+          this.loadingRes = false;
       })
-    },
-    init() {
-      this.$http
+    }
+  },
+  mounted() {
+    Axios
         .post("http://49.232.95.141:8000/pic/show_after_filter_table", {
           headers: {
             "Content-Type": "multipart/form-data"
@@ -233,10 +364,6 @@ export default {
           console.log(res);
           alert("出错了");
         });
-    }
-  },
-  mounted() {
-    this.init();
   }
 };
 </script>
