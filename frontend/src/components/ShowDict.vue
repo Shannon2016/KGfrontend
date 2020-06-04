@@ -181,9 +181,9 @@
 
       <!--中心-->
       <div
-        class="main"
+        class="result"
+        style="margin-bottom:50px;margin-top:20px;height:100%;width: 100%"
         id="daddy"
-        v-show="isGraph"
         v-loading="loadingResGraph"
         element-loading-text="正在加载中，请稍等……"
         element-loading-spinner="el-icon-loading"
@@ -244,11 +244,9 @@ export default {
         this.test.slice(end + 1);
     },
     searchGraph() {
+      this.loadingRes = true;
       let fd = new FormData();
-      fd.append("entity1", this.inputEntity);
-      fd.append("entity2", "");
-      fd.append("relation", "");
-      fd.append("number", 1);
+      fd.append("entity", this.inputEntity);
       this.$http
         .post("http://49.232.95.141:8000/pic/searchTextData", fd, {
           headers: {
@@ -257,7 +255,7 @@ export default {
         })
         .then(res => {
           console.log(res.data);
-          if (res.data.length === 0) {
+          if (res.data[0] === 0) {
             this.$message({
               message: "未搜索到该实体！",
               type: "warning"
@@ -268,45 +266,45 @@ export default {
           this.isGraph = true;
           let graphPoint = [];
           let graphLink = [];
-          let pointName = new Set();
-          let order = [0, 1, 2];
-          for (let j of order) {
-            for (let i = 0; i < res.data[j].length; i++) {
+          if(res.data[0]===1){
+            graphPoint.push({
+              name: res.data[1],
+              category: 0
+            })
+          }
+          else {
+            let pointName = new Set();
+            for (let i = 1; i < res.data.length; i++) {
               let tmp = {};
-              tmp.entity1 = res.data[j][i][0] + "";
-              tmp.relation = res.data[j][i][1] + "";
-              tmp.entity2 = res.data[j][i][2] + "";
+              tmp.entity1 = res.data[i][0] + "";
+              tmp.relation = res.data[i][1] + "";
+              tmp.entity2 = res.data[i][2] + "";
               if (!pointName.has(tmp.entity1)) {
                 pointName.add(tmp.entity1);
-                if(tmp.entity1.indexOf(this.inputEntity) !== -1){
-                  graphPoint.push({
-                    name: tmp.entity1,
-                    category: 3
-                  });
-                }
-                else if (j !== 2) {
-                  graphPoint.push({
-                    name: tmp.entity1,
-                    category: j
-                  });
-                } else {
+                if (tmp.entity1.indexOf(this.inputEntity) !== -1) {
                   graphPoint.push({
                     name: tmp.entity1,
                     category: 1
                   });
                 }
+                else {
+                  graphPoint.push({
+                    name: tmp.entity1,
+                    category: 0
+                  });
+                }
               }
               if (!pointName.has(tmp.entity2)) {
                 pointName.add(tmp.entity2);
-                if(tmp.entity2.indexOf(this.inputEntity) !== -1){
+                if (tmp.entity2.indexOf(this.inputEntity) !== -1) {
                   graphPoint.push({
                     name: tmp.entity2,
-                    category: 3
+                    category: 1
                   });
                 } else {
                   graphPoint.push({
                     name: tmp.entity2,
-                    category: j
+                    category: 0
                   });
                 }
               }
@@ -318,6 +316,7 @@ export default {
               });
             }
           }
+          console.log(graphLink)
           let Myoption = JSON.parse(JSON.stringify(option));
           Myoption["series"][0]["data"] = graphPoint;
           Myoption["series"][0]["links"] = graphLink;
@@ -326,6 +325,12 @@ export default {
           ) {
             return x.data.name;
           };
+          Myoption["series"][0]["categories"]=[];
+          Myoption["series"][0]["categories"].push({
+            name: "实体",
+            symbol: "circle",
+            symbolSize: 60
+          });
           Myoption["series"][0]["categories"].push({
               name: "检索目标",
               symbol: "circle",
@@ -337,16 +342,20 @@ export default {
               return { name: a.name, icon: a.symbol };
             })
           });
-
-          myChart = echarts.init(document.getElementById("graph"));
-          // 绘制图表
-          myChart.setOption(Myoption, true);
+          setTimeout(()=>{
+            myChart = echarts.init(document.getElementById("graph"));
+            // 绘制图表
+            myChart.setOption(Myoption, true);
+            this.loadingRes = false;
+          });
         })
         .catch(res => {
+          this.loadingRes = false;
           console.log(res);
         });
     },
     joinGraph() {
+      this.loadingRes = true;
       this.$http
         .post("http://49.232.95.141:8000/pic/JSTextJoinKG", {
           headers: {
@@ -354,6 +363,7 @@ export default {
           }
         })
         .then(res => {
+          this.loadingRes = false;
           console.log(res);
           if (res.data[0] === 1) {
             this.isSearch = true;
@@ -368,6 +378,7 @@ export default {
           }
         })
         .catch(res => {
+          this.loadingRes = false;
           console.log(res);
         });
     },
@@ -630,4 +641,8 @@ body > .el-container {
   font-weight: bold;
   font-size: 14px;
 }
+  #daddy{
+    width: 100%;
+    height: 100%;
+  }
 </style>
