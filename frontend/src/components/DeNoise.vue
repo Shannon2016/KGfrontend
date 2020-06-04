@@ -21,12 +21,51 @@
         <!--</el-select>-->
         <!--<el-button style="margin-left:20px;" class="blueBtn" size="small" @click="chooseSource">确定</el-button>-->
         <!--</div>-->
-        <div class="top-tip">
-          <span>请选择表格：</span>
-          <el-select v-model="tableIndex" placeholder size="small" style="margin-left:20px;">
-            <el-option v-for="(item, index) in tableList" :key="index" :label="item" :value="item"></el-option>
+        <!--合并表格选项-->
+        <div class="top-tip" v-show="!isUnion">
+          <span>请选择数据表：</span>
+
+          <el-cascader
+            v-model="unionList"
+            :options="allTable"
+            :props="props"
+            collapse-tags
+            clearable
+          ></el-cascader>
+
+          <span style="margin-left:20px;" >请输入合并后的表名：</span>
+          <el-input
+            v-model="inputName"
+            style="width:250px;"
+          ></el-input>
+
+          <el-button style="margin-left:20px;" class="blueBtn" size="small" @click="unionTable">合并数据</el-button>
+        </div>
+
+        <div class="top-tip" v-if="isUnion">
+          <span v-if="!isList">请选择数据：</span>
+          <el-select
+            v-model="tableIndex"
+            placeholder
+            size="small"
+            style="margin-left:20px;"
+            v-if="!isList"
+          >
+            <el-option v-for="(item, index) in properties" :key="index" :label="item" :value="item"></el-option>
           </el-select>
-          <el-button style="margin-left:20px;" class="blueBtn" size="small" @click="chooseTable">确定</el-button>
+          <el-button
+            v-if="!isList"
+            style="margin-left:20px;"
+            class="blueBtn"
+            size="small"
+            @click="chooseTable"
+          >加载合并数据</el-button>
+        <!--<div class="top-tip">-->
+          <!--<span>请选择表格：</span>-->
+          <!--<el-select v-model="tableIndex" placeholder size="small" style="margin-left:20px;">-->
+            <!--<el-option v-for="(item, index) in tableList" :key="index" :label="item" :value="item"></el-option>-->
+          <!--</el-select>-->
+          <!--<el-button style="margin-left:20px;" class="blueBtn" size="small" @click="chooseTable">确定</el-button>-->
 
           <!--v-if="graphBtn"-->
           <el-button
@@ -85,6 +124,7 @@
 </template>
 
 <script>
+  let that;
 export default {
   name: "DeNoise",
   data() {
@@ -111,7 +151,64 @@ export default {
       loadingRes: false,
       loadingResGraph: false,
       algorithm: "",
-      algorithmList: ["函数依赖"]
+      algorithmList: ["函数依赖"],
+      //合并数据信息
+      isUnion: false,
+      unionList: [],
+      allTable: [
+        {
+          value: "structData",
+          label: "structData",
+          level: 1
+        },
+        {
+          value: "structData2",
+          label: "structData2",
+          level: 1
+        },
+        {
+          value: "structData3",
+          label: "structData3",
+          level: 1
+        }
+      ],
+      props: {
+        multiple: true,
+        lazy: true,
+        lazyLoad(node, resolve) {
+          if (node.data.leaf) {
+            resolve(node);
+            return;
+          }
+
+          const { level } = node;
+          let fd = new FormData();
+          fd.append("source", node.label);
+          that.$http
+            .post("http://49.232.95.141:8000/pic/struct_data_source", fd, {
+              headers: {
+                "Content-Type": "multipart/form-data"
+              }
+            })
+            .then(res => {
+              let children = res.data.map(cur => {
+                return { value: cur, label: cur, leaf: level == 1 };
+              });
+              console.log(children);
+              resolve(children);
+            })
+            .catch(res => {
+              alert("出错了");
+              resolve(node);
+            });
+
+          // value: ++id,
+          // label: `选项${id}`,
+          // leaf: level >= 2
+          // 通过调用resolve将子节点数据返回，通知组件数据加载完成
+        }
+      },
+      inputName:"",
     };
   },
   methods: {
@@ -144,6 +241,50 @@ export default {
       //     //请求失败
       //     console.log(res);
       //   });
+    },
+    unionTable(){
+      if (this.inputName === "") {
+        this.$message({
+          message: "请先为合并后表格命名！",
+          type: "warning"
+        });
+        return;
+      }
+
+      console.log(this.unionList);
+      let fd = new FormData();
+      let source = [];
+      let table = [];
+      for (let i of this.unionList) {
+        source.push(i[0]);
+        table.push(i[1]);
+      }
+      fd.append("source", JSON.stringify(source));
+      fd.append("table", JSON.stringify(table));
+      fd.append("name", this.inputName);
+      this.loadingRes = true;
+      this.$http
+        .post("http://49.232.95.141:8000/pic/struct_merge_data", fd, {
+          headers: {
+            "Content-Type": "multipart/form-data"
+          }
+        })
+        .then(res => {
+          console.log(res);
+          if (res.data === "无法对该数据表格进行合并，请重新选择数据表格(Aircraft_1 or Aircraft_2 or Aircraft_3)") {
+            this.$message.error(res.data);
+          } else {
+            this.properties = res.data;
+            this.isUnion = true;
+          }
+          this.loadingRes = false;
+        })
+        .catch(res => {
+          console.log(res);
+          alert("出错了！");
+          this.isUnion = false;
+          this.loadingRes = false;
+        });
     },
     chooseTable() {
       // console.log(this.tableIndex)
@@ -261,11 +402,12 @@ export default {
           //请求失败
           console.log(res);
         });
-    }
+    },
   },
 
   mounted() {
-    this.init();
+    // this.init();
+    that = this;
   }
 };
 </script>

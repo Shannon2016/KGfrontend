@@ -304,7 +304,7 @@
           element-loading-spinner="el-icon-loading"
           element-loading-background="rgba(0, 0, 0, 0.1)"
         >
-          <div id="graph" style="height:800px; width:1200px;"></div>
+          <div id="graph" :style="{height:graphHeight, width:graphWidth,}"></div>
         </div>
       </div>
     </el-main>
@@ -407,6 +407,8 @@ export default {
       graphBtn: false,
       graphFlag: false,
       ontologyFlag: false,
+      graphHeight:"100%",
+      graphWidth:"100%",
       // keyword:"",
       inputEntity1: "",
       inputRelation: "",
