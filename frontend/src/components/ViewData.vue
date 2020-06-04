@@ -4,6 +4,7 @@
     <el-main v-if="isList">
       <!--顶部-->
       <div class="header">
+        <i class="el-icon-back" v-if="!sourceFlag" @click="backToSource" style="margin-right:10px;"></i>
         数据浏览
         <!-- <el-button type="primary" class="darkBtn headbutton" size="small" @click="isUpload=true">上传与分析</el-button>
         <el-button type="primary" class="darkBtn headbutton" size="small" >训练</el-button> -->
@@ -146,6 +147,13 @@
     },
 
     methods: {
+      backToSource() {
+        this.tableIndex='';
+        this.sourceIndex ='';
+        this.tableData=[]
+        this.columnNames=[]
+        this.sourceFlag=true;
+      },
       chooseSource() {
         let fd = new FormData()
         fd.append("source", this.sourceIndex)
