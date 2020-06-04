@@ -8,7 +8,9 @@
     ></div>
     <el-main>
       <!--顶部-->
-      <div class="header" v-if="!graphFlag">结构化数据抽取</div>
+      <div class="header" v-if="!graphFlag">
+        <i class="el-icon-back" v-if="!sourceFlag" @click="backToSource" style="margin-right:10px;"></i>
+        结构化数据抽取</div>
       <el-divider v-if="!graphFlag"></el-divider>
       <!--中心-->
       <div class="main" v-if="!graphFlag">
@@ -69,7 +71,7 @@
             >抽取实体</el-button>
           </div>
           <div style="width:100%;margin-top:10px;">
-            <span>请选择本体类型：</span>
+            <span>请选择本体：</span>
             <el-select
               v-model="typeSelect"
               size="small"
@@ -206,13 +208,34 @@ export default {
       loadingResGraph: false,
       graphFlag: false,
       typeSelect: "",
-      typeList: ["本体库1", "本体库2", "本体库3", "本体库4"],
+      typeList: ["本体1", "本体2", "本体3", "本体4"],
       sourceFlag: true,
       canFlag: true,
       fullscreenLoading: false
     };
   },
   methods: {
+    backToSource() {
+      this.tableIndex = '';
+      this.tags = [];
+      this.entityList = [];
+      this.entityIndex = [];
+      this.entitySelect = "";
+      this.entitykey = 0;
+      this.propertyList = [];
+      this.propertyIndex = [];
+      this.propertySelect = "";
+      this.propertyKey = -1;
+      this.properties = [];
+      this.tableData = [];
+      this.curPage = 1;
+      this.columnNames = [];
+      this.fileCount = 0;
+      this.canFlag = true;
+      this.sourceIndex = "";
+      this.typeSelect = "";
+      this.sourceFlag = true;
+    },
     removeTag(tag) {
       if (tag.type === "warning") {
         //实体
@@ -378,6 +401,7 @@ export default {
           this.tags = [];
           this.propertySelect = "";
           this.entitySelect = "";
+          this.propertyList = []
         })
         .catch(res => {
           console.log(res);
@@ -406,6 +430,13 @@ export default {
         .then(res => {
           console.log(res);
           this.showGraph(res);
+          
+          this.propertyIndex = [];
+          this.entityIndex = [];
+          this.tags = [];
+          this.propertySelect = "";
+          this.propertyList = [];
+          this.entitySelect = "";
           // if (res.data[0] === 1) {
           //   this.$message({
           //     message: "抽取实体关系成功!",
@@ -470,6 +501,7 @@ export default {
           this.entityIndex = [];
           this.tags = [];
           this.propertySelect = "";
+          this.propertyList = [];
           this.entitySelect = "";
           // } else this.$message.error("抽取失败！");
         })

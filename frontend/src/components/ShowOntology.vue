@@ -7,7 +7,7 @@
       <el-divider></el-divider>
       <!--中心-->
       <div>
-        <span style="margin-left:10px;">请选择本体类型：</span>
+        <span style="margin-left:10px;">请选择本体：</span>
         <el-select v-model="typeSelect" placeholder size="small" style="margin-left:20px;">
           <el-option v-for="(item, index) in typeList" :key="index" :label="item" :value="item"></el-option>
         </el-select>
@@ -38,7 +38,7 @@ export default {
     return {
       typeSelect: "",
       loadingResGraph: false,
-      typeList: ["本体库1", "本体库2", "本体库3", "本体库4"]
+      typeList: ["本体1", "本体2", "本体3", "本体4"]
     };
   },
   methods: {
