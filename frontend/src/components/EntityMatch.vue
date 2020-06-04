@@ -61,6 +61,7 @@
           :header-cell-style="{background:'#EBEEF7',color:'#606266'}"
           border
           height="626"
+          v-loading="loadingRes"
         >
           <el-table-column
             v-for="(item, index) in columnNames"
@@ -111,11 +112,13 @@ export default {
       curPage: 1,
       columnNames: [],
       loadingResGraph: false,
-      isGraph: false
+      isGraph: false,
+      loadingRes: false
     };
   },
   methods: {
     chooseTable() {
+      this.loadingRes = true;
       let fd = new FormData();
       fd.append("table", this.tableIndex);
       this.$http
@@ -126,10 +129,22 @@ export default {
         })
         .then(res => {
           console.log(res);
+          this.columnNames = res.data[0].map(cur => {
+            return { prop: cur, label: cur };
+          });
+
+          let column = res.data[0];
+          this.tableData = res.data[1].map(cur => {
+            let res = {};
+            for (let i = 0; i < column.length; i++) res[column[i]] = cur[i];
+            return res;
+          });
+          this.loadingRes = false;
         })
         .catch(res => {
           console.log(res);
           alert("出错了");
+          this.loadingRes = false;
         });
     },
     showGraph() {
@@ -138,9 +153,71 @@ export default {
     handleCurrentChange(cpage) {
       this.curPage = cpage;
     },
-    loadModel() {},
-    reduceDuplicate() {},
-    entityMatch() {},
+    loadModel() {
+      this.$http
+        .post("http://49.232.95.141:8000/pic/load_align_model", {
+          headers: {
+            "Content-Type": "multipart/form-data"
+          }
+        })
+        .then(res => {
+          console.log(res);
+          if (res.data[0] === "dict_1.csv") {
+            this.$message({
+              message: "加载模型" + "成功！",
+              type: "success"
+            });
+          }
+        })
+        .catch(res => {
+          console.log(res);
+          alert("出错了！");
+        });
+    },
+    reduceDuplicate() {
+      this.loadingRes = true;
+      let fd = new FormData();
+      fd.append("table", this.tableIndex);
+      this.$http
+        .post("http://49.232.95.141:8000/pic/attribute_deduplication", fd, {
+          headers: {
+            "Content-Type": "multipart/form-data"
+          }
+        })
+        .then(res => {
+          console.log(res);
+          this.columnNames = res.data[0].map(cur => {
+            return { prop: cur, label: cur };
+          });
+
+          let column = res.data[0];
+          this.tableData = res.data[1].map(cur => {
+            let res = {};
+            for (let i = 0; i < column.length; i++) res[column[i]] = cur[i];
+            return res;
+          });
+          this.loadingRes = false;
+        })
+        .catch(res => {
+          alert("出错了");
+          this.loadingRes = false;
+        });
+    },
+    entityMatch() {
+      let fd = new FormData();
+      fd.append("table", this.tableIndex);
+      fd.append("dict", "dict_1.csv")
+      this.$http.post("http://49.232.95.141:8000/pic/submit_remain_data",fd, {
+        headers: {
+          "Content-Type": "multipart/form-data"
+        }
+      }).then(res => {
+          console.log(res)
+      }).catch(res => {
+          console.log(res);
+          alert("出错了！")
+      })
+    },
     init() {
       this.$http
         .post("http://49.232.95.141:8000/pic/show_after_filter_table", {
@@ -159,8 +236,7 @@ export default {
     }
   },
   mounted() {
-      let that = this;
-      that.init()
+    this.init();
   }
 };
 </script>
