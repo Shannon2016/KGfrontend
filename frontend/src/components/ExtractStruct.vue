@@ -170,7 +170,7 @@
             element-loading-spinner="el-icon-loading"
             element-loading-background="rgba(0, 0, 0, 0.1)"
           >
-            <v-echart id="graph1" style="width:100%;height:100%;" :options="echartsOptions"></v-echart>
+            <v-echart id="graph1" :style="{width: graphWidth,height:graphHeight}" :options="echartsOptions"></v-echart>
           </div>
         </div>
       </div>
@@ -211,7 +211,10 @@ export default {
       typeList: ["本体1", "本体2", "本体3", "本体4"],
       sourceFlag: true,
       canFlag: true,
-      fullscreenLoading: false
+      fullscreenLoading: false,
+      //图谱
+      graphWidth:"100%",
+      graphHeight:"100%",
     };
   },
   methods: {
@@ -430,7 +433,7 @@ export default {
         .then(res => {
           console.log(res);
           this.showGraph(res);
-          
+
           this.propertyIndex = [];
           this.entityIndex = [];
           this.tags = [];
@@ -659,7 +662,7 @@ export default {
                 name: tmp.entity2,
                 category: 4
               });
-            } else { 
+            } else {
               graphPoint.push({
                 name: tmp.entity2,
                 category: j

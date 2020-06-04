@@ -21,7 +21,7 @@
           element-loading-spinner="el-icon-loading"
           element-loading-background="rgba(0, 0, 0, 0.1)"
         >
-          <div id="graph" style="height:800px; width:1200px;"></div>
+          <div id="graph" :style="{width: graphWidth,height:graphHeight}"></div>
         </div>
       </div>
     </el-main>
@@ -38,7 +38,10 @@ export default {
     return {
       typeSelect: "",
       loadingResGraph: false,
-      typeList: ["本体1", "本体2", "本体3", "本体4"]
+      typeList: ["本体1", "本体2", "本体3", "本体4"],
+      //图谱
+      graphWidth:"100%",
+      graphHeight:"100%",
     };
   },
   methods: {
