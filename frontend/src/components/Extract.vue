@@ -394,18 +394,26 @@ export default {
         });
         return;
       }
-      let recall = 0, accurate = 0;
-      for (let i = 0; i < this.recallSet.length; i++) {
-        recall += this.recallSet[i].num;
-        accurate += this.accurateSet[i].num;
+
+      let recall = this.recallSet[0].num;
+      let accurate = this.accurateSet[0].num;
+      let strAccurate = "(" + this.accurateSet[0].num+"%";
+      let strRecall = "(" + this.recallSet[0].num+"%";
+      for(let i=1;i<this.recallSet.length;i++){
+        recall+=this.recallSet[i].num;
+        accurate+=this.accurateSet[i].num;
+        strRecall += " + " + this.recallSet[i].num+"%";
+        strAccurate += " + " + this.accurateSet[i].num+"%";
       }
-      recall /= this.recallSet.length;
-      accurate /= this.accurateSet.length;
+      recall/=this.recallSet.length;
+      accurate/=this.accurateSet.length;
+      strRecall += ") / "+ this.recallSet.length
+      strAccurate += ") / "+ this.accurateSet.length
       this.$alert(
-        "<p><strong>实体抽取准确率： <i>" +
+        "<p><strong>当前实体抽取准确率<i> = " + strAccurate + " = " +
         accurate.toFixed(2) +
         "</i> %</strong></p>" +
-        "<p><strong>实体抽取召回率： <i>" +
+        "<p><strong>当前实体抽取召回率<i> = " + strRecall + " = " +
         recall.toFixed(2) +
         "</i> %</strong></p>",
         "当前平均测试结果",
@@ -652,11 +660,20 @@ export default {
             }
 
             this.$alert(
+              "<p><strong>实际实体数量： <i>" +
+              res.data[4] +
+              "</i> 个</strong></p>" +
+              "<p><strong>抽取实体数量： <i>" +
+              res.data[3] +
+              "</i> 个</strong></p>" +
+              "<p><strong>正确抽取实体数量： <i>" +
+              res.data[2] +
+              "</i> 个</strong></p>" +
               "<p><strong>实体抽取准确率： <i>" +
-              res.data[0] +
+              res.data[2] +"/"+res.data[3] +"="+res.data[0] +
               "</i> %</strong></p>" +
               "<p><strong>实体抽取召回率： <i>" +
-              res.data[1] +
+              res.data[2] +"/"+res.data[4] +"="+res.data[1] +
               "</i> %</strong></p>",
               this.algorithm + "合并测试结果",
               {

@@ -325,8 +325,21 @@ export default {
         })
         .then(res => {
           this.$alert(
-            "<p><strong>视频检测准确率： <i>" + res.data[0] + "</i> %</strong></p>" +
-            "<p><strong>视频检测召回率： <i>" + res.data[1] + "</i> %</strong></p>",
+            "<p><strong>目标实体数量： <i>" +
+            res.data[4] +
+            "</i> 个</strong></p>" +
+            "<p><strong>抽取目标数量： <i>" +
+            res.data[3] +
+            "</i> 个</strong></p>" +
+            "<p><strong>正确抽取目标数量： <i>" +
+            res.data[2] +
+            "</i> 个</strong></p>" +
+            "<p><strong>视频检测准确率： <i>" +
+            res.data[2] +"/"+res.data[3] +"="+res.data[0] +
+            "</i> %</strong></p>" +
+            "<p><strong>视频检测召回率： <i>" +
+            res.data[2] +"/"+res.data[4] +"="+res.data[1] +
+            "</i> %</strong></p>",
             "模型测试结果",
             {
               dangerouslyUseHTMLString: true
