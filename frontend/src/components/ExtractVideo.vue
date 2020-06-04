@@ -189,7 +189,7 @@
           @click="onSearchClick"
         >搜索</el-button>
         <div id="kgPic">
-          <div id="graph" style="width: 1200px;height:800px;"></div>
+          <div id="graph" :style="{width: graphWidth,height:graphHeight}"></div>
         </div>
       </div>
     </el-main>
@@ -240,6 +240,9 @@ export default {
       //单个结果
       showSingleResult:false,
       singleSrc:"",
+      //图谱
+      graphWidth:"100%",
+      graphHeight:"100%",
     };
   },
 

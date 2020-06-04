@@ -52,7 +52,7 @@
             element-loading-spinner="el-icon-loading"
           >
             <div class="title">关系图谱</div>
-            <div id="graph" style="width: 1200px;height:800px;"></div>
+            <div id="graph" :style="{width: graphWidth,height:graphHeight}"></div>
           </div>
           <!--三元组列表-->
           <el-table
@@ -110,7 +110,9 @@ export default {
       level: 1,
       loadingRes: false,
       searchTime: "",
-      tupleNum: 0
+      tupleNum: 0,
+      graphWidth:"100%",
+      graphHeight:"100%",
     };
   },
 

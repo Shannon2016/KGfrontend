@@ -273,7 +273,7 @@
         element-loading-spinner="el-icon-loading"
         element-loading-background="rgba(0, 0, 0, 0.2)"
       >
-        <div id="graph" style="width: 1200px;height:800px;"></div>
+        <div id="graph" :style="{width: graphWidth,height:graphHeight}"></div>
       </div>
     </el-main>
   </el-container>
@@ -349,6 +349,9 @@ export default {
       modelList: [
         "ckpt_1", "ckpt_2", "ckpt_3", "ckpt_4", "ckpt_5"
       ],
+      //图谱
+      graphWidth:"100%",
+      graphHeight:"100%",
     };
 
   },

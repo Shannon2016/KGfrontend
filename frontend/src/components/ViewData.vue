@@ -105,7 +105,7 @@
       <el-divider></el-divider>
       <!--中心-->
       <div class="main" id="daddy">
-        <div id="graph" style="width: 1600px;height:800px;"></div>
+        <div id="graph" :style="{width: graphWidth,height:graphHeight}"></div>
       </div>
     </el-main>
   </el-container>
@@ -142,7 +142,10 @@
         tripleData:[],
         properties:[],
         tableIndex:"",
-        columnNames:[]
+        columnNames:[],
+        //图谱
+        graphWidth:"100%",
+        graphHeight:"100%",
       }
     },
 
