@@ -537,7 +537,7 @@ export default {
         .catch(res => {
           console.log(res);
           this.loadingRes = false;
-        });
+        });histo
     },
     //查看历史信息
     showHistory() {
@@ -548,12 +548,22 @@ export default {
           }
         })
         .then(res => {
+          console.log(res)
           this.$alert(
-            "<p><strong>历史准确率： <i>" +
-            res.data[0] +
+            "<p><strong>目标实体数量： <i>" +
+            res.data[4] +
+            "</i> 个</strong></p>" +
+            "<p><strong>抽取目标数量： <i>" +
+            res.data[3] +
+            "</i> 个</strong></p>" +
+            "<p><strong>正确抽取目标数量： <i>" +
+            res.data[2] +
+            "</i> 个</strong></p>" +
+            "<p><strong>历史图像检测准确率： <i>" +
+            res.data[2] +"/"+res.data[3] +"="+res.data[0] +
             "</i> %</strong></p>" +
-            "<p><strong>历史召回率： <i>" +
-            res.data[1] +
+            "<p><strong>历史图像检测召回率： <i>" +
+            res.data[2] +"/"+res.data[4] +"="+res.data[1] +
             "</i> %</strong></p>",
             "历史测试结果",
             {
