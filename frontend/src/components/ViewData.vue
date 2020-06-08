@@ -533,4 +533,7 @@
   .darkBtn:hover{
     background-color: #708BF7;
   }
+  .el-table >>> .el-table__body-wrapper{
+    overflow: auto !important;
+  }
 </style>

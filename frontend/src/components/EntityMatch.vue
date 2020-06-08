@@ -108,6 +108,7 @@ export default {
   name: "EntityMatch",
   data() {
     return {
+      model:"",
       tableList: [],
       tableIndex: "",
       tableData: [],
@@ -271,15 +272,25 @@ export default {
       this.curPage = cpage;
     },
     loadModel() {
+      if (this.tableIndex === "") {
+        this.$message({
+          message: "请先选择表格！",
+          type: "warning"
+        });
+        return;
+      }
+      let fd = new FormData();
+      fd.append("table", this.tableIndex)
       this.$http
-        .post("http://49.232.95.141:8000/pic/load_align_model", {
+        .post("http://49.232.95.141:8000/pic/load_align_model", fd, {
           headers: {
             "Content-Type": "multipart/form-data"
           }
         })
         .then(res => {
           console.log(res);
-          if (res.data[0] === "dict_1.csv") {
+          if (res.data[0] === "dict_1.csv" || res.data[0] === "dict_2.csv") {
+            this.model = res.data[0]
             this.$message({
               message: "加载模型" + "成功！",
               type: "success"
@@ -321,10 +332,17 @@ export default {
         });
     },
     entityMatch() {
-          this.loadingRes = true;
+      if (this.model === "") {
+        this.$message({
+          message: "请先加载模型！",
+          type: "warning"
+        });
+        return;
+      }
+      this.loadingRes = true;
       let fd = new FormData();
       fd.append("table", this.tableIndex);
-      fd.append("dict", "dict_1.csv")
+      fd.append("dict", this.model)
       this.$http.post("http://49.232.95.141:8000/pic/submit_remain_data",fd, {
         headers: {
           "Content-Type": "multipart/form-data"
