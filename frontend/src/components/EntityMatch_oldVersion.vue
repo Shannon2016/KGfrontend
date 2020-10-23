@@ -334,7 +334,7 @@ export default {
           let fd = new FormData();
           fd.append("source", node.label);
           that.$http
-            .post("http://49.232.95.141:8000/pic/struct_data_source", fd, {
+            .post("http://192.168.253.219:8000/pic/struct_data_source", fd, {
               headers: {
                 "Content-Type": "multipart/form-data"
               }
@@ -458,7 +458,7 @@ export default {
     loadPastFlag(){
 
       //清空标记
-      this.$http.post("http://49.232.95.141:8000/pic/loadMarkData")
+      this.$http.post("http://192.168.253.219:8000/pic/loadMarkData")
         .then(res => {
         console.log(res)
           //清空上次
@@ -571,7 +571,7 @@ export default {
       fd.append("table", JSON.stringify(table));
       this.loadingRes = true;
       this.$http
-        .post("http://49.232.95.141:8000/pic/struct_merge_data", fd, {
+        .post("http://192.168.253.219:8000/pic/struct_merge_data", fd, {
           headers: {
             "Content-Type": "multipart/form-data"
           }
@@ -596,7 +596,7 @@ export default {
     modelTest() {
       this.loadingRes = true;
       this.$http
-        .post("http://49.232.95.141:8000/pic/struct_test", {
+        .post("http://192.168.253.219:8000/pic/struct_test", {
           headers: {
             "Content-Type": "multipart/form-data"
           }
@@ -759,7 +759,7 @@ export default {
       let fd = new FormData();
       fd.append("table", this.tableIndex);
       this.$http
-        .post("http://49.232.95.141:8000/pic/start_entity_match", fd, {
+        .post("http://192.168.253.219:8000/pic/start_entity_match", fd, {
           headers: {
             "Content-Type": "multipart/form-data"
           }
@@ -885,7 +885,7 @@ export default {
     //   let fd = new FormData();
     //   fd.append("table", this.tableIndex);
     //   this.$http
-    //     .post("http://49.232.95.141:8000/pic/data_filter", fd, {
+    //     .post("http://192.168.253.219:8000/pic/data_filter", fd, {
     //       headers: {
     //         "Content-Type": "multipart/form-data"
     //       }
@@ -926,7 +926,7 @@ export default {
       fd.append("table", this.tableIndex);
       this.loadingRes = true;
       this.$http
-        .post("http://49.232.95.141:8000/pic/view_merge_data", fd, {
+        .post("http://192.168.253.219:8000/pic/view_merge_data", fd, {
           headers: {
             "Content-Type": "multipart/form-data"
           }
@@ -1342,7 +1342,7 @@ export default {
       console.log(positiveMarkList, negativeMarkList);
       this.loadingRes = true;
       this.$http
-        .post("http://49.232.95.141:8000/pic/struct_submit", fd, {
+        .post("http://192.168.253.219:8000/pic/struct_submit", fd, {
           headers: {
             "Content-Type": "multipart/form-data"
           }
@@ -1440,7 +1440,7 @@ export default {
       let fd = new FormData();
       fd.append("table", this.tableIndex);
       this.$http
-        .post("http://49.232.95.141:8000/pic/submit_remain_data", fd, {
+        .post("http://192.168.253.219:8000/pic/submit_remain_data", fd, {
           headers: {
             "Content-Type": "multipart/form-data"
           }
@@ -1497,7 +1497,7 @@ export default {
     },
     loadData() {
       this.$http
-        .post("http://49.232.95.141:8000/pic/show_table", {
+        .post("http://192.168.253.219:8000/pic/show_table", {
           headers: {
             "Content-Type": "multipart/form-data"
           }
@@ -1516,7 +1516,7 @@ export default {
       this.loadingResGraph = true;
       let that = this;
       this.$http
-        .post("http://49.232.95.141:8000/pic/show_structTuple", {
+        .post("http://192.168.253.219:8000/pic/show_structTuple", {
           headers: {
             "Content-Type": "multipart/form-data"
           }
@@ -1548,7 +1548,7 @@ export default {
       fd.append("entity2", this.inputEntity2);
       fd.append("number", this.level);
       this.$http
-        .post("http://49.232.95.141:8000/pic/search_struct_data", fd, {
+        .post("http://192.168.253.219:8000/pic/search_struct_data", fd, {
           headers: {
             "Content-Type": "multipart/form-data"
           }

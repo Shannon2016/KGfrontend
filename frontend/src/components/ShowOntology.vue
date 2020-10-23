@@ -50,7 +50,7 @@ export default {
       let fd = new FormData();
       fd.append("ontology", this.typeSelect);
       this.$http
-        .post("http://49.232.95.141:8000/pic/view_ontology", fd, {
+        .post("http://192.168.253.219:8000/pic/view_ontology", fd, {
           headers: {
             "Content-Type": "multipart/form-data"
           }
