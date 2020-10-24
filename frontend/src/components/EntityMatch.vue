@@ -128,7 +128,7 @@ export default {
       let fd = new FormData();
       fd.append("table", this.tableIndex);
       this.$http
-        .post("http://192.168.253.219:8000/pic/view_after_filter_data", fd, {
+        .post("http://39.102.71.123:23352/pic/view_after_filter_data", fd, {
           headers: {
             "Content-Type": "multipart/form-data"
           }
@@ -160,7 +160,7 @@ export default {
       let fd = new FormData();
       fd.append("table", this.tableIndex)
       this.$http
-        .post("http://192.168.253.219:8000/pic/show_structTuple",fd, {
+        .post("http://39.102.71.123:23352/pic/show_structTuple",fd, {
           headers: {
             "Content-Type": "multipart/form-data"
           }
@@ -282,7 +282,7 @@ export default {
       let fd = new FormData();
       fd.append("table", this.tableIndex)
       this.$http
-        .post("http://192.168.253.219:8000/pic/load_align_model", fd, {
+        .post("http://39.102.71.123:23352/pic/load_align_model", fd, {
           headers: {
             "Content-Type": "multipart/form-data"
           }
@@ -307,7 +307,7 @@ export default {
       let fd = new FormData();
       fd.append("table", this.tableIndex);
       this.$http
-        .post("http://192.168.253.219:8000/pic/attribute_deduplication", fd, {
+        .post("http://39.102.71.123:23352/pic/attribute_deduplication", fd, {
           headers: {
             "Content-Type": "multipart/form-data"
           }
@@ -343,7 +343,7 @@ export default {
       let fd = new FormData();
       fd.append("table", this.tableIndex);
       fd.append("dict", this.model)
-      this.$http.post("http://192.168.253.219:8000/pic/submit_remain_data",fd, {
+      this.$http.post("http://39.102.71.123:23352/pic/submit_remain_data",fd, {
         headers: {
           "Content-Type": "multipart/form-data"
         }
@@ -369,7 +369,7 @@ export default {
   },
   mounted() {
     Axios
-        .post("http://192.168.253.219:8000/pic/show_after_filter_table", {
+        .post("http://39.102.71.123:23352/pic/show_after_filter_table", {
           headers: {
             "Content-Type": "multipart/form-data"
           }

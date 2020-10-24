@@ -120,7 +120,7 @@ export default {
     showQuerySpeed() {
       this.loadingRes = true;
       this.$http
-        .post("http://192.168.253.219:8000/neo/entity_search_speed", {
+        .post("http://39.102.71.123:23352/neo/entity_search_speed", {
           headers: {
             "Content-Type": "multipart/form-data"
           }
@@ -169,7 +169,7 @@ export default {
       fd.append("relation", "");
       fd.append("number", this.level);
       this.$http
-        .post("http://192.168.253.219:8000/neo/search_entity", fd)
+        .post("http://39.102.71.123:23352/neo/search_entity", fd)
         .then(res => {
           console.log(res.data);
           if (
@@ -328,14 +328,14 @@ export default {
             if (obj.hasOwnProperty("source")) {
               //links
               ////obj.source+obj.name+obj.target 头节点、关系、尾节点
-              // this.$http.get('http://192.168.253.219:8000/search_entity?head='+obj.source+"&relation="+obj.name+"&tail="+obj.target).then(
+              // this.$http.get('http://39.102.71.123:23352/search_entity?head='+obj.source+"&relation="+obj.name+"&tail="+obj.target).then(
               //   (res) => {
               //   })
               alert("1");
             } //points
             else {
               ////实体名为obj.name
-              // this.$http.get('http://192.168.253.219:8000/search_entity?entity='+obj.name).then((res) => {
+              // this.$http.get('http://39.102.71.123:23352/search_entity?entity='+obj.name).then((res) => {
               // })
               alert("2");
             }
@@ -356,7 +356,7 @@ export default {
     }
   },
   mounted(){
-    this.$http.post("http://192.168.253.219:8000/neo/start_KGSearch")
+    this.$http.post("http://39.102.71.123:23352/neo/start_KGSearch")
       .then(res => {
         this.tupleNum = res.data[0];
         this.searchTime = res.data[1];

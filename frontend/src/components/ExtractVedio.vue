@@ -110,14 +110,14 @@
         if(obj.hasOwnProperty("source"))//links
         {
           //obj.source+obj.name+obj.target 头节点、关系、尾节点
-          this.$http.get('http://192.168.253.219:8000/search_entity?head='+obj.source+"&relation="+obj.name+"&tail="+obj.target).then(
+          this.$http.get('http://39.102.71.123:23352/search_entity?head='+obj.source+"&relation="+obj.name+"&tail="+obj.target).then(
             (res) => {
           })
         }
         else //points
         {
           //实体名为obj.name
-          this.$http.get('http://192.168.253.219:8000/search_entity?entity='+obj.name).then((res) => {
+          this.$http.get('http://39.102.71.123:23352/search_entity?entity='+obj.name).then((res) => {
           })
         }
       },
@@ -129,7 +129,7 @@
         let fd = new FormData()
         fd.append('video',this.uploadList[0].raw)
         this.$http.post(
-          'http://192.168.253.219:8000/pic/video_extract',fd,
+          'http://39.102.71.123:23352/pic/video_extract',fd,
           {
             headers: {
               'Content-Type': 'multipart/form-data'

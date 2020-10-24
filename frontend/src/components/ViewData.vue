@@ -160,7 +160,7 @@
       chooseSource() {
         let fd = new FormData()
         fd.append("source", this.sourceIndex)
-        this.$http.post("http://192.168.253.219:8000/pic/struct_data_source",fd,
+        this.$http.post("http://39.102.71.123:23352/pic/struct_data_source",fd,
           {
             headers: {
               'Content-Type': 'multipart/form-data'
@@ -184,7 +184,7 @@
         fd.append('table',this.tableIndex)
         fd.append("source", this.sourceIndex);
         this.$http.post(
-          'http://192.168.253.219:8000/pic/view_structData',fd,
+          'http://39.102.71.123:23352/pic/view_structData',fd,
           {
             headers: {
               'Content-Type': 'multipart/form-data'
@@ -250,7 +250,7 @@
       },
       showGraph(){
         this.$http.post(
-          'http://192.168.253.219:8000/pic/struct_extract',
+          'http://39.102.71.123:23352/pic/struct_extract',
           {
             headers: {
               'Content-Type': 'multipart/form-data'

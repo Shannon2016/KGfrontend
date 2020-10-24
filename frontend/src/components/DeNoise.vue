@@ -185,7 +185,7 @@ export default {
           let fd = new FormData();
           fd.append("source", node.label);
           that.$http
-            .post("http://192.168.253.219:8000/pic/struct_data_source", fd, {
+            .post("http://39.102.71.123:23352/pic/struct_data_source", fd, {
               headers: {
                 "Content-Type": "multipart/form-data"
               }
@@ -228,7 +228,7 @@ export default {
       // let fd = new FormData();
       // fd.append("source", this.sourceIndex);
       // this.$http
-      //   .post("http://192.168.253.219:8000/pic/view_structData", fd, {
+      //   .post("http://39.102.71.123:23352/pic/view_structData", fd, {
       //     headers: {
       //       "Content-Type": "multipart/form-data"
       //     }
@@ -264,7 +264,7 @@ export default {
       fd.append("name", this.inputName);
       this.loadingRes = true;
       this.$http
-        .post("http://192.168.253.219:8000/pic/struct_merge_data", fd, {
+        .post("http://39.102.71.123:23352/pic/struct_merge_data", fd, {
           headers: {
             "Content-Type": "multipart/form-data"
           }
@@ -302,7 +302,7 @@ export default {
       let fd = new FormData();
       fd.append("table", this.tableIndex);
       this.$http
-        .post("http://192.168.253.219:8000/pic/view_noise_data", fd, {
+        .post("http://39.102.71.123:23352/pic/view_noise_data", fd, {
           headers: {
             "Content-Type": "multipart/form-data"
           }
@@ -354,7 +354,7 @@ export default {
       let fd = new FormData();
       fd.append("table", this.tableIndex);
       this.$http
-        .post("http://192.168.253.219:8000/pic/data_filter", fd, {
+        .post("http://39.102.71.123:23352/pic/data_filter", fd, {
           headers: {
             "Content-Type": "multipart/form-data"
           }
@@ -388,7 +388,7 @@ export default {
     },
     init() {
       this.$http
-        .post("http://192.168.253.219:8000/pic/load_noise_data", {
+        .post("http://39.102.71.123:23352/pic/load_noise_data", {
           headers: {
             "Content-Type": "multipart/form-data"
           }

@@ -145,7 +145,7 @@ export default {
     SettingFile() {
       // this.fileType = true;
       this.settingShow = true;
-      this.$http.post("http://192.168.253.219:8000/pic/viewStructMap",{
+      this.$http.post("http://39.102.71.123:23352/pic/viewStructMap",{
         headers: {
           "Content-Type": "multipart/form-data"
         }
@@ -162,7 +162,7 @@ export default {
       let fd = new FormData();
       fd.append("contents", this.testIndex);
       this.$http
-        .post("http://192.168.253.219:8000/pic/viewStructTest", fd, {
+        .post("http://39.102.71.123:23352/pic/viewStructTest", fd, {
           headers: {
             "Content-Type": "multipart/form-data"
           }
@@ -195,7 +195,7 @@ export default {
       this.loadingRes = true
       let fd = new FormData();
       fd.append("contents",this.testIndex);
-      this.$http.post("http://192.168.253.219:8000/pic/structTest",fd,{
+      this.$http.post("http://39.102.71.123:23352/pic/structTest",fd,{
         headers: {
           "Content-Type": "multipart/form-data"
         }
@@ -301,7 +301,7 @@ export default {
 
       // let fd = new FormData();
       // fd.append("ontology", row)
-      // this.$http.post("http://192.168.253.219:8000/pic/functional_dependency",fd, {
+      // this.$http.post("http://39.102.71.123:23352/pic/functional_dependency",fd, {
       //   headers: {
       //     "Content-Type": "multipart/form-data"
       //   }
