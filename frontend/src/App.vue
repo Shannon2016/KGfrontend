@@ -78,6 +78,9 @@
               <el-menu-item-group>
                 <el-menu-item index="/extract">选择算法</el-menu-item>
               </el-menu-item-group>
+              <el-menu-item-group>
+                <el-menu-item index="/predict">模型预测</el-menu-item>
+              </el-menu-item-group>
             </el-submenu>
             <el-menu-item index="/extractPic" v-if="activeIndex==='/'">
               <i class="el-icon-picture-outline"></i>

@@ -31,6 +31,8 @@
             </el-option>
           </el-select>
           <el-button style="margin-left:20px;" class="blueBtn" size="small" @click="chooseTable">确定</el-button>
+          <el-button type="primary" class="darkBtn headbutton" size="small" @click="isUpload=true">上传</el-button>
+
           <!-- <el-button type="primary" class="darkBtn" size="small" style="float:right; margin-right:20px;" @click="showGraph">查看图谱</el-button> -->
         </div>
         <!-- 上传窗口-->
@@ -41,6 +43,14 @@
               <span>数据上传</span>
               <i class="el-icon-close" style="float: right; padding: 3px 0" @click="cancelUpload"></i>
             </div>
+            <el-form :model="uploadForm" label-position="left" label-width="80px">
+              <el-form-item label="表名:">
+                <el-input v-model="uploadForm.tableName"></el-input>
+              </el-form-item>
+              <el-form-item label="主键列名">
+              <el-input v-model="uploadForm.keyName"></el-input>
+            </el-form-item>
+            </el-form>
             <el-upload
               class="upload-demo"
               drag
@@ -59,7 +69,7 @@
               </div>
             </el-upload>
             <el-button size="small" @click="cancelUpload">取消</el-button>
-            <el-button style="margin-left: 10px;" class="darkBtn" size="small" type="primary" @click="submitUpload">上传并分析</el-button>
+            <el-button style="margin-left: 10px;" class="darkBtn" size="small" type="primary" @click="submitUpload">上传</el-button>
           </el-card>
         </div>
         <!--结构化数据列表-->
@@ -131,6 +141,10 @@
         isList:true,
         fileCount:0,
         isUpload:false,
+        uploadForm:{
+          tableName:'',
+          keyName:''
+        },
         curPage:1,
         //上传的文件列表
         fileList: [],
@@ -215,34 +229,30 @@
         this.fileList=[];
       },
       submitUpload() {
-        this.fileCount = this.tableData.length;
-        let now = new Date();
-        let date =  now.getFullYear() + "-" + ((now.getMonth() + 1) < 10 ? "0" : "") + (now.getMonth() + 1) + "-" + (now.getDate() < 10 ? "0" : "") + now.getDate();
+        if(this.properties.indexOf(this.uploadForm.tableName)!==-1){
+          this.$message.error("表格名不能重复，请重新输入！")
+          return;
+        }
+        if(!this.fileList.length||!this.uploadForm.tableName||!this.uploadForm.keyName){
+          this.$message.error("请完善输入信息并选择上传文件！")
+          return;
+        }
         this.$refs.upload.submit();
         for(let i=0;i<this.fileList.length;i++) {
-          this.tableData.push({
-            date:  date,
-            title: this.fileList[i].raw.name
-          })
+          console.log(this.fileList[i])
         }
-        this.fileCount = this.tableData.length;
         this.isUpload = false;
         this.fileList =[];
+        this.uploadForm.keyName="";
+        this.uploadForm.tableName="";
 
-        // for(let i = 0; i < 9; i ++){
-        //   this.tableData.push({
-        //     date: '2016-05-03',
-        //     title: '文书'+i
-        //   })
-        // }
-        // this.fileCount = this.tableData.length;
+        //刷新列表
+        // this.chooseSource();
       },
       handleRemove(file, fileList) {
         this.fileList = fileList;
       },
       handleAddFile(file,fileList){
-        console.log(file);
-        console.log(fileList);
         this.fileList = fileList;
       },
       handleCurrentChange(cpage) {

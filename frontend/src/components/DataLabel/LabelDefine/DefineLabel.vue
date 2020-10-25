@@ -68,8 +68,8 @@
 </template>
 
 <script>
-import MyRelationTag from './MyRelationTag'
-import MyEntityTag from './MyEntityTag'
+import MyRelationTag from '../../MyRelationTag'
+import MyEntityTag from '../../MyEntityTag'
   export default {
     name: 'DefineLabel',
     components: {
@@ -107,7 +107,7 @@ import MyEntityTag from './MyEntityTag'
         //   console.log(response)
 
         // })
-        
+
       },
       testapiadd(){
 this.$http.get('http://127.0.0.1:8000/api/add_book?book_name=' + 'testbook2')

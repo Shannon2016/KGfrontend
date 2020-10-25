@@ -179,7 +179,7 @@
 </template>
 
 <script>
-import { option } from "../js/echartSettings";
+import { option } from "../../../js/echartSettings";
 let echarts = require("echarts");
 let myChart;
 export default {

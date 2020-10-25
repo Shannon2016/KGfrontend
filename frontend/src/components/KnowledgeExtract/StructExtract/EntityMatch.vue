@@ -99,7 +99,7 @@
 </template>
 
 <script>
-import { option } from "../js/echartSettings";
+import { option } from "../../../js/echartSettings";
 import Axios from 'axios';
 let echarts = require("echarts");
 let myChart;

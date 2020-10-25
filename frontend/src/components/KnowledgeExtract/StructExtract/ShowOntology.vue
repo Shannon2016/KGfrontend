@@ -12,6 +12,8 @@
           <el-option v-for="(item, index) in typeList" :key="index" :label="item" :value="item"></el-option>
         </el-select>
         <el-button style="margin-left:20px;" class="blueBtn" size="small" @click="showOntology">确定</el-button>
+        <el-button type="primary" class="darkBtn headbutton" size="small" @click="isUpload=true">上传</el-button>
+
       </div>
       <div class="result" style="margin-bottom:50px;">
         <div
@@ -24,12 +26,47 @@
           <div id="graph" :style="{width: graphWidth,height:graphHeight}"></div>
         </div>
       </div>
+
+      <!-- 上传窗口-->
+      <div id="upload" v-if="isUpload">
+
+        <el-card class="box-card">
+          <div slot="header" class="clearfix">
+            <span>本体上传</span>
+            <i class="el-icon-close" style="float: right; padding: 3px 0" @click="cancelUpload"></i>
+          </div>
+          <el-form :model="uploadForm" label-position="left" label-width="80px">
+            <el-form-item label="本体名称:">
+              <el-input v-model="uploadForm.name"></el-input>
+            </el-form-item>
+          </el-form>
+          <el-upload
+            class="upload-demo"
+            drag
+            ref="upload"
+            :auto-upload="false"
+            accept=".xlsx,.csv"
+            action="https://jsonplaceholder.typicode.com/posts/"
+            :on-remove="handleRemove"
+            :on-change="handleAddFile"
+            :file-list="fileList"
+            multiple>
+            <i class="el-icon-upload"></i>
+            <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
+            <div class="el-upload__tip" slot="tip">
+              仅支持上传csv文件、xlsx文件<br>
+            </div>
+          </el-upload>
+          <el-button size="small" @click="cancelUpload">取消</el-button>
+          <el-button style="margin-left: 10px;" class="darkBtn" size="small" type="primary" @click="submitUpload">上传</el-button>
+        </el-card>
+      </div>
     </el-main>
   </el-container>
 </template>
 
 <script>
-import { option } from "../js/echartSettings";
+import { option } from "../../../js/echartSettings";
 let echarts = require("echarts");
 let myChart;
 export default {
@@ -42,6 +79,13 @@ export default {
       //图谱
       graphWidth:"100%",
       graphHeight:"100%",
+      isUpload:false,
+      uploadForm:{
+        name:'',
+      },
+      fileCount:0,
+      //上传的文件列表
+      fileList: [],
     };
   },
   methods: {
@@ -122,7 +166,37 @@ export default {
           console.log(res);
           this.loadingResGraph = false;
         });
-    }
+    },
+    cancelUpload(){
+      this.isUpload=false;
+      this.fileList=[];
+    },
+    submitUpload() {
+      if(this.typeList.indexOf(this.uploadForm.name)!==-1){
+        this.$message.error("本体名不能重复，请重新输入！")
+        return;
+      }
+      if(!this.fileList.length||!this.uploadForm.name){
+        this.$message.error("请完善输入信息并选择上传文件！")
+        return;
+      }
+      this.$refs.upload.submit();
+      for(let i=0;i<this.fileList.length;i++) {
+        console.log(this.fileList)
+      }
+      // 添加到列表
+      this.typeList.push(this.uploadForm.name);
+
+      this.isUpload = false;
+      this.fileList =[];
+      this.uploadForm.name='';
+    },
+    handleRemove(file, fileList) {
+      this.fileList = fileList;
+    },
+    handleAddFile(file,fileList){
+      this.fileList = fileList;
+    },
   }
 };
 </script>
@@ -186,6 +260,30 @@ body > .el-container {
   margin-top: -10px;
   margin-bottom: 10px;
   padding-left: 20px;
+}
+/***************上传弹窗***********/
+#upload{
+  text-align: center;
+  z-index: 99;
+  position: fixed;
+  top: 20%;
+  left: 30%;
+  right: 30%;
+}
+.upload-demo{
+  margin-bottom: 20px;
+}
+.el-upload__tip{
+  padding-left: 30%;
+  text-align: left;
+}
+.clearfix:before,
+.clearfix:after {
+  display: table;
+  content: "";
+}
+.clearfix:after {
+  clear: both
 }
 /*************内容中心*************/
 .main {

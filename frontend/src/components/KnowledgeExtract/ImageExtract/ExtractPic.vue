@@ -282,7 +282,7 @@
 <script>
 let echarts = require("echarts");
 let myChart;
-import { option } from "../js/echartSettings";
+import { option } from "../../../js/echartSettings";
 export default {
   name: "ExtractPic",
   data() {

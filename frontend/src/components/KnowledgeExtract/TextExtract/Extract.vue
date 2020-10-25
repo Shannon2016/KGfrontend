@@ -1,7 +1,39 @@
 <template>
   <el-container v-loading="fullscreenLoading" element-loading-text="正在处理中，请稍候……">
     <!--内容块-->
-    <div id="upload" v-show="showResult">
+
+    <!-- 上传窗口-->
+    <div class="upload" v-if="isUpload">
+
+      <el-card class="box-card" style="text-align: center">
+        <div slot="header" class="clearfix">
+          <span>文件上传</span>
+          <i class="el-icon-close" style="float: right; padding: 3px 0" @click="cancelUpload"></i>
+        </div>
+        <el-upload
+          class="upload-demo"
+          drag
+          ref="upload"
+          :auto-upload="false"
+          accept=".xlsx,.csv"
+          action="https://jsonplaceholder.typicode.com/posts/"
+          :on-remove="handleRemove"
+          :on-change="handleAddFile"
+          :file-list="uploadFileList"
+          multiple>
+          <i class="el-icon-upload"></i>
+          <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
+          <div class="el-upload__tip" slot="tip">
+            仅支持上传csv文件、xlsx文件<br>
+          </div>
+        </el-upload>
+        <el-button size="small" @click="cancelUpload">取消</el-button>
+        <el-button style="margin-left: 10px;" class="darkBtn" size="small" type="primary" @click="submitUpload">上传</el-button>
+      </el-card>
+    </div>
+
+    <!--测试结果-->
+    <div class="upload" v-show="showResult">
       <el-card class="box-card">
         <div slot="header" class="clearfix" style="text-align: center">
           <span>测试结果</span>
@@ -22,6 +54,7 @@
         </div>
       </el-card>
     </div>
+
     <el-main v-if="isList">
       <!--顶部-->
       <div class="header">
@@ -68,19 +101,26 @@
             @click="showGraph"
           >图谱展示</el-button> -->
           <el-button
-            class="darkBtn"
             size="small"
-            style="float:right; margin-right:20px;"
+            class="darkBtn"
+            style="float:right; margin:0 20px 0 0;"
             @click="extractEntityRelation"
             v-if="showFlag===2"
           >抽取实体关系</el-button>
           <el-button
             class="darkBtn"
             size="small"
-            style="float:right; margin-right:20px;"
+            style="float:right; margin:0 20px 0 0;"
             @click="extractEntityProperty"
             v-if="showFlag===2"
           >抽取实体属性</el-button>
+          <el-button
+            class="darkBtn"
+            size="small"
+            style="float:right; margin:0 20px 0 0;"
+            @click="isUpload=true"
+            v-if="showFlag===2"
+          >上传文件</el-button>
         </div>
         <div class="top-tip">
 
@@ -280,7 +320,7 @@
 </template>
 
 <script>
-import { option } from "../js/echartSettings";
+import { option } from "../../../js/echartSettings";
 let echarts = require("echarts");
 let myChart;
 
@@ -300,6 +340,7 @@ export default {
       curPage: 1,
       fileIndex: "",
       fileList: ["contents1", "contents2", "contents3", "contents4", "contents5"],
+      uploadFileList:[],
       //表格数据 测试集
       testData: [],
       // trainData: [],
@@ -826,7 +867,43 @@ export default {
           alert("出错了！");
         });
     },
+    cancelUpload(){
+      this.isUpload=false;
+      this.uploadFileList=[];
+    },
+    submitUpload() {
+      if(!this.uploadFileList.length){
+        this.$message.error("请选择上传文件！")
+        return;
+      }
+      this.$refs.upload.submit();
 
+      if(this.showFlag===1)//深度学习
+      {
+
+      }
+      if(this.showFlag===2){//正则
+
+      }
+      for(let i=0;i<this.uploadFileList.length;i++) {
+        for(let j=0;j<this.testData.length;j++) {
+          if (this.testData[j].title===this.uploadFileList[i]) {
+            this.$message.error("该文件已存在，请选择其他文件！")
+            return;
+          }
+        }
+        console.log(this.uploadFileList)
+      }
+
+      this.isUpload = false;
+      this.uploadFileList =[];
+    },
+    handleRemove(file, uploadFileList) {
+      this.uploadFileList = uploadFileList;
+    },
+    handleAddFile(file,uploadFileList){
+      this.uploadFileList = uploadFileList;
+    },
     handleCurrentChangeTest(cpage) {
       this.curPageTest = cpage;
     },
@@ -896,6 +973,7 @@ body,
   padding: 0;
   overflow: hidden;
 }
+
 /****************整体布局*******************/
 
 body > .el-container {
@@ -984,19 +1062,18 @@ body > .el-container {
 }
 
 /***************上传弹窗***********/
-#upload {
+.upload{
+  text-align: center;
   z-index: 99;
   position: fixed;
   top: 20%;
   left: 30%;
   right: 30%;
-  bottom: 5%;
-  overflow-y: scroll;
 }
-.upload-demo {
+.upload-demo{
   margin-bottom: 20px;
 }
-.el-upload__tip {
+.el-upload__tip{
   padding-left: 30%;
   text-align: left;
 }
@@ -1006,7 +1083,7 @@ body > .el-container {
   content: "";
 }
 .clearfix:after {
-  clear: both;
+  clear: both
 }
 
 /***********按钮样式***********/

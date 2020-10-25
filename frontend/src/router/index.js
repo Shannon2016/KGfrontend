@@ -1,21 +1,22 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import Extract from "../components/Extract";
-import ExtractPic from "../components/ExtractPic";
-import ExtractVideo from "../components/ExtractVideo"
-import Correct from "../components/Correct";
-import DefineLabel from "../components/DefineLabel";
-import CorpusTagging from "../components/CorpusTagging";
-import RelationalData from "../components/RelationalData";
-import EntitySearch from "../components/EntitySearch";
-import RelationSearch from "../components/RelationSearch";
-import ExtractStruct from "../components/ExtractStruct"
-import ShowDict from "../components/ShowDict"
-import ShowOntology from "../components/ShowOntology"
-import EntityMatch from "../components/EntityMatch"
-import DeNoise from "../components/DeNoise"
-import ViewData from "../components/ViewData"
-import ExtractTest from "../components/ExtractTest"
+import Extract from "../components/KnowledgeExtract/TextExtract/Extract";
+import ExtractPic from "../components/KnowledgeExtract/ImageExtract/ExtractPic";
+import ExtractVideo from "../components/KnowledgeExtract/VedioExtract/ExtractVideo"
+import Correct from "../components/DataCorrect/Correct";
+import DefineLabel from "../components/DataLabel/LabelDefine/DefineLabel";
+import CorpusTagging from "../components/DataLabel/CorpusTag/CorpusTagging";
+import RelationalData from "../components/DataView/RelationalData";
+import EntitySearch from "../components/DataSearch/EntitySearch";
+import RelationSearch from "../components/DataSearch/RelationSearch";
+import ExtractStruct from "../components/KnowledgeExtract/StructExtract/ExtractStruct"
+import ShowDict from "../components/KnowledgeExtract/TextExtract/ShowDict"
+import ShowOntology from "../components/KnowledgeExtract/StructExtract/ShowOntology"
+import EntityMatch from "../components/KnowledgeExtract/StructExtract/EntityMatch"
+import DeNoise from "../components/KnowledgeExtract/StructExtract/DeNoise"
+import ViewData from "../components/KnowledgeExtract/StructExtract/ViewData"
+import ExtractTest from "../components/KnowledgeExtract/StructExtract/ExtractTest"
+import Predict from "../components/KnowledgeExtract/TextExtract/Predict"
 
 Vue.use(Router)
 
@@ -107,6 +108,11 @@ export default new Router({
       path: '/extractTest',
       name: '/ExtractTest',
       component: ExtractTest
+    },
+    {
+      path: '/predict',
+      name: '/Predict',
+      component: Predict
     }
   ]
 })
