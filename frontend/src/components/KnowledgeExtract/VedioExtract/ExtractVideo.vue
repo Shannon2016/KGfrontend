@@ -1,66 +1,118 @@
 <template>
-  <el-container v-loading="fullscreenLoading" element-loading-text="模型测试中，离开将中断测试……">
+  <el-container
+    v-loading="fullscreenLoading"
+    element-loading-text="模型测试中，离开将中断测试……"
+  >
     <div id="upload" v-show="showSingleResult">
       <el-card class="box-card">
         <div slot="header" class="clearfix" style="text-align: center">
           <span>预测结果</span>
-          <i class="el-icon-close" style="float: right; padding: 3px 0;" @click="showSingleResult=false"></i>
+          <i
+            class="el-icon-close"
+            style="float: right; padding: 3px 0"
+            @click="showSingleResult = false"
+          ></i>
         </div>
-        <div style="padding:0 15px; margin-top:10px;">
-          <video v-if="singleSrc!==''" :src="singleSrc" controls="controls" style="width:100%;"></video>
+        <div style="padding: 0 15px; margin-top: 10px">
+          <video
+            v-if="singleSrc !== ''"
+            :src="singleSrc"
+            controls="controls"
+            style="width: 100%"
+          ></video>
         </div>
       </el-card>
     </div>
+    <!-- 设置重合区域阈值 -->
+    <el-dialog
+      title="设置重合区域阈值"
+      :visible.sync="showThreshold"
+      width="30%"
+    >
+      <div style="float:left;margin-bottom:20px;">请设置重合区域阈值</div>
+      <el-input v-model="threshold" size="small"></el-input>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="showThreshold = false">取 消</el-button>
+        <el-button type="primary" @click="showThreshold = false"
+          >确 定</el-button
+        >
+      </span>
+      
+    </el-dialog>
     <!--内容块-->
     <el-main>
       <!--顶部-->
       <div class="header">
         <i
           class="el-icon-back"
-          @click="resultFlag=false;graphFlag=false;"
-          v-if="resultFlag||graphFlag"
-          style="margin-right:10px;"
+          @click="
+            resultFlag = false;
+            graphFlag = false;
+          "
+          v-if="resultFlag || graphFlag"
+          style="margin-right: 10px"
         ></i>
         视频抽取
         <!--<el-button-->
-          <!--type="primary"-->
-          <!--class="darkBtn headbutton"-->
-          <!--size="small"-->
-          <!--style="float:right; margin-right:20px;"-->
-          <!--@click="showGraph"-->
-          <!--v-if="!resultFlag&&!graphFlag"-->
+        <!--type="primary"-->
+        <!--class="darkBtn headbutton"-->
+        <!--size="small"-->
+        <!--style="float:right; margin-right:20px;"-->
+        <!--@click="showGraph"-->
+        <!--v-if="!resultFlag&&!graphFlag"-->
         <!--&gt;加入图谱</el-button>-->
         <el-button
           type="primary"
           class="darkBtn headbutton"
           size="small"
-          style="float:right; margin-right:20px;"
+          style="float: right; margin-right: 20px"
           @click="showHistory"
-          v-if="!resultFlag&&!graphFlag"
-        >查看历史信息</el-button>
+          v-if="!resultFlag && !graphFlag"
+          >查看历史信息</el-button
+        >
         <el-button
           type="primary"
           class="darkBtn headbutton"
           size="small"
-          style="float:right; margin-right:20px;"
+          style="float: right; margin-right: 20px"
           @click="showResults"
-          v-if="!resultFlag&&!graphFlag"
-        >查看测试结果</el-button>
+          v-if="!resultFlag && !graphFlag"
+          >查看测试结果</el-button
+        >
         <el-button
           type="primary"
           class="darkBtn headbutton"
           size="small"
-          style="float:right; margin-right:20px;"
+          style="float: right; margin-right: 20px"
           @click="modelTest"
-          v-if="!resultFlag&&!graphFlag"
-        >模型测试</el-button>
-        <el-button class="blueBtn headbutton" size="small" @click="loadList" v-if="!resultFlag&&!graphFlag">加载测试数据</el-button>
+          v-if="!resultFlag && !graphFlag"
+          >模型测试</el-button
+        >
+
+        <el-button
+          type="primary"
+          class="darkBtn headbutton"
+          size="small"
+          style="float: right; margin-right: 20px"
+          @click="showThreshold = true"
+          v-if="!resultFlag && !graphFlag"
+          >设置重合区域阈值</el-button
+        >
+        <el-button
+          class="blueBtn headbutton"
+          size="small"
+          @click="loadList"
+          v-if="!resultFlag && !graphFlag"
+          >加载测试数据</el-button
+        >
       </div>
       <el-divider></el-divider>
       <!--中心-->
       <!--      列表页-->
-      <div class="main" v-if="!resultFlag&&!graphFlag">
-        <div id="matchInfo" v-if="vedioList.length!==0">已有测试数据数量 : {{vedioList.length}}</div>
+      <div class="main" v-if="!resultFlag && !graphFlag">
+        <div id="matchInfo" v-if="vedioList.length !== 0">
+          已有测试数据数量 : {{ vedioList.length }}
+        </div>
         <!--文书列表-->
         <el-row
           v-loading="loadingRes"
@@ -70,9 +122,9 @@
           <el-col :span="12">
             <el-table
               :data="vedioList.slice((curPage - 1) * 10, curPage * 10)"
-              :header-cell-style="{background:'#EBEEF7',color:'#606266'}"
+              :header-cell-style="{ background: '#EBEEF7', color: '#606266' }"
               height="626"
-              style="width:97%"
+              style="width: 97%"
               border
             >
               <el-table-column prop="title" label="测试数据"></el-table-column>
@@ -84,7 +136,8 @@
                     type="primary"
                     plain
                     size="small"
-                  >浏览</el-button>
+                    >浏览</el-button
+                  >
                 </template>
               </el-table-column>
               <el-table-column label="预测" width="100" align="center">
@@ -95,7 +148,8 @@
                     type="primary"
                     plain
                     size="small"
-                  >预测</el-button>
+                    >预测</el-button
+                  >
                 </template>
               </el-table-column>
             </el-table>
@@ -111,39 +165,53 @@
           </el-col>
           <el-col
             :span="12"
-            style="background-color:#FFF;min-height:625px; box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1)"
+            style="
+              background-color: #fff;
+              min-height: 625px;
+              box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+            "
           >
             <div class="tableHeader">
               视频浏览
-              <span v-if="src===''">(选择视频以浏览内容)</span>
+              <span v-if="src === ''">(选择视频以浏览内容)</span>
             </div>
-            <div style="padding:0 15px; margin-top:100px;">
-              <video v-if="src!==''" :src="src" controls="controls" style="width:100%;"></video>
+            <div style="padding: 0 15px; margin-top: 100px">
+              <video
+                v-if="src !== ''"
+                :src="src"
+                controls="controls"
+                style="width: 100%"
+              ></video>
             </div>
           </el-col>
         </el-row>
       </div>
-      <div class="main" style="display:flex; flex-direction:column;" v-if="resultFlag">
+      <div
+        class="main"
+        style="display: flex; flex-direction: column"
+        v-if="resultFlag"
+      >
         <!--<div style="text-align:center;font-size:large;">-&#45;&#45;&#45;&#45;以下内容仅为随机展示的部分结果-&#45;&#45;&#45;&#45;</div>-->
         <!--<div class="picStyle" v-for="(item, index) in resultList" :key="index">-->
-          <!--<video :src="item" controls="controls" style="width:100%;"></video>-->
-          <!--<div style="text-align: center;font-weight: bold;width: 100%">-->
-            <!--视频{{index + 1}}-->
-          <!--</div>-->
+        <!--<video :src="item" controls="controls" style="width:100%;"></video>-->
+        <!--<div style="text-align: center;font-weight: bold;width: 100%">-->
+        <!--视频{{index + 1}}-->
+        <!--</div>-->
         <!--</div>-->
 
         <!--结果列表-->
         <el-row>
           <el-col :span="12">
             <el-table
-              :data="resultList.slice((curPageResult - 1) * 10, curPageResult * 10)"
-              :header-cell-style="{background:'#EBEEF7',color:'#606266'}"
+              :data="
+                resultList.slice((curPageResult - 1) * 10, curPageResult * 10)
+              "
+              :header-cell-style="{ background: '#EBEEF7', color: '#606266' }"
               height="626"
-              style="width:97%"
+              style="width: 97%"
               border
             >
-              <el-table-column prop="title" label="结果列表">
-              </el-table-column>
+              <el-table-column prop="title" label="结果列表"> </el-table-column>
               <el-table-column label="操作" width="100" align="center">
                 <template slot-scope="scope">
                   <el-button
@@ -152,7 +220,8 @@
                     type="primary"
                     plain
                     size="small"
-                  >浏览</el-button>
+                    >浏览</el-button
+                  >
                 </template>
               </el-table-column>
             </el-table>
@@ -168,28 +237,43 @@
           </el-col>
           <el-col
             :span="12"
-            style="background-color:#FFF;min-height:625px; box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1)"
+            style="
+              background-color: #fff;
+              min-height: 625px;
+              box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+            "
           >
-            <div class="tableHeader">
-              视频浏览
-            </div>
-            <div style="padding:0 15px; margin-top:100px;">
-              <video v-if="resultSrc!==''" :src="resultSrc" controls="controls" style="width:100%;"></video>
+            <div class="tableHeader">视频浏览</div>
+            <div style="padding: 0 15px; margin-top: 100px">
+              <video
+                v-if="resultSrc !== ''"
+                :src="resultSrc"
+                controls="controls"
+                style="width: 100%"
+              ></video>
             </div>
           </el-col>
         </el-row>
       </div>
       <!--图谱搜索页-->
       <div class="main" v-if="graphFlag">
-        <el-input v-model="inputEntity" style="width:450px;" placeholder="请输入实体名称"></el-input>
+        <el-input
+          v-model="inputEntity"
+          style="width: 450px"
+          placeholder="请输入实体名称"
+        ></el-input>
         <el-button
-          style="margin-left:20px; height: 40px"
+          style="margin-left: 20px; height: 40px"
           class="darkBtn"
           size="small"
           @click="onSearchClick"
-        >搜索</el-button>
+          >搜索</el-button
+        >
         <div id="kgPic">
-          <div id="graph" :style="{width: graphWidth,height:graphHeight}"></div>
+          <div
+            id="graph"
+            :style="{ width: graphWidth, height: graphHeight }"
+          ></div>
         </div>
       </div>
     </el-main>
@@ -217,11 +301,13 @@ export default {
   name: "ExtractVideo",
   data() {
     return {
-      graphFlag:false,
+      threshold:"",
+      showThreshold: false,
+      graphFlag: false,
       inputEntity: "",
-      resultFlag:false,
+      resultFlag: false,
       curPage: 1,
-      curPageResult:1,
+      curPageResult: 1,
       //上传的文件列表
       fileList: [],
       //表格数据 测试集
@@ -234,15 +320,15 @@ export default {
       selectTitle: "文书名",
       loadingRes: false,
       fullscreenLoading: false,
-      src:"",
-      resultList:[],
-      resultSrc:"",
+      src: "",
+      resultList: [],
+      resultSrc: "",
       //单个结果
-      showSingleResult:false,
-      singleSrc:"",
+      showSingleResult: false,
+      singleSrc: "",
       //图谱
-      graphWidth:"100%",
-      graphHeight:"100%",
+      graphWidth: "100%",
+      graphHeight: "100%",
     };
   },
 
@@ -251,103 +337,149 @@ export default {
       let fd = new FormData();
       fd.append("entity", this.inputEntity);
       this.$http
-        .post("http://39.102.71.123:23352/pic/search_entity", fd,{
+        .post("http://39.102.71.123:23352/pic/search_entity", fd, {
           headers: {
-            'Content-Type': 'multipart/form-data'
-          }
+            "Content-Type": "multipart/form-data",
+          },
         })
-        .then(res => {
+        .then((res) => {
           console.log(res.data);
-          if(res.data.length===0){
+          if (res.data.length === 0) {
             this.$message({
               message: "未搜索到该实体！",
-              type: "warning"
+              type: "warning",
             });
             return;
           }
-          let graphPoint=[{
-            name: res.data,
-            category: 1,
-          }];
+          let graphPoint = [
+            {
+              name: res.data,
+              category: 1,
+            },
+          ];
           let Myoption = JSON.parse(JSON.stringify(option));
           Myoption["series"][0]["data"] = graphPoint;
 
           myChart = echarts.init(document.getElementById("graph"));
           // 绘制图表
           myChart.setOption(Myoption, true);
-        }).catch((res)=>{
-        console.log(res);
-      });
+        })
+        .catch((res) => {
+          console.log(res);
+        });
     },
     showGraph() {
       this.graphFlag = true;
-      this.$http.post("http://39.102.71.123:23352/pic/JSTextJoinKG",{
-        headers: {
-          'Content-Type': 'multipart/form-data'
-        }
-      }).then(res => {
-        console.log(res.data);
-      }).catch((res)=>{
-        console.log(res);
-      });
-      this.inputEntity="";
+      this.$http
+        .post("http://39.102.71.123:23352/pic/JSTextJoinKG", {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        })
+        .then((res) => {
+          console.log(res.data);
+        })
+        .catch((res) => {
+          console.log(res);
+        });
+      this.inputEntity = "";
     },
     showResults() {
-      this.resultFlag=true;
-      this.$http.post("http://39.102.71.123:23352/pic/video_test_results", {
+      this.resultFlag = true;
+      this.$http
+        .post("http://39.102.71.123:23352/pic/video_test_results", {
           headers: {
-            "Content-Type": "multipart/form-data"
-          }
-        }).then(res => {
-          console.log(res)
-          this.resultList = res.data.map((url,index)=>{
-            let list;
-            if(url.indexOf("\\")===-1)
-              list=url.split("/");
-            else
-              list=url.split("\\");
-            return {
-              url:url,title:list[list.length-1],
-            }
-          });
-        }).catch(res => {
-          console.log(res)
-          alert("出错了！")
+            "Content-Type": "multipart/form-data",
+          },
         })
+        .then((res) => {
+          console.log(res);
+          this.resultList = res.data.map((url, index) => {
+            let list;
+            if (url.indexOf("\\") === -1) list = url.split("/");
+            else list = url.split("\\");
+            return {
+              url: url,
+              title: list[list.length - 1],
+            };
+          });
+        })
+        .catch((res) => {
+          console.log(res);
+          alert("出错了！");
+        });
     },
     modelTest() {
       this.fullscreenLoading = true;
       this.$http
         .post("http://39.102.71.123:23352/pic/video_test", {
           headers: {
-            "Content-Type": "multipart/form-data"
-          }
+            "Content-Type": "multipart/form-data",
+          },
         })
-        .then(res => {
+        .then((res) => {
           this.$alert(
             "<p><strong>目标实体数量： <i>" +
-            res.data[4] +
-            "</i> 个</strong></p>" +
-            "<p><strong>抽取目标数量： <i>" +
-            res.data[3] +
-            "</i> 个</strong></p>" +
-            "<p><strong>正确抽取目标数量： <i>" +
-            res.data[2] +
-            "</i> 个</strong></p>" +
-            "<p><strong>视频检测准确率： <i>" +
-            res.data[2] +"/"+res.data[3] +"="+res.data[0] +
-            "</i> %</strong></p>" +
-            "<p><strong>视频检测召回率： <i>" +
-            res.data[2] +"/"+res.data[4] +"="+res.data[1] +
-            "</i> %</strong></p>",
+              res.data[4] +
+              "</i> 个</strong></p>" +
+              "<p><strong>抽取目标数量： <i>" +
+              res.data[3] +
+              "</i> 个</strong></p>" +
+              "<p><strong>正确抽取目标数量： <i>" +
+              res.data[2] +
+              "</i> 个</strong></p>" +
+              "<p><strong>视频检测准确率： <i>" +
+              res.data[2] +
+              "/" +
+              res.data[3] +
+              "=" +
+              res.data[0] +
+              "</i> %</strong></p>" +
+              "<p><strong>视频检测召回率： <i>" +
+              res.data[2] +
+              "/" +
+              res.data[4] +
+              "=" +
+              res.data[1] +
+              "</i> %</strong></p>" +
+              "<p><strong>航母目标准确率： <i>" +
+              'xxx'+
+              "</i> 个</strong></p>" +
+              "<p><strong>航母目标召回率： <i>" +
+              'xxx'+
+              "</i> 个</strong></p>" +
+              "<p><strong>驱逐舰目标准确率： <i>" +
+              'xxx'+
+              "</i> 个</strong></p>"  +
+              "<p><strong>驱逐舰目标召回率： <i>" +
+              'xxx'+
+              "</i> 个</strong></p>"  +
+              "<p><strong>护卫舰目标准确率： <i>" +
+              'xxx'+
+              "</i> 个</strong></p>"  +
+              "<p><strong>护卫舰目标召回率： <i>" +
+              'xxx'+
+              "</i> 个</strong></p>"  +
+              "<p><strong>巡洋舰目标准确率： <i>" +
+              'xxx'+
+              "</i> 个</strong></p>"  +
+              "<p><strong>巡洋舰目标召回率： <i>" +
+              'xxx'+
+              "</i> 个</strong></p>"  +
+              "<p><strong>战列舰目标准确率： <i>" +
+              'xxx'+
+              "</i> 个</strong></p>"  +
+              "<p><strong>战列舰目标召回率： <i>" +
+              'xxx'+
+              "</i> 个</strong></p>",
             "模型测试结果",
             {
-              dangerouslyUseHTMLString: true
+              dangerouslyUseHTMLString: true,
             }
           );
           this.fullscreenLoading = false;
         })
-        .catch(res => {
+        .catch((res) => {
           console.log(res);
           alert("出错了！");
           this.fullscreenLoading = false;
@@ -358,17 +490,17 @@ export default {
       this.$http
         .post("http://39.102.71.123:23352/pic/load_videoData", {
           headers: {
-            "Content-Type": "multipart/form-data"
-          }
+            "Content-Type": "multipart/form-data",
+          },
         })
-        .then(res => {
-          this.vedioList = res.data.map(cur => {
+        .then((res) => {
+          this.vedioList = res.data.map((cur) => {
             return { title: cur };
           });
 
           this.loadingRes = false;
         })
-        .catch(res => {
+        .catch((res) => {
           console.log(res);
           alert("出错了！");
           this.loadingRes = false;
@@ -389,14 +521,14 @@ export default {
       this.$http
         .post("http://39.102.71.123:23352/pic/view_videoData", fd, {
           headers: {
-            "Content-Type": "multipart/form-data"
-          }
+            "Content-Type": "multipart/form-data",
+          },
         })
-        .then(res => {
-          this.src=res.data;
+        .then((res) => {
+          this.src = res.data;
           this.loadingRes = false;
         })
-        .catch(res => {
+        .catch((res) => {
           console.log(res);
           this.loadingRes = false;
         });
@@ -410,16 +542,16 @@ export default {
       this.$http
         .post("http://39.102.71.123:23352/pic/videoTestDemo", fd, {
           headers: {
-            "Content-Type": "multipart/form-data"
-          }
+            "Content-Type": "multipart/form-data",
+          },
         })
-        .then(res => {
-          console.log(res)
-          this.showSingleResult=true;
-          this.singleSrc=res.data;
+        .then((res) => {
+          console.log(res);
+          this.showSingleResult = true;
+          this.singleSrc = res.data;
           this.loadingRes = false;
         })
-        .catch(res => {
+        .catch((res) => {
           console.log(res);
           this.loadingRes = false;
         });
@@ -429,40 +561,78 @@ export default {
       this.$http
         .post("http://39.102.71.123:23352/pic/videoTestHistory", {
           headers: {
-            "Content-Type": "multipart/form-data"
-          }
+            "Content-Type": "multipart/form-data",
+          },
         })
-        .then(res => {
+        .then((res) => {
           this.$alert(
-          "<p><strong>目标实体数量： <i>" +
-            res.data[4] +
-            "</i> 个</strong></p>" +
-            "<p><strong>抽取目标数量： <i>" +
-            res.data[3] +
-            "</i> 个</strong></p>" +
-            "<p><strong>正确抽取目标数量： <i>" +
-            res.data[2] +
-            "</i> 个</strong></p>" +
-            "<p><strong>历史视频检测准确率： <i>" +
-            res.data[2] +"/"+res.data[3] +"="+res.data[0] +
-            "</i> %</strong></p>" +
-            "<p><strong>历史视频检测召回率： <i>" +
-            res.data[2] +"/"+res.data[4] +"="+res.data[1] +
-            "</i> %</strong></p>",
-          "历史测试结果",
-          {
-            dangerouslyUseHTMLString: true
-          }
-        );
+            "<p><strong>目标实体数量： <i>" +
+              res.data[4] +
+              "</i> 个</strong></p>" +
+              "<p><strong>抽取目标数量： <i>" +
+              res.data[3] +
+              "</i> 个</strong></p>" +
+              "<p><strong>正确抽取目标数量： <i>" +
+              res.data[2] +
+              "</i> 个</strong></p>" +
+              "<p><strong>历史视频检测准确率： <i>" +
+              res.data[2] +
+              "/" +
+              res.data[3] +
+              "=" +
+              res.data[0] +
+              "</i> %</strong></p>" +
+              "<p><strong>历史视频检测召回率： <i>" +
+              res.data[2] +
+              "/" +
+              res.data[4] +
+              "=" +
+              res.data[1] +
+              "</i> %</strong></p>" +
+              "<p><strong>航母目标准确率： <i>" +
+              'xxx'+
+              "</i> 个</strong></p>" +
+              "<p><strong>航母目标召回率： <i>" +
+              'xxx'+
+              "</i> 个</strong></p>" +
+              "<p><strong>驱逐舰目标准确率： <i>" +
+              'xxx'+
+              "</i> 个</strong></p>"  +
+              "<p><strong>驱逐舰目标召回率： <i>" +
+              'xxx'+
+              "</i> 个</strong></p>"  +
+              "<p><strong>护卫舰目标准确率： <i>" +
+              'xxx'+
+              "</i> 个</strong></p>"  +
+              "<p><strong>护卫舰目标召回率： <i>" +
+              'xxx'+
+              "</i> 个</strong></p>"  +
+              "<p><strong>巡洋舰目标准确率： <i>" +
+              'xxx'+
+              "</i> 个</strong></p>"  +
+              "<p><strong>巡洋舰目标召回率： <i>" +
+              'xxx'+
+              "</i> 个</strong></p>"  +
+              "<p><strong>战列舰目标准确率： <i>" +
+              'xxx'+
+              "</i> 个</strong></p>"  +
+              "<p><strong>战列舰目标召回率： <i>" +
+              'xxx'+
+              "</i> 个</strong></p>",
+            "历史测试结果",
+            {
+              dangerouslyUseHTMLString: true,
+            }
+          );
         })
-        .catch(res => {
+        .catch((res) => {
           console.log(res);
         });
     },
     handleAnalysisResult(row) {
       this.resultSrc = row;
-    }
-  }
+    },
+  },
 };
 </script>
 
@@ -565,7 +735,7 @@ body > .el-container {
   top: 20%;
   left: 30%;
   right: 30%;
-  bottom:5%;
+  bottom: 5%;
   overflow: inherit;
 }
 .upload-demo {
@@ -628,13 +798,13 @@ body > .el-container {
   margin: 0 0 15px 10px;
   font-size: 13px;
 }
-.picStyle{
-  width:60%;
+.picStyle {
+  width: 60%;
   align-self: center;
-  margin-top:20px;
+  margin-top: 20px;
 }
-.picStyle:first{
-  width:60%;
+.picStyle:first {
+  width: 60%;
   align-self: center;
 }
 </style>

@@ -16,6 +16,22 @@
         </div>
       </el-card>
     </div>
+    <!-- 设置重合区域阈值 -->
+    <el-dialog
+      title="设置重合区域阈值"
+      :visible.sync="showThreshold"
+      width="30%"
+    >
+      <div style="float:left;margin-bottom:20px;">请设置重合区域阈值</div>
+      <el-input v-model="threshold" size="small"></el-input>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="showThreshold = false">取 消</el-button>
+        <el-button type="primary" @click="showThreshold = false"
+          >确 定</el-button
+        >
+      </span>
+      
+    </el-dialog>
     <!--内容块-->
     <el-main>
       <!--上传窗口-->
@@ -109,6 +125,15 @@
           @click="modelTest"
           v-if="!resultFlag&&!graphFlag"
         >模型测试</el-button>
+        <el-button
+          type="primary"
+          class="darkBtn headbutton"
+          size="small"
+          style="float: right; margin-right: 20px"
+          @click="showThreshold = true"
+          v-if="!resultFlag && !graphFlag"
+          >设置重合区域阈值</el-button
+        >
         <el-button class="blueBtn headbutton" size="small" @click="loadList"
           v-if="!resultFlag&&!graphFlag">加载测试数据</el-button>
       </div>
@@ -287,6 +312,8 @@ export default {
   name: "ExtractPic",
   data() {
     return {
+      threshold:"",
+      showThreshold: false,
       inputEntity: "",
       levelList: [
         {
@@ -477,7 +504,37 @@ export default {
             "</i> %</strong></p>" +
             "<p><strong>图像检测召回率： <i>" +
             res.data[2] +"/"+res.data[4] +"="+res.data[1] +
-            "</i> %</strong></p>",
+            "</i> %</strong></p>" +
+              "<p><strong>航母目标准确率： <i>" +
+              'xxx'+
+              "</i> 个</strong></p>" +
+              "<p><strong>航母目标召回率： <i>" +
+              'xxx'+
+              "</i> 个</strong></p>" +
+              "<p><strong>驱逐舰目标准确率： <i>" +
+              'xxx'+
+              "</i> 个</strong></p>"  +
+              "<p><strong>驱逐舰目标召回率： <i>" +
+              'xxx'+
+              "</i> 个</strong></p>"  +
+              "<p><strong>护卫舰目标准确率： <i>" +
+              'xxx'+
+              "</i> 个</strong></p>"  +
+              "<p><strong>护卫舰目标召回率： <i>" +
+              'xxx'+
+              "</i> 个</strong></p>"  +
+              "<p><strong>巡洋舰目标准确率： <i>" +
+              'xxx'+
+              "</i> 个</strong></p>"  +
+              "<p><strong>巡洋舰目标召回率： <i>" +
+              'xxx'+
+              "</i> 个</strong></p>"  +
+              "<p><strong>战列舰目标准确率： <i>" +
+              'xxx'+
+              "</i> 个</strong></p>"  +
+              "<p><strong>战列舰目标召回率： <i>" +
+              'xxx'+
+              "</i> 个</strong></p>",
             "模型测试结果",
             {
               dangerouslyUseHTMLString: true
@@ -564,7 +621,37 @@ export default {
             "</i> %</strong></p>" +
             "<p><strong>历史图像检测召回率： <i>" +
             res.data[2] +"/"+res.data[4] +"="+res.data[1] +
-            "</i> %</strong></p>",
+            "</i> %</strong></p>" +
+              "<p><strong>航母目标准确率： <i>" +
+              'xxx'+
+              "</i> 个</strong></p>" +
+              "<p><strong>航母目标召回率： <i>" +
+              'xxx'+
+              "</i> 个</strong></p>" +
+              "<p><strong>驱逐舰目标准确率： <i>" +
+              'xxx'+
+              "</i> 个</strong></p>"  +
+              "<p><strong>驱逐舰目标召回率： <i>" +
+              'xxx'+
+              "</i> 个</strong></p>"  +
+              "<p><strong>护卫舰目标准确率： <i>" +
+              'xxx'+
+              "</i> 个</strong></p>"  +
+              "<p><strong>护卫舰目标召回率： <i>" +
+              'xxx'+
+              "</i> 个</strong></p>"  +
+              "<p><strong>巡洋舰目标准确率： <i>" +
+              'xxx'+
+              "</i> 个</strong></p>"  +
+              "<p><strong>巡洋舰目标召回率： <i>" +
+              'xxx'+
+              "</i> 个</strong></p>"  +
+              "<p><strong>战列舰目标准确率： <i>" +
+              'xxx'+
+              "</i> 个</strong></p>"  +
+              "<p><strong>战列舰目标召回率： <i>" +
+              'xxx'+
+              "</i> 个</strong></p>",
             "历史测试结果",
             {
               dangerouslyUseHTMLString: true
