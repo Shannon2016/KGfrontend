@@ -2,7 +2,7 @@ import Vue from 'vue'
 import Router from 'vue-router'
 import Extract from "../components/KnowledgeExtract/TextExtract/Extract";
 import ExtractPic from "../components/KnowledgeExtract/ImageExtract/ExtractPic";
-import ExtractVideo from "../components/KnowledgeExtract/VedioExtract/ExtractVideo"
+import ExtractVideo from "../components/KnowledgeExtract/VideoExtract/ExtractVideo"
 import Correct from "../components/DataCorrect/Correct";
 import DefineLabel from "../components/DataLabel/LabelDefine/DefineLabel";
 import CorpusTagging from "../components/DataLabel/CorpusTag/CorpusTagging";
@@ -17,6 +17,10 @@ import DeNoise from "../components/KnowledgeExtract/StructExtract/DeNoise"
 import ViewData from "../components/KnowledgeExtract/StructExtract/ViewData"
 import ExtractTest from "../components/KnowledgeExtract/StructExtract/ExtractTest"
 import Predict from "../components/KnowledgeExtract/TextExtract/Predict"
+import ImageLabel from "../components/KnowledgeExtract/ImageLabel"
+import ImagePredict from "../components/KnowledgeExtract/ImagePredict"
+import Video2Image from "../components/KnowledgeExtract/Video2Image"
+import VideoPredict from "../components/KnowledgeExtract/VideoPredict"
 
 Vue.use(Router)
 
@@ -113,6 +117,26 @@ export default new Router({
       path: '/predict',
       name: '/Predict',
       component: Predict
+    },
+    {
+      path: '/imageLabel',
+      name: '/ImageLabel',
+      component: ImageLabel
+    },
+    {
+      path: '/imagePredict',
+      name: '/ImagePredict',
+      component: ImagePredict
+    },
+    {
+      path: '/video2Image',
+      name: '/video2Image',
+      component: Video2Image
+    },
+    {
+      path: '/videoPredict',
+      name: '/VideoPredict',
+      component: VideoPredict
     }
   ]
 })

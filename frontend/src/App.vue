@@ -82,9 +82,25 @@
                 <el-menu-item index="/predict">模型预测</el-menu-item>
               </el-menu-item-group>
             </el-submenu>
+            <el-menu-item index="/imageLabel" v-if="activeIndex==='/'">
+              <i class="el-icon-collection-tag"></i>
+              <span slot="title">图片标注</span>
+            </el-menu-item>
             <el-menu-item index="/extractPic" v-if="activeIndex==='/'">
               <i class="el-icon-picture-outline"></i>
               <span slot="title">图片抽取</span>
+            </el-menu-item>
+            <el-menu-item index="/imagePredict" v-if="activeIndex==='/'">
+              <i class="el-icon-magic-stick"></i>
+              <span slot="title">图像预测</span>
+            </el-menu-item>
+            <el-menu-item index="/video2Image" v-if="activeIndex==='/'">
+              <i class="el-icon-refresh"></i>
+              <span slot="title">视频转换为图像</span>
+            </el-menu-item>
+            <el-menu-item index="/videoPredict" v-if="activeIndex==='/'">
+              <i class="el-icon-magic-stick"></i>
+              <span slot="title">视频预测</span>
             </el-menu-item>
             <el-menu-item index="/extractVideo" v-if="activeIndex==='/'">
               <i class="el-icon-video-camera"></i>
