@@ -51,7 +51,8 @@
           ref="upload"
           :auto-upload="false"
           accept=".mp4"
-          action="https://jsonplaceholder.typicode.com/posts/"
+          :limit="1"
+          action=""
           :on-remove="handleRemove"
           :on-change="handleAddFile"
           :file-list="uploadFileList"
@@ -101,13 +102,6 @@
           @click="isUpload = true"
           v-if="!resultFlag && !graphFlag"
           >上传文件</el-button
-        >
-        <el-button
-          class="blueBtn headbutton"
-          size="small"
-          @click="loadList"
-          v-if="!resultFlag && !graphFlag"
-          >加载测试数据</el-button
         >
       </div>
       <el-divider></el-divider>
@@ -351,7 +345,22 @@ export default {
   },
 
   methods: {
-    submitUpload() {},
+    submitUpload() {
+      let fd = new FormData();
+      fd.append("video", this.uploadFileList[0].raw)
+      console.log(this.uploadFileList)
+      this.$http
+        .post("http://39.102.71.123:23352/pic/video_detect_submit", fd, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }).then(res => {
+          this.loadList()
+          this.isUpload = false;
+        }).catch(res =>{
+
+        })
+    },
     cancelUpload() {
       this.isUpload = false;
       this.uploadFileList = [];
@@ -417,12 +426,13 @@ export default {
     loadList() {
       this.loadingRes = true;
       this.$http
-        .post("http://39.102.71.123:23352/pic/load_videoData", {
+        .post("http://39.102.71.123:23352/pic/video_detect", {
           headers: {
             "Content-Type": "multipart/form-data",
           },
         })
         .then((res) => {
+          console.log(res)
           this.vedioList = res.data.map((cur) => {
             return { title: cur };
           });
@@ -448,12 +458,13 @@ export default {
       fd.append("filename", row.title);
       this.loadingRes = true;
       this.$http
-        .post("http://39.102.71.123:23352/pic/view_videoData", fd, {
+        .post("http://39.102.71.123:23352/pic/video_detect_view", fd, {
           headers: {
             "Content-Type": "multipart/form-data",
           },
         })
         .then((res) => {
+          console.log(res)
           this.src = res.data;
           this.loadingRes = false;
         })
@@ -468,13 +479,14 @@ export default {
       fd.append("filename", row.title);
       //   this.loadingRes = true;
       this.$http
-        .post("http://39.102.71.123:23352/pic/view_videoData", fd, {
+        .post("http://39.102.71.123:23352/pic/video_detect_classification", fd, {
           headers: {
             "Content-Type": "multipart/form-data",
           },
         })
         .then((res) => {
-          this.classifySrc = res.data;
+          this.classifySrc = res.data[0];
+          this.classifyResult = res.data[1];
           this.showClassify = true;
           //   this.loadingRes = false;
         })
@@ -490,7 +502,7 @@ export default {
       fd.append("filename", row.title);
       this.loadingRes = true;
       this.$http
-        .post("http://39.102.71.123:23352/pic/videoTestDemo", fd, {
+        .post("http://39.102.71.123:23352/pic/video_detect_predict", fd, {
           headers: {
             "Content-Type": "multipart/form-data",
           },
@@ -511,6 +523,9 @@ export default {
       this.resultSrc = row;
     },
   },
+  mounted(){
+    this.loadList()
+  }
 };
 </script>
 
