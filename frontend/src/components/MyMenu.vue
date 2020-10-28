@@ -7,7 +7,7 @@
       text-color="#fff"
       active-text-color="#409EFF"
       :router="true"
-      style="position:absolute; right:0;"
+      style="position:absolute; right:0;border:none;"
       @select="selectMenu">
       <el-menu-item index="/relationalData">数据浏览</el-menu-item>
       <el-menu-item index="/definelabel">数据标注</el-menu-item>
