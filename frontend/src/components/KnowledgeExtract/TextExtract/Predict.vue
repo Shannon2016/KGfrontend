@@ -1,6 +1,24 @@
 <template>
   <el-container v-loading="fullscreenLoading" element-loading-text="正在处理中，请稍候……">
     <!--内容块-->
+    <!--测试结果-->
+    <div class="upload" v-show="showResult">
+      <el-card class="box-card">
+        <div slot="header" class="clearfix" style="text-align: center">
+          <span>测试结果</span>
+          <i
+            class="el-icon-close"
+            style="float: right; padding: 3px 0"
+            @click="showResult = false"
+          ></i>
+        </div>
+        
+        <div style="margin-top: 10px" id="autoPara">
+          <span style="font-weight: bold">被标记文本：</span>
+          <p id="para" style="text-align: left"></p>
+        </div>
+      </el-card>
+    </div>
 
     <!-- 上传窗口-->
     <div class="upload" v-if="isUpload">
@@ -15,45 +33,23 @@
           drag
           ref="upload"
           :auto-upload="false"
-          accept=".xlsx,.csv"
-          action="https://jsonplaceholder.typicode.com/posts/"
+          accept=".txt"
+          action=""
           :on-remove="handleRemove"
           :on-change="handleAddFile"
           :file-list="uploadFileList"
+          :limit="1"
           multiple>
           <i class="el-icon-upload"></i>
           <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
           <div class="el-upload__tip" slot="tip">
-            仅支持上传csv文件、xlsx文件<br>
+            仅支持上传txt文件<br>
           </div>
         </el-upload>
         <el-button size="small" @click="cancelUpload">取消</el-button>
         <el-button style="margin-left: 10px;" class="darkBtn" size="small" type="primary" @click="submitUpload">上传</el-button>
       </el-card>
     </div>
-
-    <!--测试结果-->
-    <!--<div class="upload" v-show="showResult">-->
-      <!--<el-card class="box-card">-->
-        <!--<div slot="header" class="clearfix" style="text-align: center">-->
-          <!--<span>测试结果</span>-->
-          <!--<i class="el-icon-close" style="float: right; padding: 3px 0;" @click="showResult=false"></i>-->
-        <!--</div>-->
-        <!--<div>-->
-          <!--<span style="font-weight:bold;">实际实体数量：</span>{{realEntityCount}}个-->
-        <!--</div>-->
-        <!--<div style="margin-top:10px;">-->
-          <!--<span style="font-weight:bold;">抽取实体数量：</span>{{extractEntityCount}}个-->
-        <!--</div>-->
-        <!--<div style="margin-top:10px;">-->
-          <!--<span style="font-weight:bold;">错误识别实体数量：</span>{{wrongEntityCount}}个-->
-        <!--</div>-->
-        <!--<div style="margin-top:10px;" id="autoPara">-->
-          <!--<span style="font-weight:bold;">被标记文本：</span>-->
-          <!--<p id="para" style="text-align: left"></p>-->
-        <!--</div>-->
-      <!--</el-card>-->
-    <!--</div>-->
 
     <el-main v-if="isList">
       <!--顶部-->
@@ -170,10 +166,6 @@
     name: "Predict",
     data() {
       return {
-        entitySum:0,
-        realEntityCount: 0,
-        extractEntityCount: 1,
-        wrongEntityCount: 2,
         showResult: false,
         isList: true,
         fileCount: 0,
@@ -248,7 +240,6 @@
       modelPredict() {
         this.fullscreenLoading = true;
         let fd = new FormData();
-        fd.append("contents", this.fileIndex);
         if (this.selectTitle === "") {
           this.$message({
             message: "请先查看文书！",
@@ -260,72 +251,55 @@
 
         fd.append("filename", this.selectTitle);
         this.$http
-          .post("http://39.102.71.123:23352/pic/textTestDemo", fd, {
+          .post("http://39.102.71.123:23352/pic/text_predict", fd, {
             headers: {
               "Content-Type": "multipart/form-data"
             }
           })
           .then(res => {
             console.log(res);
-            this.fullscreenLoading = false;
-            let content = res.data[0];
-            // let div = document.createElement("p");
-            // div.id = "para";
-            let tagSet = [];
-            for (let i = 1; i < 4; i++) {//遍历所有标记
-              for (let j = 0; j < res.data[i].length; j++) {
-                tagSet.push({
-                  sta: res.data[i][j][1],
-                  end: res.data[i][j][2],
-                  type: i
-                })
-              }
-            }
-            ;
-            //排序
-            tagSet = [].concat(tagSet.sort((obj1, obj2) => {
-              if (obj1.sta >= obj2.sta)
-                return 1;
-              else
-                return -1;
-            }));
-            console.log(tagSet)
-            //高亮
-            let offset = 0;
-            for (let i = 0; i < tagSet.length; i++) {
-              if (tagSet[i].type === 1) {
-                content = this.highLight(tagSet[i].sta + offset, tagSet[i].end + offset, "green", content);
-                offset += 42;
-              }
-              else if (tagSet[i].type === 2) {
-                content = this.highLight(tagSet[i].sta + offset, tagSet[i].end + offset, "red", content);
-                offset += 40;
-              } else if (tagSet[i].type === 3) {
-                content = this.highLight(tagSet[i].sta + offset, tagSet[i].end + offset, "yellow", content);
-                offset += 43;
-              }
-            }
-            // //37+color位移
-            // for(let i=0;i<res.data[1].length;i++){
-            //   content=this.highLight(res.data[1][i][1]+42*i,res.data[1][i][2]+42*i,"green",content);
+            // this.fullscreenLoading = false;
+            // let content = res.data[0];
+            // // let div = document.createElement("p");
+            // // div.id = "para";
+            // let tagSet = [];
+            // for (let i = 1; i < 4; i++) {//遍历所有标记
+            //   for (let j = 0; j < res.data[i].length; j++) {
+            //     tagSet.push({
+            //       sta: res.data[i][j][1],
+            //       end: res.data[i][j][2],
+            //       type: i
+            //     })
+            //   }
             // }
-            // let offset1=42*res.data[1].length;
-            // for(let j=0;j<res.data[2].length;j++){
-            //   content=this.highLight(res.data[2][j][1]+offset1+40*j,res.data[2][j][2]+offset1+40*j,"red",content);
+            // ;
+            // //排序
+            // tagSet = [].concat(tagSet.sort((obj1, obj2) => {
+            //   if (obj1.sta >= obj2.sta)
+            //     return 1;
+            //   else
+            //     return -1;
+            // }));
+            // console.log(tagSet)
+            // //高亮
+            // let offset = 0;
+            // for (let i = 0; i < tagSet.length; i++) {
+            //   if (tagSet[i].type === 1) {
+            //     content = this.highLight(tagSet[i].sta + offset, tagSet[i].end + offset, "green", content);
+            //     offset += 42;
+            //   }
+            //   else if (tagSet[i].type === 2) {
+            //     content = this.highLight(tagSet[i].sta + offset, tagSet[i].end + offset, "red", content);
+            //     offset += 40;
+            //   } else if (tagSet[i].type === 3) {
+            //     content = this.highLight(tagSet[i].sta + offset, tagSet[i].end + offset, "yellow", content);
+            //     offset += 43;
+            //   }
             // }
-            // let offset2 = offset1+40*res.data[2].length;
-            // for(let k=0;k<res.data[3].length;k++){
-            //   content=this.highLight(res.data[3][k][1]+offset2+43*k,res.data[3][k][2]+offset2+43*k,"yellow",content);
-            // }
-            let div = document.getElementById("para")
-            div.innerHTML = content.replace(/\n/g, "<br>");
-            // div.style = "text-align:left";
-            // document.getElementById("autoPara").appendChild(div);
-            this.realEntityCount = res.data[4];
-            this.extractEntityCount = res.data[5];
-            this.wrongEntityCount = res.data[6];
+            // let div = document.getElementById("para")
+            // div.innerHTML = content.replace(/\n/g, "<br>");
 
-            this.showResult = true;
+            // this.showResult = true;
           })
           .catch(res => {
             console.log(res);
@@ -337,10 +311,7 @@
         this.textData = "";
         this.fileCountTest = 0;
         this.loadingRes = true;
-        let fd = new FormData();
-        fd.append("contents", this.fileIndex)
-        this.$http
-          .post("http://39.102.71.123:23352/pic/loadTextDataDL", fd, {
+        this.$http.post("http://39.102.71.123:23352/pic/click_text_predict", {
             headers: {
               "Content-Type": "multipart/form-data"
             }
@@ -348,11 +319,10 @@
           .then(res => {
             console.log(res)
             this.textData = "";
-            this.testData = res.data[0].map(cur => {
+            this.testData = res.data.map(cur => {
               return {title: cur};
             });
             this.fileCountTest = this.testData.length;
-            this.entitySum = res.data[1]
             this.loadingRes = false;
           })
           .catch(res => {
@@ -392,7 +362,6 @@
           this.$message.error("请选择上传文件！")
           return;
         }
-        this.$refs.upload.submit();
 
         for(let i=0;i<this.uploadFileList.length;i++) {
           for(let j=0;j<this.testData.length;j++) {
@@ -401,8 +370,25 @@
               return;
             }
           }
-          console.log(this.uploadFileList)
         }
+        let fd = new FormData();
+        fd.append("text", this.uploadFileList[0].raw)
+        this.$http
+          .post("http://39.102.71.123:23352/pic/submit_DL_data", fd, {
+            headers: {
+              "Content-Type": "multipart/form-data"
+            }
+          }).then(res => {
+            console.log(res)
+            if(res.data === 1) {
+              this.getTable()
+            } else {
+              this.$message.error('上传失败！');
+            }
+          }).catch(res => {
+            console.log(res)
+          })
+        console.log(this.uploadFileList)
 
         this.isUpload = false;
         this.uploadFileList =[];
@@ -423,16 +409,11 @@
       handleAnalysis(row) {
         this.selectTitle = row.title;
         let fd = new FormData();
-        let url = ""
-        if (this.algorithm === "深度学习算法") {
-          url = "viewTextDL"
-          fd.append("contents", this.fileIndex)
-        } else url = "viewTextDataRE"
         fd.append("filename", row.title);
 
         this.loadingRes = true;
         this.$http
-          .post("http://39.102.71.123:23352/pic/" + url, fd, {
+          .post("http://39.102.71.123:23352/pic/view_text_predict", fd, {
             headers: {
               "Content-Type": "multipart/form-data"
             }
@@ -467,6 +448,9 @@
         save_link.click();
       }
     },
+    mounted() {
+      this.getTable();
+    }
   }
 </script>
 

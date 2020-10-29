@@ -1,34 +1,47 @@
 <template>
-  <el-container v-loading="fullscreenLoading" element-loading-text="正在处理中，请稍候……">
+  <el-container
+    v-loading="fullscreenLoading"
+    element-loading-text="正在处理中，请稍候……"
+  >
     <!--内容块-->
 
     <!-- 上传窗口-->
     <div class="upload" v-if="isUpload">
-
       <el-card class="box-card" style="text-align: center">
         <div slot="header" class="clearfix">
           <span>文件上传</span>
-          <i class="el-icon-close" style="float: right; padding: 3px 0" @click="cancelUpload"></i>
+          <i
+            class="el-icon-close"
+            style="float: right; padding: 3px 0"
+            @click="cancelUpload"
+          ></i>
         </div>
         <el-upload
           class="upload-demo"
           drag
           ref="upload"
           :auto-upload="false"
-          accept=".xlsx,.csv"
-          action="https://jsonplaceholder.typicode.com/posts/"
+          accept=".txt"
+          action=""
+          :limit="1"
           :on-remove="handleRemove"
           :on-change="handleAddFile"
           :file-list="uploadFileList"
-          multiple>
+          multiple
+        >
           <i class="el-icon-upload"></i>
           <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
-          <div class="el-upload__tip" slot="tip">
-            仅支持上传csv文件、xlsx文件<br>
-          </div>
+          <div class="el-upload__tip" slot="tip">仅支持上传txt文件<br /></div>
         </el-upload>
         <el-button size="small" @click="cancelUpload">取消</el-button>
-        <el-button style="margin-left: 10px;" class="darkBtn" size="small" type="primary" @click="submitUpload">上传</el-button>
+        <el-button
+          style="margin-left: 10px"
+          class="darkBtn"
+          size="small"
+          type="primary"
+          @click="submitUpload"
+          >上传</el-button
+        >
       </el-card>
     </div>
 
@@ -37,19 +50,26 @@
       <el-card class="box-card">
         <div slot="header" class="clearfix" style="text-align: center">
           <span>测试结果</span>
-          <i class="el-icon-close" style="float: right; padding: 3px 0;" @click="showResult=false"></i>
+          <i
+            class="el-icon-close"
+            style="float: right; padding: 3px 0"
+            @click="showResult = false"
+          ></i>
         </div>
         <div>
-          <span style="font-weight:bold;">实际实体数量：</span>{{realEntityCount}}个
+          <span style="font-weight: bold">实际实体数量：</span
+          >{{ realEntityCount }}个
         </div>
-        <div style="margin-top:10px;">
-          <span style="font-weight:bold;">抽取实体数量：</span>{{extractEntityCount}}个
+        <div style="margin-top: 10px">
+          <span style="font-weight: bold">抽取实体数量：</span
+          >{{ extractEntityCount }}个
         </div>
-        <div style="margin-top:10px;">
-          <span style="font-weight:bold;">错误识别实体数量：</span>{{wrongEntityCount}}个
+        <div style="margin-top: 10px">
+          <span style="font-weight: bold">错误识别实体数量：</span
+          >{{ wrongEntityCount }}个
         </div>
-        <div style="margin-top:10px;" id="autoPara">
-          <span style="font-weight:bold;">被标记文本：</span>
+        <div style="margin-top: 10px" id="autoPara">
+          <span style="font-weight: bold">被标记文本：</span>
           <p id="para" style="text-align: left"></p>
         </div>
       </el-card>
@@ -68,7 +88,13 @@
       <div class="main">
         <div class="top-tip">
           <span>请选择算法：</span>
-          <el-select v-model="algorithm" @change="changeAlgorithm" placeholder size="small" style="margin-left:10px;">
+          <el-select
+            v-model="algorithm"
+            @change="changeAlgorithm"
+            placeholder
+            size="small"
+            style="margin-left: 10px"
+          >
             <el-option
               v-for="(item, index) in algorithmList"
               :key="index"
@@ -77,8 +103,16 @@
             ></el-option>
           </el-select>
 
-          <span style="margin-left:20px;" v-if="showFlag===1">请选择文书目录：</span>
-          <el-select v-model="fileIndex" v-if="showFlag===1" placeholder size="small" style="margin-left:10px;">
+          <span style="margin-left: 20px" v-if="showFlag === 1"
+            >请选择文书目录：</span
+          >
+          <el-select
+            v-model="fileIndex"
+            v-if="showFlag === 1"
+            placeholder
+            size="small"
+            style="margin-left: 10px"
+          >
             <el-option
               v-for="(item, index) in fileList"
               :key="index"
@@ -88,12 +122,13 @@
           </el-select>
 
           <el-button
-            style="margin-left:20px;"
+            style="margin-left: 20px"
             class="blueBtn"
             size="small"
             @click="chooseTable"
-            v-if="showFlag!==2"
-          >加载测试数据</el-button>
+            v-if="showFlag !== 2"
+            >加载测试数据</el-button
+          >
           <!-- <el-button
             class="darkBtn"
             size="small"
@@ -103,29 +138,39 @@
           <el-button
             size="small"
             class="darkBtn"
-            style="float:right; margin:0 20px 0 0;"
+            style="float: right; margin: 0 20px 0 0"
             @click="extractEntityRelation"
-            v-if="showFlag===2"
-          >抽取实体关系</el-button>
+            v-if="showFlag === 2"
+            >抽取实体关系</el-button
+          >
           <el-button
             class="darkBtn"
             size="small"
-            style="float:right; margin:0 20px 0 0;"
+            style="float: right; margin: 0 20px 0 0"
             @click="extractEntityProperty"
-            v-if="showFlag===2"
-          >抽取实体属性</el-button>
+            v-if="showFlag === 2"
+            >抽取实体属性</el-button
+          >
           <el-button
             class="darkBtn"
             size="small"
-            style="float:right; margin:0 20px 0 0;"
-            @click="isUpload=true"
-            v-if="showFlag===2"
-          >上传文件</el-button>
+            style="float: right; margin: 0 20px 0 0"
+            @click="isUpload = true"
+            v-if="showFlag === 2"
+            >上传文件</el-button
+          >
         </div>
         <div class="top-tip">
-
-          <span style="margin-left:0px;" v-if="showFlag===1">请选择训练模型：</span>
-          <el-select v-model="modelIndex" v-if="showFlag===1" placeholder size="small" style="margin-left:10px;width: 170px">
+          <span style="margin-left: 0px" v-if="showFlag === 1"
+            >请选择训练模型：</span
+          >
+          <el-select
+            v-model="modelIndex"
+            v-if="showFlag === 1"
+            placeholder
+            size="small"
+            style="margin-left: 10px; width: 170px"
+          >
             <el-option
               v-for="(item, index) in modelList"
               :key="index"
@@ -134,38 +179,45 @@
             ></el-option>
           </el-select>
           <el-button
-            style="margin-left:20px;"
+            style="margin-left: 20px"
             class="blueBtn"
             size="small"
             @click="loadModel"
-            v-if="showFlag===1"
-          >加载训练模型</el-button>
+            v-if="showFlag === 1"
+            >加载训练模型</el-button
+          >
           <el-button
             class="darkBtn"
             size="small"
-            style="float:right; margin-right:20px;"
+            style="float: right; margin-right: 20px"
             @click="calculateAverage"
-            v-if="showFlag===1&&isMerge"
-          >计算平均结果</el-button>
+            v-if="showFlag === 1 && isMerge"
+            >计算平均结果</el-button
+          >
           <el-button
             class="darkBtn"
             size="small"
-            style="float:right; margin-right:20px;"
+            style="float: right; margin-right: 20px"
             @click="mergeFile"
-            v-if="showFlag===1&&!isMerge"
-          >合并</el-button>
+            v-if="showFlag === 1 && !isMerge"
+            >合并</el-button
+          >
           <el-button
             type="primary"
             class="darkBtn"
             size="small"
-            style="float:right; margin-right:20px;"
+            style="float: right; margin-right: 20px"
             @click="modelTest"
-            v-if="showFlag===1"
-          >模型测试</el-button>
+            v-if="showFlag === 1"
+            >模型测试</el-button
+          >
         </div>
-        <div id="matchInfo" v-if="testData.length!==0">已有测试数据数量 : {{testData.length}}
-          <span v-if="showFlag!==2">&nbsp&nbsp&nbsp&nbsp&nbsp文书中实体总数：{{entitySum}}个</span>
-          </div>
+        <div id="matchInfo" v-if="testData.length !== 0">
+          已有测试数据数量 : {{ testData.length }}
+          <span v-if="showFlag !== 2"
+            >&nbsp&nbsp&nbsp&nbsp&nbsp文书中实体总数：{{ entitySum }}个</span
+          >
+        </div>
         <!--文书列表-->
         <el-row
           v-loading="loadingRes"
@@ -175,9 +227,9 @@
           <el-col :span="12">
             <el-table
               :data="testData.slice((curPageTrain - 1) * 10, curPageTrain * 10)"
-              :header-cell-style="{background:'#EBEEF7',color:'#606266'}"
+              :header-cell-style="{ background: '#EBEEF7', color: '#606266' }"
               height="626"
-              style="width:97%"
+              style="width: 97%"
               border
             >
               <el-table-column prop="title" label="测试数据"></el-table-column>
@@ -189,7 +241,8 @@
                     type="primary"
                     plain
                     size="small"
-                  >浏览</el-button>
+                    >浏览</el-button
+                  >
                 </template>
               </el-table-column>
             </el-table>
@@ -205,16 +258,30 @@
           </el-col>
           <el-col
             :span="12"
-            style="background-color:#FFF;height:625px;overflow-y: scroll; box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1)"
+            style="
+              background-color: #fff;
+              height: 625px;
+              overflow-y: scroll;
+              box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+            "
           >
             <div class="tableHeader">
               <span v-if="isMerge">合并</span>
               文件浏览
-              <span v-if="textData===''&&!isMerge">(选择文件以浏览内容)</span>
-              <span v-if="textData===''&&isMerge">(正在加载合并文件)</span>
+              <span v-if="textData === '' && !isMerge"
+                >(选择文件以浏览内容)</span
+              >
+              <span v-if="textData === '' && isMerge">(正在加载合并文件)</span>
             </div>
-            <div style="padding:0 15px;">
-              <pre style="word-break: break-word;word-wrap: break-word;white-space: break-spaces;">{{textData}}</pre>
+            <div style="padding: 0 15px">
+              <pre
+                style="
+                  word-break: break-word;
+                  word-wrap: break-word;
+                  white-space: break-spaces;
+                "
+                >{{ textData }}</pre
+              >
             </div>
             <!-- <el-table
               :data="testData.slice((curPageTest - 1) * 10, curPageTest * 10)"
@@ -258,21 +325,25 @@
     <el-main v-show="!isList">
       <!--顶部-->
       <div class="header">
-        <i class="el-icon-back" @click="isList=true"></i>
+        <i class="el-icon-back" @click="isList = true"></i>
         <!--<el-button type="primary" class="headbutton" size="small" @click="handleExport">导出</el-button>-->
       </div>
       <el-divider></el-divider>
-      <el-input v-model="inputEntity1" placeholder="实体1" style="width:250px;"></el-input>
+      <el-input
+        v-model="inputEntity1"
+        placeholder="实体1"
+        style="width: 250px"
+      ></el-input>
       <el-input
         v-model="inputRelation"
         placeholder="关系"
-        style="width:250px;"
+        style="width: 250px"
         v-if="entityRelationFlag"
       ></el-input>
       <el-input
         v-model="inputEntity2"
         placeholder="实体2"
-        style="width:250px;"
+        style="width: 250px"
         v-if="entityRelationFlag"
       ></el-input>
       <el-select v-model="level" placeholder="请选择查询级数">
@@ -284,25 +355,28 @@
         ></el-option>
       </el-select>
       <el-button
-        style="margin-left:20px;height: 40px"
+        style="margin-left: 20px; height: 40px"
         class="darkBtn"
         size="small"
         @click="searchGraph"
-      >搜索</el-button>
+        >搜索</el-button
+      >
       <el-button
         type="text"
         class="textBtn"
-        style="margin-left:20px;"
+        style="margin-left: 20px"
         v-if="entityRelationFlag"
         @click="changeToEntitySearch"
-      >&lt; &lt;切换为实体搜索</el-button>
+        >&lt; &lt;切换为实体搜索</el-button
+      >
       <el-button
         type="text"
         class="textBtn"
-        style="margin-left:20px;"
+        style="margin-left: 20px"
         v-if="!entityRelationFlag"
         @click="changeToRelationSearch"
-      >&lt; &lt;切换为关系搜索</el-button>
+        >&lt; &lt;切换为关系搜索</el-button
+      >
 
       <!--中心-->
       <div
@@ -313,7 +387,10 @@
         element-loading-spinner="el-icon-loading"
         element-loading-background="rgba(0, 0, 0, 0.2)"
       >
-        <div id="graph" :style="{width: graphWidth,height:graphHeight}"></div>
+        <div
+          id="graph"
+          :style="{ width: graphWidth, height: graphHeight }"
+        ></div>
       </div>
     </el-main>
   </el-container>
@@ -328,8 +405,8 @@ export default {
   name: "Extract",
   data() {
     return {
-      entitySum:0,
-      showFlag: 0,//1时显示深度学习对应操作，2时显示正则表达式对应操作
+      entitySum: 0,
+      showFlag: 0, //1时显示深度学习对应操作，2时显示正则表达式对应操作
       realEntityCount: 0,
       extractEntityCount: 1,
       wrongEntityCount: 2,
@@ -339,8 +416,14 @@ export default {
       isUpload: false,
       curPage: 1,
       fileIndex: "",
-      fileList: ["contents1", "contents2", "contents3", "contents4", "contents5"],
-      uploadFileList:[],
+      fileList: [
+        "contents1",
+        "contents2",
+        "contents3",
+        "contents4",
+        "contents5",
+      ],
+      uploadFileList: [],
       //表格数据 测试集
       testData: [],
       // trainData: [],
@@ -369,16 +452,16 @@ export default {
       levelList: [
         {
           label: "一级查询",
-          value: 1
+          value: 1,
         },
         {
           label: "二级查询",
-          value: 2
+          value: 2,
         },
         {
           label: "三级查询",
-          value: 3
-        }
+          value: 3,
+        },
       ],
       //计算平均召回率和准确率
       recallSet: [],
@@ -387,14 +470,11 @@ export default {
       isMerge: false,
       //模型列表
       modelIndex: "",
-      modelList: [
-        "ckpt_1", "ckpt_2", "ckpt_3", "ckpt_4", "ckpt_5"
-      ],
+      modelList: ["ckpt_1", "ckpt_2", "ckpt_3", "ckpt_4", "ckpt_5"],
       //图谱
-      graphWidth:"100%",
-      graphHeight:"100%",
+      graphWidth: "100%",
+      graphHeight: "100%",
     };
-
   },
 
   methods: {
@@ -405,25 +485,24 @@ export default {
         this.$http
           .post("http://39.102.71.123:23352/pic/loadTextDataRE", {
             headers: {
-              "Content-Type": "multipart/form-data"
-            }
+              "Content-Type": "multipart/form-data",
+            },
           })
-          .then(res => {
-            console.log(res)
+          .then((res) => {
+            console.log(res);
             this.textData = "";
-            this.testData = res.data.map(cur => {
-              return {title: cur};
+            this.testData = res.data.map((cur) => {
+              return { title: cur };
             });
             this.fileCountTest = this.testData.length;
             this.loadingRes = false;
           })
-          .catch(res => {
+          .catch((res) => {
             console.log(res);
             alert("出错了！");
             this.loadingRes = false;
           });
-      }
-      else if (this.algorithm === "深度学习算法") {
+      } else if (this.algorithm === "深度学习算法") {
         this.showFlag = 1;
       }
     },
@@ -431,92 +510,114 @@ export default {
       if (this.recallSet.length === 0 && this.recallSet.length === 0) {
         this.$message({
           message: "请先对合并文件进行测试！",
-          type: "warning"
+          type: "warning",
         });
         return;
       }
 
       let recall = this.recallSet[0].num;
       let accurate = this.accurateSet[0].num;
-      let strAccurate = "(" + this.accurateSet[0].num+"%";
-      let strRecall = "(" + this.recallSet[0].num+"%";
-      for(let i=1;i<this.recallSet.length;i++){
-        recall+=this.recallSet[i].num;
-        accurate+=this.accurateSet[i].num;
-        strRecall += " + " + this.recallSet[i].num+"%";
-        strAccurate += " + " + this.accurateSet[i].num+"%";
+      let strAccurate = "(" + this.accurateSet[0].num + "%";
+      let strRecall = "(" + this.recallSet[0].num + "%";
+      for (let i = 1; i < this.recallSet.length; i++) {
+        recall += this.recallSet[i].num;
+        accurate += this.accurateSet[i].num;
+        strRecall += " + " + this.recallSet[i].num + "%";
+        strAccurate += " + " + this.accurateSet[i].num + "%";
       }
-      recall/=this.recallSet.length;
-      accurate/=this.accurateSet.length;
-      strRecall += ") / "+ this.recallSet.length
-      strAccurate += ") / "+ this.accurateSet.length
+      recall /= this.recallSet.length;
+      accurate /= this.accurateSet.length;
+      strRecall += ") / " + this.recallSet.length;
+      strAccurate += ") / " + this.accurateSet.length;
       this.$alert(
-        "<p><strong>当前实体抽取准确率<i> = " + strAccurate + " = " +
-        accurate.toFixed(2) +
-        "</i> %</strong></p>" +
-        "<p><strong>当前实体抽取召回率<i> = " + strRecall + " = " +
-        recall.toFixed(2) +
-        "</i> %</strong></p>",
+        "<p><strong>当前实体抽取准确率<i> = " +
+          strAccurate +
+          " = " +
+          accurate.toFixed(2) +
+          "</i> %</strong></p>" +
+          "<p><strong>当前实体抽取召回率<i> = " +
+          strRecall +
+          " = " +
+          recall.toFixed(2) +
+          "</i> %</strong></p>",
         "当前平均测试结果",
         {
-          dangerouslyUseHTMLString: true
+          dangerouslyUseHTMLString: true,
         }
       );
     },
     highLight(sta, end, color, content) {
       let str = content;
-      return content = str.slice(0, sta) +
-        "<strong style='background:" + color + "'>" +
+      return (content =
+        str.slice(0, sta) +
+        "<strong style='background:" +
+        color +
+        "'>" +
         str.slice(sta, end + 1) +
         "</strong>" +
-        str.slice(end + 1);
+        str.slice(end + 1));
     },
     extractEntityRelation() {
       this.fullscreenLoading = true;
       this.$http
         .post("http://39.102.71.123:23352/pic/text_relation_speed", {
           headers: {
-            "Content-Type": "multipart/form-data"
-          }
-        }).then(res => {
-        console.log(res)
-        this.fullscreenLoading = false;
-        this.$alert(
-          "<p><strong>总耗时： <i>" + res.data[0] + "</i> 秒</strong></p>" +
-          "<p><strong>实体关系抽取数量： <i>" + res.data[1] + "</i> 条</strong></p>" +
-          "<p><strong>实体关系抽取效率： <i>" + res.data[2] + "</i>条/秒</strong></p>",
-          "实体关系抽取结果",
-          {
-            dangerouslyUseHTMLString: true
-          }
-        );
-      }).catch(res => {
-        console.log(res)
-      })
+            "Content-Type": "multipart/form-data",
+          },
+        })
+        .then((res) => {
+          console.log(res);
+          this.fullscreenLoading = false;
+          this.$alert(
+            "<p><strong>总耗时： <i>" +
+              res.data[0] +
+              "</i> 秒</strong></p>" +
+              "<p><strong>实体关系抽取数量： <i>" +
+              res.data[1] +
+              "</i> 条</strong></p>" +
+              "<p><strong>实体关系抽取效率： <i>" +
+              res.data[2] +
+              "</i>条/秒</strong></p>",
+            "实体关系抽取结果",
+            {
+              dangerouslyUseHTMLString: true,
+            }
+          );
+        })
+        .catch((res) => {
+          console.log(res);
+        });
     },
     extractEntityProperty() {
       this.fullscreenLoading = true;
       this.$http
         .post("http://39.102.71.123:23352/pic/text_attribute_speed", {
           headers: {
-            "Content-Type": "multipart/form-data"
-          }
-        }).then(res => {
-        console.log(res)
-        this.fullscreenLoading = false;
-        this.$alert(
-          "<p><strong>总耗时： <i>" + res.data[0] + "</i> 秒</strong></p>" +
-          "<p><strong>实体属性抽取数量： <i>" + res.data[1] + "</i> 条</strong></p>" +
-          "<p><strong>实体属性抽取效率： <i>" + res.data[2] + "</i>条/秒</strong></p>",
-          "实体属性抽取结果",
-          {
-            dangerouslyUseHTMLString: true
-          }
-        );
-      }).catch(res => {
-        console.log(res)
-      })
-
+            "Content-Type": "multipart/form-data",
+          },
+        })
+        .then((res) => {
+          console.log(res);
+          this.fullscreenLoading = false;
+          this.$alert(
+            "<p><strong>总耗时： <i>" +
+              res.data[0] +
+              "</i> 秒</strong></p>" +
+              "<p><strong>实体属性抽取数量： <i>" +
+              res.data[1] +
+              "</i> 条</strong></p>" +
+              "<p><strong>实体属性抽取效率： <i>" +
+              res.data[2] +
+              "</i>条/秒</strong></p>",
+            "实体属性抽取结果",
+            {
+              dangerouslyUseHTMLString: true,
+            }
+          );
+        })
+        .catch((res) => {
+          console.log(res);
+        });
     },
     mergeFile() {
       this.isMerge = true;
@@ -526,16 +627,17 @@ export default {
       this.$http
         .post("http://39.102.71.123:23352/pic/textMergeData", fd, {
           headers: {
-            "Content-Type": "multipart/form-data"
-          }
+            "Content-Type": "multipart/form-data",
+          },
         })
-        .then(res => {
+        .then((res) => {
           this.textData = res.data;
           this.fullscreenLoading = false;
-        }).catch((res) => {
-        console.log(res)
-        this.fullscreenLoading = false;
-      });
+        })
+        .catch((res) => {
+          console.log(res);
+          this.fullscreenLoading = false;
+        });
     },
     changeToEntitySearch() {
       this.inputEntity1 = "";
@@ -557,15 +659,15 @@ export default {
       this.$http
         .post("http://39.102.71.123:23352/pic/show_textTuple", {
           headers: {
-            "Content-Type": "multipart/form-data"
-          }
+            "Content-Type": "multipart/form-data",
+          },
         })
-        .then(res => {
+        .then((res) => {
           console.log(res);
           this.initGraph(res);
           this.loadingResGraph = false;
         })
-        .catch(res => {
+        .catch((res) => {
           //请求失败
           console.log(res);
           this.loadingResGraph = false;
@@ -582,10 +684,10 @@ export default {
       this.$http
         .post("http://39.102.71.123:23352/pic/searchTextData", fd, {
           headers: {
-            "Content-Type": "multipart/form-data"
-          }
+            "Content-Type": "multipart/form-data",
+          },
         })
-        .then(res => {
+        .then((res) => {
           console.log(res);
           if (
             res.data[1].length === 0 &&
@@ -594,13 +696,13 @@ export default {
           ) {
             this.$message({
               message: "未查询到相关信息！",
-              type: "warning"
+              type: "warning",
             });
           }
           this.initGraph(res);
           this.loadingResGraph = false;
         })
-        .catch(res => {
+        .catch((res) => {
           //请求失败
           console.log(res);
           this.loadingResGraph = false;
@@ -622,12 +724,12 @@ export default {
             if (j !== 2) {
               graphPoint.push({
                 name: tmp.entity1,
-                category: j
+                category: j,
               });
             } else {
               graphPoint.push({
                 name: tmp.entity1,
-                category: 1
+                category: 1,
               });
             }
           }
@@ -635,14 +737,14 @@ export default {
             pointName.add(tmp.entity2);
             graphPoint.push({
               name: tmp.entity2,
-              category: j
+              category: j,
             });
           }
           graphLink.push({
             source: tmp.entity1,
             target: tmp.entity2,
             name: tmp.relation,
-            des: tmp.relation
+            des: tmp.relation,
           });
         }
       }
@@ -665,71 +767,85 @@ export default {
         this.$http
           .post("http://39.102.71.123:23352/pic/textTestALL", fd, {
             headers: {
-              "Content-Type": "multipart/form-data"
-            }
+              "Content-Type": "multipart/form-data",
+            },
           })
-          .then(res => {
+          .then((res) => {
             console.log(res);
             this.fullscreenLoading = false;
             if (this.recallSet.length === 0)
               this.recallSet.push({
                 index: this.fileIndex,
-                num: res.data[1]
+                num: res.data[1],
               });
             for (let i = 0; i < this.recallSet.length; i++) {
               if (this.recallSet[i].index === this.fileIndex) break;
-              else if (i === this.recallSet.length - 1 && this.recallSet[i].index !== this.fileIndex) {
+              else if (
+                i === this.recallSet.length - 1 &&
+                this.recallSet[i].index !== this.fileIndex
+              ) {
                 this.recallSet.push({
                   index: this.fileIndex,
-                  num: res.data[1]
-                })
+                  num: res.data[1],
+                });
               }
             }
             if (this.accurateSet.length === 0)
               this.accurateSet.push({
                 index: this.fileIndex,
-                num: res.data[0]
+                num: res.data[0],
               });
             for (let i = 0; i < this.accurateSet.length; i++) {
               if (this.accurateSet[i].index === this.fileIndex) break;
-              else if (i === this.accurateSet.length - 1 && this.accurateSet[i].index !== this.fileIndex) {
+              else if (
+                i === this.accurateSet.length - 1 &&
+                this.accurateSet[i].index !== this.fileIndex
+              ) {
                 this.accurateSet.push({
                   index: this.fileIndex,
-                  num: res.data[0]
-                })
+                  num: res.data[0],
+                });
               }
             }
 
             this.$alert(
               "<p><strong>实际实体数量： <i>" +
-              res.data[4] +
-              "</i> 个</strong></p>" +
-              "<p><strong>抽取实体数量： <i>" +
-              res.data[3] +
-              "</i> 个</strong></p>" +
-              "<p><strong>正确抽取实体数量： <i>" +
-              res.data[2] +
-              "</i> 个</strong></p>" +
-              "<p><strong>实体抽取准确率： <i>" +
-              res.data[2] +"/"+res.data[3] +"="+res.data[0] +
-              "</i> %</strong></p>" +
-              "<p><strong>实体抽取召回率： <i>" +
-              res.data[2] +"/"+res.data[4] +"="+res.data[1] +
-              "</i> %</strong></p>",
+                res.data[4] +
+                "</i> 个</strong></p>" +
+                "<p><strong>抽取实体数量： <i>" +
+                res.data[3] +
+                "</i> 个</strong></p>" +
+                "<p><strong>正确抽取实体数量： <i>" +
+                res.data[2] +
+                "</i> 个</strong></p>" +
+                "<p><strong>实体抽取准确率： <i>" +
+                res.data[2] +
+                "/" +
+                res.data[3] +
+                "=" +
+                res.data[0] +
+                "</i> %</strong></p>" +
+                "<p><strong>实体抽取召回率： <i>" +
+                res.data[2] +
+                "/" +
+                res.data[4] +
+                "=" +
+                res.data[1] +
+                "</i> %</strong></p>",
               this.algorithm + "合并测试结果",
               {
-                dangerouslyUseHTMLString: true
+                dangerouslyUseHTMLString: true,
               }
             );
-          }).catch((res) => {
-          console.log(res)
-        });
-      }
-      else {
+          })
+          .catch((res) => {
+            console.log(res);
+          });
+      } else {
         if (this.selectTitle === "") {
           this.$message({
             message: "请先查看文书！",
-            type: "warning"
+            type: "warning",
           });
           this.fullscreenLoading = false;
           return;
@@ -739,46 +855,60 @@ export default {
         this.$http
           .post("http://39.102.71.123:23352/pic/textTestDemo", fd, {
             headers: {
-              "Content-Type": "multipart/form-data"
-            }
+              "Content-Type": "multipart/form-data",
+            },
           })
-          .then(res => {
+          .then((res) => {
             console.log(res);
             this.fullscreenLoading = false;
             let content = res.data[0];
             // let div = document.createElement("p");
             // div.id = "para";
             let tagSet = [];
-            for (let i = 1; i < 4; i++) {//遍历所有标记
+            for (let i = 1; i < 4; i++) {
+              //遍历所有标记
               for (let j = 0; j < res.data[i].length; j++) {
                 tagSet.push({
                   sta: res.data[i][j][1],
                   end: res.data[i][j][2],
-                  type: i
-                })
+                  type: i,
+                });
               }
             }
-            ;
             //排序
-            tagSet = [].concat(tagSet.sort((obj1, obj2) => {
-              if (obj1.sta >= obj2.sta)
-                return 1;
-              else
-                return -1;
-            }));
-            console.log(tagSet)
+            tagSet = [].concat(
+              tagSet.sort((obj1, obj2) => {
+                if (obj1.sta >= obj2.sta) return 1;
+                else return -1;
+              })
+            );
+            console.log(tagSet);
             //高亮
             let offset = 0;
             for (let i = 0; i < tagSet.length; i++) {
               if (tagSet[i].type === 1) {
-                content = this.highLight(tagSet[i].sta + offset, tagSet[i].end + offset, "green", content);
+                content = this.highLight(
+                  tagSet[i].sta + offset,
+                  tagSet[i].end + offset,
+                  "green",
+                  content
+                );
                 offset += 42;
-              }
-              else if (tagSet[i].type === 2) {
-                content = this.highLight(tagSet[i].sta + offset, tagSet[i].end + offset, "red", content);
+              } else if (tagSet[i].type === 2) {
+                content = this.highLight(
+                  tagSet[i].sta + offset,
+                  tagSet[i].end + offset,
+                  "red",
+                  content
+                );
                 offset += 40;
               } else if (tagSet[i].type === 3) {
-                content = this.highLight(tagSet[i].sta + offset, tagSet[i].end + offset, "yellow", content);
+                content = this.highLight(
+                  tagSet[i].sta + offset,
+                  tagSet[i].end + offset,
+                  "yellow",
+                  content
+                );
                 offset += 43;
               }
             }
@@ -794,7 +924,7 @@ export default {
             // for(let k=0;k<res.data[3].length;k++){
             //   content=this.highLight(res.data[3][k][1]+offset2+43*k,res.data[3][k][2]+offset2+43*k,"yellow",content);
             // }
-            let div = document.getElementById("para")
+            let div = document.getElementById("para");
             div.innerHTML = content.replace(/\n/g, "<br>");
             // div.style = "text-align:left";
             // document.getElementById("autoPara").appendChild(div);
@@ -804,7 +934,7 @@ export default {
 
             this.showResult = true;
           })
-          .catch(res => {
+          .catch((res) => {
             console.log(res);
             this.fullscreenLoading = false;
           });
@@ -822,24 +952,24 @@ export default {
         this.loadingRes = true;
         this.isMerge = false;
         let fd = new FormData();
-        fd.append("contents", this.fileIndex)
+        fd.append("contents", this.fileIndex);
         this.$http
           .post("http://39.102.71.123:23352/pic/loadTextDataDL", fd, {
             headers: {
-              "Content-Type": "multipart/form-data"
-            }
+              "Content-Type": "multipart/form-data",
+            },
           })
-          .then(res => {
-            console.log(res)
+          .then((res) => {
+            console.log(res);
             this.textData = "";
-            this.testData = res.data[0].map(cur => {
-              return {title: cur};
+            this.testData = res.data[0].map((cur) => {
+              return { title: cur };
             });
             this.fileCountTest = this.testData.length;
-            this.entitySum = res.data[1]
+            this.entitySum = res.data[1];
             this.loadingRes = false;
           })
-          .catch(res => {
+          .catch((res) => {
             console.log(res);
             alert("出错了！");
             this.loadingRes = false;
@@ -848,60 +978,81 @@ export default {
     },
     loadModel() {
       let fd = new FormData();
-      fd.append("model", this.modelIndex)
+      fd.append("model", this.modelIndex);
       this.$http
         .post("http://39.102.71.123:23352/pic/loadModel", fd, {
           headers: {
-            "Content-Type": "multipart/form-data"
-          }
+            "Content-Type": "multipart/form-data",
+          },
         })
-        .then(res => {
-          console.log(res)
+        .then((res) => {
+          console.log(res);
           this.$message({
             message: "加载模型" + this.modelIndex + "成功！",
-            type: "success"
+            type: "success",
           });
         })
-        .catch(res => {
+        .catch((res) => {
           console.log(res);
           alert("出错了！");
         });
     },
-    cancelUpload(){
-      this.isUpload=false;
-      this.uploadFileList=[];
+    cancelUpload() {
+      this.isUpload = false;
+      this.uploadFileList = [];
     },
     submitUpload() {
-      if(!this.uploadFileList.length){
-        this.$message.error("请选择上传文件！")
+      if (!this.uploadFileList.length) {
+        this.$message.error("请选择上传文件！");
         return;
       }
-      this.$refs.upload.submit();
+      // this.$refs.upload.submit();
 
-      if(this.showFlag===1)//深度学习
-      {
-
+      if (this.showFlag === 1) {
+        //深度学习
       }
-      if(this.showFlag===2){//正则
-
+      if (this.showFlag === 2) {
+        //正则
       }
-      for(let i=0;i<this.uploadFileList.length;i++) {
-        for(let j=0;j<this.testData.length;j++) {
-          if (this.testData[j].title===this.uploadFileList[i]) {
-            this.$message.error("该文件已存在，请选择其他文件！")
+      for (let i = 0; i < this.uploadFileList.length; i++) {
+        for (let j = 0; j < this.testData.length; j++) {
+          if (this.testData[j].title === this.uploadFileList[i]) {
+            this.$message.error("该文件已存在，请选择其他文件！");
             return;
           }
         }
-        console.log(this.uploadFileList)
+        // console.log(this.uploadFileList)
       }
 
+      let fd = new FormData();
+      fd.append("text", this.uploadFileList[0].raw);
+      this.$http
+        .post("http://39.102.71.123:23352/pic/submit_RE_data", fd, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        })
+        .then((res) => {
+          console.log(res);
+          if (res.data === 1) {
+            // this.getTable();
+            this.changeAlgorithm();
+          } else {
+            this.$message.error("上传失败！");
+          }
+        })
+        .catch((res) => {
+          console.log(res);
+        });
+      console.log(this.uploadFileList);
+
       this.isUpload = false;
-      this.uploadFileList =[];
+      this.uploadFileList = [];
     },
     handleRemove(file, uploadFileList) {
       this.uploadFileList = uploadFileList;
     },
-    handleAddFile(file,uploadFileList){
+    handleAddFile(file, uploadFileList) {
       this.uploadFileList = uploadFileList;
     },
     handleCurrentChangeTest(cpage) {
@@ -914,26 +1065,26 @@ export default {
     handleAnalysis(row) {
       this.selectTitle = row.title;
       let fd = new FormData();
-      let url = ""
+      let url = "";
       if (this.algorithm === "深度学习算法") {
-        url = "viewTextDL"
-        fd.append("contents", this.fileIndex)
-      } else url = "viewTextDataRE"
+        url = "viewTextDL";
+        fd.append("contents", this.fileIndex);
+      } else url = "viewTextDataRE";
       fd.append("filename", row.title);
 
       this.loadingRes = true;
       this.$http
         .post("http://39.102.71.123:23352/pic/" + url, fd, {
           headers: {
-            "Content-Type": "multipart/form-data"
-          }
+            "Content-Type": "multipart/form-data",
+          },
         })
-        .then(res => {
+        .then((res) => {
           // console.log(JSON.stringify(res.data));
           this.textData = res.data;
           this.loadingRes = false;
         })
-        .catch(res => {
+        .catch((res) => {
           console.log(res);
           this.loadingRes = false;
         });
@@ -951,15 +1102,15 @@ export default {
       //创建<a>下载文件
       let export_blob = new Blob([data], {
         type: "text/csv",
-        endings: "native"
+        endings: "native",
       });
       let save_link = document.createElement("a");
       save_link.href = URL.createObjectURL(export_blob);
       save_link.download = filename + ".csv";
       save_link.click();
-    }
+    },
   },
-}
+};
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
@@ -1062,7 +1213,7 @@ body > .el-container {
 }
 
 /***************上传弹窗***********/
-.upload{
+.upload {
   text-align: center;
   z-index: 99;
   position: fixed;
@@ -1070,10 +1221,10 @@ body > .el-container {
   left: 30%;
   right: 30%;
 }
-.upload-demo{
+.upload-demo {
   margin-bottom: 20px;
 }
-.el-upload__tip{
+.el-upload__tip {
   padding-left: 30%;
   text-align: left;
 }
@@ -1083,7 +1234,7 @@ body > .el-container {
   content: "";
 }
 .clearfix:after {
-  clear: both
+  clear: both;
 }
 
 /***********按钮样式***********/
@@ -1130,10 +1281,10 @@ body > .el-container {
   margin: 0 0 15px 10px;
   font-size: 13px;
 }
-.el-card{
+.el-card {
   text-align: left;
 }
-.el-card__body{
-  text-align:left;
+.el-card__body {
+  text-align: left;
 }
 </style>
