@@ -30,7 +30,7 @@
           >确 定</el-button
         >
       </span>
-      
+
     </el-dialog>
     <!--内容块-->
     <el-main>
@@ -481,9 +481,15 @@ export default {
         });
     },
     modelTest() {
+      if(this.threshold===""){
+        this.$message.error("请先设置重合区域阈值！");
+        return;
+      }
       this.fullscreenLoading = true;
+      let fd = new FormData();
+      fd.append("IoU",this.threshold);
       this.$http
-        .post("http://39.102.71.123:23352/pic/pic_test", {
+        .post("http://39.102.71.123:23352/pic/pic_test", fd, {
           headers: {
             "Content-Type": "multipart/form-data"
           }
@@ -506,35 +512,41 @@ export default {
             res.data[2] +"/"+res.data[4] +"="+res.data[1] +
             "</i> %</strong></p>" +
               "<p><strong>航母目标准确率： <i>" +
-              'xxx'+
-              "</i> 个</strong></p>" +
+            res.data[5]+
+              "</i> %</strong></p>" +
               "<p><strong>航母目标召回率： <i>" +
-              'xxx'+
-              "</i> 个</strong></p>" +
+            res.data[6]+
+              "</i> %</strong></p>" +
               "<p><strong>驱逐舰目标准确率： <i>" +
-              'xxx'+
-              "</i> 个</strong></p>"  +
+            res.data[7]+
+              "</i> %</strong></p>"  +
               "<p><strong>驱逐舰目标召回率： <i>" +
-              'xxx'+
-              "</i> 个</strong></p>"  +
+            res.data[8]+
+              "</i> %</strong></p>"  +
               "<p><strong>护卫舰目标准确率： <i>" +
-              'xxx'+
-              "</i> 个</strong></p>"  +
+            res.data[9]+
+              "</i> %</strong></p>"  +
               "<p><strong>护卫舰目标召回率： <i>" +
-              'xxx'+
-              "</i> 个</strong></p>"  +
+            res.data[10]+
+              "</i> %</strong></p>"  +
               "<p><strong>巡洋舰目标准确率： <i>" +
-              'xxx'+
-              "</i> 个</strong></p>"  +
+            res.data[11]+
+              "</i> %</strong></p>"  +
               "<p><strong>巡洋舰目标召回率： <i>" +
-              'xxx'+
-              "</i> 个</strong></p>"  +
+            res.data[12]+
+              "</i> %</strong></p>"  +
               "<p><strong>战列舰目标准确率： <i>" +
-              'xxx'+
-              "</i> 个</strong></p>"  +
+            res.data[13]+
+              "</i> %</strong></p>"  +
               "<p><strong>战列舰目标召回率： <i>" +
-              'xxx'+
-              "</i> 个</strong></p>",
+            res.data[14]+
+              "</i> %</strong></p>" +
+              "<p><strong>飞机准确率： <i>" +
+              res.data[15]+
+              "</i> %</strong></p>"  +
+              "<p><strong>飞机召回率： <i>" +
+              res.data[16]+
+              "</i> %</strong></p>",
             "模型测试结果",
             {
               dangerouslyUseHTMLString: true

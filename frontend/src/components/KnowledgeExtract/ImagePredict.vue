@@ -51,11 +51,12 @@
           ref="upload"
           :auto-upload="false"
           accept=".jpg,.JPEG"
-          action="https://jsonplaceholder.typicode.com/posts/"
+          action=""
           :on-remove="handleRemove"
           :on-change="handleAddFile"
           :file-list="uploadFileList"
-          multiple
+          :limit="1"
+          :on-exceed="handleExceed"
         >
           <i class="el-icon-upload"></i>
           <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
@@ -120,15 +121,6 @@
       <!--</div>-->
       <!--顶部-->
       <div class="header">
-        <i
-          class="el-icon-back"
-          @click="
-            resultFlag = false;
-            graphFlag = false;
-          "
-          v-if="resultFlag || graphFlag"
-          style="margin-right: 10px"
-        ></i>
         图片预测
         <!--<el-button-->
         <!--type="primary"-->
@@ -151,21 +143,21 @@
           class="darkBtn headbutton"
           size="small"
           @click="isUpload = true"
-          v-if="!resultFlag && !graphFlag"
+          v-if="!resultFlag"
           >上传文件</el-button
         >
         <el-button
           class="blueBtn headbutton"
           size="small"
           @click="loadList"
-          v-if="!resultFlag && !graphFlag"
+          v-if="!resultFlag"
           >加载测试数据</el-button
         >
       </div>
       <el-divider></el-divider>
       <!--中心-->
       <!--      列表页-->
-      <div class="main" v-if="!resultFlag && !graphFlag">
+      <div class="main" v-if="!resultFlag">
         <div id="matchInfo" v-if="picList.length !== 0">
           已有测试数据数量 : {{ picList.length }}
         </div>
@@ -328,27 +320,6 @@
         </el-row>
       </div>
 
-      <!--图谱搜索页-->
-      <div class="main" v-if="graphFlag">
-        <el-input
-          v-model="inputEntity"
-          style="width: 450px"
-          placeholder="请输入实体名称"
-        ></el-input>
-        <el-button
-          style="margin-left: 20px; height: 40px"
-          class="darkBtn"
-          size="small"
-          @click="onSearchClick"
-          >搜索</el-button
-        >
-        <div id="kgPic">
-          <div
-            id="graph"
-            :style="{ width: graphWidth, height: graphHeight }"
-          ></div>
-        </div>
-      </div>
     </el-main>
 
     <!-- 分析页 -->
@@ -373,7 +344,6 @@ export default {
   name: "ImagePredict",
   data() {
     return {
-      isUpload: "",
       classifyResult: "分类结果",
       showClassify: false,
       classifySrc: "",
@@ -393,8 +363,6 @@ export default {
         },
       ],
       level: 1,
-      graphFlag: false,
-      uploadList: [],
       isUpload: false,
       resultFlag: false,
       curPage: 1,
@@ -424,7 +392,6 @@ export default {
   },
 
   methods: {
-    submitUpload() {},
     cancelUpload() {
       this.isUpload = false;
       this.uploadFileList = [];
@@ -435,111 +402,40 @@ export default {
     handleAddFile(file, uploadFileList) {
       this.uploadFileList = uploadFileList;
     },
-    onSearchClick() {
-      let fd = new FormData();
-      fd.append("entity", this.inputEntity);
-      this.$http
-        .post("http://39.102.71.123:23352/pic/search_entity", fd, {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        })
-        .then((res) => {
-          console.log(res.data);
-          if (res.data.length === 0) {
-            this.$message({
-              message: "未搜索到该实体！",
-              type: "warning",
-            });
-            this.isGraph = false;
-            return;
-          }
-          this.isGraph = true;
-          let graphPoint = [
-            {
-              name: res.data,
-              category: 1,
-            },
-          ];
-          let Myoption = JSON.parse(JSON.stringify(option));
-          Myoption["series"][0]["data"] = graphPoint;
-
-          myChart = echarts.init(document.getElementById("graph"));
-          // 绘制图表
-          myChart.setOption(Myoption, true);
-        })
-        .catch((res) => {
-          console.log(res);
-        });
-    },
-    showGraph() {
-      this.graphFlag = true;
-      this.$http
-        .post("http://39.102.71.123:23352/pic/JSTextJoinKG", {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        })
-        .then((res) => {
-          console.log(res.data);
-        })
-        .catch((res) => {
-          console.log(res);
-        });
-      this.inputEntity = "";
-    },
     submitUpload() {
       //上传的请求
       this.fullscreenLoading = true;
       let fd = new FormData();
-      for (let i = 0; i < this.uploadList.length; i++)
-        fd.append("pic", this.uploadList[i].raw);
-      // this.$http
-      //   .post("http://39.102.71.123:23352/pic/pic_extract", fd, {
-      //     headers: { "Content-Type": "multipart/form-data" }
-      //   })
-      //   .then(res => {
-      //     //清空上传列表
-      //     this.uploadList = [];
-      //     //成功 设置echarts
-      //     console.log(res);
-
-      //     this.isUpload = false;
-      //     this.fullscreenLoading = false;
-      //   })
-      //   .catch(e => {
-      //     this.fullscreenLoading = false;
-      //     console.log(e);
-      //     this.isUpload = false;
-      //   });
-      this.isUpload = false;
-      this.fullscreenLoading = false;
-      console.log(this.uploadList);
+      fd.append("pic", this.uploadFileList[0].raw);
+      this.$http
+        .post("http://39.102.71.123:23352/pic/pic_detect_submit", fd, {
+          headers: { "Content-Type": "multipart/form-data" }
+        })
+        .then(res => {
+          //清空上传列表
+          this.uploadFileList = [];
+          console.log(res);
+          this.isUpload = false;
+          this.fullscreenLoading = false;
+          this.loadList();
+        })
+        .catch(e => {
+          this.fullscreenLoading = false;
+          console.log(e);
+          this.isUpload = false;
+        });
     },
     handleExceed(files, fileList) {
       this.$message.warning(
-        `当前限制选择 3 个文件，本次选择了 ${files.length} 个文件,共选择了 ${
+        `当前限制选择 1 个文件，本次选择了 ${files.length} 个文件,共选择了 ${
           files.length + fileList.length
         } 个文件`
       );
     },
-    handleRemove(file, fileList) {
-      this.uploadList = fileList;
-    },
-    handleAddFile(file, fileList) {
-      console.log(file);
-      console.log(fileList);
-      this.uploadList = fileList;
-    },
-    cancelUpload() {
-      this.isUpload = false;
-      this.uploadList = [];
-    },
-
     loadList() {
       this.loadingRes = true;
       this.$http
-        .post("http://39.102.71.123:23352/pic/load_picData", {
+        .post("http://39.102.71.123:23352/pic/pic_detect", {
           headers: {
             "Content-Type": "multipart/form-data",
           },
@@ -570,7 +466,7 @@ export default {
       fd.append("filename", row.title);
       this.loadingRes = true;
       this.$http
-        .post("http://39.102.71.123:23352/pic/view_picData", fd, {
+        .post("http://39.102.71.123:23352/pic/pic_detect_view", fd, {
           headers: {
             "Content-Type": "multipart/form-data",
           },
@@ -588,21 +484,22 @@ export default {
       this.selectTitle = row.title;
       let fd = new FormData();
       fd.append("filename", row.title);
-      //   this.loadingRes = true;
+      this.loadingRes = true;
       this.$http
-        .post("http://39.102.71.123:23352/pic/view_picData", fd, {
+        .post("http://39.102.71.123:23352/pic/pic_detect_classification", fd, {
           headers: {
             "Content-Type": "multipart/form-data",
           },
         })
         .then((res) => {
-          this.classifySrc = res.data;
+          this.classifySrc = res.data[0];
           this.showClassify = true;
-          //   this.loadingRes = false;
+          this.classifyResult  = res.data[1];
+          this.loadingRes = false;
         })
         .catch((res) => {
           console.log(res);
-          //   this.loadingRes = false;
+          this.loadingRes = false;
         });
     },
 
@@ -613,7 +510,7 @@ export default {
       fd.append("filename", row.title);
       this.loadingRes = true;
       this.$http
-        .post("http://39.102.71.123:23352/pic/picDemoTest", fd, {
+        .post("http://39.102.71.123:23352/pic/pic_detect_predict", fd, {
           headers: {
             "Content-Type": "multipart/form-data",
           },
