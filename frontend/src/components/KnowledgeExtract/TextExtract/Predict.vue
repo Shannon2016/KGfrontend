@@ -12,7 +12,7 @@
             @click="showResult = false"
           ></i>
         </div>
-        
+
         <div style="margin-top: 10px" id="autoPara">
           <span style="font-weight: bold">被标记文本：</span>
           <p id="para" style="text-align: left"></p>
@@ -420,7 +420,10 @@
           })
           .then(res => {
             // console.log(JSON.stringify(res.data));
-            this.textData = res.data;
+            this.textData ="";
+            for (let str of res.data) {
+              this.textData += str;
+            }
             this.loadingRes = false;
           })
           .catch(res => {

@@ -211,6 +211,23 @@ export default {
     handleAddFile(file,fileList){
       this.fileList = fileList;
     },
+    loadList(){
+      this.$http.post(
+        'http://39.102.71.123:23352/pic/ontology_source',
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          }
+        }).then((res) => {
+        console.log(res)
+        this.typeList = res.data;
+      }).catch(res=>{
+        console.log(res)
+      });
+    }
+  },
+  mounted(){
+    this.loadList()
   }
 };
 </script>

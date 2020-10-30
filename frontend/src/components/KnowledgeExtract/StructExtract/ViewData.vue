@@ -257,6 +257,19 @@
             }
           }).then((res) => {
             console.log(res)
+          let ffd = new FormData()
+          ffd.append("source", this.sourceIndex)
+          this.$http.post("http://39.102.71.123:23352/pic/struct_data_source",ffd,
+            {
+              headers: {
+                'Content-Type': 'multipart/form-data'
+              }
+            }).then(res => {
+            this.properties = res.data
+            this.sourceFlag = false;
+          }).catch(res => {
+            console.log(res)
+          })
         }).catch(res=>{
             console.log(res)
         });

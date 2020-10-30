@@ -151,7 +151,7 @@
           size="small"
           @click="loadList"
           v-if="!resultFlag"
-          >加载测试数据</el-button
+          >加载测试图像</el-button
         >
       </div>
       <el-divider></el-divider>
@@ -200,18 +200,18 @@
                   >
                 </template>
               </el-table-column>
-              <el-table-column label="预测" width="80" align="center">
-                <template slot-scope="scope">
-                  <el-button
-                    class="blueBtn"
-                    @click="handleAnalysis(scope.row)"
-                    type="primary"
-                    plain
-                    size="small"
-                    >预测</el-button
-                  >
-                </template>
-              </el-table-column>
+              <!--<el-table-column label="预测" width="80" align="center">-->
+                <!--<template slot-scope="scope">-->
+                  <!--<el-button-->
+                    <!--class="blueBtn"-->
+                    <!--@click="handleAnalysis(scope.row)"-->
+                    <!--type="primary"-->
+                    <!--plain-->
+                    <!--size="small"-->
+                    <!--&gt;预测</el-button-->
+                  <!--&gt;-->
+                <!--</template>-->
+              <!--</el-table-column>-->
             </el-table>
             <!-- 分页符-->
             <el-pagination

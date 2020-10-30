@@ -103,6 +103,14 @@
           v-if="!resultFlag && !graphFlag"
           >上传文件</el-button
         >
+
+        <el-button
+          class="blueBtn headbutton"
+          size="small"
+          @click="loadList"
+          v-if="!resultFlag"
+        >加载测试视频</el-button
+        >
       </div>
       <el-divider></el-divider>
       <!--中心-->
@@ -150,18 +158,18 @@
                   >
                 </template>
               </el-table-column>
-              <el-table-column label="预测" width="80" align="center">
-                <template slot-scope="scope">
-                  <el-button
-                    class="blueBtn"
-                    @click="handleAnalysis(scope.row)"
-                    type="primary"
-                    plain
-                    size="small"
-                    >预测</el-button
-                  >
-                </template>
-              </el-table-column>
+              <!--<el-table-column label="预测" width="80" align="center">-->
+                <!--<template slot-scope="scope">-->
+                  <!--<el-button-->
+                    <!--class="blueBtn"-->
+                    <!--@click="handleAnalysis(scope.row)"-->
+                    <!--type="primary"-->
+                    <!--plain-->
+                    <!--size="small"-->
+                    <!--&gt;预测</el-button-->
+                  <!--&gt;-->
+                <!--</template>-->
+              <!--</el-table-column>-->
             </el-table>
             <!-- 分页符-->
             <el-pagination
@@ -474,6 +482,7 @@ export default {
         });
     },
     handleClassify(row) {
+      this.loadingRes = true;
       this.selectTitle = row.title;
       let fd = new FormData();
       fd.append("filename", row.title);
@@ -488,11 +497,11 @@ export default {
           this.classifySrc = res.data[0];
           this.classifyResult = res.data[1];
           this.showClassify = true;
-          //   this.loadingRes = false;
+            this.loadingRes = false;
         })
         .catch((res) => {
           console.log(res);
-          //   this.loadingRes = false;
+            this.loadingRes = false;
         });
     },
     //预测单个
@@ -524,7 +533,6 @@ export default {
     },
   },
   mounted(){
-    this.loadList()
   }
 };
 </script>
