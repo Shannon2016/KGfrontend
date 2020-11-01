@@ -48,7 +48,8 @@
                 <el-input v-model="uploadForm.tableName"></el-input>
               </el-form-item>
               <el-form-item label="主键列名">
-              <el-input v-model="uploadForm.keyName"></el-input>
+              <el-input v-model="uploadForm.keyName"
+                        placeholder="若主键有多列请用半角逗号 “,” 隔开"></el-input>
             </el-form-item>
             </el-form>
             <el-upload
@@ -56,16 +57,16 @@
               drag
               ref="upload"
               :auto-upload="false"
-              accept=".xlsx,.csv"
-              action="https://jsonplaceholder.typicode.com/posts/"
+              accept=".csv"
+              action=" "
+              :limit="1"
               :on-remove="handleRemove"
               :on-change="handleAddFile"
-              :file-list="fileList"
-              multiple>
+              :file-list="fileList">
               <i class="el-icon-upload"></i>
               <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
               <div class="el-upload__tip" slot="tip">
-                仅支持上传csv文件、xlsx文件<br>
+                仅支持上传csv文件<br>
               </div>
             </el-upload>
             <el-button size="small" @click="cancelUpload">取消</el-button>
@@ -237,9 +238,44 @@
           this.$message.error("请完善输入信息并选择上传文件！")
           return;
         }
-        this.$refs.upload.submit();
+        if(this.uploadForm.keyName.indexOf("，")!==-1){
+          this.$message.error("请使用半角逗号 "," 分隔主键！")
+          return;
+        }
+        let fd = new FormData()
+        fd.append("database", this.sourceIndex.toString())
+        fd.append("csv_file", this.fileList[0].raw)
+        fd.append('table_name',this.uploadForm.tableName.toString())
+        fd.append('primary_key',this.uploadForm.keyName.toString())
+        console.log(this.sourceIndex,this.uploadForm.tableName,this.uploadForm.keyName)
+        console.log(this.fileList[0].raw)
+        this.$http.post(
+          'http://39.102.71.123:23352/pic/submit_struct_data', fd,
+          {
+            headers: {
+              'Content-Type': 'multipart/form-data'
+            }
+          }).then((res) => {
+            console.log(res)
+          let ffd = new FormData()
+          ffd.append("source", this.sourceIndex)
+          this.$http.post("http://39.102.71.123:23352/pic/struct_data_source",ffd,
+            {
+              headers: {
+                'Content-Type': 'multipart/form-data'
+              }
+            }).then(res => {
+            this.properties = res.data
+            this.sourceFlag = false;
+          }).catch(res => {
+            console.log(res)
+          })
+        }).catch(res=>{
+            console.log(res)
+        });
+        // this.$refs.upload.submit();
         for(let i=0;i<this.fileList.length;i++) {
-          console.log(this.fileList[i])
+          console.log(this.fileList[i].raw)
         }
         this.isUpload = false;
         this.fileList =[];

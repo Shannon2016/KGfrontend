@@ -37,7 +37,7 @@
           >确 定</el-button
         >
       </span>
-      
+
     </el-dialog>
     <!--内容块-->
     <el-main>
@@ -409,77 +409,76 @@ export default {
           alert("出错了！");
         });
     },
+
     modelTest() {
+      if(this.threshold===""){
+        this.$message.error("请先设置重合区域阈值！");
+        return;
+      }
       this.fullscreenLoading = true;
+      let fd = new FormData();
+      fd.append("IoU",this.threshold);
       this.$http
-        .post("http://39.102.71.123:23352/pic/video_test", {
+        .post("http://39.102.71.123:23352/pic/video_test", fd, {
           headers: {
-            "Content-Type": "multipart/form-data",
-          },
+            "Content-Type": "multipart/form-data"
+          }
         })
-        .then((res) => {
+        .then(res => {
           this.$alert(
             "<p><strong>目标实体数量： <i>" +
-              res.data[4] +
-              "</i> 个</strong></p>" +
-              "<p><strong>抽取目标数量： <i>" +
-              res.data[3] +
-              "</i> 个</strong></p>" +
-              "<p><strong>正确抽取目标数量： <i>" +
-              res.data[2] +
-              "</i> 个</strong></p>" +
-              "<p><strong>视频检测准确率： <i>" +
-              res.data[2] +
-              "/" +
-              res.data[3] +
-              "=" +
-              res.data[0] +
-              "</i> %</strong></p>" +
-              "<p><strong>视频检测召回率： <i>" +
-              res.data[2] +
-              "/" +
-              res.data[4] +
-              "=" +
-              res.data[1] +
-              "</i> %</strong></p>" +
-              "<p><strong>航母目标准确率： <i>" +
-              'xxx'+
-              "</i> 个</strong></p>" +
-              "<p><strong>航母目标召回率： <i>" +
-              'xxx'+
-              "</i> 个</strong></p>" +
-              "<p><strong>驱逐舰目标准确率： <i>" +
-              'xxx'+
-              "</i> 个</strong></p>"  +
-              "<p><strong>驱逐舰目标召回率： <i>" +
-              'xxx'+
-              "</i> 个</strong></p>"  +
-              "<p><strong>护卫舰目标准确率： <i>" +
-              'xxx'+
-              "</i> 个</strong></p>"  +
-              "<p><strong>护卫舰目标召回率： <i>" +
-              'xxx'+
-              "</i> 个</strong></p>"  +
-              "<p><strong>巡洋舰目标准确率： <i>" +
-              'xxx'+
-              "</i> 个</strong></p>"  +
-              "<p><strong>巡洋舰目标召回率： <i>" +
-              'xxx'+
-              "</i> 个</strong></p>"  +
-              "<p><strong>战列舰目标准确率： <i>" +
-              'xxx'+
-              "</i> 个</strong></p>"  +
-              "<p><strong>战列舰目标召回率： <i>" +
-              'xxx'+
-              "</i> 个</strong></p>",
+            res.data[4] +
+            "</i> 个</strong></p>" +
+            "<p><strong>抽取目标数量： <i>" +
+            res.data[3] +
+            "</i> 个</strong></p>" +
+            "<p><strong>正确抽取目标数量： <i>" +
+            res.data[2] +
+            "</i> 个</strong></p>" +
+            "<p><strong>图像检测准确率： <i>" +
+            res.data[2] +"/"+res.data[3] +"="+res.data[0] +
+            "</i> %</strong></p>" +
+            "<p><strong>图像检测召回率： <i>" +
+            res.data[2] +"/"+res.data[4] +"="+res.data[1] +
+            "</i> %</strong></p>" +
+            "<p><strong>航母目标准确率： <i>" +
+            res.data[5]+
+            "</i> %</strong></p>" +
+            "<p><strong>航母目标召回率： <i>" +
+            res.data[6]+
+            "</i> %</strong></p>" +
+            "<p><strong>驱逐舰目标准确率： <i>" +
+            res.data[7]+
+            "</i> %</strong></p>"  +
+            "<p><strong>驱逐舰目标召回率： <i>" +
+            res.data[8]+
+            "</i> %</strong></p>"  +
+            "<p><strong>护卫舰目标准确率： <i>" +
+            res.data[9]+
+            "</i> %</strong></p>"  +
+            "<p><strong>护卫舰目标召回率： <i>" +
+            res.data[10]+
+            "</i> %</strong></p>"  +
+            "<p><strong>巡洋舰目标准确率： <i>" +
+            res.data[11]+
+            "</i> %</strong></p>"  +
+            "<p><strong>巡洋舰目标召回率： <i>" +
+            res.data[12]+
+            "</i> %</strong></p>"  +
+            "<p><strong>战列舰目标准确率： <i>" +
+            res.data[13]+
+            "</i> %</strong></p>"  +
+            "<p><strong>战列舰目标召回率： <i>" +
+            res.data[14]+
+            "</i> %</strong></p>" ,
             "模型测试结果",
             {
-              dangerouslyUseHTMLString: true,
+              dangerouslyUseHTMLString: true
             }
           );
           this.fullscreenLoading = false;
         })
-        .catch((res) => {
+        .catch(res => {
           console.log(res);
           alert("出错了！");
           this.fullscreenLoading = false;

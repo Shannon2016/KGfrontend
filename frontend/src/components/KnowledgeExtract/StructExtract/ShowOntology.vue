@@ -45,16 +45,16 @@
             drag
             ref="upload"
             :auto-upload="false"
-            accept=".xlsx,.csv"
-            action="https://jsonplaceholder.typicode.com/posts/"
+            accept=".csv"
+            action=""
             :on-remove="handleRemove"
             :on-change="handleAddFile"
             :file-list="fileList"
-            multiple>
+            :limit="1">
             <i class="el-icon-upload"></i>
             <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
             <div class="el-upload__tip" slot="tip">
-              仅支持上传csv文件、xlsx文件<br>
+              仅支持上传csv文件<br>
             </div>
           </el-upload>
           <el-button size="small" @click="cancelUpload">取消</el-button>
@@ -180,7 +180,21 @@ export default {
         this.$message.error("请完善输入信息并选择上传文件！")
         return;
       }
-      this.$refs.upload.submit();
+      let fd = new FormData()
+      fd.append("csv_file", this.fileList[0].raw)
+      fd.append('ontology_name',this.uploadForm.name)
+      this.$http.post(
+        'http://39.102.71.123:23352/pic/submit_ontology_data', fd,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          }
+        }).then((res) => {
+        console.log(res)
+      }).catch(res=>{
+        console.log(res)
+      });
+      // this.$refs.upload.submit();
       for(let i=0;i<this.fileList.length;i++) {
         console.log(this.fileList)
       }
@@ -197,6 +211,23 @@ export default {
     handleAddFile(file,fileList){
       this.fileList = fileList;
     },
+    loadList(){
+      this.$http.post(
+        'http://39.102.71.123:23352/pic/ontology_source',
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          }
+        }).then((res) => {
+        console.log(res)
+        this.typeList = res.data;
+      }).catch(res=>{
+        console.log(res)
+      });
+    }
+  },
+  mounted(){
+    this.loadList()
   }
 };
 </script>

@@ -92,7 +92,7 @@
             </el-menu-item>
             <el-menu-item index="/imagePredict" v-if="activeIndex==='/'">
               <i class="el-icon-magic-stick"></i>
-              <span slot="title">图像预测</span>
+              <span slot="title">图像分类</span>
             </el-menu-item>
             <el-menu-item index="/video2Image" v-if="activeIndex==='/'">
               <i class="el-icon-refresh"></i>
@@ -100,7 +100,7 @@
             </el-menu-item>
             <el-menu-item index="/videoPredict" v-if="activeIndex==='/'">
               <i class="el-icon-magic-stick"></i>
-              <span slot="title">视频预测</span>
+              <span slot="title">视频分类</span>
             </el-menu-item>
             <el-menu-item index="/extractVideo" v-if="activeIndex==='/'">
               <i class="el-icon-video-camera"></i>
