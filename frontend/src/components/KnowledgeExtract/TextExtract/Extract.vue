@@ -487,8 +487,12 @@ export default {
       this.curPageTrain = 1;
       if(this.$route.query.algorithm) {
         this.showFlag = parseInt(this.$route.query.algorithm);
-        if(this.showFlag===2)
+        if(this.showFlag===2) {
           this.loadAlgorithm();
+          this.algorithm = "正则表达式";
+        }
+        else
+          this.algorithm = "深度学习算法";
       }
       else
         this.showFlag = 1;
@@ -497,8 +501,12 @@ export default {
   mounted(){
     if(this.$route.query.algorithm) {
       this.showFlag = parseInt(this.$route.query.algorithm);
-      if(this.showFlag===2)
+      if(this.showFlag===2) {
         this.loadAlgorithm();
+        this.algorithm = "正则表达式";
+      }
+      else
+        this.algorithm = "深度学习算法";
     }
     else
       this.showFlag = 1;
@@ -1083,7 +1091,7 @@ export default {
       this.selectTitle = row.title;
       let fd = new FormData();
       let url = "";
-      if (this.algorithm === "深度学习算法") {
+      if (this.showFlag===1) {
         url = "viewTextDL";
         fd.append("contents", this.fileIndex);
       } else url = "viewTextDataRE";
