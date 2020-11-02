@@ -479,7 +479,10 @@ export default {
     };
   },
   created(){
-    this.showFlag = parseInt(this.$route.query.algorithm);
+    if(this.$route.query.algorithm)
+      this.showFlag = parseInt(this.$route.query.algorithm);
+    else
+      this.showFlag = 1;
   },
   methods: {
     changeAlgorithm() {
