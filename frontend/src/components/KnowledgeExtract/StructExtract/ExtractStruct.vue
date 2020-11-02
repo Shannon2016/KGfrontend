@@ -70,11 +70,11 @@
               @click="extractEntity"
             >抽取实体</el-button>
           </div>
-          <div style="width:100%;margin-top:10px;">
+          <el-row style="width:100%;margin-top:10px;">
             <span>请选择本体：</span>
             <el-select
               v-model="typeSelect"
-              size="small"
+              size="mini"
               style="width:200px;"
               @change="typeChange"
               :disabled="canFlag"
@@ -95,9 +95,9 @@
               v-model="entitySelect"
               @change="entityChange"
               :disabled="canFlag"
-              size="small"
+              size="mini"
             ></el-cascader>
-
+            
             <span style="margin-left:20px;">请选择属性：</span>
             <el-cascader
               :key="propertyKey"
@@ -105,16 +105,18 @@
               v-model="propertySelect"
               @change="propertyChange"
               :disabled="canFlag"
-              size="small"
+              size="mini"
             ></el-cascader>
-
+          </el-row>
+          <el-row style="margin-top:10px;">
+            
             <el-button
               style="float:right;margin-right:20px;"
               class="blueBtn"
               size="small"
               @click="createDependence"
             >生成函数依赖</el-button>
-          </div>
+          </el-row>
           <div style="width:100%; margin-top:10px;">
             <el-tag
               v-for="(tag,index) in tags"

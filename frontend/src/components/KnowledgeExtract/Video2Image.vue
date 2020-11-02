@@ -77,7 +77,7 @@
         <div v-if="!flag" style="margin-left: 50px">
           提示：请先上传视频进行转换
         </div>
-        <el-row v-if="isTrans">
+        <!-- <el-row v-if="isTrans">
           <div
             class="resultContainer"
             style="height: 50px"
@@ -85,11 +85,11 @@
           >
             <div class="picStyle title">原视频</div>
             <div class="graphStyle title">图像</div>
-            <!--<el-button type="primary" class="blueBtn" size="small" @click="handleExport">导出</el-button>-->
+            <el-button type="primary" class="blueBtn" size="small" @click="handleExport">导出</el-button>
           </div>
-        </el-row>
+        </el-row> -->
         <el-row v-for="(item, index) in vedioList" v-bind:key="index">
-          <el-col :span="isTrans ? 12 : 24">
+          <el-col :span="isTrans ? 24 : 24">  <!--12:24-->
             <div class="resultContainer">
               <div
                 style="
@@ -116,14 +116,14 @@
               </div>
             </div>
           </el-col>
-          <el-col v-if="isTrans" :span="12">
+          <!-- <el-col v-if="isTrans" :span="12">
             <el-image :src="resultSrc" fit="contain" v-if="resultSrc !== ''">
               <div slot="placeholder" class="image-slot">
                 加载中
                 <span class="dot">...</span>
               </div>
             </el-image>
-          </el-col>
+          </el-col> -->
         </el-row>
       </div>
     </el-main>
@@ -177,7 +177,6 @@ export default {
         })
         .then((res) => {
           console.log(res.data);
-          if (res.data === 1) {
             this.$message({
               message: "打开成功",
               type: "success",
@@ -185,12 +184,11 @@ export default {
             
             console.log(this.uploadList[0]);
             this.vedioList = [];
-            // this.vedioList.push({ src: this.uploadList[0].raw });
+            this.vedioList.push({ src: res.data });
             this.fileName = this.uploadList[0].name;
             //清空上传列表
             this.uploadList = [];
             this.loadingRes = false;
-          }
         })
         .catch((res) => {
           //请求失败
@@ -211,18 +209,26 @@ export default {
       this.isTrans = true;
       //上传
       let fd = new FormData()
-      fd.append('video',this.uploadList[0].raw)
+      fd.append('filename',this.fileName)
       this.$http.post(
-        'http://49.232.95.141:8000/pic/video_extract',fd,
+        'http://39.102.71.123:23352/pic/video2pic',fd,
         {
           headers: {
             'Content-Type': 'multipart/form-data'
           }
         }).then((res) => {
         console.log(res.data);
+        const elt = document.createElement("a");
+        elt.setAttribute("href", res.data); //设置文件地址
+        elt.setAttribute("download", "图像.zip"); //文件名
+        elt.style.display = "none";
+        document.body.appendChild(elt);
+        elt.click();
+        document.body.removeChild(elt);
         this.loadingRes=false;
       }).catch((res) => {
         //请求失败
+        // console.log(res)
         this.loadingRes=false;
       });
       this.loadingRes = false;
