@@ -564,6 +564,7 @@ export default {
           },
         })
         .then((res) => {
+          console.log(res)
           this.$alert(
             "<p><strong>目标实体数量： <i>" +
               res.data[4] +
@@ -589,34 +590,34 @@ export default {
               res.data[1] +
               "</i> %</strong></p>" +
               "<p><strong>航母目标准确率： <i>" +
-              'xxx'+
+              res.data[5]+
               "</i> 个</strong></p>" +
               "<p><strong>航母目标召回率： <i>" +
-              'xxx'+
+              res.data[6]+
               "</i> 个</strong></p>" +
               "<p><strong>驱逐舰目标准确率： <i>" +
-              'xxx'+
+              res.data[7]+
               "</i> 个</strong></p>"  +
               "<p><strong>驱逐舰目标召回率： <i>" +
-              'xxx'+
+              res.data[8]+
               "</i> 个</strong></p>"  +
               "<p><strong>护卫舰目标准确率： <i>" +
-              'xxx'+
+              res.data[9]+
               "</i> 个</strong></p>"  +
               "<p><strong>护卫舰目标召回率： <i>" +
-              'xxx'+
+              res.data[10]+
               "</i> 个</strong></p>"  +
               "<p><strong>巡洋舰目标准确率： <i>" +
-              'xxx'+
+              res.data[11]+
               "</i> 个</strong></p>"  +
               "<p><strong>巡洋舰目标召回率： <i>" +
-              'xxx'+
+              res.data[12]+
               "</i> 个</strong></p>"  +
               "<p><strong>战列舰目标准确率： <i>" +
-              'xxx'+
+              res.data[13]+
               "</i> 个</strong></p>"  +
               "<p><strong>战列舰目标召回率： <i>" +
-              'xxx'+
+              res.data[14]+
               "</i> 个</strong></p>",
             "历史测试结果",
             {
