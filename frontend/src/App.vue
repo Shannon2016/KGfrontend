@@ -50,20 +50,10 @@
               </template>
               <el-menu-item-group>
                 <el-menu-item index="/viewData">数据浏览</el-menu-item>
-              </el-menu-item-group>
-              <el-menu-item-group>
                 <el-menu-item index="/showOntology">本体展示</el-menu-item>
-              </el-menu-item-group>
-              <el-menu-item-group>
                 <el-menu-item index="/extractStruct">知识抽取</el-menu-item>
-              </el-menu-item-group>
-              <el-menu-item-group>
                 <el-menu-item index="/deNoise">属性去噪</el-menu-item>
-              </el-menu-item-group>
-              <el-menu-item-group>
                 <el-menu-item index="/entityMatch">实体对齐</el-menu-item>
-              </el-menu-item-group>
-              <el-menu-item-group>
                 <el-menu-item index="/extractTest">抽取测试</el-menu-item>
               </el-menu-item-group>
             </el-submenu>
@@ -74,11 +64,7 @@
               </template>
               <el-menu-item-group>
                 <el-menu-item index="/showDict">预处理</el-menu-item>
-              </el-menu-item-group>
-              <el-menu-item-group>
-                <el-menu-item index="/extract">选择算法</el-menu-item>
-              </el-menu-item-group>
-              <el-menu-item-group>
+                <el-menu-item index="/extract">文本抽取</el-menu-item>
                 <el-menu-item index="/predict">模型预测</el-menu-item>
               </el-menu-item-group>
             </el-submenu>

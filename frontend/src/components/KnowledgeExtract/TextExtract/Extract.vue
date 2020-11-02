@@ -78,7 +78,7 @@
     <el-main v-if="isList">
       <!--顶部-->
       <div class="header">
-        选择算法
+        文本抽取
         <!--<el-button type="primary" class="darkBtn headbutton" size="small" @click="isUpload=true">上传与分析</el-button>-->
         <!--<el-button type="primary" class="darkBtn headbutton" size="small" >训练</el-button>-->
       </div>
@@ -87,23 +87,23 @@
       <!--      列表页-->
       <div class="main">
         <div class="top-tip">
-          <span>请选择算法：</span>
-          <el-select
-            v-model="algorithm"
-            @change="changeAlgorithm"
-            placeholder
-            size="small"
-            style="margin-left: 10px"
-          >
-            <el-option
-              v-for="(item, index) in algorithmList"
-              :key="index"
-              :label="item"
-              :value="item"
-            ></el-option>
-          </el-select>
+          <!--<span>请选择算法：</span>-->
+          <!--<el-select-->
+            <!--v-model="algorithm"-->
+            <!--@change="changeAlgorithm"-->
+            <!--placeholder-->
+            <!--size="small"-->
+            <!--style="margin-left: 10px"-->
+          <!--&gt;-->
+            <!--<el-option-->
+              <!--v-for="(item, index) in algorithmList"-->
+              <!--:key="index"-->
+              <!--:label="item"-->
+              <!--:value="item"-->
+            <!--&gt;</el-option>-->
+          <!--</el-select>-->
 
-          <span style="margin-left: 20px" v-if="showFlag === 1"
+          <span v-if="showFlag === 1"
             >请选择文书目录：</span
           >
           <el-select
@@ -126,7 +126,7 @@
             class="blueBtn"
             size="small"
             @click="chooseTable"
-            v-if="showFlag !== 2"
+            v-if="showFlag === 1"
             >加载测试数据</el-button
           >
           <!-- <el-button
@@ -135,6 +135,8 @@
             style="float:right; margin-right:20px;"
             @click="showGraph"
           >图谱展示</el-button> -->
+
+
           <el-button
             size="small"
             class="darkBtn"
@@ -169,7 +171,7 @@
             v-if="showFlag === 1"
             placeholder
             size="small"
-            style="margin-left: 10px; width: 170px"
+            style="margin-left: 10px;"
           >
             <el-option
               v-for="(item, index) in modelList"
@@ -214,7 +216,7 @@
         </div>
         <div id="matchInfo" v-if="testData.length !== 0">
           已有测试数据数量 : {{ testData.length }}
-          <span v-if="showFlag !== 2"
+          <span v-if="showFlag ===1"
             >&nbsp&nbsp&nbsp&nbsp&nbsp文书中实体总数：{{ entitySum }}个</span
           >
         </div>
@@ -224,7 +226,7 @@
           element-loading-text="正在加载中，请稍等……"
           element-loading-spinner="el-icon-loading"
         >
-          <el-col :span="12">
+          <el-col :span="12" :style="{'margin-top':(showFlag===2?'32px':'0')}">
             <el-table
               :data="testData.slice((curPageTrain - 1) * 10, curPageTrain * 10)"
               :header-cell-style="{ background: '#EBEEF7', color: '#606266' }"
@@ -406,7 +408,7 @@ export default {
   data() {
     return {
       entitySum: 0,
-      showFlag: 0, //1时显示深度学习对应操作，2时显示正则表达式对应操作
+      showFlag: 1, //1时显示深度学习对应操作，2时显示正则表达式对应操作
       realEntityCount: 0,
       extractEntityCount: 1,
       wrongEntityCount: 2,
@@ -476,7 +478,9 @@ export default {
       graphHeight: "100%",
     };
   },
-
+  created(){
+    this.showFlag = parseInt(this.$route.query.algorithm);
+  },
   methods: {
     changeAlgorithm() {
       if (this.algorithm === "正则表达式") {
@@ -940,13 +944,8 @@ export default {
           });
       }
     },
-    //选择算法，显示对应测试集和训练集
+    //选择文件集
     chooseTable() {
-      if (this.algorithm === "正则表达式") {
-        return;
-      }
-      if (this.algorithm === "深度学习算法") {
-        this.showFlag = 1;
         this.textData = "";
         this.fileCountTest = 0;
         this.loadingRes = true;
@@ -974,7 +973,6 @@ export default {
             alert("出错了！");
             this.loadingRes = false;
           });
-      }
     },
     loadModel() {
       let fd = new FormData();

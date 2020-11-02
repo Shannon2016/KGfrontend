@@ -23,6 +23,12 @@
           class="darkBtn"
           size="small"
           style="float:right; margin-right:20px;"
+          @click="goToExtract"
+        >时间</el-button>
+        <el-button
+          class="darkBtn"
+          size="small"
+          style="float:right; margin-right:20px;"
           @click="joinGraph"
         >加入图谱</el-button>
         <el-button
@@ -235,6 +241,14 @@ export default {
     };
   },
   methods: {
+    goToExtract(){
+      this.$router.push({
+        path: "extract",
+        query: {
+          algorithm: 2,
+        },
+      });
+    },
     highLight(sta, end, color) {
       document.getElementById("123").innerHTML =
         this.test.slice(0, sta) +
