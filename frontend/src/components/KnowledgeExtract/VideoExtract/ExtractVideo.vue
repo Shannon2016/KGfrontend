@@ -140,7 +140,7 @@
                   >
                 </template>
               </el-table-column>
-              <el-table-column label="预测" width="100" align="center">
+              <!-- <el-table-column label="预测" width="100" align="center">
                 <template slot-scope="scope">
                   <el-button
                     class="blueBtn"
@@ -151,7 +151,7 @@
                     >预测</el-button
                   >
                 </template>
-              </el-table-column>
+              </el-table-column> -->
             </el-table>
             <!-- 分页符-->
             <el-pagination
@@ -591,34 +591,34 @@ export default {
               "</i> %</strong></p>" +
               "<p><strong>航母目标准确率： <i>" +
               res.data[5]+
-              "</i> 个</strong></p>" +
+              "</i> %</strong></p>" +
               "<p><strong>航母目标召回率： <i>" +
               res.data[6]+
-              "</i> 个</strong></p>" +
+              "</i> %</strong></p>" +
               "<p><strong>驱逐舰目标准确率： <i>" +
               res.data[7]+
-              "</i> 个</strong></p>"  +
+              "</i> %</strong></p>"  +
               "<p><strong>驱逐舰目标召回率： <i>" +
               res.data[8]+
-              "</i> 个</strong></p>"  +
+              "</i> %</strong></p>"  +
               "<p><strong>护卫舰目标准确率： <i>" +
               res.data[9]+
-              "</i> 个</strong></p>"  +
+              "</i> %</strong></p>"  +
               "<p><strong>护卫舰目标召回率： <i>" +
               res.data[10]+
-              "</i> 个</strong></p>"  +
+              "</i> %</strong></p>"  +
               "<p><strong>巡洋舰目标准确率： <i>" +
               res.data[11]+
-              "</i> 个</strong></p>"  +
+              "</i> %</strong></p>"  +
               "<p><strong>巡洋舰目标召回率： <i>" +
               res.data[12]+
-              "</i> 个</strong></p>"  +
+              "</i> %</strong></p>"  +
               "<p><strong>战列舰目标准确率： <i>" +
               res.data[13]+
-              "</i> 个</strong></p>"  +
+              "</i> %</strong></p>"  +
               "<p><strong>战列舰目标召回率： <i>" +
               res.data[14]+
-              "</i> 个</strong></p>",
+              "</i> %</strong></p>",
             "历史测试结果",
             {
               dangerouslyUseHTMLString: true,
