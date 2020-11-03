@@ -86,7 +86,7 @@
       <!--中心-->
       <!--      列表页-->
       <div class="main">
-        <div class="top-tip">
+        <el-row class="top-tip">
           <!--<span>请选择算法：</span>-->
           <!--<el-select-->
             <!--v-model="algorithm"-->
@@ -161,8 +161,8 @@
             v-if="showFlag === 2"
             >上传文件</el-button
           >
-        </div>
-        <div class="top-tip">
+        </el-row>
+        <el-row class="top-tip">
           <span style="margin-left: 0px" v-if="showFlag === 1"
             >请选择训练模型：</span
           >
@@ -213,7 +213,7 @@
             v-if="showFlag === 1"
             >模型测试</el-button
           >
-        </div>
+        </el-row>
         <div id="matchInfo" v-if="testData.length !== 0">
           已有测试数据数量 : {{ testData.length }}
           <span v-if="showFlag ===1"
@@ -226,7 +226,7 @@
           element-loading-text="正在加载中，请稍等……"
           element-loading-spinner="el-icon-loading"
         >
-          <el-col :span="12" :style="{'margin-top':(showFlag===2?'32px':'0')}">
+          <el-col :span="12">
             <el-table
               :data="testData.slice((curPageTrain - 1) * 10, curPageTrain * 10)"
               :header-cell-style="{ background: '#EBEEF7', color: '#606266' }"
@@ -478,13 +478,42 @@ export default {
       graphHeight: "100%",
     };
   },
-  created(){
-    this.showFlag = parseInt(this.$route.query.algorithm);
+  watch:{
+    '$route'(to,from){
+      this.testData = [];
+      this.textData = "";
+      this.fileCountTest = 0;
+      this.curPageTest = 1;
+      this.curPageTrain = 1;
+      if(this.$route.query.algorithm) {
+        this.showFlag = parseInt(this.$route.query.algorithm);
+        if(this.showFlag===2) {
+          this.loadAlgorithm();
+          this.algorithm = "正则表达式";
+        }
+        else
+          this.algorithm = "深度学习算法";
+      }
+      else
+        this.showFlag = 1;
+    }
+  },
+  mounted(){
+    if(this.$route.query.algorithm) {
+      this.showFlag = parseInt(this.$route.query.algorithm);
+      if(this.showFlag===2) {
+        this.loadAlgorithm();
+        this.algorithm = "正则表达式";
+      }
+      else
+        this.algorithm = "深度学习算法";
+    }
+    else
+      this.showFlag = 1;
   },
   methods: {
-    changeAlgorithm() {
-      if (this.algorithm === "正则表达式") {
-        this.showFlag = 2;
+    loadAlgorithm() {
+      if (this.showFlag === 2) {
         this.loadingRes = true;
         this.$http
           .post("http://39.102.71.123:23352/pic/loadTextDataRE", {
@@ -506,8 +535,6 @@ export default {
             alert("出错了！");
             this.loadingRes = false;
           });
-      } else if (this.algorithm === "深度学习算法") {
-        this.showFlag = 1;
       }
     },
     calculateAverage() {
@@ -1034,7 +1061,7 @@ export default {
           console.log(res);
           if (res.data === 1) {
             // this.getTable();
-            this.changeAlgorithm();
+            this.loadAlgorithm();
           } else {
             this.$message.error("上传失败！");
           }
@@ -1064,7 +1091,7 @@ export default {
       this.selectTitle = row.title;
       let fd = new FormData();
       let url = "";
-      if (this.algorithm === "深度学习算法") {
+      if (this.showFlag===1) {
         url = "viewTextDL";
         fd.append("contents", this.fileIndex);
       } else url = "viewTextDataRE";
