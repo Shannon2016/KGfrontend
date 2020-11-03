@@ -9,15 +9,15 @@
           type="primary"
           class="darkBtn headbutton"
           size="small"
-          @click="onUpload"
-          >打开视频</el-button
+          @click="handleTransform"
+          >转换为图像</el-button
         >
         <el-button
           type="primary"
           class="darkBtn headbutton"
           size="small"
-          @click="handleTransform"
-          >转换为图像</el-button
+          @click="onUpload"
+          >打开视频</el-button
         >
       </div>
       <!-- 上传窗口-->
@@ -106,6 +106,14 @@
                   controls="controls"
                   style="width: 100%"
                 ></video>
+                <div
+                  class="main"
+                  v-loading="loadingRes1"
+                  element-loading-text="视频正在处理中，请稍等……"
+                  element-loading-spinner="el-icon-loading"
+                  element-loading-background="rgba(0, 0, 0, 0.1)"
+                  style="position:absolute;"
+                ></div>
                 <!-- <video preload controls loop style="width:100%;">
                     <source :src="item.src" type="video/mp4" />
                     您的浏览器不支持HTML5的vedio标签。
@@ -143,6 +151,7 @@ export default {
       //文件名
       fileName: "",
       loadingRes: false,
+      loadingRes1:false,
       resultSrc: "../../assets/logo.png",
     };
   },
@@ -155,6 +164,7 @@ export default {
         } 个文件`
       );
     },
+    //上传视频
     onUpload() {
       this.isUpload = true;
     },
@@ -204,8 +214,10 @@ export default {
       console.log(fileList);
       this.uploadList = fileList;
     },
+    //转换为图像
     handleTransform() {
       this.loadingRes = true;
+      this.loadingRes1 = true;
       this.isTrans = true;
       //上传
       let fd = new FormData()
@@ -226,9 +238,11 @@ export default {
         elt.click();
         document.body.removeChild(elt);
         this.loadingRes=false;
+        this.loadingRes1=false;
       }).catch((res) => {
         //请求失败
         // console.log(res)
+        // alert("请先上传视频！");
         this.loadingRes=false;
       });
       this.loadingRes = false;

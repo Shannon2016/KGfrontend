@@ -53,6 +53,11 @@
             style="float:right; margin-right:20px;"
             @click="reduceDuplicate"
           >属性去重</el-button>
+          <el-button
+            class="darkBtn"
+            size="small"
+            style="float:right; margin-right:20px"
+          >全选</el-button>
         </div>
 
         <!--表格-->

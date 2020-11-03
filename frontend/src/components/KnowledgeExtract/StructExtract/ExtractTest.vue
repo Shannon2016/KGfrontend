@@ -47,6 +47,12 @@
             plain
             size="small"
           >加载配置文件</el-button>
+          <el-button 
+            class="darkBtn" 
+            size="small" 
+            style="float:right; margin-right:20px"
+            @click="checkAll"
+          >全选</el-button>
         </div>
         <!--查看配置文件-->
         <div id="upload" v-if="settingShow">
@@ -156,6 +162,9 @@ export default {
       }).catch((res)=>{
         console.log(res)
       })
+    },
+    checkAll() {
+      console.log(123);
     },
     chooseTestData() {
       this.fileType = false;

@@ -10,7 +10,8 @@
       <!--顶部-->
       <div class="header" v-if="!graphFlag">
         <i class="el-icon-back" v-if="!sourceFlag" @click="backToSource" style="margin-right:10px;"></i>
-        结构化数据抽取</div>
+        结构化数据抽取
+      </div>
       <el-divider v-if="!graphFlag"></el-divider>
       <!--中心-->
       <div class="main" v-if="!graphFlag">
@@ -261,6 +262,7 @@ export default {
       });
       this.propertyIndex.push(this.columnNames.indexOf(this.propertySelect[1]));
     },
+    //选择实体
     entityChange() {
       //先获取属性列表
       this.propertyKey -= 1;
@@ -302,6 +304,7 @@ export default {
 
       this.entityIndex.push(this.columnNames.indexOf(this.entitySelect[1]));
     },
+    //选择本体
     typeChange() {
       this.entitykey += 1;
       this.entityList = [];
@@ -413,6 +416,7 @@ export default {
           this.fullscreenLoading = false;
         });
     },
+    //抽取实体关系按钮
     extractRelation() {
       let fd = new FormData();
       fd.append("source", this.sourceIndex);

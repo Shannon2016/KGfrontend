@@ -117,7 +117,7 @@
       <!--      列表页-->
       <div class="main" v-if="!resultFlag && !graphFlag">
         <div id="matchInfo" v-if="vedioList.length !== 0">
-          已有测试数据数量 : {{ vedioList.length }}
+          已有预测数据数量 : {{ vedioList.length }}
         </div>
         <!--文书列表-->
         <el-row
@@ -133,7 +133,7 @@
               style="width: 97%"
               border
             >
-              <el-table-column prop="title" label="测试数据"></el-table-column>
+              <el-table-column prop="title" label="预测数据"></el-table-column>
               <el-table-column label="浏览" width="80" align="center">
                 <template slot-scope="scope">
                   <el-button
@@ -158,18 +158,18 @@
                   >
                 </template>
               </el-table-column>
-              <!--<el-table-column label="预测" width="80" align="center">-->
-                <!--<template slot-scope="scope">-->
-                  <!--<el-button-->
-                    <!--class="blueBtn"-->
-                    <!--@click="handleAnalysis(scope.row)"-->
-                    <!--type="primary"-->
-                    <!--plain-->
-                    <!--size="small"-->
-                    <!--&gt;预测</el-button-->
-                  <!--&gt;-->
-                <!--</template>-->
-              <!--</el-table-column>-->
+              <el-table-column label="预测" width="80" align="center">
+                <template slot-scope="scope">
+                  <el-button
+                    class="blueBtn"
+                    @click="handleAnalysis(scope.row)"
+                    type="primary"
+                    plain
+                    size="small"
+                    >预测</el-button
+                  >
+                </template>
+              </el-table-column>
             </el-table>
             <!-- 分页符-->
             <el-pagination
