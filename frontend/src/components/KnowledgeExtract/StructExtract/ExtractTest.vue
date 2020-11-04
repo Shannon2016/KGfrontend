@@ -38,6 +38,7 @@
             size="small"
             style="float:right; margin-right:20px;"
             @click="extractStruct"
+            :disabled="btnDisable"
           >结构化知识抽取</el-button>
           <el-button
             class="darkBtn"
@@ -125,6 +126,10 @@ export default {
   name: "ExtractTest",
   data() {
     return {
+      number: 0,
+      numberArr: [],
+      numberStr: "",
+      btnDisable: true,
       loadingRes: false,
       testIndex: "",
       TestList: [
@@ -164,10 +169,25 @@ export default {
       })
     },
     checkAll() {
-      console.log(123);
+      this.numberArr = [1,this.number];
+      this.numberStr = this.numberArr.toString();
+      if(this.numberStr != "1,0") {
+        this.btnDisable = false;
+        this.$message({
+          message: '全选成功！',
+          type: 'success'
+        });
+      }else {
+        this.$message({
+          message: '请先选择表格！',
+          type: 'warning'
+        });
+      }
     },
+    //加载测试数据
     chooseTestData() {
       this.fileType = false;
+      this.btnDisable = true;
       let fd = new FormData();
       fd.append("contents", this.testIndex);
       this.$http
@@ -177,7 +197,7 @@ export default {
           }
         })
         .then(res => {
-          console.log(res);
+          this.number = res.data[1].length;
           this.columnNames=[]
           this.columnNames = res.data[0].map(cur => {
             return { prop: cur, label: cur };
@@ -268,6 +288,7 @@ export default {
         this.loadingRes = false;
       })
     },
+    //计算平均结果
     calculateAverage() {
       if(this.recallSet.length===0&&this.recallSet.length===0){
         this.$message({

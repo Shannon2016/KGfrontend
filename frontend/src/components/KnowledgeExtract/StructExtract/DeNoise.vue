@@ -8,7 +8,7 @@
     ></div>
     <el-main>
       <!--顶部-->
-      <div class="header">属性去躁</div>
+      <div class="header">属性去噪</div>
       <el-divider></el-divider>
       <!--中心-->
       <!--列表页-->
@@ -48,14 +48,14 @@
             v-model="tableIndex"
             placeholder
             size="small"
-            style="margin-left:20px;"
+            style="margin-left:5px;"
             v-if="!isList"
           >
             <el-option v-for="(item, index) in properties" :key="index" :label="item" :value="item"></el-option>
           </el-select>
           <el-button
             v-if="!isList"
-            style="margin-left:20px;"
+            style="margin-left:5px;"
             class="blueBtn"
             size="small"
             @click="chooseTable"
@@ -72,11 +72,11 @@
             type="primary"
             class="darkBtn"
             size="small"
-            style="float:right; margin-right:20px;"
+            style="float:right; margin-right:5px;"
             @click="deNoise"
           >属性去噪</el-button>
-          <div style="float:right; margin-right:20px;">
-            <span style="margin-left:20px;">请选择属性去躁方法：</span>
+          <div style="float:right; margin-right:5px;">
+            <span style="margin-left:5px;">选择去噪方法：</span>
             <el-select
               v-model="algorithm"
               style="width:150px;margin-left: 5px;"
@@ -86,6 +86,24 @@
               <el-option v-for="item in algorithmList" :key="item" :label="item" :value="item"></el-option>
             </el-select>
           </div>
+          <el-button
+            class="darkBtn"
+            size="small"
+            style="float:right;margin-right:5px"
+            :disabled="btnDisable"
+            @click="checkAll"
+          >全选</el-button>
+          <el-input
+            type="text"
+            size="small"
+            style="width:155px;margin-right:5px;float:right;"
+            placeholder="请输入范围 如：1,5"
+            :disabled="iptDisable"
+            v-model="iptVal"
+            @input="iptChange(iptVal)"
+            @focus="focusFn"
+            @blur="blurFn"
+            ></el-input>
         </div>
         <!--用户操作-->
         <!--<div style="margin-left:20px;margin-bottom: 10px;" v-if="!sourceFlag">-->
@@ -129,6 +147,12 @@ export default {
   name: "DeNoise",
   data() {
     return {
+      btnDisable: false,
+      iptDisable: false,
+      number: 0,
+      numberArr: [],
+      numberStr: "",
+      iptVal: "",
       sourceFlag: true,
       sourceIndex: "",
       sourceList: ["数据源1", "数据源2"],
@@ -212,6 +236,40 @@ export default {
     };
   },
   methods: {
+    //全选按钮
+    checkAll() {
+      this.numberArr = [1, this.number];
+      this.numberStr = this.numberArr.toString();
+      if(this.numberStr != "1,0") {
+        this.iptDisable = true;
+        this.$message({
+          message: '全选成功！',
+          type: 'success'
+        });
+      }else {
+        this.$message({
+          message: '请先选择数据！',
+          type: 'warning'
+        });
+      }
+    },
+    iptChange(iptVal) {
+      if(this.iptVal != "") {
+        this.btnDisable = true;
+      }else {
+        this.btnDisable = false;
+      }
+    },
+    focusFn() {
+      this.btnDisable = true;
+    },
+    blurFn() {
+      if(this.iptVal == "") {
+        this.btnDisable = false;
+      }else {
+        this.btnDisable = true;
+      }
+    },
     chooseSource() {
       if (this.sourceIndex === "") {
         this.$message({
@@ -308,7 +366,8 @@ export default {
           }
         })
         .then(res => {
-          console.log(res);
+          this.iptDisable = false;
+          this.number = res.data[1].length;
           this.columnNames = res.data[0].map(cur => {
             return { prop: cur, label: cur };
           });
@@ -333,6 +392,7 @@ export default {
     handleCurrentChange(cpage) {
       this.curPage = cpage;
     },
+    //属性去噪
     deNoise() {
       if (this.tableIndex === "") {
         this.$message({
@@ -352,7 +412,11 @@ export default {
 
       this.loadingRes = true;
       let fd = new FormData();
+      if(this.iptVal != "") {
+        this.numberStr = this.iptVal;
+      }
       fd.append("table", this.tableIndex);
+      fd.append("rows",this.numberStr);
       this.$http
         .post("http://39.102.71.123:23352/pic/data_filter", fd, {
           headers: {
@@ -360,25 +424,30 @@ export default {
           }
         })
         .then(res => {
-          this.rawData = [].concat(res.data[1]);
-
-          this.columnNames = [].concat(
-            res.data[0].map(cur => {
-              return { prop: cur, label: cur };
-            })
-          );
-
-          //加载去噪后数据替换在tableData中
-          this.tableData = [].concat(
-            res.data[1].map(cur => {
-              let res = {};
-              for (let i = 0; i < this.columnNames.length; i++)
-                res[this.columnNames[i].prop] = cur[i];
-              return res;
-            })
-          );
-          this.fileCount = res.data[1].length;
-          this.loadingRes = false;
+          if(res.data == 0) {
+            this.loadingRes = false;
+            this.$message.error('输入的范围格式错误,或不在规定范围');
+          }else {
+            this.rawData = [].concat(res.data[1]);
+  
+            this.columnNames = [].concat(
+              res.data[0].map(cur => {
+                return { prop: cur, label: cur };
+              })
+            );
+  
+            //加载去噪后数据替换在tableData中
+            this.tableData = [].concat(
+              res.data[1].map(cur => {
+                let res = {};
+                for (let i = 0; i < this.columnNames.length; i++)
+                  res[this.columnNames[i].prop] = cur[i];
+                return res;
+              })
+            );
+            this.fileCount = res.data[1].length;
+            this.loadingRes = false;
+          }
         })
         .catch(res => {
           //请求失败

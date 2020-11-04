@@ -34,29 +34,34 @@
             size="small"
             style="float:right; margin-right:20px;"
             @click="showGraph"
+            :disabled="tpDis"
           >图谱展示</el-button>
           <el-button
             class="darkBtn"
             size="small"
             style="float:right; margin-right:20px;"
             @click="entityMatch"
+            :disabled="stDis"
           >实体对齐</el-button>
           <el-button
             class="darkBtn"
             size="small"
             style="float:right; margin-right:20px;"
             @click="loadModel"
+            :disabled="jzDis"
           >加载实体对齐模型</el-button>
           <el-button
             class="darkBtn"
             size="small"
             style="float:right; margin-right:20px;"
             @click="reduceDuplicate"
+            :disabled="sxDis"
           >属性去重</el-button>
           <el-button
             class="darkBtn"
             size="small"
             style="float:right; margin-right:20px"
+            @click="checkAll"
           >全选</el-button>
         </div>
 
@@ -113,6 +118,13 @@ export default {
   name: "EntityMatch",
   data() {
     return {
+      number: 0,
+      numberArr: [],
+      numberStr: "",
+      tpDis: true,
+      stDis: true,
+      jzDis: true,
+      sxDis: true,
       model:"",
       tableList: [],
       tableIndex: "",
@@ -128,8 +140,30 @@ export default {
     };
   },
   methods: {
+    //全选按钮
+    checkAll() {
+      this.numberArr = [1,this.number];
+      this.numberStr = this.numberArr.toString();
+      if(this.numberStr != "1,0") {
+        this.sxDis = false;
+        this.$message({
+          message: '全选成功！',
+          type: 'success'
+        });
+      }else {
+        this.$message({
+          message: '请先选择表格！',
+          type: 'warning'
+        });
+      }
+    },
+    //加载数据
     chooseTable() {
       this.loadingRes = true;
+      this.tpDis = true;
+      this.stDis = true;
+      this.jzDis = true;
+      this.sxDis = true;
       let fd = new FormData();
       fd.append("table", this.tableIndex);
       this.$http
@@ -139,7 +173,7 @@ export default {
           }
         })
         .then(res => {
-          console.log(res);
+          this.number = res.data[1].length;
           this.columnNames = res.data[0].map(cur => {
             return { prop: cur, label: cur };
           });
@@ -276,6 +310,7 @@ export default {
     handleCurrentChange(cpage) {
       this.curPage = cpage;
     },
+    //加载实体对齐模型
     loadModel() {
       if (this.tableIndex === "") {
         this.$message({
@@ -294,6 +329,7 @@ export default {
         })
         .then(res => {
           console.log(res);
+          this.stDis = false;
           if (res.data[0] === "dict_1.csv" || res.data[0] === "dict_2.csv") {
             this.model = res.data[0]
             this.$message({
@@ -307,6 +343,7 @@ export default {
           alert("出错了！");
         });
     },
+    //属性去重
     reduceDuplicate() {
       this.loadingRes = true;
       let fd = new FormData();
@@ -319,6 +356,7 @@ export default {
         })
         .then(res => {
           console.log(res);
+          this.jzDis = false;
           this.columnNames = res.data[0].map(cur => {
             return { prop: cur, label: cur };
           });
@@ -336,6 +374,7 @@ export default {
           this.loadingRes = false;
         });
     },
+    //实体对齐
     entityMatch() {
       if (this.model === "") {
         this.$message({
@@ -353,7 +392,8 @@ export default {
           "Content-Type": "multipart/form-data"
         }
       }).then(res => {
-          console.log(res)
+          console.log(res);
+          this.tpDis = false;
           this.columnNames = res.data[1].map(cur => {
             return { prop: cur, label: cur };
           });

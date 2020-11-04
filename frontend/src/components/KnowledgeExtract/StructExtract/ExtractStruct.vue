@@ -30,7 +30,7 @@
               v-model="tableIndex"
               placeholder
               size="small"
-              style="margin-left:32px;width: 200px;"
+              style="width: 200px;"
             >
               <el-option
                 v-for="(item, index) in properties"
@@ -40,7 +40,7 @@
               ></el-option>
             </el-select>
             <el-button
-              style="margin-left:20px;"
+              style="margin-left:10px;"
               class="blueBtn"
               size="small"
               @click="chooseTable"
@@ -49,27 +49,45 @@
             <!-- <el-button
               class="darkBtn"
               size="small"
-              style="float:right; margin-right:20px;"
+              style="float:right; margin-right:10px;"
               @click="showGraph"
             >图谱展示</el-button>-->
             <el-button
               class="darkBtn"
               size="small"
-              style="float:right; margin-right:20px;"
+              style="float:right; margin-right:10px;"
               @click="extractRelation"
             >抽取实体关系</el-button>
             <el-button
               class="darkBtn"
               size="small"
-              style="float:right; margin-right:20px;"
+              style="float:right; margin-right:10px;"
               @click="extractProperty"
             >抽取实体属性</el-button>
             <el-button
               class="darkBtn"
               size="small"
-              style="float:right; margin-right:20px;"
+              style="float:right; margin-right:10px;"
               @click="extractEntity"
             >抽取实体</el-button>
+            <el-button
+              class="darkBtn"
+              size="small"
+              style="float:right; margin-right:10px;"
+              @click="checkAll"
+              :disabled="btnDisable"
+            >全选</el-button>
+            <el-input 
+              type="text"
+              size="small"
+              style="width:170px;margin-right:5px;float:right;"
+              placeholder="输入抽取范围 如：1,5"
+              v-model="iptVal"
+              :disabled="iptDisable"
+              @input="iptChange(iptVal)"
+              @focus="focusFn"
+              @blur="blurFn"
+            ></el-input>
           </div>
           <el-row style="width:100%;margin-top:10px;">
             <span>请选择本体：</span>
@@ -189,6 +207,12 @@ export default {
   name: "ExtractStruct",
   data() {
     return {
+      number: 0,
+      numberArr: [],
+      numberStr: "",
+      iptVal: "",
+      iptDisable: false,
+      btnDisable: false,
       echartsOptions: {},
       tags: [],
       entityList: [],
@@ -221,6 +245,40 @@ export default {
     };
   },
   methods: {
+    //全选按钮
+    checkAll() {
+      this.numberArr = [1, this.number];
+      this.numberStr = this.numberArr.toString();
+      if(this.numberStr != "1,0") {
+        this.iptDisable = true;
+        this.$message({
+          message: '全选成功！',
+          type: 'success'
+        });
+      }else {
+        this.$message({
+          message: '请先选择表格！',
+          type: 'warning'
+        });
+      }
+    },
+    iptChange(iptVal) {
+      if(this.iptVal != "") {
+        this.btnDisable = true;
+      }else {
+        this.btnDisable = false;
+      }
+    },
+    focusFn() {
+      this.btnDisable = true;
+    },
+    blurFn() {
+      if(this.iptVal == "") {
+        this.btnDisable = false;
+      }else {
+        this.btnDisable = true;
+      }
+    },
     backToSource() {
       this.tableIndex = '';
       this.tags = [];
@@ -254,6 +312,7 @@ export default {
       }
       this.tags.splice(this.tags.indexOf(tag), 1);
     },
+    //选择属性
     propertyChange() {
       this.tags.push({
         entity: this.propertySelect[0],
@@ -367,10 +426,15 @@ export default {
           console.log(res);
         });
     },
+    //抽取实体
     extractEntity() {
       let fd = new FormData();
+      if(this.iptVal != "") {
+        this.numberStr = this.iptVal;
+      }
       fd.append("source", this.sourceIndex);
       fd.append("table", this.tableIndex);
+      fd.append("rows",this.numberStr);
       if (this.typeSelect === "") {
         this.$message({
           message: "请选择本体！",
@@ -402,14 +466,18 @@ export default {
           }
         })
         .then(res => {
-          console.log(res);
-          this.showGraph(res);
-          this.propertyIndex = [];
-          this.entityIndex = [];
-          this.tags = [];
-          this.propertySelect = "";
-          this.entitySelect = "";
-          this.propertyList = []
+          if(res.data == 0) {
+            this.fullscreenLoading = false;
+            this.$message.error('输入抽取范围格式错误,或不在规定范围');
+          }else {
+            this.showGraph(res);
+            this.propertyIndex = [];
+            this.entityIndex = [];
+            this.tags = [];
+            this.propertySelect = "";
+            this.entitySelect = "";
+            this.propertyList = [];
+          }
         })
         .catch(res => {
           console.log(res);
@@ -419,8 +487,12 @@ export default {
     //抽取实体关系按钮
     extractRelation() {
       let fd = new FormData();
+      if(this.iptVal != "") {
+        this.numberStr = this.iptVal;
+      }
       fd.append("source", this.sourceIndex);
       fd.append("table", this.tableIndex);
+      fd.append("rows",this.numberStr);
       if (this.typeSelect === "") {
         this.$message({
           message: "请选择本体！",
@@ -437,31 +509,40 @@ export default {
           }
         })
         .then(res => {
-          console.log(res);
-          this.showGraph(res);
-
-          this.propertyIndex = [];
-          this.entityIndex = [];
-          this.tags = [];
-          this.propertySelect = "";
-          this.propertyList = [];
-          this.entitySelect = "";
-          // if (res.data[0] === 1) {
-          //   this.$message({
-          //     message: "抽取实体关系成功!",
-          //     type: "success"
-          //   });
-          // } else this.$message.error("抽取失败！");
+          if(res.data == 0) {
+            this.fullscreenLoading = false;
+            this.$message.error('输入抽取范围格式错误,或不在规定范围');
+          }else {
+            this.showGraph(res);
+  
+            this.propertyIndex = [];
+            this.entityIndex = [];
+            this.tags = [];
+            this.propertySelect = "";
+            this.propertyList = [];
+            this.entitySelect = "";
+            // if (res.data[0] === 1) {
+            //   this.$message({
+            //     message: "抽取实体关系成功!",
+            //     type: "success"
+            //   });
+            // } else this.$message.error("抽取失败！");
+          }
         })
         .catch(res => {
           console.log(res);
           this.fullscreenLoading = false;
         });
     },
+    //抽取实体属性
     extractProperty() {
       let fd = new FormData();
+      if(this.iptVal != "") {
+        this.numberStr = this.iptVal;
+      }
       fd.append("source", this.sourceIndex);
       fd.append("table", this.tableIndex);
+      fd.append("rows",this.numberStr);
       if (this.typeSelect === "") {
         this.$message({
           message: "请选择本体！",
@@ -499,20 +580,24 @@ export default {
           }
         })
         .then(res => {
-          console.log(res);
-          this.showGraph(res);
-          // if (res.data[0] === 1) {
-          //   this.$message({
-          //     message: "抽取实体属性成功!",
-          //     type: "success"
-          //   });
-          this.propertyIndex = [];
-          this.entityIndex = [];
-          this.tags = [];
-          this.propertySelect = "";
-          this.propertyList = [];
-          this.entitySelect = "";
-          // } else this.$message.error("抽取失败！");
+          if(res.data == 0) {
+            this.fullscreenLoading = false;
+            this.$message.error('输入抽取范围格式错误,或不在规定范围');
+          }else {
+            this.showGraph(res);
+            // if (res.data[0] === 1) {
+            //   this.$message({
+            //     message: "抽取实体属性成功!",
+            //     type: "success"
+            //   });
+            this.propertyIndex = [];
+            this.entityIndex = [];
+            this.tags = [];
+            this.propertySelect = "";
+            this.propertyList = [];
+            this.entitySelect = "";
+            // } else this.$message.error("抽取失败！");
+          }
         })
         .catch(res => {
           console.log(res);
@@ -552,10 +637,12 @@ export default {
         return "";
       }
     },
+    //选择表格
     chooseTable() {
       // console.log(this.tableIndex)
       if (this.tableIndex === "") return;
       this.loadingRes = true;
+      this.iptDisable = false;
       //清空表格记录
       this.columnNames = [];
       this.tableData = [];
@@ -582,6 +669,7 @@ export default {
           this.columnNames = res.data[0];
 
           let column = res.data[0];
+          this.number = res.data[1].length;
           this.tableData = res.data[1].map(cur => {
             let res = {};
             for (let i = 0; i < column.length; i++) res[column[i]] = cur[i];
