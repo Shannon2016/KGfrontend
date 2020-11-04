@@ -161,12 +161,6 @@
             v-if="showFlag === 2"
             >上传文件</el-button
           >
-          <el-button
-            class="darkBtn"
-            size="small"
-            style="float:right;margin-right:20px"
-            @click="checkAll"
-          >全选</el-button>
         </el-row>
         <el-row class="top-tip">
           <span style="margin-left: 0px" v-if="showFlag === 1"
@@ -221,9 +215,10 @@
           >
         </el-row>
         <div id="matchInfo" v-if="testData.length !== 0">
-          已有测试数据数量 : {{ testData.length }} <br/>
-          <span v-if="showFlag ===1">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;文书中实体总数：{{ entitySum }}个</span>
-          <span>已选择的文件：</span>
+          已有测试数据数量 : {{ testData.length }}
+          <span v-if="showFlag ===1"
+            >&nbsp&nbsp&nbsp&nbsp&nbsp文书中实体总数：{{ entitySum }}个</span
+          >
         </div>
         <!--文书列表-->
         <el-row
@@ -239,7 +234,6 @@
               style="width: 97%"
               border
             >
-              <el-table-column type="selection" width="55" @click="checkTxt"></el-table-column>
               <el-table-column prop="title" label="测试数据"></el-table-column>
               <el-table-column label="操作" width="100" align="center">
                 <template slot-scope="scope">
@@ -401,63 +395,6 @@
         ></div>
       </div>
     </el-main>
-
-    <!-- 弹框 -->
-    <el-dialog title="实体属性抽取结果" :visible.sync="outerVisible" style="width:60%; margin-left:20%">
-      <p style="width:100%;fontSize:15px;margin:-10px 0;textAlign:left;">
-        <strong>
-          总耗时：<i>{{this.resDataArr[0]}}</i>秒<br />
-          实体属性抽取数量：<i>{{this.resDataArr[1]}}</i>条<br />
-          实体属性抽取效率：<i>{{this.resDataArr[2]}}</i>条/秒<br />
-        </strong>
-      </p>
-      <el-dialog
-        width="40%"
-        title="实体属性抽取结果（部分）"
-        :visible.sync="innerVisible"
-        append-to-body>
-        <el-table
-          :show-header="false"
-          :data="innerDiaArr"
-          style="width:100%;">
-          <el-table-column prop="entity1"></el-table-column>
-          <el-table-column prop="rel"></el-table-column>
-          <el-table-column prop="entity2"></el-table-column>
-        </el-table>
-      </el-dialog>
-      <div slot="footer" class="dialog-footer">
-        <el-button @click="outerVisible = false">确 定</el-button>
-        <el-button type="primary" @click="openInner">查看抽取结果</el-button>
-      </div>
-    </el-dialog>
-
-    <el-dialog title="实体关系抽取结果" :visible.sync="outerVisible1" style="width:60%; margin-left:20%">
-      <p style="width:100%;fontSize:15px;margin:-10px 0;textAlign:left;">
-        <strong>
-          总耗时：<i>{{this.resDataArr1[0]}}</i>秒<br />
-          实体属性抽取数量：<i>{{this.resDataArr1[1]}}</i>条<br />
-          实体属性抽取效率：<i>{{this.resDataArr1[2]}}</i>条/秒<br />
-        </strong>
-      </p>
-      <el-dialog
-        width="40%"
-        title="实体关系抽取结果（部分）"
-        :visible.sync="innerVisible1"
-        append-to-body>
-        <el-table
-          :show-header="false"
-          :data="innerDiaArr1"
-          style="width:100%;">
-          <el-table-column prop="entity1"></el-table-column>
-          <el-table-column prop="rel"></el-table-column>
-          <el-table-column prop="entity2"></el-table-column>
-        </el-table>
-      </el-dialog>
-      <div slot="footer" class="dialog-footer">
-        <el-button @click="outerVisible1 = false">确 定</el-button>
-        <el-button type="primary" @click="openInner1">查看抽取结果</el-button>
-      </div>
-    </el-dialog>
   </el-container>
 </template>
 
@@ -470,17 +407,6 @@ export default {
   name: "Extract",
   data() {
     return {
-      numberArr: [],
-      numberStr: "",
-      //弹框
-      outerVisible: false,
-      innerVisible: false,
-      resDataArr: [],
-      innerDiaArr: [],
-      outerVisible1: false,
-      innerVisible1: false,
-      resDataArr1: [],
-      innerDiaArr1: [],
       entitySum: 0,
       showFlag: 1, //1时显示深度学习对应操作，2时显示正则表达式对应操作
       realEntityCount: 0,
@@ -586,17 +512,6 @@ export default {
       this.showFlag = 1;
   },
   methods: {
-    checkTxt() {
-      console.log(123);
-    },
-    //全选按钮
-    checkAll() {
-      this.numberStr = this.numberArr.toString();
-      this.$message({
-        message: '全选成功！',
-        type: 'success'
-      });
-    },
     loadAlgorithm() {
       if (this.showFlag === 2) {
         this.loadingRes = true;
@@ -607,7 +522,7 @@ export default {
             },
           })
           .then((res) => {
-            this.numberArr = res.data;
+            console.log(res);
             this.textData = "";
             this.testData = res.data.map((cur) => {
               return { title: cur };
@@ -662,25 +577,23 @@ export default {
         }
       );
     },
-    highLight(sta, end, color, content) {
+    highLight(sta, end, color, content,tooltip) {
       let str = content;
-      return (content =
+      return (content =//46
         str.slice(0, sta) +
-        "<strong style='background:" +
+        "<strong style='background:" + //26
         color +
-        "'>" +
+        "' title='" +//9
+        tooltip+
+        "'>" +  //2
         str.slice(sta, end + 1) +
-        "</strong>" +
+        "</strong>" +//9
         str.slice(end + 1));
     },
-    //抽取实体关系
     extractEntityRelation() {
       this.fullscreenLoading = true;
-      let fd = new FormData();
-      fd.append("filename", this.numberStr);
-      console.log("fd:",this.numberStr);
       this.$http
-        .post("http://39.102.71.123:23352/pic/text_relation_speed",fd, {
+        .post("http://39.102.71.123:23352/pic/text_relation_speed", {
           headers: {
             "Content-Type": "multipart/form-data",
           },
@@ -688,35 +601,30 @@ export default {
         .then((res) => {
           console.log(res);
           this.fullscreenLoading = false;
-          this.resDataArr1 = res.data;
-          // this.$alert(
-          //   "<p><strong>总耗时： <i>" +
-          //     res.data[0] +
-          //     "</i> 秒</strong></p>" +
-          //     "<p><strong>实体关系抽取数量： <i>" +
-          //     res.data[1] +
-          //     "</i> 条</strong></p>" +
-          //     "<p><strong>实体关系抽取效率： <i>" +
-          //     res.data[2] +
-          //     "</i>条/秒</strong></p>",
-          //   "实体关系抽取结果",
-          //   {
-          //     dangerouslyUseHTMLString: true,
-          //   }
-          // );
-          this.outerVisible1 = true;
+          this.$alert(
+            "<p><strong>总耗时： <i>" +
+              res.data[0] +
+              "</i> 秒</strong></p>" +
+              "<p><strong>实体关系抽取数量： <i>" +
+              res.data[1] +
+              "</i> 条</strong></p>" +
+              "<p><strong>实体关系抽取效率： <i>" +
+              res.data[2] +
+              "</i>条/秒</strong></p>",
+            "实体关系抽取结果",
+            {
+              dangerouslyUseHTMLString: true,
+            }
+          );
         })
         .catch((res) => {
           console.log(res);
         });
     },
-    //抽取实体属性
     extractEntityProperty() {
       this.fullscreenLoading = true;
-      let fd = new FormData();
-      fd.append("filename", this.numberStr);
       this.$http
-        .post("http://39.102.71.123:23352/pic/text_attribute_speed", fd,{
+        .post("http://39.102.71.123:23352/pic/text_attribute_speed", {
           headers: {
             "Content-Type": "multipart/form-data",
           },
@@ -724,58 +632,25 @@ export default {
         .then((res) => {
           console.log(res);
           this.fullscreenLoading = false;
-          this.resDataArr = res.data;
-          // this.$alert(
-          //   "<p><strong>总耗时： <i>" +
-          //     res.data[0] +
-          //     "</i> 秒</strong></p>" +
-          //     "<p><strong>实体属性抽取数量： <i>" +
-          //     res.data[1] +
-          //     "</i> 条</strong></p>" +
-          //     "<p><strong>实体属性抽取效率： <i>" +
-          //     res.data[2] +
-          //     "</i>条/秒</strong></p>",
-          //   "实体属性抽取结果",
-          //   {
-          //     dangerouslyUseHTMLString: true,
-          //   }
-          // );
-          this.outerVisible = true;
+          this.$alert(
+            "<p><strong>总耗时： <i>" +
+              res.data[0] +
+              "</i> 秒</strong></p>" +
+              "<p><strong>实体属性抽取数量： <i>" +
+              res.data[1] +
+              "</i> 条</strong></p>" +
+              "<p><strong>实体属性抽取效率： <i>" +
+              res.data[2] +
+              "</i>条/秒</strong></p>",
+            "实体属性抽取结果",
+            {
+              dangerouslyUseHTMLString: true,
+            }
+          );
         })
         .catch((res) => {
           console.log(res);
         });
-    },
-    openInner() {
-      this.innerVisible = true;
-      this.$http
-        .post("http://39.102.71.123:23352/pic/text_attribute_speed_res",{
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }).then((res) => {
-          console.log("data:",res.data);
-          this.innerDiaArr = res.data.map(cur => {
-            return {entity1: cur[0],rel:cur[1],entity2:cur[2]};
-          });
-        }).catch((res) => {
-          console.log(res);
-        })
-    },
-    openInner1() {
-      this.innerVisible1 = true;
-      this.$http
-        .post("http://39.102.71.123:23352/pic/text_relation_speed_res",{
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }).then((res) => {
-          this.innerDiaArr1 = res.data.map(cur => {
-            return {entity1: cur[0],rel:cur[1],entity2:cur[2]};
-          });
-        }).catch((res) => {
-          console.log(res);
-        })
     },
     mergeFile() {
       this.isMerge = true;
@@ -1030,6 +905,7 @@ export default {
                   sta: res.data[i][j][1],
                   end: res.data[i][j][2],
                   type: i,
+                  tooltip:res.data[i][j][3],
                 });
               }
             }
@@ -1049,25 +925,28 @@ export default {
                   tagSet[i].sta + offset,
                   tagSet[i].end + offset,
                   "green",
-                  content
+                  content,
+                  tagSet[i].tooltip,
                 );
-                offset += 42;
+                offset += 51+tagSet[i].tooltip.length;
               } else if (tagSet[i].type === 2) {
                 content = this.highLight(
                   tagSet[i].sta + offset,
                   tagSet[i].end + offset,
                   "red",
-                  content
+                  content,
+                  tagSet[i].tooltip,
                 );
-                offset += 40;
+                offset += 49+tagSet[i].tooltip.length;
               } else if (tagSet[i].type === 3) {
                 content = this.highLight(
                   tagSet[i].sta + offset,
                   tagSet[i].end + offset,
                   "yellow",
-                  content
+                  content,
+                  tagSet[i].tooltip,
                 );
-                offset += 43;
+                offset += 52+tagSet[i].tooltip.length;
               }
             }
             // //37+color位移
@@ -1369,7 +1248,7 @@ body > .el-container {
   text-align: center;
   z-index: 99;
   position: fixed;
-  top: 20%;
+  top: 10%;
   left: 30%;
   right: 30%;
 }
