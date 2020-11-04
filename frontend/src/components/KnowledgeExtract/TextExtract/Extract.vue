@@ -577,15 +577,17 @@ export default {
         }
       );
     },
-    highLight(sta, end, color, content) {
+    highLight(sta, end, color, content,tooltip) {
       let str = content;
-      return (content =
+      return (content =//46
         str.slice(0, sta) +
-        "<strong style='background:" +
+        "<strong style='background:" + //26
         color +
-        "'>" +
+        "' title='" +//9
+        tooltip+
+        "'>" +  //2
         str.slice(sta, end + 1) +
-        "</strong>" +
+        "</strong>" +//9
         str.slice(end + 1));
     },
     extractEntityRelation() {
@@ -903,6 +905,7 @@ export default {
                   sta: res.data[i][j][1],
                   end: res.data[i][j][2],
                   type: i,
+                  tooltip:res.data[i][j][3],
                 });
               }
             }
@@ -922,25 +925,28 @@ export default {
                   tagSet[i].sta + offset,
                   tagSet[i].end + offset,
                   "green",
-                  content
+                  content,
+                  tagSet[i].tooltip,
                 );
-                offset += 42;
+                offset += 51+tagSet[i].tooltip.length;
               } else if (tagSet[i].type === 2) {
                 content = this.highLight(
                   tagSet[i].sta + offset,
                   tagSet[i].end + offset,
                   "red",
-                  content
+                  content,
+                  tagSet[i].tooltip,
                 );
-                offset += 40;
+                offset += 49+tagSet[i].tooltip.length;
               } else if (tagSet[i].type === 3) {
                 content = this.highLight(
                   tagSet[i].sta + offset,
                   tagSet[i].end + offset,
                   "yellow",
-                  content
+                  content,
+                  tagSet[i].tooltip,
                 );
-                offset += 43;
+                offset += 52+tagSet[i].tooltip.length;
               }
             }
             // //37+color位移
@@ -1242,7 +1248,7 @@ body > .el-container {
   text-align: center;
   z-index: 99;
   position: fixed;
-  top: 20%;
+  top: 10%;
   left: 30%;
   right: 30%;
 }
