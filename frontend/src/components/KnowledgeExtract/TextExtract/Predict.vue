@@ -228,13 +228,18 @@
     },
 
     methods: {
-      highLight(sta, end, color, content) {
+      highLight(sta, end, color, content,tooltip) {
         let str = content;
-        return content = str.slice(0, sta) +
-          "<strong style='background:" + color + "'>" +
+        return (content =//46
+          str.slice(0, sta) +
+          "<strong style='background:" + //26
+          color +
+          "' title='" +//9
+          tooltip+
+          "'>" +  //2
           str.slice(sta, end + 1) +
-          "</strong>" +
-          str.slice(end + 1);
+          "</strong>" +//9
+          str.slice(end + 1));
       },
       //模型预测==接口
       modelPredict() {
@@ -258,48 +263,42 @@
           })
           .then(res => {
             console.log(res);
-            // this.fullscreenLoading = false;
-            // let content = res.data[0];
-            // // let div = document.createElement("p");
-            // // div.id = "para";
-            // let tagSet = [];
-            // for (let i = 1; i < 4; i++) {//遍历所有标记
-            //   for (let j = 0; j < res.data[i].length; j++) {
-            //     tagSet.push({
-            //       sta: res.data[i][j][1],
-            //       end: res.data[i][j][2],
-            //       type: i
-            //     })
-            //   }
-            // }
-            // ;
-            // //排序
-            // tagSet = [].concat(tagSet.sort((obj1, obj2) => {
-            //   if (obj1.sta >= obj2.sta)
-            //     return 1;
-            //   else
-            //     return -1;
-            // }));
-            // console.log(tagSet)
-            // //高亮
-            // let offset = 0;
-            // for (let i = 0; i < tagSet.length; i++) {
-            //   if (tagSet[i].type === 1) {
-            //     content = this.highLight(tagSet[i].sta + offset, tagSet[i].end + offset, "green", content);
-            //     offset += 42;
-            //   }
-            //   else if (tagSet[i].type === 2) {
-            //     content = this.highLight(tagSet[i].sta + offset, tagSet[i].end + offset, "red", content);
-            //     offset += 40;
-            //   } else if (tagSet[i].type === 3) {
-            //     content = this.highLight(tagSet[i].sta + offset, tagSet[i].end + offset, "yellow", content);
-            //     offset += 43;
-            //   }
-            // }
-            // let div = document.getElementById("para")
-            // div.innerHTML = content.replace(/\n/g, "<br>");
+            this.fullscreenLoading = false;
+            let content = res.data[1];
+            // let div = document.createElement("p");
+            // div.id = "para";
+            let tagSet = [];
+            for (let i = 1; i < res.data[0].length; i++) {//遍历所有标记
+              tagSet.push({
+                sta: res.data[0][i][1],
+                end: res.data[0][i][2],
+                tooltip:res.data[0][i][3],
+              })
+            }
+            //排序
+            tagSet = [].concat(tagSet.sort((obj1, obj2) => {
+              if (obj1.sta >= obj2.sta)
+                return 1;
+              else
+                return -1;
+            }));
+            console.log(tagSet)
+            //高亮
+            let offset = 0;
+            for (let i = 0; i < tagSet.length; i++) {
+              content = this.highLight(
+                tagSet[i].sta + offset,
+                tagSet[i].end + offset,
+                "yellow",
+                content,
+                tagSet[i].tooltip,
+              );
+              offset += 52 + tagSet[i].tooltip.length;
+            }
+            let div = document.getElementById("para")
+            div.innerHTML = content.replace(/\n/g, "<br>");
 
-            // this.showResult = true;
+            this.showResult = true;
           })
           .catch(res => {
             console.log(res);
@@ -561,7 +560,7 @@
     text-align: center;
     z-index: 99;
     position: fixed;
-    top: 20%;
+    top: 10%;
     left: 30%;
     right: 30%;
   }
