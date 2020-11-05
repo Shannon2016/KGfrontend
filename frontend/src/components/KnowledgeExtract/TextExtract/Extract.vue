@@ -156,6 +156,7 @@
             size="small"
             style="float:right;margin-right:20px"
             @click="checkAll"
+            v-if="showFlag === 2"
           >全选</el-button>
         </el-row>
         <el-row class="top-tip">
@@ -207,7 +208,7 @@
         <div id="matchInfo" v-if="testData.length !== 0">
           已有测试数据数量 : {{ testData.length }} <br/>
           <span v-if="showFlag ===1">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;文书中实体总数：{{ entitySum }}个</span>
-          <span>已选择的文件：</span>
+          <span v-if="showFlag === 2">已选择的文件：</span><span v-if="checkedTxt == true">全部文件</span>
         </div>
         <!--文书列表-->
         <el-row
@@ -222,10 +223,12 @@
               height="626"
               style="width: 97%"
               border
+              ref="multipleTable"
+              @selection-change="handleSelectionChange"
             >
-              <el-table-column type="selection" width="55" @click="checkTxt"></el-table-column>
+              <el-table-column type="selection" align="center" width="55" v-if="showFlag === 2"></el-table-column>
               <el-table-column prop="title" label="测试数据"></el-table-column>
-              <el-table-column label="操作" width="100" align="center">
+              <el-table-column label="操作" width="160" align="center">
                 <template slot-scope="scope">
                   <el-button
                     class="blueBtn"
@@ -459,6 +462,11 @@ export default {
       innerVisible1: false,
       resDataArr1: [],
       innerDiaArr1: [],
+      //选择文件
+      checkedTxt: false,
+      multipleTable: [],
+      txtName: "",
+      txtArr: [],
       entitySum: 0,
       showFlag: 1, //1时显示深度学习对应操作，2时显示正则表达式对应操作
       realEntityCount: 0,
@@ -564,11 +572,27 @@ export default {
       this.showFlag = 1;
   },
   methods: {
-    checkTxt() {
-      console.log(1234);
+    //多选
+    handleSelectionChange(val) {
+      this.multipleTable = val;
+      if(this.multipleTable != []) {
+        for(var i=0;i<this.multipleTable.length;i++) {
+          this.txtName = this.multipleTable[i].title;
+        }
+        if(this.txtArr.indexOf(this.txtName) == -1) {
+          this.txtArr.push(this.txtName);
+        }else if(this.txtArr.indexOf(this.txtName) != -1) {
+          console.log("1111",this.txtName);
+        }
+      }
+      console.log("txtName:",this.txtName);
+      console.log("txtArr:",this.txtArr);
+      console.log("val:",val);
     },
+
     //全选按钮
     checkAll() {
+      this.checkedTxt = true;
       this.numberStr = this.numberArr.toString();
       this.$message({
         message: '全选成功！',
@@ -668,6 +692,7 @@ export default {
           console.log(res);
           this.fullscreenLoading = false;
           this.resDataArr1 = res.data;
+          this.outerVisible1 = true;
           // this.$alert(
           //   "<p><strong>总耗时： <i>" +
           //     res.data[0] +
@@ -682,8 +707,7 @@ export default {
           //   {
           //     dangerouslyUseHTMLString: true,
           //   }
-          // );
-          this.outerVisible1 = true;
+          // ); 
         })
         .catch((res) => {
           console.log(res);
@@ -694,6 +718,7 @@ export default {
       this.fullscreenLoading = true;
       let fd = new FormData();
       fd.append("filename", this.numberStr);
+      debugger;
       this.$http
         .post("http://39.102.71.123:23352/pic/text_attribute_speed", fd,{
           headers: {
@@ -704,6 +729,7 @@ export default {
           console.log(res);
           this.fullscreenLoading = false;
           this.resDataArr = res.data;
+          this.outerVisible = true;
           // this.$alert(
           //   "<p><strong>总耗时： <i>" +
           //     res.data[0] +
@@ -719,7 +745,6 @@ export default {
           //     dangerouslyUseHTMLString: true,
           //   }
           // );
-          this.outerVisible = true;
         })
         .catch((res) => {
           console.log(res);
