@@ -565,7 +565,7 @@ export default {
   },
   methods: {
     checkTxt() {
-      console.log(123);
+      console.log(1234);
     },
     //全选按钮
     checkAll() {
