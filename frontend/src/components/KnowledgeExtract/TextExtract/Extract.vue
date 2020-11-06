@@ -156,7 +156,6 @@
             size="small"
             style="float:right;margin-right:20px"
             @click="checkAll"
-            v-if="showFlag === 2"
           >全选</el-button>
         </el-row>
         <el-row class="top-tip">
@@ -208,7 +207,10 @@
         <div id="matchInfo" v-if="testData.length !== 0">
           已有测试数据数量 : {{ testData.length }} <br/>
           <span v-if="showFlag ===1">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;文书中实体总数：{{ entitySum }}个</span>
-          <span v-if="showFlag === 2">已选择的文件：</span><span v-if="checkedTxt == true">全部文件</span>
+          <span v-if="showFlag === 2">已选择的文件：</span>
+          <span v-if="checkedTxt == true">全部文件</span> 
+          <!-- {{ allMultipleSelection }} -->
+          <span ref="txt"></span>
         </div>
         <!--文书列表-->
         <el-row
@@ -223,10 +225,10 @@
               height="626"
               style="width: 97%"
               border
-              ref="multipleTable"
               @selection-change="handleSelectionChange"
+              ref="multipleTable"
             >
-              <el-table-column type="selection" align="center" width="55" v-if="showFlag === 2"></el-table-column>
+              <el-table-column type="selection" align="center" width="50"></el-table-column>
               <el-table-column prop="title" label="测试数据"></el-table-column>
               <el-table-column label="操作" width="160" align="center">
                 <template slot-scope="scope">
@@ -463,10 +465,20 @@ export default {
       resDataArr1: [],
       innerDiaArr1: [],
       //选择文件
+      // tableData: [],
+      // multipleSelection: [],
+      // allMultipleSelection: [],
+      // uniqueKey: 'id',
+      // pagination: {
+      //   currentPage: 1,
+      //   size: 10,
+      //   total: 1000
+      // },
       checkedTxt: false,
       multipleTable: [],
       txtName: "",
       txtArr: [],
+
       entitySum: 0,
       showFlag: 1, //1时显示深度学习对应操作，2时显示正则表达式对应操作
       realEntityCount: 0,
@@ -558,6 +570,9 @@ export default {
         this.showFlag = 1;
     }
   },
+  // beforeMount() {
+  //   this.fetchData()
+  // },
   mounted(){
     if(this.$route.query.algorithm) {
       this.showFlag = parseInt(this.$route.query.algorithm);
@@ -572,23 +587,78 @@ export default {
       this.showFlag = 1;
   },
   methods: {
+    // fetchData () {
+    //   this.tableData = []
+    //   console.log("arr",this.multipleTable)
+    //   let start = (this.pagination.currentPage - 1) * this.pagination.size
+    //   let end = this.pagination.currentPage * this.pagination.size
+    //   setTimeout(_ => {
+    //     for (let i = 0; i < end; i++) {
+    //       this.tableData.push({
+    //         id: i,
+    //         txt: this.multipleTable[i].title
+    //       })
+    //       console.log("iiii",this.multipleTable[i].title)
+    //     }
+    //     console.log("title:",this.tableData);
+    //     // @tip 实现分页复选
+    //     setTimeout(_ => {
+    //       this.setSelectedRow()
+    //     }, 50)
+    //   }, 200)
+    // },
     //多选
     handleSelectionChange(val) {
       this.multipleTable = val;
-      if(this.multipleTable != []) {
+
+      if(this.multipleTable.length != 0) {
         for(var i=0;i<this.multipleTable.length;i++) {
           this.txtName = this.multipleTable[i].title;
         }
+        console.log("txtname",this.txtName)
+        let arr = [];
+        arr.push(this.txtName);
+        
         if(this.txtArr.indexOf(this.txtName) == -1) {
           this.txtArr.push(this.txtName);
-        }else if(this.txtArr.indexOf(this.txtName) != -1) {
-          console.log("1111",this.txtName);
+        }else {
+          this.txtArr.splice(this.txtArr.indexOf(arr[0]), 1);
         }
       }
-      console.log("txtName:",this.txtName);
-      console.log("txtArr:",this.txtArr);
-      console.log("val:",val);
+
+      this.numberStr = this.txtArr.toString();
+      this.$nextTick(() => {
+        this.$refs.txt.innerText = this.numberStr;
+      })
     },
+    // resolveAllSelection() {
+    //   let currentPageData = this.tableData.map(item => item[this.uniqueKey]) // 当前页所有数据
+    //   let currentPageSelected = this.multipleSelection.map(item => item[this.uniqueKey]) // 当前页已选数据
+    //   let currentPageNotSelected = currentPageData.filter(item => !currentPageSelected.includes(item)) // 当前页未选数据
+    //   // 将当前页已选数据放入所有已选项
+    //   currentPageSelected.forEach(item => {
+    //     if (!this.allMultipleSelection.includes(item)) {
+    //       this.allMultipleSelection.push(item)
+    //     }
+    //   })
+    //   // 将所有已选项数据中当前页没选择的项移除
+    //   currentPageNotSelected.forEach(item => {
+    //     let idx = this.allMultipleSelection.indexOf(item)
+    //     if (idx > -1) {
+    //       this.allMultipleSelection.splice(idx, 1)
+    //     }
+    //   })
+    //   console.log(this.allMultipleSelection, 'all')
+    // },
+    // setSelectedRow () {
+    //   // 设置当前页已选项
+    //   this.tableData.forEach(item => {
+    //     if (this.allMultipleSelection.includes(item[this.uniqueKey])) {
+    //       this.$refs.multipleTable.toggleRowSelection(item, true)
+    //       console.log(item[this.uniqueKey], 'set')
+    //     }
+    //   })
+    // },
 
     //全选按钮
     checkAll() {
@@ -1218,7 +1288,9 @@ export default {
     handleCurrentChangeTest(cpage) {
       this.curPageTest = cpage;
     },
+    //分页符
     handleCurrentChangeTrain(cpage) {
+      // this.fetchData();
       this.curPageTrain = cpage;
     },
     //查看文书内容
