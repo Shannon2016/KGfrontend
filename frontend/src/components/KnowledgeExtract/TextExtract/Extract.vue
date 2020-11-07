@@ -156,6 +156,7 @@
             size="small"
             style="float:right;margin-right:20px"
             @click="checkAll"
+            v-if="showFlag === 2"
           >全选</el-button>
         </el-row>
         <el-row class="top-tip">
@@ -187,6 +188,7 @@
             style="float: right; margin-right: 20px"
             @click="calculateAverage"
             v-if="showFlag === 1 && isMerge"
+            :disabled="calculateDis"
           >计算平均结果</el-button>
           <el-button
             class="darkBtn"
@@ -203,6 +205,14 @@
             @click="modelTest"
             v-if="showFlag === 1"
           >模型测试</el-button>
+          <el-button
+            class="darkBtn"
+            size="small"
+            style="float:right;margin-right:20px"
+            @click="checkAll1"
+            :disabled="checkDis"
+            v-if="showFlag === 1"
+          >全111选</el-button>
         </el-row>
         <div id="matchInfo" v-if="testData.length !== 0">
           <div>
@@ -211,8 +221,8 @@
           </div>
           <span v-if="showFlag === 2">已选择的文件：</span>
           <span v-if="showFlag === 1">已选择的文件：</span>
-          <span v-if="checkedTxt == true">全部文件</span> 
-          <span ref="txt" v-if="checkedTxt == false"></span>
+          <span v-if="checkedTxt == true && numberStr != ''">全部文件</span> 
+          <span ref="txt" v-if="checkedTxt == false && numberStr != ''"></span>
         </div>
         <!--文书列表-->
         <el-row
@@ -458,6 +468,7 @@ export default {
     return {
       numberArr: [],
       numberStr: "",
+      allnot: 0,
       //弹框
       outerVisible: false,
       innerVisible: false,
@@ -473,6 +484,9 @@ export default {
       checkedTxt: false,
       txtArr: [],
       entitySum: 0,
+      checkDis: false,
+      calculateDis: false,
+      checkStatus: 0,
       showFlag: 1, //1时显示深度学习对应操作，2时显示正则表达式对应操作
       realEntityCount: 0,
       extractEntityCount: 1,
@@ -493,6 +507,7 @@ export default {
       uploadFileList: [],
       //表格数据 测试集
       testData: [],
+      testDataArr: [],
       // trainData: [],
       //选中行
       choosenRow: {},
@@ -579,26 +594,31 @@ export default {
   methods: {
     //多选
     handleSelectionChange(val) {
-      this.checkedTxt = false;
-      this.multipleSelection = val;
-      this.numberStr = "";
-      let arr = [];
-
-      if(this.txtArr.length == 0) {
-        this.txtArr.push(this.multipleSelection.title);
-      }else {
-        if(this.txtArr.indexOf(this.multipleSelection.title) == -1) {
+      this.checkStatus = 1;
+      if(this.checkDis == false) {
+        this.checkedTxt = false;
+        this.multipleSelection = val;
+        this.numberStr = "";
+        let arr = [];
+  
+        if(this.txtArr.length == 0) {
           this.txtArr.push(this.multipleSelection.title);
         }else {
-          this.txtArr.splice(this.txtArr.indexOf(this.multipleSelection.title), 1);
+          if(this.txtArr.indexOf(this.multipleSelection.title) == -1) {
+            this.txtArr.push(this.multipleSelection.title);
+          }else {
+            this.txtArr.splice(this.txtArr.indexOf(this.multipleSelection.title), 1);
+          }
         }
+        arr.push(this.multipleSelection.title);
+  
+        this.numberStr = this.txtArr.toString();
+        this.$nextTick(() => {
+          this.$refs.txt.innerText = this.numberStr;
+        })
+      }else if(this.checkDis == true){
+        return false
       }
-      arr.push(this.multipleSelection.title);
-
-      this.numberStr = this.txtArr.toString();
-      this.$nextTick(() => {
-        this.$refs.txt.innerText = this.numberStr;
-      })
 
     },
 
@@ -608,6 +628,19 @@ export default {
       this.numberStr = "";
       this.txtArr = [];
       this.numberStr = this.numberArr.toString();
+      this.$message({
+        message: '全选成功！',
+        type: 'success'
+      });
+    },
+    checkAll1() {
+      this.checkedTxt = true;
+      this.checkStatus = 0;
+      // this.calculateDis = false;
+      this.testData.forEach(item => {
+        this.testDataArr.push(item.title);
+      })
+      this.numberStr = this.testDataArr.toString();
       this.$message({
         message: '全选成功！',
         type: 'success'
@@ -804,25 +837,38 @@ export default {
           console.log(res);
         })
     },
+    //合并
     mergeFile() {
-      this.isMerge = true;
-      this.fullscreenLoading = true;
-      let fd = new FormData();
-      fd.append("contents", this.fileIndex);
-      this.$http
-        .post("http://39.102.71.123:23352/pic/textMergeData", fd, {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        })
-        .then((res) => {
-          this.textData = res.data;
-          this.fullscreenLoading = false;
-        })
-        .catch((res) => {
-          console.log(res);
-          this.fullscreenLoading = false;
-        });
+      if(this.numberStr != "") {
+        this.checkDis = true;
+        this.isMerge = true;
+        this.fullscreenLoading = true;
+        if(this.checkStatus == 1) {
+          this.calculateDis = true;
+        }else if(this.checkStatus == 0) {
+          this.calculateDis = false;
+        }
+        let fd = new FormData();
+        fd.append("contents", this.fileIndex);
+        fd.append("filelist", this.numberStr);
+        fd.append("ALL_NOT", this.allnot.toString());
+        this.$http
+          .post("http://39.102.71.123:23352/pic/textMergeData", fd, {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          })
+          .then((res) => {
+            this.textData = res.data;
+            this.fullscreenLoading = false;
+          })
+          .catch((res) => {
+            console.log(res);
+            this.fullscreenLoading = false;
+          });
+      }else if(this.numberStr == "") {
+        this.$message.error("请先选择数据！");
+      }
     },
     changeToEntitySearch() {
       this.inputEntity1 = "";
@@ -1129,10 +1175,13 @@ export default {
           });
       }
     },
-    //选择文件集
+    //选择文件集 加载测试数据
     chooseTable() {
+        this.numberStr = "";
+        this.txtArr = [];
         this.textData = "";
         this.fileCountTest = 0;
+        this.checkDis = false;
         this.loadingRes = true;
         this.isMerge = false;
         let fd = new FormData();
@@ -1144,7 +1193,6 @@ export default {
             },
           })
           .then((res) => {
-            console.log(res);
             this.textData = "";
             this.testData = res.data[0].map((cur) => {
               return { title: cur };
