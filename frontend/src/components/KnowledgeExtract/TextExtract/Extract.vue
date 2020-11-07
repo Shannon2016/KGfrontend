@@ -205,12 +205,14 @@
           >模型测试</el-button>
         </el-row>
         <div id="matchInfo" v-if="testData.length !== 0">
-          已有测试数据数量 : {{ testData.length }} <br/>
-          <span v-if="showFlag ===1">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;文书中实体总数：{{ entitySum }}个</span>
+          <div>
+            已有测试数据数量 : {{ testData.length }}
+            <span v-if="showFlag ===1">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;文书中实体总数：{{ entitySum }}个</span>
+          </div>
           <span v-if="showFlag === 2">已选择的文件：</span>
-          {{ allMultipleSelection }}
+          <span v-if="showFlag === 1">已选择的文件：</span>
           <span v-if="checkedTxt == true">全部文件</span> 
-          <!-- <span ref="txt"></span> -->
+          <span ref="txt" v-if="checkedTxt == false"></span>
         </div>
         <!--文书列表-->
         <el-row
@@ -226,16 +228,16 @@
               height="626"
               style="width: 97%"
               border
-              @selection-change="handleSelectionChange"
+              @cell-click="handleSelectionChange"
               ref="multipleTab"
             >
-              <el-table-column type="selection" fixed="left" width="50"></el-table-column>
+              <!-- <el-table-column type="selection" fixed="left" width="50"></el-table-column> -->
               <el-table-column prop="title" label="测试数据"></el-table-column>
               <el-table-column label="操作" width="160" align="center">
                 <template slot-scope="scope">
                   <el-button
                     class="blueBtn"
-                    @click="handleAnalysis(scope.row)"
+                    @click.stop="handleAnalysis(scope.row)"
                     type="primary"
                     plain
                     size="small"
@@ -468,13 +470,8 @@ export default {
       //选择文件
       tableData: [],
       multipleSelection: [],
-      allMultipleSelection: [],
-      uniqueKey: 'title',
       checkedTxt: false,
-      multipleTable: [],
-      txtName: "",
       txtArr: [],
-
       entitySum: 0,
       showFlag: 1, //1时显示深度学习对应操作，2时显示正则表达式对应操作
       realEntityCount: 0,
@@ -566,9 +563,6 @@ export default {
         this.showFlag = 1;
     }
   },
-  beforeMount() {
-    this.fetchData();
-  },
   mounted(){
     if(this.$route.query.algorithm) {
       this.showFlag = parseInt(this.$route.query.algorithm);
@@ -583,71 +577,36 @@ export default {
       this.showFlag = 1;
   },
   methods: {
-    fetchData () {
-      this.tableData = []
-      setTimeout(_ => {
-        this.setSelectedRow()
-      }, 50)
-    },
     //多选
     handleSelectionChange(val) {
+      this.checkedTxt = false;
       this.multipleSelection = val;
+      this.numberStr = "";
+      let arr = [];
 
-      let currentPageData = this.testData.slice((this.curPageTrain - 1) * 10, this.curPageTrain * 10).map(item => item[this.uniqueKey]) // 当前页所有数据
-      let currentPageSelected = this.multipleSelection.map(item => item[this.uniqueKey]) // 当前页已选数据
-      let currentPageNotSelected = currentPageData.filter(item => !currentPageSelected.includes(item)) // 当前页未选数据
-      console.log("已选",currentPageSelected);
+      if(this.txtArr.length == 0) {
+        this.txtArr.push(this.multipleSelection.title);
+      }else {
+        if(this.txtArr.indexOf(this.multipleSelection.title) == -1) {
+          this.txtArr.push(this.multipleSelection.title);
+        }else {
+          this.txtArr.splice(this.txtArr.indexOf(this.multipleSelection.title), 1);
+        }
+      }
+      arr.push(this.multipleSelection.title);
 
-      // 将当前页已选数据放入所有已选项
-      currentPageSelected.forEach(item => {
-        console.log("item:",item);
-        console.log("this.allMultipleSelection:",this.allMultipleSelection)
-        if (this.allMultipleSelection.includes(item) == false) {
-          this.allMultipleSelection.push(item)
-        }
-      })
-      // 将所有已选项数据中当前页没选择的项移除
-      currentPageNotSelected.forEach(item => {
-        let idx = this.allMultipleSelection.indexOf(item)
-        if (idx > -1) {
-          this.allMultipleSelection.splice(idx, 1)
-        }
+      this.numberStr = this.txtArr.toString();
+      this.$nextTick(() => {
+        this.$refs.txt.innerText = this.numberStr;
       })
 
-
-      // if(this.multipleTable.length != 0) {
-      //   for(var i=0;i<this.multipleTable.length;i++) {
-      //     this.txtName = this.multipleTable[i].title;
-      //   }
-      //   console.log("txtname",this.txtName)
-      //   let arr = [];
-      //   arr.push(this.txtName);
-        
-      //   if(this.txtArr.indexOf(this.txtName) == -1) {
-      //     this.txtArr.push(this.txtName);
-      //   }else {
-      //     this.txtArr.splice(this.txtArr.indexOf(arr[0]), 1);
-      //   }
-      // }
-
-      // this.numberStr = this.txtArr.toString();
-      // this.$nextTick(() => {
-      //   this.$refs.txt.innerText = this.numberStr;
-      // })
-    },
-    setSelectedRow () {
-      // 设置当前页已选项
-      this.testData.slice((this.curPageTrain - 1) * 10, this.curPageTrain * 10).forEach(item => {
-        if (this.allMultipleSelection.includes(item[this.uniqueKey])) {
-          this.$refs.multipleTab.toggleRowSelection(item, true)
-          console.log(item[this.uniqueKey], 'set')
-        }
-      })
     },
 
-    //全选按钮
+    //全选
     checkAll() {
       this.checkedTxt = true;
+      this.numberStr = "";
+      this.txtArr = [];
       this.numberStr = this.numberArr.toString();
       this.$message({
         message: '全选成功！',
@@ -735,45 +694,55 @@ export default {
     //抽取实体关系
     extractEntityRelation() {
       this.fullscreenLoading = true;
-      let fd = new FormData();
-      fd.append("filename", this.numberStr);
-      this.$http
-        .post("http://39.102.71.123:23352/pic/text_relation_speed", fd,{
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        })
-        .then((res) => {
-          console.log(res);
-          this.fullscreenLoading = false;
-          this.resDataArr1 = res.data;
-          this.outerVisible1 = true;
-          // this.$alert(
-          //   "<p><strong>总耗时： <i>" +
-          //     res.data[0] +
-          //     "</i> 秒</strong></p>" +
-          //     "<p><strong>实体关系抽取数量： <i>" +
-          //     res.data[1] +
-          //     "</i> 条</strong></p>" +
-          //     "<p><strong>实体关系抽取效率： <i>" +
-          //     res.data[2] +
-          //     "</i>条/秒</strong></p>",
-          //   "实体关系抽取结果",
-          //   {
-          //     dangerouslyUseHTMLString: true,
-          //   }
-          // ); 
-        })
-        .catch((res) => {
-          console.log(res);
-        });
+      
+      if(this.numberStr == "") {
+        this.fullscreenLoading = false;
+        this.$message.error('请先选择测试文件！');
+      }else {
+        let fd = new FormData();
+        fd.append("filename", this.numberStr);
+        this.$http
+          .post("http://39.102.71.123:23352/pic/text_relation_speed", fd,{
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          })
+          .then((res) => {
+            console.log(res);
+            this.fullscreenLoading = false;
+            this.resDataArr1 = res.data;
+            this.outerVisible1 = true;
+            this.numberStr = "";
+            this.txtArr = [];
+            this.$nextTick(() => {
+              this.$refs.txt.innerText = this.numberStr;
+            })
+            // this.$alert(
+            //   "<p><strong>总耗时： <i>" +
+            //     res.data[0] +
+            //     "</i> 秒</strong></p>" +
+            //     "<p><strong>实体关系抽取数量： <i>" +
+            //     res.data[1] +
+            //     "</i> 条</strong></p>" +
+            //     "<p><strong>实体关系抽取效率： <i>" +
+            //     res.data[2] +
+            //     "</i>条/秒</strong></p>",
+            //   "实体关系抽取结果",
+            //   {
+            //     dangerouslyUseHTMLString: true,
+            //   }
+            // ); 
+          })
+          .catch((res) => {
+            console.log(res);
+          });
+      }
     },
     //抽取实体属性
     extractEntityProperty() {
       this.fullscreenLoading = true;
       let fd = new FormData();
       fd.append("filename", this.numberStr);
-      debugger;
       this.$http
         .post("http://39.102.71.123:23352/pic/text_attribute_speed", fd,{
           headers: {
@@ -813,7 +782,6 @@ export default {
             "Content-Type": "multipart/form-data",
           },
         }).then((res) => {
-          console.log("data:",res.data);
           this.innerDiaArr = res.data.map(cur => {
             return {entity1: cur[0],rel:cur[1],entity2:cur[2]};
           });
@@ -1275,8 +1243,7 @@ export default {
     },
     //分页符
     handleCurrentChangeTrain(cpage) {
-      this.fetchData();
-      // this.curPageTrain = cpage;
+      this.curPageTrain = cpage;
     },
     //查看文书内容
     handleAnalysis(row) {

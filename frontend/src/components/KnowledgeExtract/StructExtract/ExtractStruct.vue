@@ -245,7 +245,7 @@ export default {
     };
   },
   methods: {
-    //全选按钮
+    //全选
     checkAll() {
       this.numberArr = [1, this.number];
       this.numberStr = this.numberArr.toString();
@@ -484,7 +484,7 @@ export default {
           this.fullscreenLoading = false;
         });
     },
-    //抽取实体关系按钮
+    //抽取实体关系
     extractRelation() {
       let fd = new FormData();
       if(this.iptVal != "") {
@@ -521,6 +521,10 @@ export default {
             this.propertySelect = "";
             this.propertyList = [];
             this.entitySelect = "";
+            this.numberStr = "";
+            this.iptVal = "";
+            this.iptDisable = false;
+            this.btnDisable = false;
             // if (res.data[0] === 1) {
             //   this.$message({
             //     message: "抽取实体关系成功!",
@@ -639,7 +643,6 @@ export default {
     },
     //选择表格
     chooseTable() {
-      // console.log(this.tableIndex)
       if (this.tableIndex === "") return;
       this.loadingRes = true;
       this.iptDisable = false;
