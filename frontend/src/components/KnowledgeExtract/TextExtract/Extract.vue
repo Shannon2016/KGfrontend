@@ -159,7 +159,7 @@
             v-if="showFlag === 2"
           >全选</el-button>
         </el-row>
-        <el-row class="top-tip">
+        <el-row class="top-tip" v-if="showTable == 1">
           <span style="margin-left: 0px" v-if="showFlag === 1">请选择训练模型：</span>
           <el-select
             v-model="modelIndex"
@@ -182,6 +182,14 @@
             @click="loadModel"
             v-if="showFlag === 1"
           >加载训练模型</el-button>
+          <el-button
+            type="primary"
+            class="darkBtn"
+            size="small"
+            style="float: right; margin-right: 20px"
+            v-if="showFlag === 1"
+            @click="showTestResult"
+          >查看测试结果</el-button>
           <el-button
             class="darkBtn"
             size="small"
@@ -212,9 +220,9 @@
             @click="checkAll1"
             :disabled="checkDis"
             v-if="showFlag === 1"
-          >全111选</el-button>
+          >全选</el-button>
         </el-row>
-        <div id="matchInfo" v-if="testData.length !== 0">
+        <div id="matchInfo" v-if="testData.length !== 0 && showTable == 1">
           <div>
             已有测试数据数量 : {{ testData.length }}
             <span v-if="showFlag ===1">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;文书中实体总数：{{ entitySum }}个</span>
@@ -232,6 +240,7 @@
         >
           <el-col :span="12">
             <el-table
+              v-if="showTable == 1"
               class="table"
               :data="testData.slice((curPageTrain - 1) * 10, curPageTrain * 10)"
               :header-cell-style="{ background: '#EBEEF7', color: '#606266' }"
@@ -241,13 +250,35 @@
               @cell-click="handleSelectionChange"
               ref="multipleTab"
             >
-              <!-- <el-table-column type="selection" fixed="left" width="50"></el-table-column> -->
               <el-table-column prop="title" label="测试数据"></el-table-column>
               <el-table-column label="操作" width="160" align="center">
                 <template slot-scope="scope">
                   <el-button
                     class="blueBtn"
                     @click.stop="handleAnalysis(scope.row)"
+                    type="primary"
+                    plain
+                    size="small"
+                  >浏览</el-button>
+                </template>
+              </el-table-column>
+            </el-table>
+
+            <el-table
+              v-if="showTable == 2"
+              class="table"
+              :data="testData.slice((curPageTrain - 1) * 10, curPageTrain * 10)"
+              :header-cell-style="{ background: '#EBEEF7', color: '#606266' }"
+              height="626"
+              style="width: 97%"
+              border
+            >
+              <el-table-column prop="title" label="测试数据"></el-table-column>
+              <el-table-column label="操作" width="160" align="center">
+                <template slot-scope="scope">
+                  <el-button
+                    class="blueBtn"
+                    @click.stop="handleAnalysis1(scope.row)"
                     type="primary"
                     plain
                     size="small"
@@ -288,6 +319,21 @@
                   white-space: break-spaces;
                 "
                 >{{ textData }}</pre>
+                <div v-if="divStatus == 2">
+                  <div>
+                    <span style="font-weight: bold">实际实体数量：</span>{{ realEntityCount }}个
+                  </div>
+                  <div style="margin-top: 10px">
+                    <span style="font-weight: bold">抽取实体数量：</span>{{ extractEntityCount }}个
+                  </div>
+                  <div style="margin-top: 10px">
+                    <span style="font-weight: bold">错误识别实体数量：</span>{{ wrongEntityCount }}个
+                  </div>
+                  <div style="margin-top: 10px" id="autoPara">
+                    <span style="font-weight: bold">被标记文本：</span>
+                    <p id="para1" style="text-align: left"></p>
+                  </div>
+                </div>
             </div>
             <!-- <el-table
               :data="testData.slice((curPageTest - 1) * 10, curPageTest * 10)"
@@ -466,6 +512,8 @@ export default {
   name: "Extract",
   data() {
     return {
+      //展示测试数据表
+      showTable : 1,
       numberArr: [],
       numberStr: "",
       allnot: 0,
@@ -492,6 +540,7 @@ export default {
       extractEntityCount: 1,
       wrongEntityCount: 2,
       showResult: false,
+      divStatus: 1,
       isList: true,
       fileCount: 0,
       isUpload: false,
@@ -592,6 +641,10 @@ export default {
       this.showFlag = 1;
   },
   methods: {
+    //查看测试结果
+    showTestResult() {
+      this.showTable = 2;
+    },
     //多选
     handleSelectionChange(val) {
       this.checkStatus = 1;
@@ -843,6 +896,7 @@ export default {
         this.checkDis = true;
         this.isMerge = true;
         this.fullscreenLoading = true;
+        //判断单选还是多选
         if(this.checkStatus == 1) {
           this.calculateDis = true;
         }else if(this.checkStatus == 0) {
@@ -990,6 +1044,7 @@ export default {
       // 绘制图表
       myChart.setOption(Myoption, true);
     },
+    //模型测试
     modelTest() {
       this.fullscreenLoading = true;
       let fd = new FormData();
@@ -1002,7 +1057,6 @@ export default {
             },
           })
           .then((res) => {
-            console.log(res);
             this.fullscreenLoading = false;
             if (this.recallSet.length === 0)
               this.recallSet.push({
@@ -1090,7 +1144,7 @@ export default {
             },
           })
           .then((res) => {
-            console.log(res);
+            console.log("else res.data",res.data);
             this.fullscreenLoading = false;
             let content = res.data[0];
             // let div = document.createElement("p");
@@ -1177,12 +1231,13 @@ export default {
     },
     //选择文件集 加载测试数据
     chooseTable() {
+      this.loadingRes = true;
+      if(this.showTable == 1) {
         this.numberStr = "";
         this.txtArr = [];
         this.textData = "";
         this.fileCountTest = 0;
         this.checkDis = false;
-        this.loadingRes = true;
         this.isMerge = false;
         let fd = new FormData();
         fd.append("contents", this.fileIndex);
@@ -1206,6 +1261,30 @@ export default {
             alert("出错了！");
             this.loadingRes = false;
           });
+      }else if(this.showTable == 2) {
+        let fd = new FormData();
+        fd.append("contents", this.fileIndex);
+        this.$http
+          .post("http://39.102.71.123:23352/pic/text_test_results_1", fd, {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          })
+          .then(res => {
+            this.textData = "";
+            this.testData = res.data.map((cur) => {
+              return { title: cur };
+            });
+            this.numberStr = res.data.toString();
+            this.fileCountTest = this.testData.length;
+            this.entitySum = res.data[1];
+            this.loadingRes = false;
+          })
+          .catch(error => {
+            this.loadingRes = false;
+            console.log(error)
+          })
+      }
     },
     loadModel() {
       let fd = new FormData();
@@ -1293,7 +1372,7 @@ export default {
     handleCurrentChangeTrain(cpage) {
       this.curPageTrain = cpage;
     },
-    //查看文书内容
+    //查看文书内容 浏览
     handleAnalysis(row) {
       this.selectTitle = row.title;
       let fd = new FormData();
@@ -1314,6 +1393,7 @@ export default {
         .then((res) => {
           // console.log(JSON.stringify(res.data));
           this.textData = res.data;
+          console.log("lll",res.data);
           this.loadingRes = false;
         })
         .catch((res) => {
@@ -1321,6 +1401,87 @@ export default {
           this.loadingRes = false;
         });
       this.diaVisible = true;
+    },
+    //浏览
+    handleAnalysis1(row) {
+      this.divStatus = 2;
+      this.fullscreenLoading = true;
+      let fd = new FormData();
+      fd.append("contents", this.fileIndex);
+      fd.append("filename", row.title);
+      this.$http
+        .post("http://39.102.71.123:23352/pic/text_test_results_2", fd, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        })
+        .then(res => {
+          //11111
+          console.log("res.data",res.data);
+          this.fullscreenLoading = false;
+          let content = res.data[0];
+          let tagSet = [];
+          for (let i = 1; i < 4; i++) {
+            //遍历所有标记
+            for (let j = 0; j < res.data[i].length; j++) {
+              tagSet.push({
+                sta: res.data[i][j][1],
+                end: res.data[i][j][2],
+                type: i,
+                tooltip:res.data[i][j][3],
+              });
+            }
+          }
+          console.log("tagSet1",tagSet);
+          //排序
+          tagSet = [].concat(
+            tagSet.sort((obj1, obj2) => {
+              if (obj1.sta >= obj2.sta) return 1;
+              else return -1;
+            })
+          );
+          console.log("tagSet2",tagSet);
+          //高亮
+          let offset = 0;
+          for (let i = 0; i < tagSet.length; i++) {
+            if (tagSet[i].type === 1) {
+              content = this.highLight(
+                tagSet[i].sta + offset,
+                tagSet[i].end + offset,
+                "green",
+                content,
+                tagSet[i].tooltip,
+              );
+              offset += 51+tagSet[i].tooltip.length;
+            } else if (tagSet[i].type === 2) {
+              content = this.highLight(
+                tagSet[i].sta + offset,
+                tagSet[i].end + offset,
+                "red",
+                content,
+                tagSet[i].tooltip,
+              );
+              offset += 49+tagSet[i].tooltip.length;
+            } else if (tagSet[i].type === 3) {
+              content = this.highLight(
+                tagSet[i].sta + offset,
+                tagSet[i].end + offset,
+                "yellow",
+                content,
+                tagSet[i].tooltip,
+              );
+              offset += 52+tagSet[i].tooltip.length;
+            }
+          }
+            let div = document.getElementById("para1");
+            div.innerHTML = content.replace(/\n/g, "<br>");
+            this.realEntityCount = res.data[4];
+            this.extractEntityCount = res.data[5];
+            this.wrongEntityCount = res.data[6];
+        })
+        .catch(error => {
+          console.log(error)
+        })
     },
     //导出三元组
     handleExport() {
