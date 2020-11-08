@@ -83,7 +83,7 @@
       <!--中心-->
       <!--      列表页-->
       <div class="main">
-        <el-row class="top-tip">
+        <el-row class="top-tip" v-if="showTable == 1">
           <!--<span>请选择算法：</span>-->
           <!--<el-select-->
             <!--v-model="algorithm"-->
@@ -187,14 +187,22 @@
             type="primary"
             class="darkBtn"
             size="small"
-            style="float: right; margin-right: 20px"
+            style="float: right; margin-right: 8px"
+            v-if="showFlag === 1"
+            @click="textExtract"
+          >文本知识抽取</el-button>
+          <el-button
+            type="primary"
+            class="darkBtn"
+            size="small"
+            style="float: right; margin-right: 8px"
             v-if="showFlag === 1"
             @click="showTestResult"
           >查看测试结果</el-button>
           <el-button
             class="darkBtn"
             size="small"
-            style="float: right; margin-right: 20px"
+            style="float: right; margin-right: 8px"
             @click="calculateAverage"
             v-if="showFlag === 1 && isMerge"
             :disabled="calculateDis"
@@ -202,7 +210,7 @@
           <el-button
             class="darkBtn"
             size="small"
-            style="float: right; margin-right: 20px"
+            style="float: right; margin-right: 8px"
             @click="mergeFile"
             v-if="showFlag === 1 && !isMerge"
           >合并</el-button>
@@ -210,14 +218,14 @@
             type="primary"
             class="darkBtn"
             size="small"
-            style="float: right; margin-right: 20px"
+            style="float: right; margin-right: 8px"
             @click="modelTest"
             v-if="showFlag === 1"
           >模型测试</el-button>
           <el-button
             class="darkBtn"
             size="small"
-            style="float:right;margin-right:20px"
+            style="float:right;margin-right:8px"
             @click="checkAll1"
             :disabled="checkDis"
             v-if="showFlag === 1"
@@ -287,6 +295,29 @@
                 </template>
               </el-table-column>
             </el-table>
+
+            <el-table
+              v-if="showTable == 3"
+              class="table"
+              :data="testData.slice((curPageTrain - 1) * 10, curPageTrain * 10)"
+              :header-cell-style="{ background: '#EBEEF7', color: '#606266' }"
+              height="626"
+              style="width: 97%"
+              border
+            >
+              <el-table-column prop="title2" label="测试数据"></el-table-column>
+              <el-table-column label="操作" width="160" align="center">
+                <template slot-scope="scope">
+                  <el-button
+                    class="blueBtn"
+                    @click.stop="handleAnalysis2(scope.row)"
+                    type="primary"
+                    plain
+                    size="small"
+                  >浏览</el-button>
+                </template>
+              </el-table-column>
+            </el-table>
             <!-- 分页符-->
             <el-pagination
               background
@@ -312,7 +343,7 @@
               <span v-if="textData === '' && !isMerge">(选择文件以浏览内容)</span>
               <span v-if="textData === '' && isMerge">(正在加载合并文件)</span>
             </div>
-            <div style="padding: 0 15px">
+            <div style="padding: 0 15px;height: 100%;">
               <pre
                 
                 style="
@@ -336,6 +367,7 @@
                     <p id="para1" style="text-align: left"></p>
                   </div>
                 </div>
+                <v-echart id="graph1" :style="{width: graphWidth,height:graphHeight}" :options="echartsOptions"></v-echart>
             </div>
             <!-- <el-table
               :data="testData.slice((curPageTest - 1) * 10, curPageTest * 10)"
@@ -538,6 +570,7 @@ export default {
       calculateDis: false,
       checkStatus: 0,
       sourceFlag: true,
+      echartsOptions: {},
       showFlag: 1, //1时显示深度学习对应操作，2时显示正则表达式对应操作
       realEntityCount: 0,
       extractEntityCount: 1,
@@ -694,7 +727,6 @@ export default {
       }
 
     },
-
     //全选
     checkAll() {
       this.checkedTxt = true;
@@ -718,6 +750,33 @@ export default {
         message: '全选成功！',
         type: 'success'
       });
+    },
+    //文本知识抽取
+    textExtract() {
+      this.showTable = 3;
+      this.fullscreenLoading = true;
+      let fd = new FormData();
+      fd.append("contents", this.fileIndex);
+      this.$http
+        .post("http://39.102.71.123:23352/pic/text_extract", fd, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        })
+        .then(res => {
+          this.fullscreenLoading = false;
+          this.textData = "";
+          this.testData = res.data.map(cur => {
+            return { title2: cur };
+          });
+          this.numberStr = res.data.toString();
+          this.fileCountTest = this.testData.length;
+          this.sourceFlag = false; //返回按钮
+        })
+        .catch(error => {
+          console.log(error);
+          this.fullscreenLoading = false;
+        })
     },
     loadAlgorithm() {
       if (this.showFlag === 2) {
@@ -1496,6 +1555,104 @@ export default {
         })
         .catch(error => {
           console.log(error)
+        })
+    },
+    handleAnalysis2(row) {
+      this.fullscreenLoading = true;
+      let fd = new FormData();
+      fd.append("contents", this.fileIndex);
+      fd.append("filename", row.title2);
+      this.$http
+        .post("http://39.102.71.123:23352/pic/view_text_extract_results", fd, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        })
+        .then(res => {
+          this.fullscreenLoading = false;
+          console.log("res",res);
+
+          let categories = [
+            {
+              name: " ",
+              symbol: "rect",
+              itemStyle: { color: "white" }
+            },
+            {
+              name: "实体",
+              symbol: "circle",
+              itemStyle: { color: "#f47920" }
+            },
+            {
+              name: "属性",
+              symbol: "roundRect",
+              itemStyle: { color: "#749f83" }
+            }
+          ];
+          let graphPoint = [];
+          let graphLink = [];
+          let pointName = new Set();
+          let order = [3, 0, 1, 2];
+          for (let j of order) {
+            console.log(j);
+            for (let i = 0; i < res.data[j].length; i++) {
+              let tmp = {};
+              tmp.entity1 = res.data[j][i][0] + "";
+              tmp.relation = res.data[j][i][1] + "";
+              tmp.entity2 = res.data[j][i][2] + "";
+              if (!pointName.has(tmp.entity1)) {
+                pointName.add(tmp.entity1);
+                if (j !== 2) {
+                  graphPoint.push({
+                    name: tmp.entity1,
+                    category: j
+                  });
+                } else {
+                  graphPoint.push({
+                    name: tmp.entity1,
+                    category: 1
+                  });
+                }
+              }
+              if (!pointName.has(tmp.entity2)) {
+                pointName.add(tmp.entity2);
+                if(j === 3){
+                  graphPoint.push({
+                    name: tmp.entity2,
+                    category: 4
+                  });
+                } else {
+                  graphPoint.push({
+                    name: tmp.entity2,
+                    category: j
+                  });
+                }
+              }
+              graphLink.push({
+                source: tmp.entity1,
+                target: tmp.entity2,
+                name: tmp.relation,
+                des: tmp.relation
+              });
+            }
+          }
+          let Myoption = JSON.parse(JSON.stringify(option));
+          Myoption["series"][0]["data"] = graphPoint;
+          Myoption["series"][0]["links"] = graphLink;
+          Myoption["series"][0]["categories"] = categories;
+          Myoption["legend"] = [{
+              data: categories.map(function(a) {
+                return { name: a.name, icon: a.symbol };
+              })
+            }];
+          Myoption["series"][0]["edgeLabel"]["normal"]["formatter"] = function(x) {
+            return x.data.name;
+          };
+          this.echartsOptions = Myoption;
+        })
+        .catch(error => {
+          this.fullscreenLoading = false;
+          console.log(error);
         })
     },
     //导出三元组
