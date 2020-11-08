@@ -74,6 +74,7 @@
     <el-main v-if="isList">
       <!--顶部-->
       <div class="header">
+        <i class="el-icon-back" v-if="!sourceFlag" @click="backToSource" style="margin-right:10px;"></i>
         文本抽取
         <!--<el-button type="primary" class="darkBtn headbutton" size="small" @click="isUpload=true">上传与分析</el-button>-->
         <!--<el-button type="primary" class="darkBtn headbutton" size="small" >训练</el-button>-->
@@ -273,7 +274,7 @@
               style="width: 97%"
               border
             >
-              <el-table-column prop="title" label="测试数据"></el-table-column>
+              <el-table-column prop="title1" label="测试数据"></el-table-column>
               <el-table-column label="操作" width="160" align="center">
                 <template slot-scope="scope">
                   <el-button
@@ -306,20 +307,21 @@
             "
           >
             <div class="tableHeader">
-              <span v-if="isMerge">合并</span>
               文件浏览
+              <span v-if="isMerge">合并</span>
               <span v-if="textData === '' && !isMerge">(选择文件以浏览内容)</span>
               <span v-if="textData === '' && isMerge">(正在加载合并文件)</span>
             </div>
             <div style="padding: 0 15px">
               <pre
+                
                 style="
                   word-break: break-word;
                   word-wrap: break-word;
                   white-space: break-spaces;
                 "
                 >{{ textData }}</pre>
-                <div v-if="divStatus == 2">
+                <div v-if="divStatus == 2 && !isMerge">
                   <div>
                     <span style="font-weight: bold">实际实体数量：</span>{{ realEntityCount }}个
                   </div>
@@ -535,6 +537,7 @@ export default {
       checkDis: false,
       calculateDis: false,
       checkStatus: 0,
+      sourceFlag: true,
       showFlag: 1, //1时显示深度学习对应操作，2时显示正则表达式对应操作
       realEntityCount: 0,
       extractEntityCount: 1,
@@ -644,6 +647,23 @@ export default {
     //查看测试结果
     showTestResult() {
       this.showTable = 2;
+      this.testData = [];
+      this.textData = "";
+      this.fileIndex = "";
+      this.isMerge = false;
+      this.sourceFlag = false;
+    },
+    //返回按钮
+    backToSource() {
+      this.showTable = 1;
+      this.divStatus = 1;
+      this.textData = "";
+      this.testData = [];
+      this.fileIndex = "";
+      this.modelIndex = "";
+      this.numberStr = "";
+      this.txtArr = [];
+      this.sourceFlag = true;
     },
     //多选
     handleSelectionChange(val) {
@@ -1273,7 +1293,7 @@ export default {
           .then(res => {
             this.textData = "";
             this.testData = res.data.map((cur) => {
-              return { title: cur };
+              return { title1: cur };
             });
             this.numberStr = res.data.toString();
             this.fileCountTest = this.testData.length;
@@ -1393,7 +1413,6 @@ export default {
         .then((res) => {
           // console.log(JSON.stringify(res.data));
           this.textData = res.data;
-          console.log("lll",res.data);
           this.loadingRes = false;
         })
         .catch((res) => {
@@ -1408,16 +1427,14 @@ export default {
       this.fullscreenLoading = true;
       let fd = new FormData();
       fd.append("contents", this.fileIndex);
-      fd.append("filename", row.title);
-      this.$http
+      fd.append("filename", row.title1);
+       this.$http
         .post("http://39.102.71.123:23352/pic/text_test_results_2", fd, {
           headers: {
             "Content-Type": "multipart/form-data",
           },
         })
         .then(res => {
-          //11111
-          console.log("res.data",res.data);
           this.fullscreenLoading = false;
           let content = res.data[0];
           let tagSet = [];
@@ -1432,7 +1449,6 @@ export default {
               });
             }
           }
-          console.log("tagSet1",tagSet);
           //排序
           tagSet = [].concat(
             tagSet.sort((obj1, obj2) => {
@@ -1440,7 +1456,6 @@ export default {
               else return -1;
             })
           );
-          console.log("tagSet2",tagSet);
           //高亮
           let offset = 0;
           for (let i = 0; i < tagSet.length; i++) {

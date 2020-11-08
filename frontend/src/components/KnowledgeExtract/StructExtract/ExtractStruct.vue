@@ -21,7 +21,7 @@
           <el-select v-model="sourceIndex" placeholder size="small" style="margin-left:52px;">
             <el-option v-for="(item, index) in sourceList" :key="index" :label="item" :value="item"></el-option>
           </el-select>
-          <el-button style="margin-left:20px;" class="blueBtn" size="small" @click="chooseSource">确定</el-button>
+          <el-button style="margin-left:20px;" class="blueBtn" size="small" @click="chooseSource">确定11</el-button>
         </div>
         <div class="top-tip" v-if="!sourceFlag">
           <div style="width:100%">
@@ -279,6 +279,7 @@ export default {
         this.btnDisable = true;
       }
     },
+    //返回按钮
     backToSource() {
       this.tableIndex = '';
       this.tags = [];
