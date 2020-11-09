@@ -83,7 +83,7 @@
       <!--中心-->
       <!--      列表页-->
       <div class="main">
-        <el-row class="top-tip" v-if="showTable == 1">
+        <el-row class="top-tip" v-if="showTable != 3">
           <!--<span>请选择算法：</span>-->
           <!--<el-select-->
             <!--v-model="algorithm"-->
@@ -343,7 +343,7 @@
               <span v-if="textData === '' && !isMerge">(选择文件以浏览内容)</span>
               <span v-if="textData === '' && isMerge">(正在加载合并文件)</span>
             </div>
-            <div style="padding: 0 15px;height: 100%;">
+            <div style="padding: 0 15px;height: 100%;width:100%">
               <pre
                 
                 style="
@@ -367,7 +367,9 @@
                     <p id="para1" style="text-align: left"></p>
                   </div>
                 </div>
-                <v-echart id="graph1" :style="{width: graphWidth,height:graphHeight}" :options="echartsOptions"></v-echart>
+                <div v-if="divStatus == 3" style="width: 100%;height: 100%">
+                  <v-echart id="graph1" :style="{width: graphWidth,height:graphHeight}" :options="echartsOptions"></v-echart>
+                </div>
             </div>
             <!-- <el-table
               :data="testData.slice((curPageTest - 1) * 10, curPageTest * 10)"
@@ -696,6 +698,7 @@ export default {
       this.modelIndex = "";
       this.numberStr = "";
       this.txtArr = [];
+      this.echartsOptions = {};
       this.sourceFlag = true;
     },
     //多选
@@ -753,30 +756,38 @@ export default {
     },
     //文本知识抽取
     textExtract() {
-      this.showTable = 3;
       this.fullscreenLoading = true;
-      let fd = new FormData();
-      fd.append("contents", this.fileIndex);
-      this.$http
-        .post("http://39.102.71.123:23352/pic/text_extract", fd, {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
+      if(this.fileIndex != "") {
+        this.showTable = 3;
+        let fd = new FormData();
+        fd.append("contents", this.fileIndex);
+        this.$http
+          .post("http://39.102.71.123:23352/pic/text_extract", fd, {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          })
+          .then(res => {
+            this.fullscreenLoading = false;
+            this.textData = "";
+            this.testData = res.data.map(cur => {
+              return { title2: cur };
+            });
+            this.numberStr = res.data.toString();
+            this.fileCountTest = this.testData.length;
+            this.sourceFlag = false; //返回按钮
+          })
+          .catch(error => {
+            console.log(error);
+            this.fullscreenLoading = false;
+          })
+      }else if(this.fileIndex == "") {
+        this.fullscreenLoading = false;
+        this.$message({
+          message: "请先加载测试数据！",
+          type: "warning"
         })
-        .then(res => {
-          this.fullscreenLoading = false;
-          this.textData = "";
-          this.testData = res.data.map(cur => {
-            return { title2: cur };
-          });
-          this.numberStr = res.data.toString();
-          this.fileCountTest = this.testData.length;
-          this.sourceFlag = false; //返回按钮
-        })
-        .catch(error => {
-          console.log(error);
-          this.fullscreenLoading = false;
-        })
+      }
     },
     loadAlgorithm() {
       if (this.showFlag === 2) {
@@ -1568,6 +1579,7 @@ export default {
     },
     handleAnalysis2(row) {
       this.fullscreenLoading = true;
+      this.divStatus = 3;
       let fd = new FormData();
       fd.append("contents", this.fileIndex);
       fd.append("filename", row.title2);
