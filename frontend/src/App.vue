@@ -55,7 +55,7 @@
                 <el-menu-item index="/deNoise">属性去噪</el-menu-item>
                 <el-menu-item index="/entityMatch">实体对齐</el-menu-item>
                 <el-menu-item index="/extractTest">抽取测试</el-menu-item>
-                <el-menu-item index="/entitymatcholdversion">结构化数据标注</el-menu-item>
+                <!-- <el-menu-item index="/entitymatcholdversion">结构化数据标注</el-menu-item> -->
               </el-menu-item-group>
             </el-submenu>
             <el-submenu index="2" v-if="activeIndex==='/'">

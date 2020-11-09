@@ -13,7 +13,6 @@ import ExtractStruct from "../components/KnowledgeExtract/StructExtract/ExtractS
 import ShowDict from "../components/KnowledgeExtract/TextExtract/ShowDict"
 import ShowOntology from "../components/KnowledgeExtract/StructExtract/ShowOntology"
 import EntityMatch from "../components/KnowledgeExtract/StructExtract/EntityMatch"
-import EntityMatchOldVersion from "../components/KnowledgeExtract/StructExtract/EntityMatch_oldVersion"
 import DeNoise from "../components/KnowledgeExtract/StructExtract/DeNoise"
 import ViewData from "../components/KnowledgeExtract/StructExtract/ViewData"
 import ExtractTest from "../components/KnowledgeExtract/StructExtract/ExtractTest"
@@ -88,11 +87,6 @@ export default new Router({
       path: '/entitymatch',
       name: 'entityMatch',
       component: EntityMatch
-    },
-    {
-      path: '/entitymatcholdversion',
-      name: 'entityMatchOldVersion',
-      component: EntityMatchOldVersion //结构化数据标注
     },
     {
       path: '/showontology',
