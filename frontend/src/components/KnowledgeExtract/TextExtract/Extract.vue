@@ -239,7 +239,7 @@
           <span v-if="showFlag === 2">已选择的文件：</span>
           <span v-if="showFlag === 1">已选择的文件：</span>
           <span v-if="checkedTxt == true && numberStr != ''">全部文件</span> 
-          <span ref="txt" v-if="checkedTxt == false && numberStr != ''"></span>
+          <span ref="txt" v-if="checkedTxt == false "></span>
         </div>
         <!--文书列表-->
         <el-row
@@ -708,7 +708,7 @@ export default {
         this.checkedTxt = false;
         this.multipleSelection = val;
         this.numberStr = "";
-        let arr = [];
+        // let arr = [];
   
         if(this.txtArr.length == 0) {
           this.txtArr.push(this.multipleSelection.title);
@@ -719,7 +719,7 @@ export default {
             this.txtArr.splice(this.txtArr.indexOf(this.multipleSelection.title), 1);
           }
         }
-        arr.push(this.multipleSelection.title);
+        // arr.push(this.multipleSelection.title);
   
         this.numberStr = this.txtArr.toString();
         this.$nextTick(() => {
@@ -744,6 +744,8 @@ export default {
     checkAll1() {
       this.checkedTxt = true;
       this.checkStatus = 0;
+      this.numberStr = "";
+      this.txtArr = [];
       // this.calculateDis = false;
       this.testData.forEach(item => {
         this.testDataArr.push(item.title);
@@ -1361,6 +1363,7 @@ export default {
             this.loadingRes = false;
           });
       }else if(this.showTable == 2) {
+        this.numberStr = "";
         let fd = new FormData();
         fd.append("contents", this.fileIndex);
         this.$http
