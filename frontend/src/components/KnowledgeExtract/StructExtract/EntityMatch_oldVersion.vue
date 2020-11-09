@@ -17,7 +17,7 @@
         <!--表格查看-->
 
         <!--合并表格选项-->
-        <div class="top-tip" v-show="!isUnion">
+        <!-- <div class="top-tip" v-show="!isUnion">
           <span>请选择数据表：</span>
 
           <el-cascader
@@ -29,7 +29,7 @@
           ></el-cascader>
 
           <el-button style="margin-left:20px;" class="blueBtn" size="small" @click="unionTable">合并数据</el-button>
-        </div>
+        </div> -->
 
         <div class="top-tip" v-if="isUnion">
           <span v-if="!isList">请选择数据：</span>
@@ -317,7 +317,7 @@ let echarts = require("echarts");
 let myChart;
 let that;
 export default {
-  name: "EntityMatch",
+  name: "EntityMatchOldVersion",
   data() {
     return {
       threeColumns: true,
@@ -558,6 +558,7 @@ export default {
         console.log(res)
       });
     },
+    //合并数据
     unionTable(){
       console.log(this.unionList);
       let fd = new FormData();
