@@ -906,38 +906,47 @@ export default {
     //抽取实体属性
     extractEntityProperty() {
       this.fullscreenLoading = true;
-      let fd = new FormData();
-      fd.append("filename", this.numberStr);
-      this.$http
-        .post("http://39.102.71.123:23352/pic/text_attribute_speed", fd,{
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
+      if(this.numberStr == "") {
+        this.fullscreenLoading = false;
+        this.$message({
+          message: "请选择文件！",
+          type: "warning"
         })
-        .then((res) => {
-          console.log(res);
-          this.fullscreenLoading = false;
-          this.resDataArr = res.data;
-          this.outerVisible = true;
-          // this.$alert(
-          //   "<p><strong>总耗时： <i>" +
-          //     res.data[0] +
-          //     "</i> 秒</strong></p>" +
-          //     "<p><strong>实体属性抽取数量： <i>" +
-          //     res.data[1] +
-          //     "</i> 条</strong></p>" +
-          //     "<p><strong>实体属性抽取效率： <i>" +
-          //     res.data[2] +
-          //     "</i>条/秒</strong></p>",
-          //   "实体属性抽取结果",
-          //   {
-          //     dangerouslyUseHTMLString: true,
-          //   }
-          // );
-        })
-        .catch((res) => {
-          console.log(res);
-        });
+      }else if(this.numberStr != "") {
+        let fd = new FormData();
+        fd.append("filename", this.numberStr);
+        this.$http
+          .post("http://39.102.71.123:23352/pic/text_attribute_speed", fd,{
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          })
+          .then((res) => {
+            console.log(res);
+            this.fullscreenLoading = false;
+            this.resDataArr = res.data;
+            this.outerVisible = true;
+            // this.$alert(
+            //   "<p><strong>总耗时： <i>" +
+            //     res.data[0] +
+            //     "</i> 秒</strong></p>" +
+            //     "<p><strong>实体属性抽取数量： <i>" +
+            //     res.data[1] +
+            //     "</i> 条</strong></p>" +
+            //     "<p><strong>实体属性抽取效率： <i>" +
+            //     res.data[2] +
+            //     "</i>条/秒</strong></p>",
+            //   "实体属性抽取结果",
+            //   {
+            //     dangerouslyUseHTMLString: true,
+            //   }
+            // );
+          })
+          .catch((res) => {
+            console.log(res);
+          });
+
+      }
     },
     openInner() {
       this.innerVisible = true;
