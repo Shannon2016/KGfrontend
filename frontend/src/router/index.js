@@ -16,7 +16,7 @@ import EntityMatch from "../components/KnowledgeExtract/StructExtract/EntityMatc
 import DeNoise from "../components/KnowledgeExtract/StructExtract/DeNoise"
 import ViewData from "../components/KnowledgeExtract/StructExtract/ViewData"
 import ExtractTest from "../components/KnowledgeExtract/StructExtract/ExtractTest"
-import Predict from "../components/KnowledgeExtract/TextExtract/Predict"
+// import Predict from "../components/KnowledgeExtract/TextExtract/Predict"
 import ImageLabel from "../components/KnowledgeExtract/ImageLabel"
 import ImagePredict from "../components/KnowledgeExtract/ImagePredict"
 import Video2Image from "../components/KnowledgeExtract/Video2Image"
@@ -113,11 +113,11 @@ export default new Router({
       name: '/ExtractTest',
       component: ExtractTest
     },
-    {
+    /* {
       path: '/predict',
       name: '/Predict',
       component: Predict
-    },
+    }, */
     {
       path: '/imageLabel',
       name: '/ImageLabel',

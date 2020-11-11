@@ -12,7 +12,7 @@
           <el-option v-for="(item, index) in typeList" :key="index" :label="item" :value="item"></el-option>
         </el-select>
         <el-button style="margin-left:20px;" class="blueBtn" size="small" @click="showOntology">确定</el-button>
-        <el-button type="primary" class="darkBtn headbutton" size="small" @click="isUpload=true">上传</el-button>
+        <!-- <el-button type="primary" class="darkBtn headbutton" size="small" @click="isUpload=true">上传</el-button> -->
 
       </div>
       <div class="result" style="margin-bottom:50px;">

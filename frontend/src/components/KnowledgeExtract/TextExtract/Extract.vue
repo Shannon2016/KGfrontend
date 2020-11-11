@@ -145,13 +145,13 @@
             @click="extractEntityProperty"
             v-if="showFlag === 2"
           >抽取实体属性</el-button>
-          <el-button
+          <!-- <el-button
             class="darkBtn"
             size="small"
             style="float: right; margin: 0 20px 0 0"
             @click="isUpload = true"
             v-if="showFlag === 2"
-          >上传文件</el-button>
+          >上传文件</el-button> -->
           <el-button
             class="darkBtn"
             size="small"
@@ -306,7 +306,7 @@
               border
             >
               <el-table-column prop="title2" label="测试数据"></el-table-column>
-              <el-table-column label="操作" width="160" align="center">
+              <el-table-column label="浏览" width="80" align="center">
                 <template slot-scope="scope">
                   <el-button
                     class="blueBtn"
@@ -315,6 +315,17 @@
                     plain
                     size="small"
                   >浏览</el-button>
+                </template>
+              </el-table-column>
+              <el-table-column label="抽取" width="80" align="center">
+                <template slot-scope="scope">
+                  <el-button
+                    class="blueBtn"
+                    @click.stop="handleAnalysis3(scope.row)"
+                    type="primary"
+                    plain
+                    size="small"
+                  >抽取</el-button>
                 </template>
               </el-table-column>
             </el-table>
@@ -367,8 +378,11 @@
                     <p id="para1" style="text-align: left"></p>
                   </div>
                 </div>
-                <div v-if="divStatus == 3" style="width: 100%;height: 100%">
+                <!-- <div v-if="divStatus == 3" style="width: 100%;height: 100%">
                   <v-echart id="graph1" :style="{width: graphWidth,height:graphHeight}" :options="echartsOptions"></v-echart>
+                </div> -->
+                <div v-if="divStatus == 4" style="width: 100%;height: 100%">
+                  <v-echart id="graph2" :style="{width: graphWidth,height:graphHeight}" :options="echartsOptions"></v-echart>
                 </div>
             </div>
             <!-- <el-table
@@ -759,12 +773,9 @@ export default {
     //文本知识抽取
     textExtract() {
       this.fullscreenLoading = true;
-      if(this.fileIndex != "") {
         this.showTable = 3;
-        let fd = new FormData();
-        fd.append("contents", this.fileIndex);
         this.$http
-          .post("http://192.168.253.219:8000/pic/text_extract", fd, {
+          .post("http://192.168.253.219:8000/pic/text_extract_list", {
             headers: {
               "Content-Type": "multipart/form-data",
             },
@@ -783,13 +794,6 @@ export default {
             console.log(error);
             this.fullscreenLoading = false;
           })
-      }else if(this.fileIndex == "") {
-        this.fullscreenLoading = false;
-        this.$message({
-          message: "请先加载测试数据！",
-          type: "warning"
-        })
-      }
     },
     loadAlgorithm() {
       if (this.showFlag === 2) {
@@ -1580,14 +1584,14 @@ export default {
           console.log(error)
         })
     },
+    //浏览
     handleAnalysis2(row) {
       this.fullscreenLoading = true;
-      this.divStatus = 3;
+      // this.divStatus = 3;
       let fd = new FormData();
-      fd.append("contents", this.fileIndex);
       fd.append("filename", row.title2);
       this.$http
-        .post("http://192.168.253.219:8000/pic/view_text_extract_results", fd, {
+        .post("http://192.168.253.219:8000/pic/text_extract_view", fd, {
           headers: {
             "Content-Type": "multipart/form-data",
           },
@@ -1595,6 +1599,35 @@ export default {
         .then(res => {
           this.fullscreenLoading = false;
           console.log("res",res);
+          this.$alert(
+            "<p>" + res.data + "</p>",
+            "文书内容",
+            {
+              dangerouslyUseHTMLString: true,
+            }
+          );
+        })
+        .catch(error => {
+          this.fullscreenLoading = false;
+          console.log(error);
+        })
+    },
+    //抽取
+    handleAnalysis3(row) {
+      console.log("row.title2:",row.title2);
+      this.fullscreenLoading = true;
+      this.divStatus = 4;
+      let fd = new FormData();
+      fd.append("filename",row.title2);
+      this.$http
+        .post("http://192.168.253.219:8000/pic/text_extract_demo", fd, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        })
+        .then(res => {
+          console.log("res",res);
+          this.fullscreenLoading = false;
 
           let categories = [
             {

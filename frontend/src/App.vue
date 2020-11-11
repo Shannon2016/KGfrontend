@@ -66,7 +66,7 @@
               <el-menu-item-group>
                 <el-menu-item index="/showDict">预处理</el-menu-item>
                 <el-menu-item index="/extract?algorithm=1">文本抽取</el-menu-item>
-                <el-menu-item index="/predict">模型预测</el-menu-item>
+                <!-- <el-menu-item index="/predict">模型预测</el-menu-item> -->
               </el-menu-item-group>
             </el-submenu>
             <el-menu-item index="/imageLabel" v-if="activeIndex==='/'">
