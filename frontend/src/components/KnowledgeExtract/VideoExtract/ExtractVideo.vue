@@ -337,7 +337,7 @@ export default {
       let fd = new FormData();
       fd.append("entity", this.inputEntity);
       this.$http
-        .post("http://39.102.71.123:23352/pic/search_entity", fd, {
+        .post("http://192.168.253.219:8000/pic/search_entity", fd, {
           headers: {
             "Content-Type": "multipart/form-data",
           },
@@ -371,7 +371,7 @@ export default {
     showGraph() {
       this.graphFlag = true;
       this.$http
-        .post("http://39.102.71.123:23352/pic/JSTextJoinKG", {
+        .post("http://192.168.253.219:8000/pic/JSTextJoinKG", {
           headers: {
             "Content-Type": "multipart/form-data",
           },
@@ -387,7 +387,7 @@ export default {
     showResults() {
       this.resultFlag = true;
       this.$http
-        .post("http://39.102.71.123:23352/pic/video_test_results", {
+        .post("http://192.168.253.219:8000/pic/video_test_results", {
           headers: {
             "Content-Type": "multipart/form-data",
           },
@@ -419,7 +419,7 @@ export default {
       let fd = new FormData();
       fd.append("IoU",this.threshold);
       this.$http
-        .post("http://39.102.71.123:23352/pic/video_test", fd, {
+        .post("http://192.168.253.219:8000/pic/video_test", fd, {
           headers: {
             "Content-Type": "multipart/form-data"
           }
@@ -487,7 +487,7 @@ export default {
     loadList() {
       this.loadingRes = true;
       this.$http
-        .post("http://39.102.71.123:23352/pic/load_videoData", {
+        .post("http://192.168.253.219:8000/pic/load_videoData", {
           headers: {
             "Content-Type": "multipart/form-data",
           },
@@ -518,7 +518,7 @@ export default {
       fd.append("filename", row.title);
       this.loadingRes = true;
       this.$http
-        .post("http://39.102.71.123:23352/pic/view_videoData", fd, {
+        .post("http://192.168.253.219:8000/pic/view_videoData", fd, {
           headers: {
             "Content-Type": "multipart/form-data",
           },
@@ -539,7 +539,7 @@ export default {
       fd.append("filename", row.title);
       this.loadingRes = true;
       this.$http
-        .post("http://39.102.71.123:23352/pic/videoTestDemo", fd, {
+        .post("http://192.168.253.219:8000/pic/videoTestDemo", fd, {
           headers: {
             "Content-Type": "multipart/form-data",
           },
@@ -558,7 +558,7 @@ export default {
     //查看历史信息
     showHistory() {
       this.$http
-        .post("http://39.102.71.123:23352/pic/videoTestHistory", {
+        .post("http://192.168.253.219:8000/pic/videoTestHistory", {
           headers: {
             "Content-Type": "multipart/form-data",
           },

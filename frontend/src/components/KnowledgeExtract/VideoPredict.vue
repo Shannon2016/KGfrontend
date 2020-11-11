@@ -358,7 +358,7 @@ export default {
       fd.append("video", this.uploadFileList[0].raw)
       console.log(this.uploadFileList)
       this.$http
-        .post("http://39.102.71.123:23352/pic/video_detect_submit", fd, {
+        .post("http://192.168.253.219:8000/pic/video_detect_submit", fd, {
           headers: {
             "Content-Type": "multipart/form-data",
           },
@@ -383,7 +383,7 @@ export default {
       let fd = new FormData();
       fd.append("entity", this.inputEntity);
       this.$http
-        .post("http://39.102.71.123:23352/pic/search_entity", fd, {
+        .post("http://192.168.253.219:8000/pic/search_entity", fd, {
           headers: {
             "Content-Type": "multipart/form-data",
           },
@@ -417,7 +417,7 @@ export default {
     showGraph() {
       this.graphFlag = true;
       this.$http
-        .post("http://39.102.71.123:23352/pic/JSTextJoinKG", {
+        .post("http://192.168.253.219:8000/pic/JSTextJoinKG", {
           headers: {
             "Content-Type": "multipart/form-data",
           },
@@ -434,7 +434,7 @@ export default {
     loadList() {
       this.loadingRes = true;
       this.$http
-        .post("http://39.102.71.123:23352/pic/video_detect", {
+        .post("http://192.168.253.219:8000/pic/video_detect", {
           headers: {
             "Content-Type": "multipart/form-data",
           },
@@ -466,7 +466,7 @@ export default {
       fd.append("filename", row.title);
       this.loadingRes = true;
       this.$http
-        .post("http://39.102.71.123:23352/pic/video_detect_view", fd, {
+        .post("http://192.168.253.219:8000/pic/video_detect_view", fd, {
           headers: {
             "Content-Type": "multipart/form-data",
           },
@@ -488,7 +488,7 @@ export default {
       fd.append("filename", row.title);
       //   this.loadingRes = true;
       this.$http
-        .post("http://39.102.71.123:23352/pic/video_detect_classification", fd, {
+        .post("http://192.168.253.219:8000/pic/video_detect_classification", fd, {
           headers: {
             "Content-Type": "multipart/form-data",
           },
@@ -511,7 +511,7 @@ export default {
       fd.append("filename", row.title);
       this.loadingRes = true;
       this.$http
-        .post("http://39.102.71.123:23352/pic/video_detect_predict", fd, {
+        .post("http://192.168.253.219:8000/pic/video_detect_predict", fd, {
           headers: {
             "Content-Type": "multipart/form-data",
           },

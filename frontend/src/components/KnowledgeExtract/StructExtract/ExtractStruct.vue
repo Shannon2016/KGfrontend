@@ -334,7 +334,7 @@ export default {
       fd.append("ontology", this.typeSelect);
       fd.append("ontology_center", this.entitySelect[0]);
       this.$http
-        .post("http://39.102.71.123:23352/pic/show_ontology2", fd, {
+        .post("http://192.168.253.219:8000/pic/show_ontology2", fd, {
           headers: {
             "Content-Type": "multipart/form-data"
           }
@@ -372,7 +372,7 @@ export default {
       let fd = new FormData();
       fd.append("ontology", this.typeSelect);
       this.$http
-        .post("http://39.102.71.123:23352/pic/show_ontology1", fd, {
+        .post("http://192.168.253.219:8000/pic/show_ontology1", fd, {
           headers: {
             "Content-Type": "multipart/form-data"
           }
@@ -401,7 +401,7 @@ export default {
       let fd = new FormData();
       fd.append("ontology", this.typeSelect);
       this.$http
-        .post("http://39.102.71.123:23352/pic/functional_dependency", fd, {
+        .post("http://192.168.253.219:8000/pic/functional_dependency", fd, {
           headers: {
             "Content-Type": "multipart/form-data"
           }
@@ -461,7 +461,7 @@ export default {
       fd.append("columns", JSON.stringify(columns));
       fd.append("ontology_data", JSON.stringify(ontology_data));
       this.$http
-        .post("http://39.102.71.123:23352/pic/struct_entity_extract", fd, {
+        .post("http://192.168.253.219:8000/pic/struct_entity_extract", fd, {
           headers: {
             "Content-Type": "multipart/form-data"
           }
@@ -504,7 +504,7 @@ export default {
       this.fullscreenLoading = true;
       fd.append("ontology", this.typeSelect);
       this.$http
-        .post("http://39.102.71.123:23352/pic/struct_relation_extract", fd, {
+        .post("http://192.168.253.219:8000/pic/struct_relation_extract", fd, {
           headers: {
             "Content-Type": "multipart/form-data"
           }
@@ -579,7 +579,7 @@ export default {
       fd.append("columns", JSON.stringify(columns));
       fd.append("ontology_data", JSON.stringify(ontology_data));
       this.$http
-        .post("http://39.102.71.123:23352/pic/struct_attribute_extract", fd, {
+        .post("http://192.168.253.219:8000/pic/struct_attribute_extract", fd, {
           headers: {
             "Content-Type": "multipart/form-data"
           }
@@ -620,7 +620,7 @@ export default {
       let fd = new FormData();
       fd.append("source", this.sourceIndex);
       this.$http
-        .post("http://39.102.71.123:23352/pic/struct_data_source", fd, {
+        .post("http://192.168.253.219:8000/pic/struct_data_source", fd, {
           headers: {
             "Content-Type": "multipart/form-data"
           }
@@ -664,7 +664,7 @@ export default {
       fd.append("table", this.tableIndex);
       fd.append("source", this.sourceIndex);
       this.$http
-        .post("http://39.102.71.123:23352/pic/view_structData", fd, {
+        .post("http://192.168.253.219:8000/pic/view_structData", fd, {
           headers: {
             "Content-Type": "multipart/form-data"
           }
@@ -792,7 +792,7 @@ export default {
     },
     loadData() {
       this.$http
-        .post("http://39.102.71.123:23352/pic/show_table", {
+        .post("http://192.168.253.219:8000/pic/show_table", {
           headers: {
             "Content-Type": "multipart/form-data"
           }
@@ -820,7 +820,7 @@ export default {
     //   fd.append("table", this.tableIndex);
     //   fd.append("ontology", this.typeSelect);
     //   this.$http
-    //     .post("http://39.102.71.123:23352/pic/establish_map", fd, {
+    //     .post("http://192.168.253.219:8000/pic/establish_map", fd, {
     //       headers: {
     //         "Content-Type": "multipart/form-data"
     //       }
@@ -860,7 +860,7 @@ export default {
     //   fd.append("table", this.tableIndex);
     //   fd.append("ontology", this.typeSelect);
     //   this.$http
-    //     .post("http://39.102.71.123:23352/pic/establish_map", fd, {
+    //     .post("http://192.168.253.219:8000/pic/establish_map", fd, {
     //       headers: {
     //         "Content-Type": "multipart/form-data"
     //       }

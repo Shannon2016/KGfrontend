@@ -94,7 +94,7 @@ export default {
       let fd = new FormData();
       fd.append("ontology", this.typeSelect);
       this.$http
-        .post("http://39.102.71.123:23352/pic/view_ontology", fd, {
+        .post("http://192.168.253.219:8000/pic/view_ontology", fd, {
           headers: {
             "Content-Type": "multipart/form-data"
           }
@@ -184,7 +184,7 @@ export default {
       fd.append("csv_file", this.fileList[0].raw)
       fd.append('ontology_name',this.uploadForm.name)
       this.$http.post(
-        'http://39.102.71.123:23352/pic/submit_ontology_data', fd,
+        'http://192.168.253.219:8000/pic/submit_ontology_data', fd,
         {
           headers: {
             'Content-Type': 'multipart/form-data'
@@ -213,7 +213,7 @@ export default {
     },
     loadList(){
       this.$http.post(
-        'http://39.102.71.123:23352/pic/ontology_source',
+        'http://192.168.253.219:8000/pic/ontology_source',
         {
           headers: {
             'Content-Type': 'multipart/form-data'

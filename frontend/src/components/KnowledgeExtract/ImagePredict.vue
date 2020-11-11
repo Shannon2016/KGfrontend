@@ -408,7 +408,7 @@ export default {
       let fd = new FormData();
       fd.append("pic", this.uploadFileList[0].raw);
       this.$http
-        .post("http://39.102.71.123:23352/pic/pic_detect_submit", fd, {
+        .post("http://192.168.253.219:8000/pic/pic_detect_submit", fd, {
           headers: { "Content-Type": "multipart/form-data" }
         })
         .then(res => {
@@ -435,7 +435,7 @@ export default {
     loadList() {
       this.loadingRes = true;
       this.$http
-        .post("http://39.102.71.123:23352/pic/pic_detect", {
+        .post("http://192.168.253.219:8000/pic/pic_detect", {
           headers: {
             "Content-Type": "multipart/form-data",
           },
@@ -466,7 +466,7 @@ export default {
       fd.append("filename", row.title);
       this.loadingRes = true;
       this.$http
-        .post("http://39.102.71.123:23352/pic/pic_detect_view", fd, {
+        .post("http://192.168.253.219:8000/pic/pic_detect_view", fd, {
           headers: {
             "Content-Type": "multipart/form-data",
           },
@@ -486,7 +486,7 @@ export default {
       fd.append("filename", row.title);
       this.loadingRes = true;
       this.$http
-        .post("http://39.102.71.123:23352/pic/pic_detect_classification", fd, {
+        .post("http://192.168.253.219:8000/pic/pic_detect_classification", fd, {
           headers: {
             "Content-Type": "multipart/form-data",
           },
@@ -510,7 +510,7 @@ export default {
       fd.append("filename", row.title);
       this.loadingRes = true;
       this.$http
-        .post("http://39.102.71.123:23352/pic/pic_detect_predict", fd, {
+        .post("http://192.168.253.219:8000/pic/pic_detect_predict", fd, {
           headers: {
             "Content-Type": "multipart/form-data",
           },

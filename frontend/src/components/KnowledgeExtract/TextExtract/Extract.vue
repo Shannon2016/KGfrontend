@@ -764,7 +764,7 @@ export default {
         let fd = new FormData();
         fd.append("contents", this.fileIndex);
         this.$http
-          .post("http://39.102.71.123:23352/pic/text_extract", fd, {
+          .post("http://192.168.253.219:8000/pic/text_extract", fd, {
             headers: {
               "Content-Type": "multipart/form-data",
             },
@@ -795,7 +795,7 @@ export default {
       if (this.showFlag === 2) {
         this.loadingRes = true;
         this.$http
-          .post("http://39.102.71.123:23352/pic/loadTextDataRE", {
+          .post("http://192.168.253.219:8000/pic/loadTextDataRE", {
             headers: {
               "Content-Type": "multipart/form-data",
             },
@@ -880,7 +880,7 @@ export default {
         let fd = new FormData();
         fd.append("filename", this.numberStr);
         this.$http
-          .post("http://39.102.71.123:23352/pic/text_relation_speed", fd,{
+          .post("http://192.168.253.219:8000/pic/text_relation_speed", fd,{
             headers: {
               "Content-Type": "multipart/form-data",
             },
@@ -929,7 +929,7 @@ export default {
         let fd = new FormData();
         fd.append("filename", this.numberStr);
         this.$http
-          .post("http://39.102.71.123:23352/pic/text_attribute_speed", fd,{
+          .post("http://192.168.253.219:8000/pic/text_attribute_speed", fd,{
             headers: {
               "Content-Type": "multipart/form-data",
             },
@@ -964,7 +964,7 @@ export default {
     openInner() {
       this.innerVisible = true;
       this.$http
-        .post("http://39.102.71.123:23352/pic/text_attribute_speed_res",{
+        .post("http://192.168.253.219:8000/pic/text_attribute_speed_res",{
           headers: {
             "Content-Type": "multipart/form-data",
           },
@@ -979,7 +979,7 @@ export default {
     openInner1() {
       this.innerVisible1 = true;
       this.$http
-        .post("http://39.102.71.123:23352/pic/text_relation_speed_res",{
+        .post("http://192.168.253.219:8000/pic/text_relation_speed_res",{
           headers: {
             "Content-Type": "multipart/form-data",
           },
@@ -1008,7 +1008,7 @@ export default {
         fd.append("filelist", this.numberStr);
         fd.append("ALL_NOT", this.allnot.toString());
         this.$http
-          .post("http://39.102.71.123:23352/pic/textMergeData", fd, {
+          .post("http://192.168.253.219:8000/pic/textMergeData", fd, {
             headers: {
               "Content-Type": "multipart/form-data",
             },
@@ -1043,7 +1043,7 @@ export default {
       this.isList = false;
       this.loadingResGraph = true;
       this.$http
-        .post("http://39.102.71.123:23352/pic/show_textTuple", {
+        .post("http://192.168.253.219:8000/pic/show_textTuple", {
           headers: {
             "Content-Type": "multipart/form-data",
           },
@@ -1068,7 +1068,7 @@ export default {
       fd.append("entity2", this.inputEntity2);
       fd.append("number", this.level);
       this.$http
-        .post("http://39.102.71.123:23352/pic/searchTextData", fd, {
+        .post("http://192.168.253.219:8000/pic/searchTextData", fd, {
           headers: {
             "Content-Type": "multipart/form-data",
           },
@@ -1152,7 +1152,7 @@ export default {
       fd.append("contents", this.fileIndex);
       if (this.isMerge) {
         this.$http
-          .post("http://39.102.71.123:23352/pic/textTestALL", fd, {
+          .post("http://192.168.253.219:8000/pic/textTestALL", fd, {
             headers: {
               "Content-Type": "multipart/form-data",
             },
@@ -1239,7 +1239,7 @@ export default {
 
         fd.append("filename", this.selectTitle);
         this.$http
-          .post("http://39.102.71.123:23352/pic/textTestDemo", fd, {
+          .post("http://192.168.253.219:8000/pic/textTestDemo", fd, {
             headers: {
               "Content-Type": "multipart/form-data",
             },
@@ -1343,7 +1343,7 @@ export default {
         let fd = new FormData();
         fd.append("contents", this.fileIndex);
         this.$http
-          .post("http://39.102.71.123:23352/pic/loadTextDataDL", fd, {
+          .post("http://192.168.253.219:8000/pic/loadTextDataDL", fd, {
             headers: {
               "Content-Type": "multipart/form-data",
             },
@@ -1367,7 +1367,7 @@ export default {
         let fd = new FormData();
         fd.append("contents", this.fileIndex);
         this.$http
-          .post("http://39.102.71.123:23352/pic/text_test_results_1", fd, {
+          .post("http://192.168.253.219:8000/pic/text_test_results_1", fd, {
             headers: {
               "Content-Type": "multipart/form-data",
             },
@@ -1392,7 +1392,7 @@ export default {
       let fd = new FormData();
       fd.append("model", this.modelIndex);
       this.$http
-        .post("http://39.102.71.123:23352/pic/loadModel", fd, {
+        .post("http://192.168.253.219:8000/pic/loadModel", fd, {
           headers: {
             "Content-Type": "multipart/form-data",
           },
@@ -1439,7 +1439,7 @@ export default {
       let fd = new FormData();
       fd.append("text", this.uploadFileList[0].raw);
       this.$http
-        .post("http://39.102.71.123:23352/pic/submit_RE_data", fd, {
+        .post("http://192.168.253.219:8000/pic/submit_RE_data", fd, {
           headers: {
             "Content-Type": "multipart/form-data",
           },
@@ -1487,7 +1487,7 @@ export default {
 
       this.loadingRes = true;
       this.$http
-        .post("http://39.102.71.123:23352/pic/" + url, fd, {
+        .post("http://192.168.253.219:8000/pic/" + url, fd, {
           headers: {
             "Content-Type": "multipart/form-data",
           },
@@ -1511,7 +1511,7 @@ export default {
       fd.append("contents", this.fileIndex);
       fd.append("filename", row.title1);
        this.$http
-        .post("http://39.102.71.123:23352/pic/text_test_results_2", fd, {
+        .post("http://192.168.253.219:8000/pic/text_test_results_2", fd, {
           headers: {
             "Content-Type": "multipart/form-data",
           },
@@ -1587,7 +1587,7 @@ export default {
       fd.append("contents", this.fileIndex);
       fd.append("filename", row.title2);
       this.$http
-        .post("http://39.102.71.123:23352/pic/view_text_extract_results", fd, {
+        .post("http://192.168.253.219:8000/pic/view_text_extract_results", fd, {
           headers: {
             "Content-Type": "multipart/form-data",
           },
