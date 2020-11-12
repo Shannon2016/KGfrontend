@@ -236,7 +236,7 @@ export default {
     };
   },
   methods: {
-    //全选按钮
+    //全选
     checkAll() {
       this.numberArr = [1, this.number];
       this.numberStr = this.numberArr.toString();
@@ -426,8 +426,12 @@ export default {
         .then(res => {
           if(res.data == 0) {
             this.loadingRes = false;
+            this.iptVal = "";
             this.$message.error('输入的范围格式错误,或不在规定范围');
           }else {
+            this.iptDisable = false;
+            this.iptVal = "";
+            this.btnDisable = false;
             this.rawData = [].concat(res.data[1]);
   
             this.columnNames = [].concat(

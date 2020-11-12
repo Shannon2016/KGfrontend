@@ -541,6 +541,8 @@ export default {
     },
     //抽取实体属性
     extractProperty() {
+      this.btnDisable = false;
+      this.iptDisable = false;
       let fd = new FormData();
       if(this.iptVal != "") {
         this.numberStr = this.iptVal;
@@ -601,6 +603,7 @@ export default {
             this.propertySelect = "";
             this.propertyList = [];
             this.entitySelect = "";
+            this.iptVal = "";
             // } else this.$message.error("抽取失败！");
           }
         })

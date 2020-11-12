@@ -582,9 +582,10 @@ export default {
       checkedTxt: false,
       txtArr: [],
       entitySum: 0,
-      checkDis: false,
+      checkDis: false, //全选按钮
       calculateDis: false,
       checkStatus: 0,
+      checkedStatus: 0,
       sourceFlag: true,
       echartsOptions: {},
       showFlag: 1, //1时显示深度学习对应操作，2时显示正则表达式对应操作
@@ -702,7 +703,7 @@ export default {
       this.isMerge = false;
       this.sourceFlag = false;
     },
-    //返回按钮
+    //返回
     backToSource() {
       this.showTable = 1;
       this.divStatus = 1;
@@ -710,16 +711,19 @@ export default {
       this.testData = [];
       this.fileIndex = "";
       this.modelIndex = "";
-      this.numberStr = "";
       this.txtArr = [];
       this.echartsOptions = {};
       this.sourceFlag = true;
+      this.checkedStatus = 0;
+      this.isMerge = false;
+      this.numberStr = "";
     },
     //多选
     handleSelectionChange(val) {
-      this.checkStatus = 1;
+      this.checkedStatus = 1; //判断是否进行过选择
+      this.checkStatus = 1;  //多选状态确定 计算平均结果按钮将禁用
       if(this.checkDis == false) {
-        this.checkedTxt = false;
+        this.checkedTxt = false; //部分文件
         this.multipleSelection = val;
         this.numberStr = "";
         // let arr = [];
@@ -746,7 +750,7 @@ export default {
     },
     //全选
     checkAll() {
-      this.checkedTxt = true;
+      this.checkedTxt = true;  //全部文件
       this.numberStr = "";
       this.txtArr = [];
       this.numberStr = this.numberArr.toString();
@@ -756,8 +760,9 @@ export default {
       });
     },
     checkAll1() {
-      this.checkedTxt = true;
-      this.checkStatus = 0;
+      this.checkedStatus = 1; //判断是否进行过选择
+      this.checkedTxt = true; //全部文件
+      this.checkStatus = 0; //全选状态确定 可以进行计算平均结果
       this.numberStr = "";
       this.txtArr = [];
       // this.calculateDis = false;
@@ -820,6 +825,7 @@ export default {
           });
       }
     },
+    //计算平均结果
     calculateAverage() {
       if (this.recallSet.length === 0 && this.recallSet.length === 0) {
         this.$message({
@@ -997,16 +1003,14 @@ export default {
     },
     //合并
     mergeFile() {
-      if(this.numberStr != "") {
-        this.checkDis = true;
-        this.isMerge = true;
-        this.fullscreenLoading = true;
-        //判断单选还是多选
-        if(this.checkStatus == 1) {
-          this.calculateDis = true;
-        }else if(this.checkStatus == 0) {
-          this.calculateDis = false;
-        }
+      this.fullscreenLoading = true;
+      this.sourceFlag = false; //返回按钮显示
+      if(this.checkedStatus == 0) {
+        this.testData.forEach(item => {
+          this.testDataArr.push(item.title);
+        })
+        this.numberStr = this.testDataArr.toString();
+        this.checkDis = true; //全选按钮禁用
         let fd = new FormData();
         fd.append("contents", this.fileIndex);
         fd.append("filelist", this.numberStr);
@@ -1018,15 +1022,50 @@ export default {
             },
           })
           .then((res) => {
-            this.textData = res.data;
             this.fullscreenLoading = false;
+            this.isMerge = true;
+            this.textData = res.data;
+            this.checkedTxt = true; //全部文件
+            this.$message({
+              message: "全部数据合并成功！",
+              type: "success"
+            })
           })
           .catch((res) => {
             console.log(res);
             this.fullscreenLoading = false;
           });
-      }else if(this.numberStr == "") {
-        this.$message.error("请先选择数据！");
+      }else if(this.checkedStatus == 1) {
+        if(this.numberStr != "") {
+          this.checkDis = true; //全选按钮禁用
+          this.isMerge = true;
+          //判断多选还是全选
+          if(this.checkStatus == 1) {
+            this.calculateDis = true; //多选不能计算平均结果
+          }else if(this.checkStatus == 0) { //全选
+            this.calculateDis = false; //可以计算平均结果
+          }
+          let fd = new FormData();
+          fd.append("contents", this.fileIndex);
+          fd.append("filelist", this.numberStr);
+          fd.append("ALL_NOT", this.allnot.toString());
+          this.$http
+            .post("http://192.168.253.219:8000/pic/textMergeData", fd, {
+              headers: {
+                "Content-Type": "multipart/form-data",
+              },
+            })
+            .then((res) => {
+              this.textData = res.data;
+              this.fullscreenLoading = false;
+            })
+            .catch((res) => {
+              console.log(res);
+              this.fullscreenLoading = false;
+            });
+        }else if(this.numberStr == "") {
+          this.$message.error("请先选择数据！");
+        }
       }
     },
     changeToEntitySearch() {
@@ -1337,8 +1376,14 @@ export default {
     //选择文件集 加载测试数据
     chooseTable() {
       this.loadingRes = true;
+      this.numberStr = "";
+      this.testData = [];
+      this.testDataArr = [];
+      this.checkedStatus = 0;
+      // this.$nextTick(() => {
+      //   this.$refs.txt.innerText = this.numberStr;
+      // })
       if(this.showTable == 1) {
-        this.numberStr = "";
         this.txtArr = [];
         this.textData = "";
         this.fileCountTest = 0;
@@ -1367,7 +1412,6 @@ export default {
             this.loadingRes = false;
           });
       }else if(this.showTable == 2) {
-        this.numberStr = "";
         let fd = new FormData();
         fd.append("contents", this.fileIndex);
         this.$http
