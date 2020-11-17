@@ -106,6 +106,10 @@
               <i class="el-icon-search"></i>
               <span slot="title">关系检索</span>
             </el-menu-item>
+            <!-- <el-menu-item index="/semanticsSearch" v-if="activeIndex==='/entitySearch'">
+              <i class="el-icon-menu"></i>
+              <span slot="title">语义查询</span>
+            </el-menu-item> -->
           </el-menu>
         </el-aside>
         <el-main>

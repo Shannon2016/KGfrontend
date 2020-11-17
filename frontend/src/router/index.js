@@ -13,6 +13,7 @@ import ExtractStruct from "../components/KnowledgeExtract/StructExtract/ExtractS
 import ShowDict from "../components/KnowledgeExtract/TextExtract/ShowDict"
 import ShowOntology from "../components/KnowledgeExtract/StructExtract/ShowOntology"
 import EntityMatch from "../components/KnowledgeExtract/StructExtract/EntityMatch"
+// import EntityMatch from "../components/KnowledgeExtract/StructExtract/EntityMatch_oldVersion"
 import DeNoise from "../components/KnowledgeExtract/StructExtract/DeNoise"
 import ViewData from "../components/KnowledgeExtract/StructExtract/ViewData"
 import ExtractTest from "../components/KnowledgeExtract/StructExtract/ExtractTest"
@@ -21,6 +22,7 @@ import ImageLabel from "../components/KnowledgeExtract/ImageLabel"
 import ImagePredict from "../components/KnowledgeExtract/ImagePredict"
 import Video2Image from "../components/KnowledgeExtract/Video2Image"
 import VideoPredict from "../components/KnowledgeExtract/VideoPredict"
+import SemanticsSearch from "../components/DataSearch/SemanticsSearch"
 
 Vue.use(Router)
 
@@ -82,6 +84,11 @@ export default new Router({
       path: '/relationsearch',
       name: '/relationSearch',
       component: RelationSearch,
+    },
+    {
+      path: '/semanticsSearch',
+      name: '/semanticsSearch',
+      component: SemanticsSearch,
     },
     {
       path: '/entitymatch',
