@@ -55,6 +55,7 @@
                 <el-menu-item index="/deNoise">属性去噪</el-menu-item>
                 <el-menu-item index="/entityMatch">实体对齐</el-menu-item>
                 <el-menu-item index="/extractTest">抽取测试</el-menu-item>
+                <!-- <el-menu-item index="/entitymatcholdversion">结构化数据标注</el-menu-item> -->
               </el-menu-item-group>
             </el-submenu>
             <el-submenu index="2" v-if="activeIndex==='/'">
@@ -65,7 +66,7 @@
               <el-menu-item-group>
                 <el-menu-item index="/showDict">预处理</el-menu-item>
                 <el-menu-item index="/extract?algorithm=1">文本抽取</el-menu-item>
-                <el-menu-item index="/predict">模型预测</el-menu-item>
+                <!-- <el-menu-item index="/predict">模型预测</el-menu-item> -->
               </el-menu-item-group>
             </el-submenu>
             <el-menu-item index="/imageLabel" v-if="activeIndex==='/'">

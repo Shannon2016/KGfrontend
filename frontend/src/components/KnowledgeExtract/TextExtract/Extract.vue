@@ -74,6 +74,7 @@
     <el-main v-if="isList">
       <!--顶部-->
       <div class="header">
+        <i class="el-icon-back" v-if="!sourceFlag" @click="backToSource" style="margin-right:10px;"></i>
         文本抽取
         <!--<el-button type="primary" class="darkBtn headbutton" size="small" @click="isUpload=true">上传与分析</el-button>-->
         <!--<el-button type="primary" class="darkBtn headbutton" size="small" >训练</el-button>-->
@@ -82,7 +83,7 @@
       <!--中心-->
       <!--      列表页-->
       <div class="main">
-        <el-row class="top-tip">
+        <el-row class="top-tip" v-if="showTable != 3">
           <!--<span>请选择算法：</span>-->
           <!--<el-select-->
             <!--v-model="algorithm"-->
@@ -144,13 +145,13 @@
             @click="extractEntityProperty"
             v-if="showFlag === 2"
           >抽取实体属性</el-button>
-          <el-button
+          <!-- <el-button
             class="darkBtn"
             size="small"
             style="float: right; margin: 0 20px 0 0"
             @click="isUpload = true"
             v-if="showFlag === 2"
-          >上传文件</el-button>
+          >上传文件</el-button> -->
           <el-button
             class="darkBtn"
             size="small"
@@ -159,7 +160,7 @@
             v-if="showFlag === 2"
           >全选</el-button>
         </el-row>
-        <el-row class="top-tip">
+        <el-row class="top-tip" v-if="showTable == 1">
           <span style="margin-left: 0px" v-if="showFlag === 1">请选择训练模型：</span>
           <el-select
             v-model="modelIndex"
@@ -183,16 +184,33 @@
             v-if="showFlag === 1"
           >加载训练模型</el-button>
           <el-button
+            type="primary"
             class="darkBtn"
             size="small"
-            style="float: right; margin-right: 20px"
+            style="float: right; margin-right: 8px"
+            v-if="showFlag === 1"
+            @click="textExtract"
+          >文本知识抽取</el-button>
+          <el-button
+            type="primary"
+            class="darkBtn"
+            size="small"
+            style="float: right; margin-right: 8px"
+            v-if="showFlag === 1"
+            @click="showTestResult"
+          >查看测试结果</el-button>
+          <el-button
+            class="darkBtn"
+            size="small"
+            style="float: right; margin-right: 8px"
             @click="calculateAverage"
             v-if="showFlag === 1 && isMerge"
+            :disabled="calculateDis"
           >计算平均结果</el-button>
           <el-button
             class="darkBtn"
             size="small"
-            style="float: right; margin-right: 20px"
+            style="float: right; margin-right: 8px"
             @click="mergeFile"
             v-if="showFlag === 1 && !isMerge"
           >合并</el-button>
@@ -200,15 +218,28 @@
             type="primary"
             class="darkBtn"
             size="small"
-            style="float: right; margin-right: 20px"
+            style="float: right; margin-right: 8px"
             @click="modelTest"
             v-if="showFlag === 1"
           >模型测试</el-button>
+          <el-button
+            class="darkBtn"
+            size="small"
+            style="float:right;margin-right:8px"
+            @click="checkAll1"
+            :disabled="checkDis"
+            v-if="showFlag === 1"
+          >全选</el-button>
         </el-row>
-        <div id="matchInfo" v-if="testData.length !== 0">
-          已有测试数据数量 : {{ testData.length }} <br/>
-          <span v-if="showFlag ===1">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;文书中实体总数：{{ entitySum }}个</span>
-          <span v-if="showFlag === 2">已选择的文件：</span><span v-if="checkedTxt == true">全部文件</span>
+        <div id="matchInfo" v-if="testData.length !== 0 && showTable == 1">
+          <div>
+            已有测试数据数量 : {{ testData.length }}
+            <span v-if="showFlag ===1">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;文书中实体总数：{{ entitySum }}个</span>
+          </div>
+          <span v-if="showFlag === 2">已选择的文件：</span>
+          <span v-if="showFlag === 1">已选择的文件：</span>
+          <span v-if="checkedTxt == true && numberStr != ''">全部文件</span> 
+          <span ref="txt" v-if="checkedTxt == false "></span>
         </div>
         <!--文书列表-->
         <el-row
@@ -218,21 +249,22 @@
         >
           <el-col :span="12">
             <el-table
+              v-if="showTable == 1"
+              class="table"
               :data="testData.slice((curPageTrain - 1) * 10, curPageTrain * 10)"
               :header-cell-style="{ background: '#EBEEF7', color: '#606266' }"
               height="626"
               style="width: 97%"
               border
-              ref="multipleTable"
-              @selection-change="handleSelectionChange"
+              @cell-click="handleSelectionChange"
+              ref="multipleTab"
             >
-              <el-table-column type="selection" align="center" width="55" v-if="showFlag === 2"></el-table-column>
               <el-table-column prop="title" label="测试数据"></el-table-column>
               <el-table-column label="操作" width="160" align="center">
                 <template slot-scope="scope">
                   <el-button
                     class="blueBtn"
-                    @click="handleAnalysis(scope.row)"
+                    @click.stop="handleAnalysis(scope.row)"
                     type="primary"
                     plain
                     size="small"
@@ -240,10 +272,67 @@
                 </template>
               </el-table-column>
             </el-table>
+
+            <el-table
+              v-if="showTable == 2"
+              class="table"
+              :data="testData.slice((curPageTrain - 1) * 10, curPageTrain * 10)"
+              :header-cell-style="{ background: '#EBEEF7', color: '#606266' }"
+              height="626"
+              style="width: 97%"
+              border
+            >
+              <el-table-column prop="title1" label="测试数据"></el-table-column>
+              <el-table-column label="操作" width="160" align="center">
+                <template slot-scope="scope">
+                  <el-button
+                    class="blueBtn"
+                    @click.stop="handleAnalysis1(scope.row)"
+                    type="primary"
+                    plain
+                    size="small"
+                  >浏览</el-button>
+                </template>
+              </el-table-column>
+            </el-table>
+
+            <el-table
+              v-if="showTable == 3"
+              class="table"
+              :data="testData.slice((curPageTrain - 1) * 10, curPageTrain * 10)"
+              :header-cell-style="{ background: '#EBEEF7', color: '#606266' }"
+              height="626"
+              style="width: 97%"
+              border
+            >
+              <el-table-column prop="title2" label="测试数据"></el-table-column>
+              <el-table-column label="浏览" width="80" align="center">
+                <template slot-scope="scope">
+                  <el-button
+                    class="blueBtn"
+                    @click.stop="handleAnalysis2(scope.row)"
+                    type="primary"
+                    plain
+                    size="small"
+                  >浏览</el-button>
+                </template>
+              </el-table-column>
+              <el-table-column label="抽取" width="80" align="center">
+                <template slot-scope="scope">
+                  <el-button
+                    class="blueBtn"
+                    @click.stop="handleAnalysis3(scope.row)"
+                    type="primary"
+                    plain
+                    size="small"
+                  >抽取</el-button>
+                </template>
+              </el-table-column>
+            </el-table>
             <!-- 分页符-->
             <el-pagination
               background
-              layout="prev, pager, next, jumper"
+              layout="total, prev, pager, next, jumper"
               :total="fileCountTest"
               :current-page.sync="curPageTrain"
               @current-change="handleCurrentChangeTrain">
@@ -260,19 +349,41 @@
             "
           >
             <div class="tableHeader">
-              <span v-if="isMerge">合并</span>
               文件浏览
+              <span v-if="isMerge">合并</span>
               <span v-if="textData === '' && !isMerge">(选择文件以浏览内容)</span>
               <span v-if="textData === '' && isMerge">(正在加载合并文件)</span>
             </div>
-            <div style="padding: 0 15px">
+            <div style="padding: 0 15px;height: 100%;width:100%">
               <pre
+                
                 style="
                   word-break: break-word;
                   word-wrap: break-word;
                   white-space: break-spaces;
                 "
                 >{{ textData }}</pre>
+                <div v-if="divStatus == 2 && !isMerge">
+                  <div>
+                    <span style="font-weight: bold">实际实体数量：</span>{{ realEntityCount }}个
+                  </div>
+                  <div style="margin-top: 10px">
+                    <span style="font-weight: bold">抽取实体数量：</span>{{ extractEntityCount }}个
+                  </div>
+                  <div style="margin-top: 10px">
+                    <span style="font-weight: bold">错误识别实体数量：</span>{{ wrongEntityCount }}个
+                  </div>
+                  <div style="margin-top: 10px" id="autoPara">
+                    <span style="font-weight: bold">被标记文本：</span>
+                    <p id="para1" style="text-align: left"></p>
+                  </div>
+                </div>
+                <!-- <div v-if="divStatus == 3" style="width: 100%;height: 100%">
+                  <v-echart id="graph1" :style="{width: graphWidth,height:graphHeight}" :options="echartsOptions"></v-echart>
+                </div> -->
+                <div v-if="divStatus == 4" style="width: 100%;height: 100%">
+                  <v-echart id="graph2" :style="{width: graphWidth,height:graphHeight}" :options="echartsOptions"></v-echart>
+                </div>
             </div>
             <!-- <el-table
               :data="testData.slice((curPageTest - 1) * 10, curPageTest * 10)"
@@ -451,8 +562,11 @@ export default {
   name: "Extract",
   data() {
     return {
+      //展示测试数据表
+      showTable : 1,
       numberArr: [],
       numberStr: "",
+      allnot: 0,
       //弹框
       outerVisible: false,
       innerVisible: false,
@@ -463,16 +577,23 @@ export default {
       resDataArr1: [],
       innerDiaArr1: [],
       //选择文件
+      tableData: [],
+      multipleSelection: [],
       checkedTxt: false,
-      multipleTable: [],
-      txtName: "",
       txtArr: [],
       entitySum: 0,
+      checkDis: false, //全选按钮
+      calculateDis: false,
+      checkStatus: 0,
+      checkedStatus: 0,
+      sourceFlag: true,
+      echartsOptions: {},
       showFlag: 1, //1时显示深度学习对应操作，2时显示正则表达式对应操作
       realEntityCount: 0,
       extractEntityCount: 1,
       wrongEntityCount: 2,
       showResult: false,
+      divStatus: 1,
       isList: true,
       fileCount: 0,
       isUpload: false,
@@ -488,6 +609,7 @@ export default {
       uploadFileList: [],
       //表格数据 测试集
       testData: [],
+      testDataArr: [],
       // trainData: [],
       //选中行
       choosenRow: {},
@@ -498,7 +620,7 @@ export default {
       //弹出框可视
       diaVisible: false,
       selectTitle: "",
-      fileCountTest: 0,
+      fileCountTest: 0, //total
       curPageTest: 1,
       curPageTrain: 1,
       fileCountTrain: 0,
@@ -572,38 +694,117 @@ export default {
       this.showFlag = 1;
   },
   methods: {
+    //查看测试结果
+    showTestResult() {
+      this.showTable = 2;
+      this.testData = [];
+      this.textData = "";
+      this.fileIndex = "";
+      this.isMerge = false;
+      this.sourceFlag = false;
+    },
+    //返回
+    backToSource() {
+      this.showTable = 1;
+      this.divStatus = 1;
+      this.textData = "";
+      this.testData = [];
+      this.fileIndex = "";
+      this.modelIndex = "";
+      this.txtArr = [];
+      this.echartsOptions = {};
+      this.sourceFlag = true;
+      this.checkedStatus = 0;
+      this.isMerge = false;
+      this.numberStr = "";
+    },
     //多选
     handleSelectionChange(val) {
-      this.multipleTable = val;
-      if(this.multipleTable != []) {
-        for(var i=0;i<this.multipleTable.length;i++) {
-          this.txtName = this.multipleTable[i].title;
+      this.checkedStatus = 1; //判断是否进行过选择
+      this.checkStatus = 1;  //多选状态确定 计算平均结果按钮将禁用
+      if(this.checkDis == false) {
+        this.checkedTxt = false; //部分文件
+        this.multipleSelection = val;
+        this.numberStr = "";
+        // let arr = [];
+  
+        if(this.txtArr.length == 0) {
+          this.txtArr.push(this.multipleSelection.title);
+        }else {
+          if(this.txtArr.indexOf(this.multipleSelection.title) == -1) {
+            this.txtArr.push(this.multipleSelection.title);
+          }else {
+            this.txtArr.splice(this.txtArr.indexOf(this.multipleSelection.title), 1);
+          }
         }
-        if(this.txtArr.indexOf(this.txtName) == -1) {
-          this.txtArr.push(this.txtName);
-        }else if(this.txtArr.indexOf(this.txtName) != -1) {
-          console.log("1111",this.txtName);
-        }
+        // arr.push(this.multipleSelection.title);
+  
+        this.numberStr = this.txtArr.toString();
+        this.$nextTick(() => {
+          this.$refs.txt.innerText = this.numberStr;
+        })
+      }else if(this.checkDis == true){
+        return false
       }
-      console.log("txtName:",this.txtName);
-      console.log("txtArr:",this.txtArr);
-      console.log("val:",val);
-    },
 
-    //全选按钮
+    },
+    //全选
     checkAll() {
-      this.checkedTxt = true;
+      this.checkedTxt = true;  //全部文件
+      this.numberStr = "";
+      this.txtArr = [];
       this.numberStr = this.numberArr.toString();
       this.$message({
         message: '全选成功！',
         type: 'success'
       });
     },
+    checkAll1() {
+      this.checkedStatus = 1; //判断是否进行过选择
+      this.checkedTxt = true; //全部文件
+      this.checkStatus = 0; //全选状态确定 可以进行计算平均结果
+      this.numberStr = "";
+      this.txtArr = [];
+      // this.calculateDis = false;
+      this.testData.forEach(item => {
+        this.testDataArr.push(item.title);
+      })
+      this.numberStr = this.testDataArr.toString();
+      this.$message({
+        message: '全选成功！',
+        type: 'success'
+      });
+    },
+    //文本知识抽取
+    textExtract() {
+      this.fullscreenLoading = true;
+        this.showTable = 3;
+        this.$http
+          .post("http://192.168.253.219:8000/pic/text_extract_list", {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          })
+          .then(res => {
+            this.fullscreenLoading = false;
+            this.textData = "";
+            this.testData = res.data.map(cur => {
+              return { title2: cur };
+            });
+            this.numberStr = res.data.toString();
+            this.fileCountTest = this.testData.length;
+            this.sourceFlag = false; //返回按钮
+          })
+          .catch(error => {
+            console.log(error);
+            this.fullscreenLoading = false;
+          })
+    },
     loadAlgorithm() {
       if (this.showFlag === 2) {
         this.loadingRes = true;
         this.$http
-          .post("http://39.102.71.123:23352/pic/loadTextDataRE", {
+          .post("http://192.168.253.219:8000/pic/loadTextDataRE", {
             headers: {
               "Content-Type": "multipart/form-data",
             },
@@ -624,6 +825,7 @@ export default {
           });
       }
     },
+    //计算平均结果
     calculateAverage() {
       if (this.recallSet.length === 0 && this.recallSet.length === 0) {
         this.$message({
@@ -680,85 +882,103 @@ export default {
     //抽取实体关系
     extractEntityRelation() {
       this.fullscreenLoading = true;
-      let fd = new FormData();
-      fd.append("filename", this.numberStr);
-      this.$http
-        .post("http://39.102.71.123:23352/pic/text_relation_speed", fd,{
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        })
-        .then((res) => {
-          console.log(res);
-          this.fullscreenLoading = false;
-          this.resDataArr1 = res.data;
-          this.outerVisible1 = true;
-          // this.$alert(
-          //   "<p><strong>总耗时： <i>" +
-          //     res.data[0] +
-          //     "</i> 秒</strong></p>" +
-          //     "<p><strong>实体关系抽取数量： <i>" +
-          //     res.data[1] +
-          //     "</i> 条</strong></p>" +
-          //     "<p><strong>实体关系抽取效率： <i>" +
-          //     res.data[2] +
-          //     "</i>条/秒</strong></p>",
-          //   "实体关系抽取结果",
-          //   {
-          //     dangerouslyUseHTMLString: true,
-          //   }
-          // ); 
-        })
-        .catch((res) => {
-          console.log(res);
-        });
+      
+      if(this.numberStr == "") {
+        this.fullscreenLoading = false;
+        this.$message.error('请先选择测试文件！');
+      }else {
+        let fd = new FormData();
+        fd.append("filename", this.numberStr);
+        this.$http
+          .post("http://192.168.253.219:8000/pic/text_relation_speed", fd,{
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          })
+          .then((res) => {
+            console.log(res);
+            this.fullscreenLoading = false;
+            this.resDataArr1 = res.data;
+            this.outerVisible1 = true;
+            this.numberStr = "";
+            this.txtArr = [];
+            this.$nextTick(() => {
+              this.$refs.txt.innerText = this.numberStr;
+            })
+            // this.$alert(
+            //   "<p><strong>总耗时： <i>" +
+            //     res.data[0] +
+            //     "</i> 秒</strong></p>" +
+            //     "<p><strong>实体关系抽取数量： <i>" +
+            //     res.data[1] +
+            //     "</i> 条</strong></p>" +
+            //     "<p><strong>实体关系抽取效率： <i>" +
+            //     res.data[2] +
+            //     "</i>条/秒</strong></p>",
+            //   "实体关系抽取结果",
+            //   {
+            //     dangerouslyUseHTMLString: true,
+            //   }
+            // ); 
+          })
+          .catch((res) => {
+            console.log(res);
+          });
+      }
     },
     //抽取实体属性
     extractEntityProperty() {
       this.fullscreenLoading = true;
-      let fd = new FormData();
-      fd.append("filename", this.numberStr);
-      debugger;
-      this.$http
-        .post("http://39.102.71.123:23352/pic/text_attribute_speed", fd,{
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
+      if(this.numberStr == "") {
+        this.fullscreenLoading = false;
+        this.$message({
+          message: "请选择文件！",
+          type: "warning"
         })
-        .then((res) => {
-          console.log(res);
-          this.fullscreenLoading = false;
-          this.resDataArr = res.data;
-          this.outerVisible = true;
-          // this.$alert(
-          //   "<p><strong>总耗时： <i>" +
-          //     res.data[0] +
-          //     "</i> 秒</strong></p>" +
-          //     "<p><strong>实体属性抽取数量： <i>" +
-          //     res.data[1] +
-          //     "</i> 条</strong></p>" +
-          //     "<p><strong>实体属性抽取效率： <i>" +
-          //     res.data[2] +
-          //     "</i>条/秒</strong></p>",
-          //   "实体属性抽取结果",
-          //   {
-          //     dangerouslyUseHTMLString: true,
-          //   }
-          // );
-        })
-        .catch((res) => {
-          console.log(res);
-        });
+      }else if(this.numberStr != "") {
+        let fd = new FormData();
+        fd.append("filename", this.numberStr);
+        this.$http
+          .post("http://192.168.253.219:8000/pic/text_attribute_speed", fd,{
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          })
+          .then((res) => {
+            console.log(res);
+            this.fullscreenLoading = false;
+            this.resDataArr = res.data;
+            this.outerVisible = true;
+            // this.$alert(
+            //   "<p><strong>总耗时： <i>" +
+            //     res.data[0] +
+            //     "</i> 秒</strong></p>" +
+            //     "<p><strong>实体属性抽取数量： <i>" +
+            //     res.data[1] +
+            //     "</i> 条</strong></p>" +
+            //     "<p><strong>实体属性抽取效率： <i>" +
+            //     res.data[2] +
+            //     "</i>条/秒</strong></p>",
+            //   "实体属性抽取结果",
+            //   {
+            //     dangerouslyUseHTMLString: true,
+            //   }
+            // );
+          })
+          .catch((res) => {
+            console.log(res);
+          });
+
+      }
     },
     openInner() {
       this.innerVisible = true;
       this.$http
-        .post("http://39.102.71.123:23352/pic/text_attribute_speed_res",{
+        .post("http://192.168.253.219:8000/pic/text_attribute_speed_res",{
           headers: {
             "Content-Type": "multipart/form-data",
           },
         }).then((res) => {
-          console.log("data:",res.data);
           this.innerDiaArr = res.data.map(cur => {
             return {entity1: cur[0],rel:cur[1],entity2:cur[2]};
           });
@@ -769,7 +989,7 @@ export default {
     openInner1() {
       this.innerVisible1 = true;
       this.$http
-        .post("http://39.102.71.123:23352/pic/text_relation_speed_res",{
+        .post("http://192.168.253.219:8000/pic/text_relation_speed_res",{
           headers: {
             "Content-Type": "multipart/form-data",
           },
@@ -781,25 +1001,72 @@ export default {
           console.log(res);
         })
     },
+    //合并
     mergeFile() {
-      this.isMerge = true;
       this.fullscreenLoading = true;
-      let fd = new FormData();
-      fd.append("contents", this.fileIndex);
-      this.$http
-        .post("http://39.102.71.123:23352/pic/textMergeData", fd, {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
+      this.sourceFlag = false; //返回按钮显示
+      if(this.checkedStatus == 0) {
+        this.testData.forEach(item => {
+          this.testDataArr.push(item.title);
         })
-        .then((res) => {
-          this.textData = res.data;
-          this.fullscreenLoading = false;
-        })
-        .catch((res) => {
-          console.log(res);
-          this.fullscreenLoading = false;
-        });
+        this.numberStr = this.testDataArr.toString();
+        this.checkDis = true; //全选按钮禁用
+        let fd = new FormData();
+        fd.append("contents", this.fileIndex);
+        fd.append("filelist", this.numberStr);
+        fd.append("ALL_NOT", this.allnot.toString());
+        this.$http
+          .post("http://192.168.253.219:8000/pic/textMergeData", fd, {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          })
+          .then((res) => {
+            this.fullscreenLoading = false;
+            this.isMerge = true;
+            this.textData = res.data;
+            this.checkedTxt = true; //全部文件
+            this.$message({
+              message: "全部数据合并成功！",
+              type: "success"
+            })
+          })
+          .catch((res) => {
+            console.log(res);
+            this.fullscreenLoading = false;
+          });
+      }else if(this.checkedStatus == 1) {
+        if(this.numberStr != "") {
+          this.checkDis = true; //全选按钮禁用
+          this.isMerge = true;
+          //判断多选还是全选
+          if(this.checkStatus == 1) {
+            this.calculateDis = true; //多选不能计算平均结果
+          }else if(this.checkStatus == 0) { //全选
+            this.calculateDis = false; //可以计算平均结果
+          }
+          let fd = new FormData();
+          fd.append("contents", this.fileIndex);
+          fd.append("filelist", this.numberStr);
+          fd.append("ALL_NOT", this.allnot.toString());
+          this.$http
+            .post("http://192.168.253.219:8000/pic/textMergeData", fd, {
+              headers: {
+                "Content-Type": "multipart/form-data",
+              },
+            })
+            .then((res) => {
+              this.textData = res.data;
+              this.fullscreenLoading = false;
+            })
+            .catch((res) => {
+              console.log(res);
+              this.fullscreenLoading = false;
+            });
+        }else if(this.numberStr == "") {
+          this.$message.error("请先选择数据！");
+        }
+      }
     },
     changeToEntitySearch() {
       this.inputEntity1 = "";
@@ -819,7 +1086,7 @@ export default {
       this.isList = false;
       this.loadingResGraph = true;
       this.$http
-        .post("http://39.102.71.123:23352/pic/show_textTuple", {
+        .post("http://192.168.253.219:8000/pic/show_textTuple", {
           headers: {
             "Content-Type": "multipart/form-data",
           },
@@ -844,7 +1111,7 @@ export default {
       fd.append("entity2", this.inputEntity2);
       fd.append("number", this.level);
       this.$http
-        .post("http://39.102.71.123:23352/pic/searchTextData", fd, {
+        .post("http://192.168.253.219:8000/pic/searchTextData", fd, {
           headers: {
             "Content-Type": "multipart/form-data",
           },
@@ -921,19 +1188,19 @@ export default {
       // 绘制图表
       myChart.setOption(Myoption, true);
     },
+    //模型测试
     modelTest() {
       this.fullscreenLoading = true;
       let fd = new FormData();
       fd.append("contents", this.fileIndex);
       if (this.isMerge) {
         this.$http
-          .post("http://39.102.71.123:23352/pic/textTestALL", fd, {
+          .post("http://192.168.253.219:8000/pic/textTestALL", fd, {
             headers: {
               "Content-Type": "multipart/form-data",
             },
           })
           .then((res) => {
-            console.log(res);
             this.fullscreenLoading = false;
             if (this.recallSet.length === 0)
               this.recallSet.push({
@@ -1015,13 +1282,13 @@ export default {
 
         fd.append("filename", this.selectTitle);
         this.$http
-          .post("http://39.102.71.123:23352/pic/textTestDemo", fd, {
+          .post("http://192.168.253.219:8000/pic/textTestDemo", fd, {
             headers: {
               "Content-Type": "multipart/form-data",
             },
           })
           .then((res) => {
-            console.log(res);
+            console.log("else res.data",res.data);
             this.fullscreenLoading = false;
             let content = res.data[0];
             // let div = document.createElement("p");
@@ -1106,22 +1373,31 @@ export default {
           });
       }
     },
-    //选择文件集
+    //选择文件集 加载测试数据
     chooseTable() {
+      this.loadingRes = true;
+      this.numberStr = "";
+      this.testData = [];
+      this.testDataArr = [];
+      this.checkedStatus = 0;
+      // this.$nextTick(() => {
+      //   this.$refs.txt.innerText = this.numberStr;
+      // })
+      if(this.showTable == 1) {
+        this.txtArr = [];
         this.textData = "";
         this.fileCountTest = 0;
-        this.loadingRes = true;
+        this.checkDis = false;
         this.isMerge = false;
         let fd = new FormData();
         fd.append("contents", this.fileIndex);
         this.$http
-          .post("http://39.102.71.123:23352/pic/loadTextDataDL", fd, {
+          .post("http://192.168.253.219:8000/pic/loadTextDataDL", fd, {
             headers: {
               "Content-Type": "multipart/form-data",
             },
           })
           .then((res) => {
-            console.log(res);
             this.textData = "";
             this.testData = res.data[0].map((cur) => {
               return { title: cur };
@@ -1135,12 +1411,36 @@ export default {
             alert("出错了！");
             this.loadingRes = false;
           });
+      }else if(this.showTable == 2) {
+        let fd = new FormData();
+        fd.append("contents", this.fileIndex);
+        this.$http
+          .post("http://192.168.253.219:8000/pic/text_test_results_1", fd, {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          })
+          .then(res => {
+            this.textData = "";
+            this.testData = res.data.map((cur) => {
+              return { title1: cur };
+            });
+            this.numberStr = res.data.toString();
+            this.fileCountTest = this.testData.length;
+            this.entitySum = res.data[1];
+            this.loadingRes = false;
+          })
+          .catch(error => {
+            this.loadingRes = false;
+            console.log(error)
+          })
+      }
     },
     loadModel() {
       let fd = new FormData();
       fd.append("model", this.modelIndex);
       this.$http
-        .post("http://39.102.71.123:23352/pic/loadModel", fd, {
+        .post("http://192.168.253.219:8000/pic/loadModel", fd, {
           headers: {
             "Content-Type": "multipart/form-data",
           },
@@ -1187,7 +1487,7 @@ export default {
       let fd = new FormData();
       fd.append("text", this.uploadFileList[0].raw);
       this.$http
-        .post("http://39.102.71.123:23352/pic/submit_RE_data", fd, {
+        .post("http://192.168.253.219:8000/pic/submit_RE_data", fd, {
           headers: {
             "Content-Type": "multipart/form-data",
           },
@@ -1218,10 +1518,11 @@ export default {
     handleCurrentChangeTest(cpage) {
       this.curPageTest = cpage;
     },
+    //分页符
     handleCurrentChangeTrain(cpage) {
       this.curPageTrain = cpage;
     },
-    //查看文书内容
+    //查看文书内容 浏览
     handleAnalysis(row) {
       this.selectTitle = row.title;
       let fd = new FormData();
@@ -1234,7 +1535,7 @@ export default {
 
       this.loadingRes = true;
       this.$http
-        .post("http://39.102.71.123:23352/pic/" + url, fd, {
+        .post("http://192.168.253.219:8000/pic/" + url, fd, {
           headers: {
             "Content-Type": "multipart/form-data",
           },
@@ -1249,6 +1550,211 @@ export default {
           this.loadingRes = false;
         });
       this.diaVisible = true;
+    },
+    //浏览
+    handleAnalysis1(row) {
+      this.divStatus = 2;
+      this.fullscreenLoading = true;
+      let fd = new FormData();
+      fd.append("contents", this.fileIndex);
+      fd.append("filename", row.title1);
+       this.$http
+        .post("http://192.168.253.219:8000/pic/text_test_results_2", fd, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        })
+        .then(res => {
+          this.fullscreenLoading = false;
+          let content = res.data[0];
+          let tagSet = [];
+          for (let i = 1; i < 4; i++) {
+            //遍历所有标记
+            for (let j = 0; j < res.data[i].length; j++) {
+              tagSet.push({
+                sta: res.data[i][j][1],
+                end: res.data[i][j][2],
+                type: i,
+                tooltip:res.data[i][j][3],
+              });
+            }
+          }
+          //排序
+          tagSet = [].concat(
+            tagSet.sort((obj1, obj2) => {
+              if (obj1.sta >= obj2.sta) return 1;
+              else return -1;
+            })
+          );
+          //高亮
+          let offset = 0;
+          for (let i = 0; i < tagSet.length; i++) {
+            if (tagSet[i].type === 1) {
+              content = this.highLight(
+                tagSet[i].sta + offset,
+                tagSet[i].end + offset,
+                "green",
+                content,
+                tagSet[i].tooltip,
+              );
+              offset += 51+tagSet[i].tooltip.length;
+            } else if (tagSet[i].type === 2) {
+              content = this.highLight(
+                tagSet[i].sta + offset,
+                tagSet[i].end + offset,
+                "red",
+                content,
+                tagSet[i].tooltip,
+              );
+              offset += 49+tagSet[i].tooltip.length;
+            } else if (tagSet[i].type === 3) {
+              content = this.highLight(
+                tagSet[i].sta + offset,
+                tagSet[i].end + offset,
+                "yellow",
+                content,
+                tagSet[i].tooltip,
+              );
+              offset += 52+tagSet[i].tooltip.length;
+            }
+          }
+            let div = document.getElementById("para1");
+            div.innerHTML = content.replace(/\n/g, "<br>");
+            this.realEntityCount = res.data[4];
+            this.extractEntityCount = res.data[5];
+            this.wrongEntityCount = res.data[6];
+        })
+        .catch(error => {
+          console.log(error)
+        })
+    },
+    //浏览
+    handleAnalysis2(row) {
+      this.fullscreenLoading = true;
+      // this.divStatus = 3;
+      let fd = new FormData();
+      fd.append("filename", row.title2);
+      this.$http
+        .post("http://192.168.253.219:8000/pic/text_extract_view", fd, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        })
+        .then(res => {
+          this.fullscreenLoading = false;
+          console.log("res",res);
+          this.$alert(
+            "<p>" + res.data + "</p>",
+            "文书内容",
+            {
+              dangerouslyUseHTMLString: true,
+            }
+          );
+        })
+        .catch(error => {
+          this.fullscreenLoading = false;
+          console.log(error);
+        })
+    },
+    //抽取
+    handleAnalysis3(row) {
+      console.log("row.title2:",row.title2);
+      this.fullscreenLoading = true;
+      this.divStatus = 4;
+      let fd = new FormData();
+      fd.append("filename",row.title2);
+      this.$http
+        .post("http://192.168.253.219:8000/pic/text_extract_demo", fd, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        })
+        .then(res => {
+          console.log("res",res);
+          this.fullscreenLoading = false;
+
+          let categories = [
+            {
+              name: " ",
+              symbol: "rect",
+              itemStyle: { color: "white" }
+            },
+            {
+              name: "实体",
+              symbol: "circle",
+              itemStyle: { color: "#f47920" }
+            },
+            {
+              name: "属性",
+              symbol: "roundRect",
+              itemStyle: { color: "#749f83" }
+            }
+          ];
+          let graphPoint = [];
+          let graphLink = [];
+          let pointName = new Set();
+          let order = [3, 0, 1, 2];
+          for (let j of order) {
+            console.log(j);
+            for (let i = 0; i < res.data[j].length; i++) {
+              let tmp = {};
+              tmp.entity1 = res.data[j][i][0] + "";
+              tmp.relation = res.data[j][i][1] + "";
+              tmp.entity2 = res.data[j][i][2] + "";
+              if (!pointName.has(tmp.entity1)) {
+                pointName.add(tmp.entity1);
+                if (j !== 2) {
+                  graphPoint.push({
+                    name: tmp.entity1,
+                    category: j
+                  });
+                } else {
+                  graphPoint.push({
+                    name: tmp.entity1,
+                    category: 1
+                  });
+                }
+              }
+              if (!pointName.has(tmp.entity2)) {
+                pointName.add(tmp.entity2);
+                if(j === 3){
+                  graphPoint.push({
+                    name: tmp.entity2,
+                    category: 4
+                  });
+                } else {
+                  graphPoint.push({
+                    name: tmp.entity2,
+                    category: j
+                  });
+                }
+              }
+              graphLink.push({
+                source: tmp.entity1,
+                target: tmp.entity2,
+                name: tmp.relation,
+                des: tmp.relation
+              });
+            }
+          }
+          let Myoption = JSON.parse(JSON.stringify(option));
+          Myoption["series"][0]["data"] = graphPoint;
+          Myoption["series"][0]["links"] = graphLink;
+          Myoption["series"][0]["categories"] = categories;
+          Myoption["legend"] = [{
+              data: categories.map(function(a) {
+                return { name: a.name, icon: a.symbol };
+              })
+            }];
+          Myoption["series"][0]["edgeLabel"]["normal"]["formatter"] = function(x) {
+            return x.data.name;
+          };
+          this.echartsOptions = Myoption;
+        })
+        .catch(error => {
+          this.fullscreenLoading = false;
+          console.log(error);
+        })
     },
     //导出三元组
     handleExport() {

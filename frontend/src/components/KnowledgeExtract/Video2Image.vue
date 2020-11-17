@@ -180,7 +180,7 @@ export default {
       let fd = new FormData();
       fd.append("video", this.uploadList[0].raw);
       this.$http
-        .post("http://39.102.71.123:23352/pic/video2pic_open_video", fd, {
+        .post("http://192.168.253.219:8000/pic/video2pic_open_video", fd, {
           headers: {
             "Content-Type": "multipart/form-data",
           },
@@ -223,7 +223,7 @@ export default {
       let fd = new FormData()
       fd.append('filename',this.fileName)
       this.$http.post(
-        'http://39.102.71.123:23352/pic/video2pic',fd,
+        'http://192.168.253.219:8000/pic/video2pic',fd,
         {
           headers: {
             'Content-Type': 'multipart/form-data'

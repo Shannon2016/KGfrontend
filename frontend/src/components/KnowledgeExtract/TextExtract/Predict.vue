@@ -256,7 +256,7 @@
 
         fd.append("filename", this.selectTitle);
         this.$http
-          .post("http://39.102.71.123:23352/pic/text_predict", fd, {
+          .post("http://192.168.253.219:8000/pic/text_predict", fd, {
             headers: {
               "Content-Type": "multipart/form-data"
             }
@@ -310,7 +310,7 @@
         this.textData = "";
         this.fileCountTest = 0;
         this.loadingRes = true;
-        this.$http.post("http://39.102.71.123:23352/pic/click_text_predict", {
+        this.$http.post("http://192.168.253.219:8000/pic/click_text_predict", {
             headers: {
               "Content-Type": "multipart/form-data"
             }
@@ -334,7 +334,7 @@
         let fd = new FormData();
         fd.append("model", this.modelIndex)
         this.$http
-          .post("http://39.102.71.123:23352/pic/loadModel", fd, {
+          .post("http://192.168.253.219:8000/pic/loadModel", fd, {
             headers: {
               "Content-Type": "multipart/form-data"
             }
@@ -373,7 +373,7 @@
         let fd = new FormData();
         fd.append("text", this.uploadFileList[0].raw)
         this.$http
-          .post("http://39.102.71.123:23352/pic/submit_DL_data", fd, {
+          .post("http://192.168.253.219:8000/pic/submit_DL_data", fd, {
             headers: {
               "Content-Type": "multipart/form-data"
             }
@@ -412,7 +412,7 @@
 
         this.loadingRes = true;
         this.$http
-          .post("http://39.102.71.123:23352/pic/view_text_predict", fd, {
+          .post("http://192.168.253.219:8000/pic/view_text_predict", fd, {
             headers: {
               "Content-Type": "multipart/form-data"
             }

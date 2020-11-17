@@ -262,7 +262,7 @@ export default {
       let fd = new FormData();
       fd.append("entity", this.inputEntity);
       this.$http
-        .post("http://39.102.71.123:23352/pic/searchTextData", fd, {
+        .post("http://192.168.253.219:8000/pic/searchTextData", fd, {
           headers: {
             "Content-Type": "multipart/form-data"
           }
@@ -371,7 +371,7 @@ export default {
     joinGraph() {
       this.loadingRes = true;
       this.$http
-        .post("http://39.102.71.123:23352/pic/JSTextJoinKG", {
+        .post("http://192.168.253.219:8000/pic/JSTextJoinKG", {
           headers: {
             "Content-Type": "multipart/form-data"
           }
@@ -403,7 +403,7 @@ export default {
       console.log(row.title);
       this.loadingRes = true;
       this.$http
-        .post("http://39.102.71.123:23352/pic/viewJSText", fd, {
+        .post("http://192.168.253.219:8000/pic/viewJSText", fd, {
           headers: {
             "Content-Type": "multipart/form-data"
           }
@@ -424,7 +424,7 @@ export default {
       this.isCatalog = false;
       this.loadingRes = true;
       this.$http
-        .post("http://39.102.71.123:23352/pic/loadJSText", {
+        .post("http://192.168.253.219:8000/pic/loadJSText", {
           headers: {
             "Content-Type": "multipart/form-data"
           }
@@ -451,7 +451,7 @@ export default {
 
       this.loadingRes = true;
       this.$http
-        .post("http://39.102.71.123:23352/pic/loadJS_mark_text", {
+        .post("http://192.168.253.219:8000/pic/loadJS_mark_text", {
           headers: {
             "Content-Type": "multipart/form-data"
           }
@@ -481,7 +481,7 @@ export default {
       let fd = new FormData();
       fd.append("dict", this.typeSelect + ".csv");
       this.$http
-        .post("http://39.102.71.123:23352/pic/show_dict", fd, {
+        .post("http://192.168.253.219:8000/pic/show_dict", fd, {
           headers: {
             "Content-Type": "multipart/form-data"
           }

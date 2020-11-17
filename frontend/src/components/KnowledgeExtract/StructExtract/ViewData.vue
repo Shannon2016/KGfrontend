@@ -31,7 +31,7 @@
             </el-option>
           </el-select>
           <el-button style="margin-left:20px;" class="blueBtn" size="small" @click="chooseTable">确定</el-button>
-          <el-button type="primary" class="darkBtn headbutton" size="small" @click="isUpload=true">上传</el-button>
+          <!-- <el-button type="primary" class="darkBtn headbutton" size="small" @click="isUpload=true">上传</el-button> -->
 
           <!-- <el-button type="primary" class="darkBtn" size="small" style="float:right; margin-right:20px;" @click="showGraph">查看图谱</el-button> -->
         </div>
@@ -175,7 +175,7 @@
       chooseSource() {
         let fd = new FormData()
         fd.append("source", this.sourceIndex)
-        this.$http.post("http://39.102.71.123:23352/pic/struct_data_source",fd,
+        this.$http.post("http://192.168.253.219:8000/pic/struct_data_source",fd,
           {
             headers: {
               'Content-Type': 'multipart/form-data'
@@ -199,7 +199,7 @@
         fd.append('table',this.tableIndex)
         fd.append("source", this.sourceIndex);
         this.$http.post(
-          'http://39.102.71.123:23352/pic/view_structData',fd,
+          'http://192.168.253.219:8000/pic/view_structData',fd,
           {
             headers: {
               'Content-Type': 'multipart/form-data'
@@ -250,7 +250,7 @@
         console.log(this.sourceIndex,this.uploadForm.tableName,this.uploadForm.keyName)
         console.log(this.fileList[0].raw)
         this.$http.post(
-          'http://39.102.71.123:23352/pic/submit_struct_data', fd,
+          'http://192.168.253.219:8000/pic/submit_struct_data', fd,
           {
             headers: {
               'Content-Type': 'multipart/form-data'
@@ -259,7 +259,7 @@
             console.log(res)
           let ffd = new FormData()
           ffd.append("source", this.sourceIndex)
-          this.$http.post("http://39.102.71.123:23352/pic/struct_data_source",ffd,
+          this.$http.post("http://192.168.253.219:8000/pic/struct_data_source",ffd,
             {
               headers: {
                 'Content-Type': 'multipart/form-data'
@@ -296,7 +296,7 @@
       },
       showGraph(){
         this.$http.post(
-          'http://39.102.71.123:23352/pic/struct_extract',
+          'http://192.168.253.219:8000/pic/struct_extract',
           {
             headers: {
               'Content-Type': 'multipart/form-data'

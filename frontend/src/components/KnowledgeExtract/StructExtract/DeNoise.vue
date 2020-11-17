@@ -209,7 +209,7 @@ export default {
           let fd = new FormData();
           fd.append("source", node.label);
           that.$http
-            .post("http://39.102.71.123:23352/pic/struct_data_source", fd, {
+            .post("http://192.168.253.219:8000/pic/struct_data_source", fd, {
               headers: {
                 "Content-Type": "multipart/form-data"
               }
@@ -236,7 +236,7 @@ export default {
     };
   },
   methods: {
-    //全选按钮
+    //全选
     checkAll() {
       this.numberArr = [1, this.number];
       this.numberStr = this.numberArr.toString();
@@ -286,7 +286,7 @@ export default {
       // let fd = new FormData();
       // fd.append("source", this.sourceIndex);
       // this.$http
-      //   .post("http://39.102.71.123:23352/pic/view_structData", fd, {
+      //   .post("http://192.168.253.219:8000/pic/view_structData", fd, {
       //     headers: {
       //       "Content-Type": "multipart/form-data"
       //     }
@@ -322,7 +322,7 @@ export default {
       fd.append("name", this.inputName);
       this.loadingRes = true;
       this.$http
-        .post("http://39.102.71.123:23352/pic/struct_merge_data", fd, {
+        .post("http://192.168.253.219:8000/pic/struct_merge_data", fd, {
           headers: {
             "Content-Type": "multipart/form-data"
           }
@@ -360,7 +360,7 @@ export default {
       let fd = new FormData();
       fd.append("table", this.tableIndex);
       this.$http
-        .post("http://39.102.71.123:23352/pic/view_noise_data", fd, {
+        .post("http://192.168.253.219:8000/pic/view_noise_data", fd, {
           headers: {
             "Content-Type": "multipart/form-data"
           }
@@ -418,7 +418,7 @@ export default {
       fd.append("table", this.tableIndex);
       fd.append("rows",this.numberStr);
       this.$http
-        .post("http://39.102.71.123:23352/pic/data_filter", fd, {
+        .post("http://192.168.253.219:8000/pic/data_filter", fd, {
           headers: {
             "Content-Type": "multipart/form-data"
           }
@@ -426,8 +426,12 @@ export default {
         .then(res => {
           if(res.data == 0) {
             this.loadingRes = false;
+            this.iptVal = "";
             this.$message.error('输入的范围格式错误,或不在规定范围');
           }else {
+            this.iptDisable = false;
+            this.iptVal = "";
+            this.btnDisable = false;
             this.rawData = [].concat(res.data[1]);
   
             this.columnNames = [].concat(
@@ -457,7 +461,7 @@ export default {
     },
     init() {
       this.$http
-        .post("http://39.102.71.123:23352/pic/load_noise_data", {
+        .post("http://192.168.253.219:8000/pic/load_noise_data", {
           headers: {
             "Content-Type": "multipart/form-data"
           }

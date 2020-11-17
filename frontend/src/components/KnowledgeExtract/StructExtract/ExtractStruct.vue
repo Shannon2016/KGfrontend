@@ -245,7 +245,7 @@ export default {
     };
   },
   methods: {
-    //全选按钮
+    //全选
     checkAll() {
       this.numberArr = [1, this.number];
       this.numberStr = this.numberArr.toString();
@@ -279,6 +279,7 @@ export default {
         this.btnDisable = true;
       }
     },
+    //返回按钮
     backToSource() {
       this.tableIndex = '';
       this.tags = [];
@@ -333,7 +334,7 @@ export default {
       fd.append("ontology", this.typeSelect);
       fd.append("ontology_center", this.entitySelect[0]);
       this.$http
-        .post("http://39.102.71.123:23352/pic/show_ontology2", fd, {
+        .post("http://192.168.253.219:8000/pic/show_ontology2", fd, {
           headers: {
             "Content-Type": "multipart/form-data"
           }
@@ -371,7 +372,7 @@ export default {
       let fd = new FormData();
       fd.append("ontology", this.typeSelect);
       this.$http
-        .post("http://39.102.71.123:23352/pic/show_ontology1", fd, {
+        .post("http://192.168.253.219:8000/pic/show_ontology1", fd, {
           headers: {
             "Content-Type": "multipart/form-data"
           }
@@ -400,7 +401,7 @@ export default {
       let fd = new FormData();
       fd.append("ontology", this.typeSelect);
       this.$http
-        .post("http://39.102.71.123:23352/pic/functional_dependency", fd, {
+        .post("http://192.168.253.219:8000/pic/functional_dependency", fd, {
           headers: {
             "Content-Type": "multipart/form-data"
           }
@@ -460,7 +461,7 @@ export default {
       fd.append("columns", JSON.stringify(columns));
       fd.append("ontology_data", JSON.stringify(ontology_data));
       this.$http
-        .post("http://39.102.71.123:23352/pic/struct_entity_extract", fd, {
+        .post("http://192.168.253.219:8000/pic/struct_entity_extract", fd, {
           headers: {
             "Content-Type": "multipart/form-data"
           }
@@ -484,7 +485,7 @@ export default {
           this.fullscreenLoading = false;
         });
     },
-    //抽取实体关系按钮
+    //抽取实体关系
     extractRelation() {
       let fd = new FormData();
       if(this.iptVal != "") {
@@ -503,7 +504,7 @@ export default {
       this.fullscreenLoading = true;
       fd.append("ontology", this.typeSelect);
       this.$http
-        .post("http://39.102.71.123:23352/pic/struct_relation_extract", fd, {
+        .post("http://192.168.253.219:8000/pic/struct_relation_extract", fd, {
           headers: {
             "Content-Type": "multipart/form-data"
           }
@@ -521,6 +522,10 @@ export default {
             this.propertySelect = "";
             this.propertyList = [];
             this.entitySelect = "";
+            this.numberStr = "";
+            this.iptVal = "";
+            this.iptDisable = false;
+            this.btnDisable = false;
             // if (res.data[0] === 1) {
             //   this.$message({
             //     message: "抽取实体关系成功!",
@@ -536,6 +541,8 @@ export default {
     },
     //抽取实体属性
     extractProperty() {
+      this.btnDisable = false;
+      this.iptDisable = false;
       let fd = new FormData();
       if(this.iptVal != "") {
         this.numberStr = this.iptVal;
@@ -574,7 +581,7 @@ export default {
       fd.append("columns", JSON.stringify(columns));
       fd.append("ontology_data", JSON.stringify(ontology_data));
       this.$http
-        .post("http://39.102.71.123:23352/pic/struct_attribute_extract", fd, {
+        .post("http://192.168.253.219:8000/pic/struct_attribute_extract", fd, {
           headers: {
             "Content-Type": "multipart/form-data"
           }
@@ -596,6 +603,7 @@ export default {
             this.propertySelect = "";
             this.propertyList = [];
             this.entitySelect = "";
+            this.iptVal = "";
             // } else this.$message.error("抽取失败！");
           }
         })
@@ -615,7 +623,7 @@ export default {
       let fd = new FormData();
       fd.append("source", this.sourceIndex);
       this.$http
-        .post("http://39.102.71.123:23352/pic/struct_data_source", fd, {
+        .post("http://192.168.253.219:8000/pic/struct_data_source", fd, {
           headers: {
             "Content-Type": "multipart/form-data"
           }
@@ -639,7 +647,6 @@ export default {
     },
     //选择表格
     chooseTable() {
-      // console.log(this.tableIndex)
       if (this.tableIndex === "") return;
       this.loadingRes = true;
       this.iptDisable = false;
@@ -660,7 +667,7 @@ export default {
       fd.append("table", this.tableIndex);
       fd.append("source", this.sourceIndex);
       this.$http
-        .post("http://39.102.71.123:23352/pic/view_structData", fd, {
+        .post("http://192.168.253.219:8000/pic/view_structData", fd, {
           headers: {
             "Content-Type": "multipart/form-data"
           }
@@ -788,7 +795,7 @@ export default {
     },
     loadData() {
       this.$http
-        .post("http://39.102.71.123:23352/pic/show_table", {
+        .post("http://192.168.253.219:8000/pic/show_table", {
           headers: {
             "Content-Type": "multipart/form-data"
           }
@@ -816,7 +823,7 @@ export default {
     //   fd.append("table", this.tableIndex);
     //   fd.append("ontology", this.typeSelect);
     //   this.$http
-    //     .post("http://39.102.71.123:23352/pic/establish_map", fd, {
+    //     .post("http://192.168.253.219:8000/pic/establish_map", fd, {
     //       headers: {
     //         "Content-Type": "multipart/form-data"
     //       }
@@ -856,7 +863,7 @@ export default {
     //   fd.append("table", this.tableIndex);
     //   fd.append("ontology", this.typeSelect);
     //   this.$http
-    //     .post("http://39.102.71.123:23352/pic/establish_map", fd, {
+    //     .post("http://192.168.253.219:8000/pic/establish_map", fd, {
     //       headers: {
     //         "Content-Type": "multipart/form-data"
     //       }

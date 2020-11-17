@@ -86,7 +86,7 @@
           v-if="resultFlag || graphFlag"
           style="margin-right: 10px"
         ></i>
-        视频预测
+        视频分类
         <!--<el-button-->
         <!--type="primary"-->
         <!--class="darkBtn headbutton"-->
@@ -96,28 +96,26 @@
         <!--v-if="!resultFlag&&!graphFlag"-->
         <!--&gt;加入图谱</el-button>-->
 
-        <el-button
+        <!-- <el-button
           class="darkBtn headbutton"
           size="small"
           @click="isUpload = true"
           v-if="!resultFlag && !graphFlag"
-          >上传文件</el-button
-        >
+          >上传文件</el-button> -->
 
         <el-button
           class="blueBtn headbutton"
           size="small"
           @click="loadList"
           v-if="!resultFlag"
-        >加载测试视频</el-button
-        >
+        >加载测试视频</el-button>
       </div>
       <el-divider></el-divider>
       <!--中心-->
       <!--      列表页-->
       <div class="main" v-if="!resultFlag && !graphFlag">
         <div id="matchInfo" v-if="vedioList.length !== 0">
-          已有预测数据数量 : {{ vedioList.length }}
+          已有测试数据数量 : {{ vedioList.length }}
         </div>
         <!--文书列表-->
         <el-row
@@ -133,7 +131,7 @@
               style="width: 97%"
               border
             >
-              <el-table-column prop="title" label="预测数据"></el-table-column>
+              <el-table-column prop="title" label="测试数据"></el-table-column>
               <el-table-column label="浏览" width="80" align="center">
                 <template slot-scope="scope">
                   <el-button
@@ -158,7 +156,7 @@
                   >
                 </template>
               </el-table-column>
-              <el-table-column label="预测" width="80" align="center">
+              <!-- <el-table-column label="预测" width="80" align="center">
                 <template slot-scope="scope">
                   <el-button
                     class="blueBtn"
@@ -169,7 +167,7 @@
                     >预测</el-button
                   >
                 </template>
-              </el-table-column>
+              </el-table-column> -->
             </el-table>
             <!-- 分页符-->
             <el-pagination
@@ -358,7 +356,7 @@ export default {
       fd.append("video", this.uploadFileList[0].raw)
       console.log(this.uploadFileList)
       this.$http
-        .post("http://39.102.71.123:23352/pic/video_detect_submit", fd, {
+        .post("http://192.168.253.219:8000/pic/video_detect_submit", fd, {
           headers: {
             "Content-Type": "multipart/form-data",
           },
@@ -383,7 +381,7 @@ export default {
       let fd = new FormData();
       fd.append("entity", this.inputEntity);
       this.$http
-        .post("http://39.102.71.123:23352/pic/search_entity", fd, {
+        .post("http://192.168.253.219:8000/pic/search_entity", fd, {
           headers: {
             "Content-Type": "multipart/form-data",
           },
@@ -417,7 +415,7 @@ export default {
     showGraph() {
       this.graphFlag = true;
       this.$http
-        .post("http://39.102.71.123:23352/pic/JSTextJoinKG", {
+        .post("http://192.168.253.219:8000/pic/JSTextJoinKG", {
           headers: {
             "Content-Type": "multipart/form-data",
           },
@@ -434,7 +432,7 @@ export default {
     loadList() {
       this.loadingRes = true;
       this.$http
-        .post("http://39.102.71.123:23352/pic/video_detect", {
+        .post("http://192.168.253.219:8000/pic/video_detect", {
           headers: {
             "Content-Type": "multipart/form-data",
           },
@@ -466,7 +464,7 @@ export default {
       fd.append("filename", row.title);
       this.loadingRes = true;
       this.$http
-        .post("http://39.102.71.123:23352/pic/video_detect_view", fd, {
+        .post("http://192.168.253.219:8000/pic/video_detect_view", fd, {
           headers: {
             "Content-Type": "multipart/form-data",
           },
@@ -488,7 +486,7 @@ export default {
       fd.append("filename", row.title);
       //   this.loadingRes = true;
       this.$http
-        .post("http://39.102.71.123:23352/pic/video_detect_classification", fd, {
+        .post("http://192.168.253.219:8000/pic/video_detect_classification", fd, {
           headers: {
             "Content-Type": "multipart/form-data",
           },
@@ -511,7 +509,7 @@ export default {
       fd.append("filename", row.title);
       this.loadingRes = true;
       this.$http
-        .post("http://39.102.71.123:23352/pic/video_detect_predict", fd, {
+        .post("http://192.168.253.219:8000/pic/video_detect_predict", fd, {
           headers: {
             "Content-Type": "multipart/form-data",
           },
