@@ -116,7 +116,7 @@
         <!--表格部分-->
         <el-table
           :data="tableData.slice((curPage - 1) * 20, curPage * 20)"
-          :header-cell-style="{background:'#EBEEF7',color:'#606266'}"
+          :header-cell-style="{background:'#F6F7FB',color:'#606266'}"
           border
           height="626"
         >
@@ -181,18 +181,18 @@ export default {
       unionList: [],
       allTable: [
         {
-          value: "structData",
-          label: "structData",
+          value: "海战场装备性能库1",
+          label: "海战场装备性能库1",
           level: 1
         },
         {
-          value: "structData2",
-          label: "structData2",
+          value: "海战场装备性能库2",
+          label: "海战场装备性能库2",
           level: 1
         },
         {
-          value: "structData3",
-          label: "structData3",
+          value: "海战场装备性能库3",
+          label: "海战场装备性能库3",
           level: 1
         }
       ],
@@ -209,7 +209,7 @@ export default {
           let fd = new FormData();
           fd.append("source", node.label);
           that.$http
-            .post("http://192.168.253.219:8000/pic/struct_data_source", fd, {
+            .post("http://39.102.71.123:30001/pic/struct_data_source", fd, {
               headers: {
                 "Content-Type": "multipart/form-data"
               }
@@ -236,7 +236,7 @@ export default {
     };
   },
   methods: {
-    //全选
+    //全选按钮
     checkAll() {
       this.numberArr = [1, this.number];
       this.numberStr = this.numberArr.toString();
@@ -286,7 +286,7 @@ export default {
       // let fd = new FormData();
       // fd.append("source", this.sourceIndex);
       // this.$http
-      //   .post("http://192.168.253.219:8000/pic/view_structData", fd, {
+      //   .post("http://39.102.71.123:30001/pic/view_structData", fd, {
       //     headers: {
       //       "Content-Type": "multipart/form-data"
       //     }
@@ -322,7 +322,7 @@ export default {
       fd.append("name", this.inputName);
       this.loadingRes = true;
       this.$http
-        .post("http://192.168.253.219:8000/pic/struct_merge_data", fd, {
+        .post("http://39.102.71.123:30001/pic/struct_merge_data", fd, {
           headers: {
             "Content-Type": "multipart/form-data"
           }
@@ -360,7 +360,7 @@ export default {
       let fd = new FormData();
       fd.append("table", this.tableIndex);
       this.$http
-        .post("http://192.168.253.219:8000/pic/view_noise_data", fd, {
+        .post("http://39.102.71.123:30001/pic/view_noise_data", fd, {
           headers: {
             "Content-Type": "multipart/form-data"
           }
@@ -418,7 +418,7 @@ export default {
       fd.append("table", this.tableIndex);
       fd.append("rows",this.numberStr);
       this.$http
-        .post("http://192.168.253.219:8000/pic/data_filter", fd, {
+        .post("http://39.102.71.123:30001/pic/data_filter", fd, {
           headers: {
             "Content-Type": "multipart/form-data"
           }
@@ -426,12 +426,8 @@ export default {
         .then(res => {
           if(res.data == 0) {
             this.loadingRes = false;
-            this.iptVal = "";
             this.$message.error('输入的范围格式错误,或不在规定范围');
           }else {
-            this.iptDisable = false;
-            this.iptVal = "";
-            this.btnDisable = false;
             this.rawData = [].concat(res.data[1]);
   
             this.columnNames = [].concat(
@@ -461,7 +457,7 @@ export default {
     },
     init() {
       this.$http
-        .post("http://192.168.253.219:8000/pic/load_noise_data", {
+        .post("http://39.102.71.123:30001/pic/load_noise_data", {
           headers: {
             "Content-Type": "multipart/form-data"
           }
@@ -503,7 +499,7 @@ body > .el-container {
 }
 .el-aside {
   background-color: #343643;
-  min-height: calc(100% - 60px);
+  min-height: calc(100% - 0px);
 }
 .el-main {
   background-color: #e9eef3;
@@ -533,9 +529,9 @@ body > .el-container {
   height: 20px;
   line-height: 20px;
   text-align: left;
-  margin-left: 20px;
-  font-weight: bold;
-  font-size: large;
+  margin: 20px 0 0 20px;
+  /* font-weight: bold; */
+  /* font-size: 1.17em; */
 }
 .headbutton {
   float: right;
@@ -616,24 +612,24 @@ body > .el-container {
 /***********按钮样式***********/
 .blueBtn {
   background-color: #eff0ff;
-  border: 1px solid #5775fb;
+  border: 1px solid #108cee;
   color: #5775fb;
 }
 
 .blueBtn:hover,
 .blueBtn:active,
 .blueBtn:focus {
-  background-color: #5775fb;
+  background-color: #108cee;
   color: #ffffff;
 }
 
 .darkBtn {
-  background-color: #5775fb;
-  border: 1px solid #5775fb;
+  background-color: #108cee;
+  border: 1px solid #108cee;
   color: #ffffff;
 }
 .darkBtn:hover {
-  background-color: #708bf7;
+  background-color: #108cee;
 }
 
 .textBtn {

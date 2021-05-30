@@ -3,19 +3,19 @@
     <!--内容块实体对齐-->
     <el-main>
       <!--顶部-->
-      <div class="header">本体展示</div>
+      <div class="header">模式文件上传</div>
       <el-divider></el-divider>
       <!--中心-->
-      <div>
-        <span style="margin-left:10px;">请选择本体：</span>
+      <div class="top-tip">
+        <!-- <span>请选择本体：</span>
         <el-select v-model="typeSelect" placeholder size="small" style="margin-left:20px;">
           <el-option v-for="(item, index) in typeList" :key="index" :label="item" :value="item"></el-option>
-        </el-select>
-        <el-button style="margin-left:20px;" class="blueBtn" size="small" @click="showOntology">确定</el-button>
-        <!-- <el-button type="primary" class="darkBtn headbutton" size="small" @click="isUpload=true">上传</el-button> -->
+        </el-select> -->
+        <!-- <el-button style="margin-left:20px;" class="blueBtn" size="small" @click="showOntology">确定</el-button> -->
+        <el-button style="margin-left:20px;" class="blueBtn" size="small" @click="isUpload=true">上传</el-button>
 
       </div>
-      <div class="result" style="margin-bottom:50px;">
+      <div class="result" style="margin-bottom:50px;margin-top:-10px">
         <div
           id="kgPic"
           v-loading="loadingResGraph"
@@ -32,11 +32,11 @@
 
         <el-card class="box-card">
           <div slot="header" class="clearfix">
-            <span>本体上传</span>
+            <span>模式文件上传</span>
             <i class="el-icon-close" style="float: right; padding: 3px 0" @click="cancelUpload"></i>
           </div>
           <el-form :model="uploadForm" label-position="left" label-width="80px">
-            <el-form-item label="本体名称:">
+            <el-form-item label="图谱名称:">
               <el-input v-model="uploadForm.name"></el-input>
             </el-form-item>
           </el-form>
@@ -58,7 +58,7 @@
             </div>
           </el-upload>
           <el-button size="small" @click="cancelUpload">取消</el-button>
-          <el-button style="margin-left: 10px;" class="darkBtn" size="small" type="primary" @click="submitUpload">上传</el-button>
+          <el-button style="margin-left: 10px;" class="darkBtn" size="small" type="primary" @click="submitUpload">确定</el-button>
         </el-card>
       </div>
     </el-main>
@@ -94,7 +94,7 @@ export default {
       let fd = new FormData();
       fd.append("ontology", this.typeSelect);
       this.$http
-        .post("http://192.168.253.219:8000/pic/view_ontology", fd, {
+        .post("http://39.102.71.123:30001/pic/view_ontology", fd, {
           headers: {
             "Content-Type": "multipart/form-data"
           }
@@ -173,7 +173,7 @@ export default {
     },
     submitUpload() {
       if(this.typeList.indexOf(this.uploadForm.name)!==-1){
-        this.$message.error("本体名不能重复，请重新输入！")
+        this.$message.error("图谱名称不能重复，请重新输入！")
         return;
       }
       if(!this.fileList.length||!this.uploadForm.name){
@@ -184,7 +184,7 @@ export default {
       fd.append("csv_file", this.fileList[0].raw)
       fd.append('ontology_name',this.uploadForm.name)
       this.$http.post(
-        'http://192.168.253.219:8000/pic/submit_ontology_data', fd,
+        'http://39.102.71.123:30001/pic/submit_ontology_data', fd,
         {
           headers: {
             'Content-Type': 'multipart/form-data'
@@ -213,7 +213,7 @@ export default {
     },
     loadList(){
       this.$http.post(
-        'http://192.168.253.219:8000/pic/ontology_source',
+        'http://39.102.71.123:30001/pic/ontology_source',
         {
           headers: {
             'Content-Type': 'multipart/form-data'
@@ -250,7 +250,7 @@ body > .el-container {
 }
 .el-aside {
   background-color: #343643;
-  min-height: calc(100% - 60px);
+  min-height: calc(100% - 0px);
 }
 .el-main {
   background-color: #e9eef3;
@@ -279,9 +279,9 @@ body > .el-container {
   height: 20px;
   line-height: 20px;
   text-align: left;
-  margin-left: 20px;
-  font-weight: bold;
-  font-size: large;
+  margin: 20px 0 0 20px;
+  /* font-weight: bold; */
+  /* font-size: 1.17em; */
 }
 .headbutton {
   float: right;
@@ -347,24 +347,24 @@ body > .el-container {
 .blueBtn {
   margin-left: 5%;
   background-color: #eff0ff;
-  border: 1px solid #5775fb;
+  border: 1px solid #108cee;
   color: #5775fb;
 }
 
 .blueBtn:hover,
 .blueBtn:active,
 .blueBtn:focus {
-  background-color: #5775fb;
+  background-color: #108cee;
   color: #ffffff;
 }
 
 .darkBtn {
-  background-color: #5775fb;
-  border: 1px solid #5775fb;
+  background-color: #108cee;
+  border: 1px solid #108cee;
   color: #ffffff;
 }
 .darkBtn:hover {
-  background-color: #708bf7;
+  background-color: #108cee;
 }
 
 .result {

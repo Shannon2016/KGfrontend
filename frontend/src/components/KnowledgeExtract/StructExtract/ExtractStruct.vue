@@ -18,10 +18,16 @@
         <!--表格查看-->
         <div class="top-tip" v-if="sourceFlag">
           <span>请选择数据源：</span>
-          <el-select v-model="sourceIndex" placeholder size="small" style="margin-left:52px;">
+          <el-select v-model="sourceIndex" placeholder size="small" style="margin:0 15px;">
             <el-option v-for="(item, index) in sourceList" :key="index" :label="item" :value="item"></el-option>
           </el-select>
-          <el-button style="margin-left:20px;" class="blueBtn" size="small" @click="chooseSource">确定</el-button>
+          <!-- <el-button style="margin-left:20px;" class="blueBtn" size="small" @click="chooseSource">确定</el-button> -->
+
+          <span>映射方式：</span>
+          <el-select v-model="mapIndex" size="small" style="margin:0 15px;" placeholder>
+            <el-option v-for="(item, index) in mapList" :key="index" :label="item" :value="item"></el-option>
+          </el-select>
+          <el-button style="margin-left:20px;" class="blueBtn" size="small" @click="chooseMap">确定</el-button>
         </div>
         <div class="top-tip" v-if="!sourceFlag">
           <div style="width:100%">
@@ -129,12 +135,12 @@
           </el-row>
           <el-row style="margin-top:10px;">
             
-            <el-button
+            <!-- <el-button
               style="float:right;margin-right:20px;"
               class="blueBtn"
               size="small"
               @click="createDependence"
-            >生成函数依赖</el-button>
+            >生成函数依赖</el-button> -->
           </el-row>
           <div style="width:100%; margin-top:10px;">
             <el-tag
@@ -151,7 +157,7 @@
         <!--表格部分-->
         <el-table
           :data="tableData.slice((curPage - 1) * 20, curPage * 20)"
-          :header-cell-style="{background:'#EBEEF7',color:'#606266'}"
+          :header-cell-style="{background:'#F6F7FB',color:'#606266'}"
           :cell-style="cellStyle"
           border
           height="626"
@@ -224,7 +230,9 @@ export default {
       propertySelect: "",
       propertyKey: -1,
       sourceIndex: "",
-      sourceList: ["structData", "structData2", "structData3"],
+      sourceList: ["海战场装备性能库1", "海战场装备性能库2","海战场装备性能库3"],
+      mapIndex: "",
+      mapList: ["自动映射", "手动映射"],
       tableIndex: "",
       properties: [],
       tableData: [],
@@ -235,7 +243,7 @@ export default {
       loadingResGraph: false,
       graphFlag: false,
       typeSelect: "",
-      typeList: ["本体1", "本体2", "本体3", "本体4"],
+      typeList: [], //选择表格
       sourceFlag: true,
       canFlag: true,
       fullscreenLoading: false,
@@ -300,6 +308,7 @@ export default {
       this.sourceIndex = "";
       this.typeSelect = "";
       this.sourceFlag = true;
+      this.mapIndex = "";
     },
     removeTag(tag) {
       if (tag.type === "warning") {
@@ -334,7 +343,7 @@ export default {
       fd.append("ontology", this.typeSelect);
       fd.append("ontology_center", this.entitySelect[0]);
       this.$http
-        .post("http://192.168.253.219:8000/pic/show_ontology2", fd, {
+        .post("http://39.102.71.123:30001/pic/show_ontology2", fd, {
           headers: {
             "Content-Type": "multipart/form-data"
           }
@@ -372,7 +381,7 @@ export default {
       let fd = new FormData();
       fd.append("ontology", this.typeSelect);
       this.$http
-        .post("http://192.168.253.219:8000/pic/show_ontology1", fd, {
+        .post("http://39.102.71.123:30001/pic/show_ontology1", fd, {
           headers: {
             "Content-Type": "multipart/form-data"
           }
@@ -397,11 +406,12 @@ export default {
           console.log(res);
         });
     },
-    createDependence() {
+    //生成函数依赖
+    /* createDependence() {
       let fd = new FormData();
       fd.append("ontology", this.typeSelect);
       this.$http
-        .post("http://192.168.253.219:8000/pic/functional_dependency", fd, {
+        .post("http://39.102.71.123:30001/pic/functional_dependency", fd, {
           headers: {
             "Content-Type": "multipart/form-data"
           }
@@ -426,7 +436,7 @@ export default {
         .catch(res => {
           console.log(res);
         });
-    },
+    }, */
     //抽取实体
     extractEntity() {
       let fd = new FormData();
@@ -461,7 +471,7 @@ export default {
       fd.append("columns", JSON.stringify(columns));
       fd.append("ontology_data", JSON.stringify(ontology_data));
       this.$http
-        .post("http://192.168.253.219:8000/pic/struct_entity_extract", fd, {
+        .post("http://39.102.71.123:30001/pic/struct_entity_extract", fd, {
           headers: {
             "Content-Type": "multipart/form-data"
           }
@@ -504,7 +514,7 @@ export default {
       this.fullscreenLoading = true;
       fd.append("ontology", this.typeSelect);
       this.$http
-        .post("http://192.168.253.219:8000/pic/struct_relation_extract", fd, {
+        .post("http://39.102.71.123:30001/pic/struct_relation_extract", fd, {
           headers: {
             "Content-Type": "multipart/form-data"
           }
@@ -541,8 +551,6 @@ export default {
     },
     //抽取实体属性
     extractProperty() {
-      this.btnDisable = false;
-      this.iptDisable = false;
       let fd = new FormData();
       if(this.iptVal != "") {
         this.numberStr = this.iptVal;
@@ -581,7 +589,7 @@ export default {
       fd.append("columns", JSON.stringify(columns));
       fd.append("ontology_data", JSON.stringify(ontology_data));
       this.$http
-        .post("http://192.168.253.219:8000/pic/struct_attribute_extract", fd, {
+        .post("http://39.102.71.123:30001/pic/struct_attribute_extract", fd, {
           headers: {
             "Content-Type": "multipart/form-data"
           }
@@ -603,7 +611,6 @@ export default {
             this.propertySelect = "";
             this.propertyList = [];
             this.entitySelect = "";
-            this.iptVal = "";
             // } else this.$message.error("抽取失败！");
           }
         })
@@ -612,6 +619,7 @@ export default {
           this.fullscreenLoading = false;
         });
     },
+    //确定
     chooseSource() {
       if (this.sourceIndex === "") {
         this.$message({
@@ -623,7 +631,7 @@ export default {
       let fd = new FormData();
       fd.append("source", this.sourceIndex);
       this.$http
-        .post("http://192.168.253.219:8000/pic/struct_data_source", fd, {
+        .post("http://39.102.71.123:30001/pic/struct_data_source", fd, {
           headers: {
             "Content-Type": "multipart/form-data"
           }
@@ -636,6 +644,58 @@ export default {
           console.log(res);
         });
     },
+    //确定
+    chooseMap() {
+      this.fullscreenLoading = true;
+      //先判断数据源
+      console.log("this.sourceIndex",this.sourceIndex)
+      if (this.sourceIndex === "") {
+        this.fullscreenLoading = false;
+        this.$message({
+          message: "请先选择数据源",
+          type: "warning"
+        });
+        return;
+      }
+      //判断映射方式
+      if(this.mapIndex == "手动映射") {
+        let fd = new FormData();
+        fd.append("source", this.sourceIndex);
+        this.$http
+        .post("http://39.102.71.123:30001/pic/struct_data_source", fd, {
+          headers: {
+            "Content-Type": "multipart/form-data"
+          }
+        })
+        .then(res => {
+          this.fullscreenLoading = false;
+          this.properties = res.data;
+          this.sourceFlag = false;
+        })
+        .catch(res => {
+          console.log(res);
+          this.fullscreenLoading = false;
+        });
+      }else if(this.mapIndex == "自动映射") {
+        let fd = new FormData();
+        fd.append("source", this.sourceIndex);
+        this.$http
+          .post("http://39.102.71.123:30001/pic/extract_struct_database", fd, {
+            headers: {
+              "Content-Type": "multipart/form-data"
+            }
+          })
+          .then(res => {
+            this.fullscreenLoading = false;
+            console.log("res",res);
+            this.showGraph(res); //展示图谱
+          })
+          .catch(error => {
+            this.fullscreenLoading = false;
+            console.log(error);
+          })
+      }
+    },
     cellStyle({ row, column, rowIndex, columnIndex }) {
       if (this.entityIndex.indexOf(columnIndex) !== -1) {
         return `background-color:#FDF6EC ;`;
@@ -645,7 +705,7 @@ export default {
         return "";
       }
     },
-    //选择表格
+    //选择表格 确定
     chooseTable() {
       if (this.tableIndex === "") return;
       this.loadingRes = true;
@@ -667,7 +727,7 @@ export default {
       fd.append("table", this.tableIndex);
       fd.append("source", this.sourceIndex);
       this.$http
-        .post("http://192.168.253.219:8000/pic/view_structData", fd, {
+        .post("http://39.102.71.123:30001/pic/view_structData", fd, {
           headers: {
             "Content-Type": "multipart/form-data"
           }
@@ -694,6 +754,19 @@ export default {
           alert("请求失败");
           this.loadingRes = false;
         });
+        this.$http
+          .post("http://39.102.71.123:30001/pic/ontology_source", {
+            headers: {
+              "Content-Type": "multipart/form-data"
+            }
+          })
+          .then(res => {
+            console.log("1111",res.data);
+            this.typeList = res.data;
+          })
+          .catch(error => {
+            console.log(error);
+          })
     },
     //展示图谱
     showGraph(res) {
@@ -795,7 +868,7 @@ export default {
     },
     loadData() {
       this.$http
-        .post("http://192.168.253.219:8000/pic/show_table", {
+        .post("http://39.102.71.123:30001/pic/show_table", {
           headers: {
             "Content-Type": "multipart/form-data"
           }
@@ -823,7 +896,7 @@ export default {
     //   fd.append("table", this.tableIndex);
     //   fd.append("ontology", this.typeSelect);
     //   this.$http
-    //     .post("http://192.168.253.219:8000/pic/establish_map", fd, {
+    //     .post("http://39.102.71.123:30001/pic/establish_map", fd, {
     //       headers: {
     //         "Content-Type": "multipart/form-data"
     //       }
@@ -863,7 +936,7 @@ export default {
     //   fd.append("table", this.tableIndex);
     //   fd.append("ontology", this.typeSelect);
     //   this.$http
-    //     .post("http://192.168.253.219:8000/pic/establish_map", fd, {
+    //     .post("http://39.102.71.123:30001/pic/establish_map", fd, {
     //       headers: {
     //         "Content-Type": "multipart/form-data"
     //       }
@@ -918,7 +991,7 @@ body > .el-container {
 }
 .el-aside {
   background-color: #343643;
-  min-height: calc(100% - 60px);
+  min-height: calc(100% - 0px);
 }
 .el-main {
   background-color: #e9eef3;
@@ -954,9 +1027,9 @@ body > .el-container {
   height: 20px;
   line-height: 20px;
   text-align: left;
-  margin-left: 20px;
-  font-weight: bold;
-  font-size: large;
+  margin: 20px 0 0 20px;
+  /* font-weight: bold; */
+  /* font-size: 1.17em; */
 }
 .top-tip {
   margin-top: -10px;
@@ -989,24 +1062,24 @@ body > .el-container {
 /***********按钮样式***********/
 .blueBtn {
   background-color: #eff0ff;
-  border: 1px solid #5775fb;
+  border: 1px solid #108cee;
   color: #5775fb;
 }
 
 .blueBtn:hover,
 .blueBtn:active,
 .blueBtn:focus {
-  background-color: #5775fb;
+  background-color: #108cee;
   color: #ffffff;
 }
 
 .darkBtn {
-  background-color: #5775fb;
-  border: 1px solid #5775fb;
+  background-color: #108cee;
+  border: 1px solid #108cee;
   color: #ffffff;
 }
 .darkBtn:hover {
-  background-color: #708bf7;
+  background-color: #108cee;
 }
 
 .textBtn {

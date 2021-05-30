@@ -42,7 +42,7 @@
           size="small"
           style="float:right; margin-right:20px;"
           @click="loadJS"
-        >加载JS文书</el-button>
+        >加载军事文书</el-button>
       </div>
       <div
         class="result"
@@ -82,7 +82,7 @@
           <el-col :span="12">
             <el-table
               :data="tableData.slice((curPageFile - 1) * 10, curPageFile * 10)"
-              :header-cell-style="{background:'#EBEEF7',color:'#606266'}"
+              :header-cell-style="{background:'#F6F7FB',color:'#606266'}"
               height="626"
               style="width:97%"
               border
@@ -134,12 +134,21 @@
           <el-col :span="12">
             <el-table
               :data="tableDataEntity.slice((curPageEntity - 1) * 10, curPageEntity * 10)"
-              :header-cell-style="{background:'#EBEEF7',color:'#606266'}"
+              :header-cell-style="{background:'#F6F7FB',color:'#606266'}"
               height="550"
               style="width:97%"
               border
             >
               <el-table-column prop="title" :label="'实体标注目录(共'+tableDataEntity.length+'个)'"></el-table-column>
+              <el-table-column label="操作" width="100" align="center">
+                <template slot-scope="scope">
+                  <el-button
+                    class="blueBtn"
+                    type="primary"
+                    size="small"
+                    @click.stop="handleAnalysis1(scope.row)">浏览</el-button>
+                </template>
+              </el-table-column>
             </el-table>
             <el-pagination
               background
@@ -152,12 +161,21 @@
           <el-col :span="12">
             <el-table
               :data="tableDataRelation.slice((curPageRelation - 1) * 10, curPageRelation * 10)"
-              :header-cell-style="{background:'#EBEEF7',color:'#606266'}"
+              :header-cell-style="{background:'#F6F7FB',color:'#606266'}"
               height="550"
               style="width:97%"
               border
             >
               <el-table-column prop="title" :label="'关系标注目录(共'+tableDataRelation.length+'个)'"></el-table-column>
+              <el-table-column label="操作" width="100" align="center">
+                <template slot-scope="scope">
+                  <el-button
+                    class="blueBtn"
+                    type="primary"
+                    size="small"
+                    @click.stop="handleAnalysis2(scope.row)">浏览</el-button>
+                </template>
+              </el-table-column>
             </el-table>
             <el-pagination
               background
@@ -169,6 +187,27 @@
           </el-col>
         </el-row>
       </div>
+      <!-- 弹框 -->
+      <el-dialog
+        title="实体标注文本"
+        :visible.sync="dialogVisible"
+        width="30%"
+      >
+        <p ref="diaOne" style="margin: -30px 0"></p>
+        <span slot="footer" class="dialog-footer">
+          <el-button type="primary" @click="dialogVisible = false">确 定</el-button>
+        </span>
+      </el-dialog>
+      <el-dialog
+        title="关系标注文本"
+        :visible.sync="dialogVisible1"
+        width="30%"
+      >
+        <p ref="diaTwo" style="margin: -30px 0"></p>
+        <span slot="footer" class="dialog-footer">
+          <el-button type="primary" @click="dialogVisible1 = false">确 定</el-button>
+        </span>
+      </el-dialog>
     </el-main>
     <el-main v-show="isSearch">
       <!--顶部-->
@@ -238,9 +277,14 @@ export default {
       //图谱
       graphWidth:"100%",
       graphHeight:"100%",
+      //弹框
+      dialogVisible: false,
+      dialogVisible1: false,
+      dialogText: "",
     };
   },
   methods: {
+    //时间
     goToExtract(){
       this.$router.push({
         path: "extract",
@@ -262,7 +306,7 @@ export default {
       let fd = new FormData();
       fd.append("entity", this.inputEntity);
       this.$http
-        .post("http://192.168.253.219:8000/pic/searchTextData", fd, {
+        .post("http://39.102.71.123:30001/pic/searchTextData", fd, {
           headers: {
             "Content-Type": "multipart/form-data"
           }
@@ -371,7 +415,7 @@ export default {
     joinGraph() {
       this.loadingRes = true;
       this.$http
-        .post("http://192.168.253.219:8000/pic/JSTextJoinKG", {
+        .post("http://39.102.71.123:30001/pic/JSTextJoinKG", {
           headers: {
             "Content-Type": "multipart/form-data"
           }
@@ -403,7 +447,7 @@ export default {
       console.log(row.title);
       this.loadingRes = true;
       this.$http
-        .post("http://192.168.253.219:8000/pic/viewJSText", fd, {
+        .post("http://39.102.71.123:30001/pic/viewJSText", fd, {
           headers: {
             "Content-Type": "multipart/form-data"
           }
@@ -418,13 +462,61 @@ export default {
           this.loadingRes = false;
         });
     },
+    //实体标注目录 浏览
+    handleAnalysis1(row) {
+      this.loadingRes = true;
+      let fd = new FormData();
+      fd.append("filename", row.title);
+      this.$http
+        .post("http://39.102.71.123:30001/pic/view_JS_mark_text_ner", fd, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        })
+        .then(res => {
+          this.loadingRes = false;
+          this.dialogText = res.data.replace(/\n/g,"<br>");
+          this.dialogVisible = true;
+          this.$nextTick(() => {
+            this.$refs.diaOne.innerHTML = this.dialogText;
+          })
+        })
+        .catch(error => {
+          this.loadingRes = false;
+          console.log(error);
+        })
+    },
+    //关系标注目录 浏览
+    handleAnalysis2(row) {
+      console.log("row.title",row.title);
+      this.loadingRes = true;
+      let fd = new FormData();
+      fd.append("filename", row.title);
+      this.$http
+        .post("http://39.102.71.123:30001/pic/view_JS_mark_text_relation", fd, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        })
+        .then(res => {
+          this.loadingRes = false;
+          this.dialogVisible1 = true;
+          this.$nextTick(() => {
+            this.$refs.diaTwo.innerHTML = res.data;
+          })
+        })
+        .catch(error => {
+          this.loadingRes = false;
+          console.log(error);
+        })
+    },
     loadJS() {
       this.isList = true;
       this.listType = true;
       this.isCatalog = false;
       this.loadingRes = true;
       this.$http
-        .post("http://192.168.253.219:8000/pic/loadJSText", {
+        .post("http://39.102.71.123:30001/pic/loadJSText", {
           headers: {
             "Content-Type": "multipart/form-data"
           }
@@ -444,6 +536,7 @@ export default {
           this.loadingRes = false;
         });
     },
+    //加载标注目录
     loadTagDirectory() {
       this.isList = false;
       this.listType = false;
@@ -451,13 +544,12 @@ export default {
 
       this.loadingRes = true;
       this.$http
-        .post("http://192.168.253.219:8000/pic/loadJS_mark_text", {
+        .post("http://39.102.71.123:30001/pic/loadJS_mark_text", {
           headers: {
             "Content-Type": "multipart/form-data"
           }
         })
         .then(res => {
-          // console.log(res)
           this.textData = "";
           this.tableDataEntity = res.data[0].map(cur => {
             return { title: cur };
@@ -481,7 +573,7 @@ export default {
       let fd = new FormData();
       fd.append("dict", this.typeSelect + ".csv");
       this.$http
-        .post("http://192.168.253.219:8000/pic/show_dict", fd, {
+        .post("http://39.102.71.123:30001/pic/show_dict", fd, {
           headers: {
             "Content-Type": "multipart/form-data"
           }
@@ -545,7 +637,7 @@ body > .el-container {
 }
 .el-aside {
   background-color: #343643;
-  min-height: calc(100% - 60px);
+  min-height: calc(100% - 0px);
 }
 .el-main {
   background-color: #e9eef3;
@@ -574,9 +666,9 @@ body > .el-container {
   height: 20px;
   line-height: 20px;
   text-align: left;
-  margin-left: 20px;
-  font-weight: bold;
-  font-size: large;
+  margin: 20px 0 0 20px;
+  /* font-weight: bold; */
+  /* font-size: 1.17em; */
 }
 .headbutton {
   float: right;
@@ -618,41 +710,41 @@ body > .el-container {
 .blueBtn {
   margin-left: 5%;
   background-color: #eff0ff;
-  border: 1px solid #5775fb;
+  border: 1px solid #108cee;
   color: #5775fb;
 }
 
 .blueBtn:hover,
 .blueBtn:active,
 .blueBtn:focus {
-  background-color: #5775fb;
+  background-color: #108cee;
   color: #ffffff;
 }
 
 .darkBtn {
-  background-color: #5775fb;
-  border: 1px solid #5775fb;
+  background-color: #108cee;
+  border: 1px solid #108cee;
   color: #ffffff;
 }
 .darkBtn:hover {
-  background-color: #708bf7;
+  background-color: #108cee;
 }
 
 .tagStyle {
   width: 150px;
   text-align: center;
   margin-top: 20px;
-  margin-left: 20px;
+  margin: 20px 0 0 20px;
 }
 
 .tableHeader {
   height: 55px;
   width: 100%;
-  background-color: #ebeef7;
+  background-color: #f6f7fb;
   color: #606266;
   line-height: 55px;
   padding: 0 10px;
-  font-weight: bold;
+  /* font-weight: bold; */
   font-size: 14px;
 }
   #daddy{

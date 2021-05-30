@@ -10,7 +10,7 @@
     <el-main>
       <!--顶部-->
       <div class="header">
-        <i class="el-icon-back" v-if="isGraph" @click="backToSource"></i>
+        <i class="el-icon-back" v-if="isGraph" @click="isGraph=false"></i>
         实体对齐
       </div>
       <el-divider></el-divider>
@@ -19,35 +19,16 @@
       <div class="main" v-if="!isGraph">
         <div class="top-tip">
           <span>请选择数据：</span>
-          <el-select v-model="tableIndex" placeholder size="small" style="margin-left:5px;">
+          <el-select v-model="tableIndex" placeholder size="small" style="margin-left:20px;">
             <el-option v-for="(item, index) in tableList" :key="index" :label="item" :value="item"></el-option>
           </el-select>
           <el-button
-            style="margin-left:5px;"
+            style="margin-left:20px;"
             class="blueBtn"
             size="small"
             @click="chooseTable"
           >加载数据</el-button>
-          <el-button
-            class="darkBtn"
-            size="small"
-            style="float:right; margin-right:20px"
-            @click="checkAll"
-            :disabled="btnDisable"
-          >全选</el-button>
-          <el-input
-            type="text"
-            size="small"
-            style="width:150px;margin-right:20px;float:right;"
-            placeholder="请输入范围 如：1,5"
-            :disabled="iptDisable"
-            v-model="iptVal"
-            @input="iptChange(iptVal)"
-            @focus="focusFn"
-            @blur="blurFn"
-            ></el-input>
-        </div>
-        <div class="top-tip" style="padding: 10px 0 10px 0">
+
           <el-button
             class="darkBtn"
             size="small"
@@ -76,12 +57,18 @@
             @click="reduceDuplicate"
             :disabled="sxDis"
           >属性去重</el-button>
+          <el-button
+            class="darkBtn"
+            size="small"
+            style="float:right; margin-right:20px"
+            @click="checkAll"
+          >全选</el-button>
         </div>
 
         <!--表格-->
         <el-table
           :data="tableData.slice((curPage - 1) * 20, curPage * 20)"
-          :header-cell-style="{background:'#EBEEF7',color:'#606266'}"
+          :header-cell-style="{background:'#F6F7FB',color:'#606266'}"
           border
           height="626"
           v-loading="loadingRes"
@@ -144,9 +131,6 @@ export default {
       tableData: [],
       curPage: 1,
       columnNames: [],
-      iptVal: "",
-      iptDisable:false,
-      btnDisable: false,
       loadingResGraph: false,
       isGraph: false,
       loadingRes: false,
@@ -156,12 +140,11 @@ export default {
     };
   },
   methods: {
-    //全选
+    //全选按钮
     checkAll() {
       this.numberArr = [1,this.number];
       this.numberStr = this.numberArr.toString();
       if(this.numberStr != "1,0") {
-        this.iptDisable = true;
         this.sxDis = false;
         this.$message({
           message: '全选成功！',
@@ -174,30 +157,9 @@ export default {
         });
       }
     },
-    iptChange(iptVal) {
-      if(this.iptVal != "") {
-        this.btnDisable = true;
-        this.sxDis = true;
-      }else {
-        this.btnDisable = false;
-      }
-      this.sxDis = false;
-    },
-    focusFn() {
-      this.btnDisable = true;
-    },
-    blurFn() {
-      if(this.iptVal == "") {
-        this.btnDisable = false;
-      }else {
-        this.btnDisable = true;
-      }
-    },
     //加载数据
     chooseTable() {
       this.loadingRes = true;
-      this.iptDisable = false;
-      this.btnDisable = false;
       this.tpDis = true;
       this.stDis = true;
       this.jzDis = true;
@@ -205,7 +167,7 @@ export default {
       let fd = new FormData();
       fd.append("table", this.tableIndex);
       this.$http
-        .post("http://192.168.253.219:8000/pic/view_after_filter_data", fd, {
+        .post("http://39.102.71.123:30001/pic/view_after_filter_data", fd, {
           headers: {
             "Content-Type": "multipart/form-data"
           }
@@ -230,16 +192,14 @@ export default {
           this.loadingRes = false;
         });
     },
-    //图谱展示
     showGraph() {
       this.isGraph = true;
       this.loadingResGraph = true;
       let that = this;
       let fd = new FormData();
-      fd.append("table", this.tableIndex);
-      fd.append("rows", this.numberStr);
+      fd.append("table", this.tableIndex)
       this.$http
-        .post("http://192.168.253.219:8000/pic/show_structTuple",fd, {
+        .post("http://39.102.71.123:30001/pic/show_structTuple",fd, {
           headers: {
             "Content-Type": "multipart/form-data"
           }
@@ -247,9 +207,6 @@ export default {
         .then(res => {
           console.log(res);
           this.initGraph(res);
-          this.iptDisable = false;
-          this.btnDisable = false;
-          this.iptVal = "";
           this.loadingResGraph = false;
         })
         .catch(res => {
@@ -365,7 +322,7 @@ export default {
       let fd = new FormData();
       fd.append("table", this.tableIndex)
       this.$http
-        .post("http://192.168.253.219:8000/pic/load_align_model", fd, {
+        .post("http://39.102.71.123:30001/pic/load_align_model", fd, {
           headers: {
             "Content-Type": "multipart/form-data"
           }
@@ -386,45 +343,31 @@ export default {
           alert("出错了！");
         });
     },
-    //返回按钮
-    backToSource() {
-      this.isGraph = false;
-      this.tableData = [];
-      this.tableIndex = "";
-    },
     //属性去重
     reduceDuplicate() {
       this.loadingRes = true;
-      if(this.iptVal != "") {
-        this.numberStr = this.iptVal;
-      }
       let fd = new FormData();
       fd.append("table", this.tableIndex);
-      fd.append("rows", this.numberStr);
       this.$http
-        .post("http://192.168.253.219:8000/pic/attribute_deduplication", fd, {
+        .post("http://39.102.71.123:30001/pic/attribute_deduplication", fd, {
           headers: {
             "Content-Type": "multipart/form-data"
           }
         })
         .then(res => {
           console.log(res);
+          this.jzDis = false;
+          this.columnNames = res.data[0].map(cur => {
+            return { prop: cur, label: cur };
+          });
+
+          let column = res.data[0];
+          this.tableData = res.data[1].map(cur => {
+            let res = {};
+            for (let i = 0; i < column.length; i++) res[column[i]] = cur[i];
+            return res;
+          });
           this.loadingRes = false;
-          if(res.data == 0) {
-            this.$message.error('输入的范围格式错误,或不在规定范围');
-          }else {
-            this.jzDis = false;
-            this.columnNames = res.data[0].map(cur => {
-              return { prop: cur, label: cur };
-            });
-  
-            let column = res.data[0];
-            this.tableData = res.data[1].map(cur => {
-              let res = {};
-              for (let i = 0; i < column.length; i++) res[column[i]] = cur[i];
-              return res;
-            });
-          }
         })
         .catch(res => {
           alert("出错了");
@@ -443,9 +386,8 @@ export default {
       this.loadingRes = true;
       let fd = new FormData();
       fd.append("table", this.tableIndex);
-      fd.append("dict", this.model);
-      fd.append("rows", this.numberStr);
-      this.$http.post("http://192.168.253.219:8000/pic/submit_remain_data",fd, {
+      fd.append("dict", this.model)
+      this.$http.post("http://39.102.71.123:30001/pic/submit_remain_data",fd, {
         headers: {
           "Content-Type": "multipart/form-data"
         }
@@ -472,7 +414,7 @@ export default {
   },
   mounted() {
     Axios
-        .post("http://192.168.253.219:8000/pic/show_after_filter_table", {
+        .post("http://39.102.71.123:30001/pic/show_after_filter_table", {
           headers: {
             "Content-Type": "multipart/form-data"
           }
@@ -506,7 +448,7 @@ body > .el-container {
 }
 .el-aside {
   background-color: #343643;
-  min-height: calc(100% - 60px);
+  min-height: calc(100% - 0px);
 }
 .el-main {
   background-color: #e9eef3;
@@ -536,9 +478,9 @@ body > .el-container {
   height: 20px;
   line-height: 20px;
   text-align: left;
-  margin-left: 20px;
-  font-weight: bold;
-  font-size: large;
+  margin: 20px 0 0 20px;
+  /* font-weight: bold; */
+  /* font-size: 1.17em; */
 }
 .headbutton {
   float: right;
@@ -619,24 +561,24 @@ body > .el-container {
 /***********按钮样式***********/
 .blueBtn {
   background-color: #eff0ff;
-  border: 1px solid #5775fb;
+  border: 1px solid #108cee;
   color: #5775fb;
 }
 
 .blueBtn:hover,
 .blueBtn:active,
 .blueBtn:focus {
-  background-color: #5775fb;
+  background-color: #108cee;
   color: #ffffff;
 }
 
 .darkBtn {
-  background-color: #5775fb;
-  border: 1px solid #5775fb;
+  background-color: #108cee;
+  border: 1px solid #108cee;
   color: #ffffff;
 }
 .darkBtn:hover {
-  background-color: #708bf7;
+  background-color: #108cee;
 }
 
 .textBtn {

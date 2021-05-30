@@ -9,20 +9,20 @@ import CorpusTagging from "../components/DataLabel/CorpusTag/CorpusTagging";
 import RelationalData from "../components/DataView/RelationalData";
 import EntitySearch from "../components/DataSearch/EntitySearch";
 import RelationSearch from "../components/DataSearch/RelationSearch";
+// import RelationSearch2 from "../components/DataSearch/RelationSearch2";
 import ExtractStruct from "../components/KnowledgeExtract/StructExtract/ExtractStruct"
 import ShowDict from "../components/KnowledgeExtract/TextExtract/ShowDict"
 import ShowOntology from "../components/KnowledgeExtract/StructExtract/ShowOntology"
 import EntityMatch from "../components/KnowledgeExtract/StructExtract/EntityMatch"
-// import EntityMatch from "../components/KnowledgeExtract/StructExtract/EntityMatch_oldVersion"
+import EntityMatchOldVersion from "../components/KnowledgeExtract/StructExtract/EntityMatch_oldVersion111"
 import DeNoise from "../components/KnowledgeExtract/StructExtract/DeNoise"
 import ViewData from "../components/KnowledgeExtract/StructExtract/ViewData"
 import ExtractTest from "../components/KnowledgeExtract/StructExtract/ExtractTest"
-// import Predict from "../components/KnowledgeExtract/TextExtract/Predict"
+import Predict from "../components/KnowledgeExtract/TextExtract/Predict"
 import ImageLabel from "../components/KnowledgeExtract/ImageLabel"
 import ImagePredict from "../components/KnowledgeExtract/ImagePredict"
 import Video2Image from "../components/KnowledgeExtract/Video2Image"
 import VideoPredict from "../components/KnowledgeExtract/VideoPredict"
-import SemanticsSearch from "../components/DataSearch/SemanticsSearch"
 
 Vue.use(Router)
 
@@ -30,11 +30,21 @@ export default new Router({
   routes: [
     {
       path: '/',
-      name: 'viewData',
-      component: ViewData,
-      children:[
-      ]
+      name: 'ExtractPic',
+      component: ExtractPic,
     },
+    {
+      path: '/extractPic',
+      name: 'ExtractPic',
+      component: ExtractPic
+    },
+    // {
+    //   path: '/',
+    //   name: 'viewData',
+    //   component: ViewData,
+    //   children:[
+    //   ]
+    // },
     {
       path: '/definelabel',
       name: 'DefineLabel',
@@ -50,11 +60,7 @@ export default new Router({
       name: 'Extract',
       component: Extract
     },
-    {
-      path: '/extractPic',
-      name: 'ExtractPic',
-      component: ExtractPic
-    },
+    
     {
       path: '/extractVideo',
       name: 'ExtractVideo',
@@ -86,14 +92,14 @@ export default new Router({
       component: RelationSearch,
     },
     {
-      path: '/semanticsSearch',
-      name: '/semanticsSearch',
-      component: SemanticsSearch,
-    },
-    {
       path: '/entitymatch',
       name: 'entityMatch',
       component: EntityMatch
+    },
+    {
+      path: '/entitymatcholdversion',
+      name: 'entityMatchOldVersion',
+      component: EntityMatchOldVersion //结构化数据标注
     },
     {
       path: '/showontology',
@@ -120,11 +126,11 @@ export default new Router({
       name: '/ExtractTest',
       component: ExtractTest
     },
-    /* {
+    {
       path: '/predict',
       name: '/Predict',
       component: Predict
-    }, */
+    },
     {
       path: '/imageLabel',
       name: '/ImageLabel',

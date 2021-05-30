@@ -59,7 +59,7 @@
           <!--三元组列表-->
           <el-table
             :data="tableData.slice((curPage - 1) * 10, curPage * 10)"
-            :header-cell-style="{background:'#EBEEF7',color:'#606266'}"
+            :header-cell-style="{background:'#F6F7FB',color:'#606266'}"
             border
             v-loading="loadingRes"
             v-if="level == 1"
@@ -70,7 +70,7 @@
           </el-table>
           <el-table
             :data="tableData.slice((curPage - 1) * 10, curPage * 10)"
-            :header-cell-style="{background:'#EBEEF7',color:'#606266'}"
+            :header-cell-style="{background:'#F6F7FB',color:'#606266'}"
             border
             v-loading="loadingRes"
             v-if="level == 2"
@@ -130,7 +130,7 @@ export default {
     showQuerySpeed() {
       this.loadingRes = true;
       this.$http
-        .post("http://192.168.253.219:8000/neo/entity_search_speed", {
+        .post("http://39.102.71.123:30001/neo/entity_search_speed", {
           headers: {
             "Content-Type": "multipart/form-data"
           }
@@ -184,7 +184,7 @@ export default {
         let fd = new FormData();
         fd.append("entity", this.inputEntity);
         this.$http
-        .post("http://192.168.253.219:8000/neo/search_entity_accurate", fd)
+        .post("http://39.102.71.123:30001/neo/search_entity_accurate", fd)
         .then(res => {
           console.log(res.data);
           this.searchNumber = res.data[3];
@@ -341,14 +341,14 @@ export default {
             if (obj.hasOwnProperty("source")) {
               //links
               ////obj.source+obj.name+obj.target 头节点、关系、尾节点
-              // this.$http.get('http://39.102.71.123:23352/search_entity?head='+obj.source+"&relation="+obj.name+"&tail="+obj.target).then(
+              // this.$http.get('http://39.102.71.123:30001/search_entity?head='+obj.source+"&relation="+obj.name+"&tail="+obj.target).then(
               //   (res) => {
               //   })
               alert("1");
             } //points
             else {
               ////实体名为obj.name
-              // this.$http.get('http://39.102.71.123:23352/search_entity?entity='+obj.name).then((res) => {
+              // this.$http.get('http://39.102.71.123:30001/search_entity?entity='+obj.name).then((res) => {
               // })
               alert("2");
             }
@@ -372,7 +372,7 @@ export default {
         let fd = new FormData();
         fd.append("entity", this.inputEntity);
         this.$http
-          .post("http://192.168.253.219:8000/neo/search_entity_keyWords", fd)
+          .post("http://39.102.71.123:30001/neo/search_entity_keyWords", fd)
           .then(res => {
             console.log("res",res);
             this.searchTime = res.data[1]; //查询时间
@@ -391,7 +391,7 @@ export default {
     }
   },
   mounted(){
-    this.$http.post("http://192.168.253.219:8000/neo/start_KGSearch")
+    this.$http.post("http://39.102.71.123:30001/neo/start_KGSearch")
       .then(res => {
         this.tupleNum = res.data[0];
         this.searchTime = res.data[1];
@@ -421,7 +421,7 @@ body > .el-container {
 }
 .el-aside {
   background-color: #343643;
-  min-height: calc(100% - 60px);
+  min-height: calc(100% - 0px);
 }
 .el-main {
   background-color: #e9eef3;
@@ -447,9 +447,9 @@ body > .el-container {
   height: 20px;
   line-height: 20px;
   text-align: left;
-  margin-left: 20px;
-  font-weight: bold;
-  font-size: large;
+  margin: 20px 0 0 20px;
+  /* font-weight: bold; */
+  /* font-size: 1.17em; */
 }
 /*************内容中心*************/
 .main {
@@ -487,7 +487,7 @@ body > .el-container {
   color: #606266;
   font-family: "Avenir", Helvetica, Arial, sans-serif;
   padding: 0 10px;
-  font-weight: bold;
+  /* font-weight: bold; */
 }
 
 /*表格*/
@@ -516,23 +516,23 @@ body > .el-container {
 /***********按钮样式***********/
 .blueBtn {
   background-color: #eff0ff;
-  border: 1px solid #5775fb;
+  border: 1px solid #108cee;
   color: #5775fb;
 }
 
 .blueBtn:hover,
 .blueBtn:active {
-  background-color: #5775fb;
+  background-color: #108cee;
   color: #ffffff;
 }
 
 .darkBtn {
-  background-color: #5775fb;
-  border: 1px solid #5775fb;
+  background-color: #108cee;
+  border: 1px solid #108cee;
   color: #ffffff;
 }
 .darkBtn:hover {
-  background-color: #708bf7;
+  background-color: #108cee;
 }
 .textBtn {
   color: #606266;

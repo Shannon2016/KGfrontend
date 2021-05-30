@@ -25,7 +25,7 @@ new Vue({
 Vue.prototype.$http = axios
 
 
-axios.defaults.timeout = 500000000000
+// axios.defaults.timeout = 500000000000
 
 /* axios.interceptors.response.use(response => {
   return response

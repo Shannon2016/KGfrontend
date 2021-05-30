@@ -35,7 +35,7 @@
       </span>
     </el-dialog>
     <!-- 上传视频 -->
-    <div class="upload" v-if="isUpload">
+    <!-- <div class="upload" v-if="isUpload">
       <el-card class="box-card" style="text-align: center">
         <div slot="header" class="clearfix">
           <span>文件上传</span>
@@ -72,7 +72,7 @@
           >上传</el-button
         >
       </el-card>
-    </div>
+    </div> -->
     <!--内容块-->
     <el-main>
       <!--顶部-->
@@ -86,6 +86,7 @@
           v-if="resultFlag || graphFlag"
           style="margin-right: 10px"
         ></i>
+        <i class="el-icon-back" v-if="!sourceFlag" @click="backToSource" style="margin-right:10px;"></i>
         视频分类
         <!--<el-button-->
         <!--type="primary"-->
@@ -101,21 +102,64 @@
           size="small"
           @click="isUpload = true"
           v-if="!resultFlag && !graphFlag"
-          >上传文件</el-button> -->
-
+          >上传文件</el-button
+        > -->
+        <el-button
+          class="darkBtn headbutton"
+          size="small"
+          @click="testResult"
+          v-if="!resultFlag"
+          >查看测试结果</el-button
+        >
+        <el-button
+          class="darkBtn headbutton"
+          size="small"
+          @click="modelTest"
+          v-if="!resultFlag"
+          >模型测试</el-button
+        >
         <el-button
           class="blueBtn headbutton"
           size="small"
           @click="loadList"
           v-if="!resultFlag"
-        >加载测试视频</el-button>
+          :disabled="btnDis"
+        >加载测试视频</el-button
+        >
       </div>
       <el-divider></el-divider>
       <!--中心-->
       <!--      列表页-->
       <div class="main" v-if="!resultFlag && !graphFlag">
+        <el-row class="top-tip" v-if="tabDis == 2">
+          <span>请选择分类目录：</span>
+          <el-select
+            v-model="fileIndex"
+            placeholder
+            size="small"
+            style="margin-left: 10px"
+          >
+            <el-option
+              v-for="(item, index) in fileList"
+              :key="index"
+              :label="item"
+              :value="item"
+            ></el-option>
+          </el-select>
+
+          <el-button
+            style="margin-left: 20px"
+            class="blueBtn"
+            size="small"
+            @click="chooseTable"
+          >加载数据</el-button>
+        </el-row>
+
         <div id="matchInfo" v-if="vedioList.length !== 0">
           已有测试数据数量 : {{ vedioList.length }}
+        </div>
+        <div id="matchInfo1" v-if="tabDis == 2 && testSum != 0">
+          该分类下的数据总数 : {{ testSum }}
         </div>
         <!--文书列表-->
         <el-row
@@ -126,10 +170,11 @@
           <el-col :span="12">
             <el-table
               :data="vedioList.slice((curPage - 1) * 10, curPage * 10)"
-              :header-cell-style="{ background: '#EBEEF7', color: '#606266' }"
+              :header-cell-style="{ background: '#F6F7FB', color: '#606266' }"
               height="626"
               style="width: 97%"
               border
+              v-if="tabDis == 1"
             >
               <el-table-column prop="title" label="测试数据"></el-table-column>
               <el-table-column label="浏览" width="80" align="center">
@@ -169,6 +214,52 @@
                 </template>
               </el-table-column> -->
             </el-table>
+            <el-table
+              :data="testData.slice((curPage - 1) * 10, curPage * 10)"
+              :header-cell-style="{ background: '#F6F7FB', color: '#606266' }"
+              height="626"
+              style="width: 97%"
+              border
+              v-if="tabDis == 2"
+            >
+              <el-table-column prop="title1" label="测试数据"></el-table-column>
+              <el-table-column label="浏览" width="80" align="center">
+                <template slot-scope="scope">
+                  <el-button
+                    class="blueBtn"
+                    @click="handleShow1(scope.row)"
+                    type="primary"
+                    plain
+                    size="small"
+                    >浏览</el-button
+                  >
+                </template>
+              </el-table-column>
+              <!-- <el-table-column label="分类" width="80" align="center">
+                <template slot-scope="scope">
+                  <el-button
+                    class="blueBtn"
+                    @click="handleClassify(scope.row)"
+                    type="primary"
+                    plain
+                    size="small"
+                    >分类</el-button
+                  >
+                </template>
+              </el-table-column>
+              <el-table-column label="预测" width="80" align="center">
+                <template slot-scope="scope">
+                  <el-button
+                    class="blueBtn"
+                    @click="handleAnalysis(scope.row)"
+                    type="primary"
+                    plain
+                    size="small"
+                    >预测</el-button
+                  >
+                </template>
+              </el-table-column> -->
+            </el-table>
             <!-- 分页符-->
             <el-pagination
               background
@@ -176,6 +267,15 @@
               :total="vedioList.length"
               :current-page.sync="curPage"
               @current-change="handleCurrentChange"
+              v-if="tabDis == 1"
+            ></el-pagination>
+            <el-pagination
+              background
+              layout="prev, pager, next, jumper"
+              :total="testData.length"
+              :current-page.sync="curPage"
+              @current-change="handleCurrentChange"
+              v-if="tabDis == 2"
             ></el-pagination>
             <!--</el-pagination> -->
           </el-col>
@@ -222,7 +322,7 @@
               :data="
                 resultList.slice((curPageResult - 1) * 10, curPageResult * 10)
               "
-              :header-cell-style="{ background: '#EBEEF7', color: '#606266' }"
+              :header-cell-style="{ background: '#F6F7FB', color: '#606266' }"
               height="626"
               style="width: 97%"
               border
@@ -326,10 +426,21 @@ export default {
       resultFlag: false,
       curPage: 1,
       curPageResult: 1,
+      tabDis: 1,
+      testSum: 0,
+      sourceFlag: true,
+      fileIndex: "",
+      fileList: [
+        "Sea_cloudy",
+        "Sea_night",
+        "Sea_sunny",
+      ],
+      btnDis: false,
       //上传的文件列表
       uploadFileList: [],
       //表格数据 测试集
       vedioList: [],
+      testData: [],
       //选中行
       choosenRow: {},
       //三元组数据
@@ -356,7 +467,7 @@ export default {
       fd.append("video", this.uploadFileList[0].raw)
       console.log(this.uploadFileList)
       this.$http
-        .post("http://192.168.253.219:8000/pic/video_detect_submit", fd, {
+        .post("http://39.102.71.123:30001/pic/video_detect_submit", fd, {
           headers: {
             "Content-Type": "multipart/form-data",
           },
@@ -381,7 +492,7 @@ export default {
       let fd = new FormData();
       fd.append("entity", this.inputEntity);
       this.$http
-        .post("http://192.168.253.219:8000/pic/search_entity", fd, {
+        .post("http://39.102.71.123:30001/pic/search_entity", fd, {
           headers: {
             "Content-Type": "multipart/form-data",
           },
@@ -415,7 +526,7 @@ export default {
     showGraph() {
       this.graphFlag = true;
       this.$http
-        .post("http://192.168.253.219:8000/pic/JSTextJoinKG", {
+        .post("http://39.102.71.123:30001/pic/JSTextJoinKG", {
           headers: {
             "Content-Type": "multipart/form-data",
           },
@@ -428,11 +539,23 @@ export default {
         });
       this.inputEntity = "";
     },
-
+    //返回按钮
+    backToSource() {
+      this.sourceFlag = true;
+      this.tabDis = 1;
+      this.testData = [];
+      this.btnDis = false;
+      this.testSum = 0;
+      this.src = "";
+      this.resultList = [];
+      this.selectTitle = "";
+      this.fileIndex = "";
+    },
+    //加载测试视频
     loadList() {
       this.loadingRes = true;
       this.$http
-        .post("http://192.168.253.219:8000/pic/video_detect", {
+        .post("http://39.102.71.123:30001/pic/video_detect", {
           headers: {
             "Content-Type": "multipart/form-data",
           },
@@ -451,20 +574,97 @@ export default {
           this.loadingRes = false;
         });
     },
+    //模型测试
+    modelTest() {
+      this.loadingRes = true;
+      this.$http
+        .post("http://39.102.71.123:30001/pic/video_detect_classification_all", {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        })
+        .then((res) => {
+          console.log(res)
+          this.loadingRes = false;
+          this.$alert(
+            "<p><strong>视频总数量： <i>" +
+            res.data[0] +
+            "</i> 个</strong></p>" +
+            "<p><strong>视频分类正确数量： <i>" +
+            res.data[1] +
+            "</i> 个</strong></p>" +
+            "<p><strong>视频分类错误数量： <i>" +
+            res.data[2] +
+            "</i> 个</strong></p>" +
+            "<p><strong>视频分类准确率： <i>" +
+            res.data[3] +
+            "</i> %</strong></p>" ,
+            "模型测试结果",
+            {
+              dangerouslyUseHTMLString: true
+            }
+          );
+        })
+        .catch((res) => {
+          console.log(res);
+          alert("出错了！");
+          this.loadingRes = false;
+        });
+    },
+    //查看测试结果
+    testResult() {
+      this.sourceFlag = false;
+      this.tabDis = 2;
+      this.src = "";
+      this.vedioList = [];
+      this.btnDis = true;
+    },
+    //加载数据
+    chooseTable() {
+      console.log(this.fileIndex);
+      if(this.fileIndex != "") {
+        let fd = new FormData();
+        fd.append("classfication",this.fileIndex);
+        this.$http
+          .post("http://39.102.71.123:30001/pic/video_detect_classification_results_1", fd, {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          })
+          .then(res => {
+            console.log("res",res);
+            this.testSum = res.data[1];
+            this.testData = res.data[0].map(cur => {
+              return { title1: cur }
+            });
+            this.fullscreenLoading = false;
+          })
+          .catch(error => {
+            console.log(error);
+            alert("出错了！");
+            this.fullscreenLoading = false;
+          })
+      }else if(this.fileIndex == "") {
+        this.$message({
+          message: "请先选择分类！",
+          type: "warning"
+        })
+      }
+    },
     handleCurrentChange(cpage) {
       this.curPage = cpage;
     },
     handleCurrentChangeResult(cpage) {
       this.curPageResult = cpage;
     },
-    //查看视频内容
+    //查看视频内容 浏览
     handleShow(row) {
       this.selectTitle = row.title;
       let fd = new FormData();
       fd.append("filename", row.title);
       this.loadingRes = true;
       this.$http
-        .post("http://192.168.253.219:8000/pic/video_detect_view", fd, {
+        .post("http://39.102.71.123:30001/pic/video_detect_view", fd, {
           headers: {
             "Content-Type": "multipart/form-data",
           },
@@ -479,6 +679,29 @@ export default {
           this.loadingRes = false;
         });
     },
+    //浏览
+    handleShow1(row){
+      console.log("row:",row);
+      this.loadingRes = true;
+      this.selectTitle = row.title1;
+      let fd = new FormData();
+      fd.append("filename",row.title1);
+      this.$http
+        .post("http://39.102.71.123:30001/pic/video_detect_classification_results_2", fd, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        })
+        .then(res => {
+          console.log("res.data",res.data);
+          this.src = res.data;
+          this.loadingRes = false;
+        })
+        .catch(error => {
+          console.log(error);
+          this.loadingRes = false;
+        })
+    },
     handleClassify(row) {
       this.loadingRes = true;
       this.selectTitle = row.title;
@@ -486,7 +709,7 @@ export default {
       fd.append("filename", row.title);
       //   this.loadingRes = true;
       this.$http
-        .post("http://192.168.253.219:8000/pic/video_detect_classification", fd, {
+        .post("http://39.102.71.123:30001/pic/video_detect_classification", fd, {
           headers: {
             "Content-Type": "multipart/form-data",
           },
@@ -509,7 +732,7 @@ export default {
       fd.append("filename", row.title);
       this.loadingRes = true;
       this.$http
-        .post("http://192.168.253.219:8000/pic/video_detect_predict", fd, {
+        .post("http://39.102.71.123:30001/pic/video_detect_predict", fd, {
           headers: {
             "Content-Type": "multipart/form-data",
           },
@@ -554,7 +777,7 @@ body > .el-container {
 }
 .el-aside {
   background-color: #343643;
-  min-height: calc(100% - 60px);
+  min-height: calc(100% - 0px);
 }
 .el-main {
   background-color: #e9eef3;
@@ -583,9 +806,9 @@ body > .el-container {
   height: 20px;
   line-height: 20px;
   text-align: left;
-  margin-left: 20px;
-  font-weight: bold;
-  font-size: large;
+  margin: 20px 0 0 20px;
+  /* font-weight: bold; */
+  /* font-size: 1.17em; */
 }
 .headbutton {
   float: right;
@@ -656,30 +879,30 @@ body > .el-container {
 /***********按钮样式***********/
 .blueBtn {
   background-color: #eff0ff;
-  border: 1px solid #5775fb;
+  border: 1px solid #108cee;
   color: #5775fb;
 }
 
 .blueBtn:hover,
 .blueBtn:active,
 .blueBtn:focus {
-  background-color: #5775fb;
+  background-color: #108cee;
   color: #ffffff;
 }
 
 .darkBtn {
-  background-color: #5775fb;
-  border: 1px solid #5775fb;
+  background-color: #108cee;
+  border: 1px solid #108cee;
   color: #ffffff;
 }
 .darkBtn:hover {
-  background-color: #708bf7;
+  background-color: #108cee;
 }
 
 .tableHeader {
   height: 55px;
-  width: 100%;
-  background-color: #ebeef7;
+  width: 96.2%;
+  background-color: #f6f7fb;
   color: #606266;
   line-height: 55px;
   padding: 0 10px;
@@ -688,6 +911,16 @@ body > .el-container {
 }
 
 #matchInfo {
+  background-color: #f0f9eb;
+  color: #67c23a;
+  padding: 8px 16px;
+  width: 95%;
+  padding: 8px 16px;
+  border-radius: 10px;
+  margin: 0 0 15px 10px;
+  font-size: 13px;
+}
+#matchInfo1 {
   background-color: #f0f9eb;
   color: #67c23a;
   padding: 8px 16px;

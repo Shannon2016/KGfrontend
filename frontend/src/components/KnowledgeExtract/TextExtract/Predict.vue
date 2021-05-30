@@ -103,7 +103,7 @@
           <el-col :span="12">
             <el-table
               :data="testData.slice((curPageTrain - 1) * 10, curPageTrain * 10)"
-              :header-cell-style="{background:'#EBEEF7',color:'#606266'}"
+              :header-cell-style="{background:'#F6F7FB',color:'#606266'}"
               height="626"
               style="width:97%"
               border
@@ -218,7 +218,11 @@
         //模型列表
         modelIndex: "",
         modelList: [
-          "ckpt_1", "ckpt_2", "ckpt_3", "ckpt_4", "ckpt_5"
+          "军事文本知识抽取模型1", 
+          "军事文本知识抽取模型2", 
+          "军事文本知识抽取模型3", 
+          "军事文本知识抽取模型4", 
+          "军事文本知识抽取模型5"
         ],
         //图谱
         graphWidth:"100%",
@@ -256,7 +260,7 @@
 
         fd.append("filename", this.selectTitle);
         this.$http
-          .post("http://192.168.253.219:8000/pic/text_predict", fd, {
+          .post("http://39.102.71.123:30001/pic/text_predict", fd, {
             headers: {
               "Content-Type": "multipart/form-data"
             }
@@ -310,7 +314,7 @@
         this.textData = "";
         this.fileCountTest = 0;
         this.loadingRes = true;
-        this.$http.post("http://192.168.253.219:8000/pic/click_text_predict", {
+        this.$http.post("http://39.102.71.123:30001/pic/click_text_predict", {
             headers: {
               "Content-Type": "multipart/form-data"
             }
@@ -330,11 +334,12 @@
             this.loadingRes = false;
           });
       },
+      //加载训练模型
       loadModel() {
         let fd = new FormData();
         fd.append("model", this.modelIndex)
         this.$http
-          .post("http://192.168.253.219:8000/pic/loadModel", fd, {
+          .post("http://39.102.71.123:30001/pic/loadModel", fd, {
             headers: {
               "Content-Type": "multipart/form-data"
             }
@@ -373,7 +378,7 @@
         let fd = new FormData();
         fd.append("text", this.uploadFileList[0].raw)
         this.$http
-          .post("http://192.168.253.219:8000/pic/submit_DL_data", fd, {
+          .post("http://39.102.71.123:30001/pic/submit_DL_data", fd, {
             headers: {
               "Content-Type": "multipart/form-data"
             }
@@ -412,7 +417,7 @@
 
         this.loadingRes = true;
         this.$http
-          .post("http://192.168.253.219:8000/pic/view_text_predict", fd, {
+          .post("http://39.102.71.123:30001/pic/view_text_predict", fd, {
             headers: {
               "Content-Type": "multipart/form-data"
             }
@@ -476,7 +481,7 @@
   }
   .el-aside {
     background-color: #343643;
-    min-height: calc(100% - 60px);
+    min-height: calc(100% - 0px);
   }
   .el-main {
     background-color: #e9eef3;
@@ -505,9 +510,9 @@
     height: 20px;
     line-height: 20px;
     text-align: left;
-    margin-left: 20px;
-    font-weight: bold;
-    font-size: large;
+    margin: 20px 0 0 20px;
+    /* font-weight: bold; */
+    /* font-size: 1.17em; */
   }
   .headbutton {
     float: right;
@@ -583,34 +588,34 @@
   /***********按钮样式***********/
   .blueBtn {
     background-color: #eff0ff;
-    border: 1px solid #5775fb;
+    border: 1px solid #108cee;
     color: #5775fb;
   }
 
   .blueBtn:hover,
   .blueBtn:active,
   .blueBtn:focus {
-    background-color: #5775fb;
+    background-color: #108cee;
     color: #ffffff;
   }
 
   .darkBtn {
-    background-color: #5775fb;
-    border: 1px solid #5775fb;
+    background-color: #108cee;
+    border: 1px solid #108cee;
     color: #ffffff;
   }
   .darkBtn:hover {
-    background-color: #708bf7;
+    background-color: #108cee;
   }
 
   .tableHeader {
     height: 55px;
     width: 100%;
-    background-color: #ebeef7;
+    background-color: #f6f7fb;
     color: #606266;
     line-height: 55px;
     padding: 0 10px;
-    font-weight: bold;
+    /* font-weight: bold; */
     font-size: 14px;
   }
 

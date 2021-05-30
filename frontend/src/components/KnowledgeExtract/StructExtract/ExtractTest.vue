@@ -21,18 +21,26 @@
           <el-button
             class="blueBtn"
             @click="chooseTestData"
+            style="margin-left: 10px"
             type="primary"
             plain
             size="small"
           >加载测试数据</el-button>
           <!-- <span style="margin-left:10px;">或</span> -->
 
-          <el-button
+          <!-- <el-button
             class="darkBtn"
             size="small"
             style="float:right; margin-right:20px;"
             @click="calculateAverage"
-          >计算平均结果</el-button>
+          >计算平均结果</el-button> -->
+          <el-button
+            class="darkBtn"
+            size="small"
+            style="float: right;margin-right: 20px;"
+            @click="resultExport"
+            :disabled="exportDis"
+          >结果导出</el-button>
           <el-button
             class="darkBtn"
             size="small"
@@ -82,7 +90,7 @@
         <!--测试数据-->
         <el-table
           :data="tableData.slice((curPage - 1) * 10, curPage * 10)"
-          :header-cell-style="{background:'#EBEEF7',color:'#606266'}"
+          :header-cell-style="{background:'#F6F7FB',color:'#606266'}"
           height="626"
           border
         >
@@ -126,6 +134,7 @@ export default {
   name: "ExtractTest",
   data() {
     return {
+      exportDis: true,
       number: 0,
       numberArr: [],
       numberStr: "",
@@ -133,11 +142,11 @@ export default {
       loadingRes: false,
       testIndex: "",
       TestList: [
-        "contents1",
-        "contents2",
-        "contents3",
-        "contents4",
-        "contents5"
+        "武器装备性能库1",
+        "武器装备性能库2",
+        "武器装备性能库3",
+        "武器装备性能库4",
+        "武器装备性能库5"
       ],
       curPage: 1,
       fileType: false, //true的时候显示映射文件，否则显示测试文件
@@ -156,7 +165,7 @@ export default {
     SettingFile() {
       // this.fileType = true;
       this.settingShow = true;
-      this.$http.post("http://192.168.253.219:8000/pic/viewStructMap",{
+      this.$http.post("http://39.102.71.123:30001/pic/viewStructMap",{
         headers: {
           "Content-Type": "multipart/form-data"
         }
@@ -168,6 +177,7 @@ export default {
         console.log(res)
       })
     },
+    //全选
     checkAll() {
       this.numberArr = [1,this.number];
       this.numberStr = this.numberArr.toString();
@@ -186,17 +196,20 @@ export default {
     },
     //加载测试数据
     chooseTestData() {
+      this.loadingRes = true;
       this.fileType = false;
       this.btnDisable = true;
       let fd = new FormData();
       fd.append("contents", this.testIndex);
       this.$http
-        .post("http://192.168.253.219:8000/pic/viewStructTest", fd, {
+        .post("http://39.102.71.123:30001/pic/viewStructTest", fd, {
           headers: {
             "Content-Type": "multipart/form-data"
           }
         })
         .then(res => {
+          this.loadingRes = false;
+          this.exportDis = true; //结果导出按钮禁用
           this.number = res.data[1].length;
           this.columnNames=[]
           this.columnNames = res.data[0].map(cur => {
@@ -210,21 +223,23 @@ export default {
             return res;
           });
 
-          console.log(this.columnNames)
-          console.log(this.tableData)
+          console.log("this.columnNames", this.columnNames)
+          console.log("this.tableData", this.tableData)
         })
         .catch(res => {
+          this.loadingRes = false;
           console.log(res);
         });
     },
     handleCurrentChange(cpage) {
       this.curPage = cpage;
     },
+    //结构化知识抽取
     extractStruct() {
       this.loadingRes = true
       let fd = new FormData();
       fd.append("contents",this.testIndex);
-      this.$http.post("http://192.168.253.219:8000/pic/structTest",fd,{
+      this.$http.post("http://39.102.71.123:30001/pic/structTest",fd,{
         headers: {
           "Content-Type": "multipart/form-data"
         }
@@ -262,7 +277,7 @@ export default {
         console.log(this.recallSet)
         this.loadingRes = false;
 
-        this.$alert(
+        /* this.$alert(
           "<p><strong>应有实体的数量： <i>" +
           res.data[0] +
           "</i> 个</strong></p>" +
@@ -282,11 +297,47 @@ export default {
           {
             dangerouslyUseHTMLString: true
           }
-        );
+        ); */
+        this.$alert("结构化知识抽取完成！","finish!",{dangerouslyUseHTMLString: true});
+        // this.$notify({
+        //   title: 'finish',
+        //   message: '结构化知识抽取结果',
+        //   type: 'success'
+        // });
+        this.exportDis = false; //结果导出按钮放开
       }).catch((res)=>{
           console.log(res)
         this.loadingRes = false;
       })
+    },
+    //结果导出
+    resultExport() {
+      this.loadingRes = true;
+      let fd = new FormData();
+      fd.append("contents", this.testIndex);
+      this.$http
+        .post("http://39.102.71.123:30001/pic/export_struct_test_results", fd, {
+          headers: {
+            "Content-Type": "multipart/form-data"
+          }
+        })
+        .then(res => {
+          console.log("res.data",res.data);
+
+          const elt = document.createElement("a");
+          elt.setAttribute("href", res.data); //设置文件地址
+          elt.setAttribute("download", "结构化.zip"); //文件名
+          elt.style.display = "none";
+          document.body.appendChild(elt);
+          elt.click();
+          document.body.removeChild(elt);
+
+          this.loadingRes = false;
+        })
+        .catch(error => {
+          console.log(error);
+          this.loadingRes = false;
+        })
     },
     //计算平均结果
     calculateAverage() {
@@ -331,7 +382,7 @@ export default {
 
       // let fd = new FormData();
       // fd.append("ontology", row)
-      // this.$http.post("http://192.168.253.219:8000/pic/functional_dependency",fd, {
+      // this.$http.post("http://39.102.71.123:30001/pic/functional_dependency",fd, {
       //   headers: {
       //     "Content-Type": "multipart/form-data"
       //   }
@@ -374,7 +425,7 @@ body > .el-container {
 }
 .el-aside {
   background-color: #343643;
-  min-height: calc(100% - 60px);
+  min-height: calc(100% - 0px);
 }
 .el-main {
   background-color: #e9eef3;
@@ -400,9 +451,9 @@ body > .el-container {
   height: 20px;
   line-height: 20px;
   text-align: left;
-  margin-left: 20px;
-  font-weight: bold;
-  font-size: large;
+  margin: 20px 0 0 20px;
+  /* font-weight: bold; */
+  /* font-size: 1.17em; */
 }
 .headbutton {
   float: right;
@@ -470,23 +521,23 @@ body > .el-container {
 /***********按钮样式***********/
 .blueBtn {
   background-color: #eff0ff;
-  border: 1px solid #5775fb;
+  border: 1px solid #108cee;
   color: #5775fb;
 }
 
 .blueBtn:hover,
 .blueBtn:active,
 .blueBtn:focus {
-  background-color: #5775fb;
+  background-color: #108cee;
   color: #ffffff;
 }
 
 .darkBtn {
-  background-color: #5775fb;
-  border: 1px solid #5775fb;
+  background-color: #108cee;
+  border: 1px solid #108cee;
   color: #ffffff;
 }
 .darkBtn:hover {
-  background-color: #708bf7;
+  background-color: #108cee;
 }
 </style>

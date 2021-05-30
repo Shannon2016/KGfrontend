@@ -76,7 +76,7 @@
         <!--结构化数据列表-->
         <el-table
           :data="tableData.slice((curPage - 1) * 10, curPage * 10)"
-          :header-cell-style="{background:'#EBEEF7',color:'#606266'}"
+          :header-cell-style="{background:'#F6F7FB',color:'#606266'}"
           height="626"
           border
           v-loading="loadingRes"
@@ -137,7 +137,7 @@
       return {
         loadingRes:false,
         sourceIndex:"",
-        sourceList:["structData", "structData2","structData3"],
+        sourceList:["海战场装备性能库1", "海战场装备性能库2","海战场装备性能库3"],
         sourceFlag:true,
         isList:true,
         fileCount:0,
@@ -175,7 +175,7 @@
       chooseSource() {
         let fd = new FormData()
         fd.append("source", this.sourceIndex)
-        this.$http.post("http://192.168.253.219:8000/pic/struct_data_source",fd,
+        this.$http.post("http://39.102.71.123:30001/pic/struct_data_source",fd,
           {
             headers: {
               'Content-Type': 'multipart/form-data'
@@ -199,7 +199,7 @@
         fd.append('table',this.tableIndex)
         fd.append("source", this.sourceIndex);
         this.$http.post(
-          'http://192.168.253.219:8000/pic/view_structData',fd,
+          'http://39.102.71.123:30001/pic/view_structData',fd,
           {
             headers: {
               'Content-Type': 'multipart/form-data'
@@ -250,7 +250,7 @@
         console.log(this.sourceIndex,this.uploadForm.tableName,this.uploadForm.keyName)
         console.log(this.fileList[0].raw)
         this.$http.post(
-          'http://192.168.253.219:8000/pic/submit_struct_data', fd,
+          'http://39.102.71.123:30001/pic/submit_struct_data', fd,
           {
             headers: {
               'Content-Type': 'multipart/form-data'
@@ -259,7 +259,7 @@
             console.log(res)
           let ffd = new FormData()
           ffd.append("source", this.sourceIndex)
-          this.$http.post("http://192.168.253.219:8000/pic/struct_data_source",ffd,
+          this.$http.post("http://39.102.71.123:30001/pic/struct_data_source",ffd,
             {
               headers: {
                 'Content-Type': 'multipart/form-data'
@@ -296,7 +296,7 @@
       },
       showGraph(){
         this.$http.post(
-          'http://192.168.253.219:8000/pic/struct_extract',
+          'http://39.102.71.123:30001/pic/struct_extract',
           {
             headers: {
               'Content-Type': 'multipart/form-data'
@@ -468,7 +468,7 @@
   }
   .el-aside {
     background-color: #343643;
-    min-height: calc(100% - 60px);
+    min-height: calc(100% - 0px);
   }
   .el-main {
     background-color: #E9EEF3;
@@ -494,9 +494,9 @@
     height: 20px;
     line-height: 20px;
     text-align: left;
-    margin-left: 20px;
-    font-weight: bold;
-    font-size: large;
+    margin: 20px 0 0 20px;
+    /* font-weight: bold; */
+    /* font-size: 1.17em; */
   }
   .headbutton{
     float: right;
@@ -562,22 +562,22 @@
   /***********按钮样式***********/
   .blueBtn{
     background-color: #EFF0FF;
-    border: 1px solid #5775FB;
+    border: 1px solid #108cee;
     color: #5775FB;
   }
 
   .blueBtn:hover,.blueBtn:active, .blueBtn:focus{
-    background-color: #5775FB;
+    background-color: #108cee;
     color: #FFFFFF;
   }
 
   .darkBtn{
-    background-color: #5775FB;
-    border: 1px solid #5775FB;
+    background-color: #108cee;
+    border: 1px solid #108cee;
     color: #FFFFFF;
   }
   .darkBtn:hover{
-    background-color: #708BF7;
+    background-color: #108cee;
   }
   .el-table >>> .el-table__body-wrapper{
     overflow: auto !important;

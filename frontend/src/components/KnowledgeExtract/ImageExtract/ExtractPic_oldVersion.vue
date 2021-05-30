@@ -122,7 +122,7 @@
         if(obj.hasOwnProperty("source"))//links
         {
           //obj.source+obj.name+obj.target 头节点、关系、尾节点
-          // this.$http.get('http://192.168.253.219:8000/search_entity?head='+obj.source+"&relation="+obj.name+"&tail="+obj.target).then(
+          // this.$http.get('http://39.102.71.123:30001/search_entity?head='+obj.source+"&relation="+obj.name+"&tail="+obj.target).then(
           //   (res) => {
           //   })
           alert("1");
@@ -130,7 +130,7 @@
         else //points
         {
           //实体名为obj.name
-          // this.$http.get('http://192.168.253.219:8000/search_entity?entity='+obj.name).then((res) => {
+          // this.$http.get('http://39.102.71.123:30001/search_entity?entity='+obj.name).then((res) => {
           // })
           alert("2");
         }
@@ -141,7 +141,7 @@
         let fd = new FormData();
         for(let i=0;i<this.uploadList.length;i++)
           fd.append('pic',this.uploadList[i].raw)
-        this.$http.post('http://192.168.253.219:8000/pic/pic_extract',fd,
+        this.$http.post('http://39.102.71.123:30001/pic/pic_extract',fd,
           {
             headers: {'Content-Type': 'multipart/form-data'}
           }).then((res) => {
@@ -321,7 +321,7 @@
   }
   .el-aside {
     background-color: #343643;
-    min-height: calc(100% - 60px);
+    min-height: calc(100% - 0px);
   }
   .el-main {
     background-color: #E9EEF3;
@@ -350,9 +350,9 @@
     height: 20px;
     line-height: 20px;
     text-align: left;
-    margin-left: 20px;
+    margin: 20px 0 0 20px;
     font-weight: bold;
-    font-size: large;
+    /* font-size: 1.17em; */
   }
   .headbutton{
     float: right;
@@ -424,22 +424,22 @@
   .blueBtn{
     margin-left: 5%;
     background-color: #EFF0FF;
-    border: 1px solid #5775FB;
+    border: 1px solid #108cee;
     color: #5775FB;
   }
 
   .blueBtn:hover,.blueBtn:active, .blueBtn:focus{
-    background-color: #5775FB;
+    background-color: #108cee;
     color: #FFFFFF;
   }
 
   .darkBtn{
-    background-color: #5775FB;
-    border: 1px solid #5775FB;
+    background-color: #108cee;
+    border: 1px solid #108cee;
     color: #FFFFFF;
   }
   .darkBtn:hover{
-    background-color: #708BF7;
+    background-color: #108cee;
   }
   /*图片及echarts样式*/
   .resultContainer{
@@ -472,7 +472,7 @@
   .title{
     /* text-align: center; */
     font-weight: bold;
-    font-size: large;
+    /* font-size: 1.17em; */
     /* padding-bottom: 30px; */
   }
 

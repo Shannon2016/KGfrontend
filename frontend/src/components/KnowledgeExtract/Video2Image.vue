@@ -1,7 +1,7 @@
 <template>
   <el-container>
     <!--内容块-->
-    <el-main>
+    <el-main style="padding: -20px">
       <!--顶部-->
       <div class="header">
         视频转换为图像
@@ -180,7 +180,7 @@ export default {
       let fd = new FormData();
       fd.append("video", this.uploadList[0].raw);
       this.$http
-        .post("http://192.168.253.219:8000/pic/video2pic_open_video", fd, {
+        .post("http://39.102.71.123:30001/pic/video2pic_open_video", fd, {
           headers: {
             "Content-Type": "multipart/form-data",
           },
@@ -223,7 +223,7 @@ export default {
       let fd = new FormData()
       fd.append('filename',this.fileName)
       this.$http.post(
-        'http://192.168.253.219:8000/pic/video2pic',fd,
+        'http://39.102.71.123:30001/pic/video2pic',fd,
         {
           headers: {
             'Content-Type': 'multipart/form-data'
@@ -269,7 +269,7 @@ body > .el-container {
 }
 .el-aside {
   background-color: #343643;
-  min-height: calc(100% - 60px);
+  min-height: calc(100% - 0px);
 }
 .el-main {
   background-color: #e9eef3;
@@ -299,9 +299,9 @@ body > .el-container {
   height: 20px;
   line-height: 20px;
   text-align: left;
-  margin-left: 20px;
-  font-weight: bold;
-  font-size: large;
+  margin: 20px 0 0 20px;
+  /* font-weight: bold; */
+  /* font-size: 1.17em; */
 }
 .headbutton {
   float: right;
@@ -372,7 +372,7 @@ body > .el-container {
 /***********按钮样式***********/
 .blueBtn {
   background-color: #eff0ff;
-  border: 1px solid #5775fb;
+  border: 1px solid #108cee;
   color: #5775fb;
   height: 32px;
   margin-right: 20px;
@@ -381,17 +381,17 @@ body > .el-container {
 .blueBtn:hover,
 .blueBtn:active,
 .blueBtn:focus {
-  background-color: #5775fb;
+  background-color: #108cee;
   color: #ffffff;
 }
 
 .darkBtn {
-  background-color: #5775fb;
-  border: 1px solid #5775fb;
+  background-color: #108cee;
+  border: 1px solid #108cee;
   color: #ffffff;
 }
 .darkBtn:hover {
-  background-color: #708bf7;
+  background-color: #108cee;
 }
 /*视频及echarts样式*/
 .resultContainer {
@@ -423,7 +423,7 @@ body > .el-container {
 .title {
   text-align: left;
   font-weight: bold;
-  font-size: large;
+  /* font-size: 1.17em; */
   padding-bottom: 30px;
 }
 
